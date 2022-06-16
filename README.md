@@ -11,7 +11,9 @@
 
 # 3、运行
 ## 3.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
-> keytool -genkey -alias test1 -keyalg RSA -keysize 1024 -validity 3650 -keypass 123456 -storepass 123456 -keystore  "./test.jks"
+```shell
+keytool -genkey -alias test1 -keyalg RSA -keysize 1024 -validity 3650 -keypass 123456 -storepass 123456 -keystore  "./test.jks"
+```
 
 ## 3.2、修改服务端配置（application.yml）
 ```yml
@@ -49,7 +51,7 @@ proxy:
 > fun.asgc.neutrino.proxy.server.ProxyServer
 
 ## 3.4、修改客户端配置
-```
+```yml
 application:
   name: neutrino-proxy-client
 
