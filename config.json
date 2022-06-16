@@ -1,0 +1,18 @@
+{
+    "environment": "我的Mac",
+    "clientKey": "79419a1a8691413aa5e845b9e3e90051",
+    "proxy": [
+        {
+            "serverPort": 9100,
+            "clientInfo": "127.0.0.1:3306"
+        },
+        {
+            "serverPort": 9101,
+            "clientInfo": "rm-uf63ggkfh7zrr08vw.mysql.rds.aliyuncs.com:3306"
+        },
+        {
+            "serverPort": 9102,
+            "clientInfo": "127.0.0.1:8080"
+        }
+    ]
+}
