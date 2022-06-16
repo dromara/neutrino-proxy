@@ -1,0 +1,19 @@
+server:
+  name: neutrino-configuration
+  port: 8080
+a: 1
+b: hello
+c:
+  d:
+    e: 1
+    f: 2
+    g: ab
+    h:
+      - 1
+      - 2
+      - 3
+      - aaa
+    i:
+      - 10
+      - 20
+      - 30

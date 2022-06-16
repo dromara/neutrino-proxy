@@ -1,0 +1,22 @@
+application:
+  name: neutrino-proxy-server
+
+proxy:
+  protocol:
+    max-frame-length: 2097152
+    length-field-offset: 0
+    length-field-length: 4
+    initial-bytes-to-strip: 0
+    length-adjustment: 0
+    read-idle-time: 60
+    write-idle-time: 40
+    all-idle-time-seconds: 0
+  server:
+    port: 9000
+    ssl-port: 9002
+    key-store-password: 123456
+    key-manager-password: 123456
+    jks-path: classpath:/test.jks
+  license:
+    79419a1a8691413aa5e845b9e3e90051: 3
+    9352b1c25f564c81a5677131d7769876: 2
