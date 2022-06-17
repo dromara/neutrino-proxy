@@ -25,13 +25,12 @@ package fun.asgc.neutrino.core.util;
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
-import fun.asgc.neutrino.core.constant.TypeNotMatchingValueConstant;
+import fun.asgc.neutrino.core.type.TypeDistance;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -208,18 +207,18 @@ public class ReflectUtil {
 			if (methodOptional.isPresent()) {
 				return methodOptional.get();
 			}
-			int level = TypeNotMatchingValueConstant.MAX;
+			int level = TypeDistance.MAX;
 			Method method = null;
 			for (Method m : getMethods(field.getDeclaringClass())) {
 				if (m.getName().equals(setMethodName) && m.getParameters().length == 1) {
-					int curLevel = TypeUtil.typeMatch(m.getParameterTypes()[0], field.getType()).getNotMatchingValue();
+					int curLevel = TypeUtil.typeMatch(m.getParameterTypes()[0], field.getType()).getTypeDistance();
 					if (curLevel < level) {
 						level = curLevel;
 						method = m;
 					}
 				}
 			}
-			if (level < TypeNotMatchingValueConstant.MAX && method != null) {
+			if (level < TypeDistance.MAX && method != null) {
 				return method;
 			}
 			return null;

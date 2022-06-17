@@ -19,46 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package fun.asgc.neutrino.core.util;
-
-import fun.asgc.neutrino.core.constant.TypeNotMatchingValueConstant;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package fun.asgc.neutrino.core.type;
 
 /**
- *
+ * 类型转换器
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/6/17
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class TypeMatchingInfo {
-
+@FunctionalInterface
+public interface TypeConverter {
 	/**
-	 * 字段类型
+	 * 类型转换
+	 * @param value
+	 * @param targetType
+	 * @return
 	 */
-	private Class<?> fieldType;
-
-	/**
-	 * 值类型
-	 */
-	private Class<?> valueType;
-
-	/**
-	 * 不匹配值
-	 */
-	private Integer notMatchingValue;
-
-	public TypeMatchingInfo(Class<?> fieldType, Class<?> valueType) {
-		this.fieldType = fieldType;
-		this.valueType = valueType;
-		this.notMatchingValue = TypeNotMatchingValueConstant.NOT;
-	}
-
-	public boolean isNotMatch() {
-		return TypeNotMatchingValueConstant.NOT == notMatchingValue;
-	}
+	Object convert(Object value, Class<?> targetType);
 }
