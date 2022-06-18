@@ -12,10 +12,14 @@
  */
 package fun.asgc.neutrino.core.util;
 
+import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.type.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -80,6 +84,7 @@ public class TypeUtilTest {
 		System.out.println(typeMatchers.conversion(null, Float.class));
 		System.out.println(typeMatchers.conversion(null, Double.class));
 		System.out.println(typeMatchers.conversion(null, String.class));
+		System.out.println(typeMatchers.conversion(null, List.class));
 
 		System.out.println(typeMatchers.conversion(null, Animal.class));
 		System.out.println(typeMatchers.conversion(null, Cat.class));
@@ -107,6 +112,19 @@ public class TypeUtilTest {
 
 		System.out.println(typeMatchers.conversion("aabb", Animal.class));
 		System.out.println(typeMatchers.conversion("aabb:10", Cat.class));
+
+		System.out.println(typeMatchers.conversion(new String[]{"11","22","33","22"}, List.class));
+		System.out.println(typeMatchers.conversion(new Integer[]{10, 20, 30,20}, List.class));
+		System.out.println(typeMatchers.conversion(new Boolean[]{true, true, false}, List.class));
+		System.out.println(typeMatchers.conversion(new Animal[]{new Animal("aa"), new Animal("bb"), new Animal("cc"),}, List.class));
+
+
+		System.out.println(typeMatchers.conversion(Lists.newArrayList("11","22","33","22"), Object[].class));
+
+		System.out.println(typeMatchers.conversion(new String[]{"11","22","33","22"}, Set.class));
+		System.out.println(typeMatchers.conversion(new Integer[]{10, 20, 30,20}, Set.class));
+		System.out.println(typeMatchers.conversion(new Boolean[]{true, true, false}, Set.class));
+
 	}
 
 	@Test
@@ -130,6 +148,7 @@ public class TypeUtilTest {
 		System.out.println(typeMatchers.conversion(114, Float.class));
 		System.out.println(typeMatchers.conversion(115, Double.class));
 		System.out.println(typeMatchers.conversion(116, String.class));
+		System.out.println(typeMatchers.conversion(200, List.class));
 
 		System.out.println(typeMatchers.conversion(117, Animal.class));
 		System.out.println(typeMatchers.conversion(118, Cat.class));
@@ -140,6 +159,12 @@ public class TypeUtilTest {
 	@Data
 	public static class Animal {
 		private String name;
+		public Animal() {
+
+		}
+		public Animal(String name) {
+			this.name = name;
+		}
 	}
 
 	@Accessors(chain = true)

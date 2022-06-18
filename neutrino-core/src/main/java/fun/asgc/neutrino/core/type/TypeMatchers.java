@@ -18,6 +18,9 @@ import fun.asgc.neutrino.core.util.TypeUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -176,6 +179,55 @@ public class TypeMatchers {
 				return matchInfo;
 			}
 		});
+		// Object[] -> List
+		extensionMatcherList.add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (List.class == targetClass && clazz.isArray()) {
+					matchInfo.setTypeDistance(TypeMatchLevel.EXTENSION.getDistanceMin() + 40);
+					matchInfo.setTypeConverter(((value, targetType) -> Stream.of((Object[])value).collect(Collectors.toList())));
+				}
+				return matchInfo;
+			}
+		});
+		// List -> Object[]
+		extensionMatcherList.add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (List.class.isAssignableFrom(clazz) && targetClass.isArray()) {
+					matchInfo.setTypeDistance(TypeMatchLevel.EXTENSION.getDistanceMin() + 50);
+					matchInfo.setTypeConverter((value, targetType) -> ((List)value).toArray());
+				}
+				return matchInfo;
+			}
+		});
+		// Object[] -> Set
+		extensionMatcherList.add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (Set.class == targetClass && clazz.isArray()) {
+					matchInfo.setTypeDistance(TypeMatchLevel.EXTENSION.getDistanceMin() + 60);
+					matchInfo.setTypeConverter(((value, targetType) -> Stream.of((Object[])value).collect(Collectors.toSet())));
+				}
+				return matchInfo;
+			}
+		});
+		// Set -> Object[]
+		extensionMatcherList.add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (Set.class.isAssignableFrom(clazz) && targetClass.isArray()) {
+					matchInfo.setTypeDistance(TypeMatchLevel.EXTENSION.getDistanceMin() + 70);
+					matchInfo.setTypeConverter((value, targetType) -> ((Set)value).toArray());
+				}
+				return matchInfo;
+			}
+		});
+
 	}
 
 	/**

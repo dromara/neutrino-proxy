@@ -27,7 +27,6 @@ import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatchers;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -476,119 +475,7 @@ public class TypeUtil {
 	public static TypeMatchInfo typeMatch(Class<?> fieldType, Class<?> valueType) {
 		Assert.notNull(fieldType, "字段类型不能为空！");
 		Assert.notNull(valueType, "值类型不能为空！");
-
-//		// 1、完全匹配
-//		if (fieldType == valueType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.PERFECT);
-//		}
-//		// 2、包装匹配
-//		if (isStrictBasicType(valueType) && getWrapType(valueType) == fieldType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.PACKING);
-//		}
-//		// 3、解包装匹配
-//		if (isStrictBasicType(fieldType) && getWrapType(fieldType) == valueType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.UNPACKING);
-//		}
-//		// 4、类型提升
-//		if (isNormalBasicType(fieldType) && isNormalBasicType(valueType)) {
-//			int index1 = basicTypeList.indexOf(fieldType);
-//			int index2 = basicTypeList.indexOf(valueType);
-//			if (index1 > index2 && index2 > 0) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.ASCENSION_MIN + (index1 - index2) - 1);
-//			}
-//		}
-//		// 5、超类匹配
-//		if (fieldType.isAssignableFrom(valueType)) {
-//			int inheritLevel = getInheritLevel(fieldType, valueType);
-//			if (-1 == inheritLevel) {
-//				throw new RuntimeException(String.format("超类匹配异常! fieldType:%s valueType:%s", fieldType.getName(), valueType.getName()));
-//			}
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.SUPER_MIN + inheritLevel - 1);
-//		}
-//		// 6、自定义转换
-//		if (fieldType == Date.class || fieldType == java.sql.Date.class) {
-//			if (valueType == long.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN);
-//			} else if (valueType == long.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 1);
-//			}
-//		}
-//		if (fieldType == Long.class || fieldType == long.class) {
-//			if (valueType == Date.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 1000);
-//			} else if (valueType == java.sql.Date.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 1001);
-//			}
-//		}
-//		if (fieldType == String.class) {
-//			if (valueType == char.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 2000);
-//			} else if (valueType == Character.class) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 2001);
-//			} else if (Number.class.isAssignableFrom(valueType)) {
-//				return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 2002);
-//			}
-//		}
-//		if (Iterable.class.isAssignableFrom(fieldType) && Iterable.class.isAssignableFrom(valueType)) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 3000);
-//		}
-//		if (Iterable.class.isAssignableFrom(fieldType) && String[].class == valueType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 4000);
-//		}
-//		if (Iterable.class.isAssignableFrom(valueType) && String[].class == fieldType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 5000);
-//		}
-//		if (Iterable.class.isAssignableFrom(fieldType) && Integer[].class == valueType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 6000);
-//		}
-//		if (Iterable.class.isAssignableFrom(valueType) && Integer[].class == fieldType) {
-//			return new TypeMatchInfo(fieldType, valueType, TypeDistance.CUSTOM_MIN + 7000);
-//		}
-
 		return new TypeMatchInfo(fieldType, valueType, null);
-	}
-
-	/**
-	 * 类型提升
-	 * @param value
-	 * @param clazz
-	 * @return
-	 */
-	public static Object ascensionType(Object value, Class<?> clazz) {
-		Class<?> valueType = value.getClass();
-		int index1 = basicTypeList.indexOf(valueType);
-		int index2 = basicTypeList.indexOf(clazz);
-		if (-1 == index1 || -1 == index2 || index1 >= index2) {
-			return value;
-		}
-		if (getWrapType(valueType) == clazz || getWrapType(clazz) == valueType) {
-			return value;
-		}
-		if (isChar(clazz)) {
-			return value;
-		}
-		String strValue;
-		if (isBoolean(valueType)) {
-			strValue = ((Boolean)value) ? "0" : "1";
-		} else if (isChar(valueType)){
-			strValue = (int)((Character)value) + "";
-		} else {
-			strValue = String.valueOf(value);
-		}
-		if (isBoolean(clazz)) {
-			return "0".equals(strValue);
-		}
-		Method method = ReflectUtil.getValueOfMethod(clazz, String.class);
-		if (null == method) {
-			return value;
-		}
-
-		try {
-			return method.invoke(null, strValue);
-		} catch (Exception e) {
-			// ignore
-		}
-		return value;
 	}
 
 	/**
@@ -600,63 +487,4 @@ public class TypeUtil {
 	public static Object conversion(Object value, Class<?> targetType) {
 		return defaultTypeMatchers.conversion(value, targetType);
 	}
-
-//	/**
-//	 * 类型转换
-//	 * @param value
-//	 * @param targetType
-//	 * @return
-//	 */
-//	public static Object conversion(Object value, Class<?> targetType) {
-//		Assert.notNull(targetType, "目标类型不能为空！");
-//		if (null == value) {
-//			return null;
-//		}
-//		Class<?> valueType = value.getClass();
-//		TypeMatchInfo matchingInfo = typeMatch(targetType, valueType);
-//		if (matchingInfo.isNotMatch()) {
-//			return null;
-//		}
-//		// 类型提升
-//		if (matchingInfo.getTypeDistance() <= TypeDistance.ASCENSION_MAX) {
-//			return TypeUtil.ascensionType(value, targetType);
-//		}
-//		// 超类
-//		if (matchingInfo.getTypeDistance() <= TypeDistance.SUPER_MAX) {
-//			return value;
-//		}
-//		if (matchingInfo.getTypeDistance() >= TypeDistance.CUSTOM_MIN && matchingInfo.getTypeDistance() <= TypeDistance.CUSTOM_MAX) {
-//			// 自定义转换
-//			if (targetType == Date.class) {
-//				if (valueType == long.class || value == Long.class) {
-//					return new Date((Long) value);
-//				}
-//			} else if (targetType == java.sql.Date.class) {
-//				if (valueType == long.class || value == Long.class) {
-//					return new java.sql.Date((Long) value);
-//				}
-//			} else if (targetType == Long.class || targetType == long.class) {
-//				if (valueType == java.sql.Date.class || valueType == Date.class) {
-//					return ((Date) value).getTime();
-//				}
-//			} else if (targetType == String.class) {
-//				if (valueType == char.class || valueType == Character.class || Number.class.isAssignableFrom(valueType)) {
-//					return String.valueOf(value);
-//				}
-//			} else if (Iterable.class.isAssignableFrom(targetType) && Iterable.class.isAssignableFrom(valueType)) {
-//				if (Set.class.isAssignableFrom(targetType)) {
-//					return Sets.newHashSet((Iterable) value);
-//				}
-//			} else if (Iterable.class.isAssignableFrom(valueType) && String[].class == targetType) {
-//				if (List.class.isAssignableFrom(valueType)) {
-//					return ((List<Object>) value).stream().map(String::valueOf).collect(Collectors.toList()).toArray(new String[]{});
-//				}
-//			} else if (Iterable.class.isAssignableFrom(valueType) && Integer[].class == targetType) {
-//				if (List.class.isAssignableFrom(valueType)) {
-//					return ((List<Object>) value).stream().map(String::valueOf).map(Integer::valueOf).collect(Collectors.toList()).toArray(new Integer[]{});
-//				}
-//			}
-//		}
-//		return null;
-//	}
 }
