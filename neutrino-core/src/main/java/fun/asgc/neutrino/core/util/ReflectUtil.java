@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,11 +41,11 @@ import java.util.stream.Stream;
  */
 public class ReflectUtil {
 
-	private static Cache<Class<?>, Field[]> fieldsCache = new MemoryCache<>();
-	private static Cache<Class<?>, Field[]> declaredFieldsCache = new MemoryCache<>();
+	private static Cache<Class<?>, Set<Field>> fieldsCache = new MemoryCache<>();
+	private static Cache<Class<?>, Set<Field>> declaredFieldsCache = new MemoryCache<>();
 	private static Cache<Class<?>, Set<Field>> inheritChainDeclaredFieldSetCache = new MemoryCache<>();
-	private static Cache<Class<?>, Method[]> methodsCache = new MemoryCache<>();
-	private static Cache<Class<?>, Method[]> declaredMethodsCache = new MemoryCache<>();
+	private static Cache<Class<?>, Set<Method>> methodsCache = new MemoryCache<>();
+	private static Cache<Class<?>, Set<Method>> declaredMethodsCache = new MemoryCache<>();
 	private static Cache<Field,Method> getMethodCache = new MemoryCache<>();
 	private static Cache<Field,Method> setMethodCache = new MemoryCache<>();
 
@@ -53,8 +54,15 @@ public class ReflectUtil {
 	 * @param clazz
 	 * @return
 	 */
-	public static Field[] getFields(Class<?> clazz) {
-		return kvProcess(fieldsCache, clazz, c -> c.getFields());
+	public static Set<Field> getFields(Class<?> clazz) {
+		return kvProcess(fieldsCache, clazz, c -> {
+			Field[] fields = c.getFields();
+			Set<Field> fieldSet = new HashSet<>();
+			if (ArrayUtil.notEmpty(fields)) {
+				fieldSet = Stream.of(fields).collect(Collectors.toSet());
+			}
+			return fieldSet;
+		});
 	}
 
 	/**
@@ -62,8 +70,15 @@ public class ReflectUtil {
 	 * @param clazz
 	 * @return
 	 */
-	public static Field[] getDeclaredFields(Class<?> clazz) {
-		return kvProcess(declaredFieldsCache, clazz, c -> c.getDeclaredFields());
+	public static Set<Field> getDeclaredFields(Class<?> clazz) {
+		return kvProcess(declaredFieldsCache, clazz, c -> {
+			Field[] fields = c.getDeclaredFields();
+			Set<Field> fieldSet = new HashSet<>();
+			if (ArrayUtil.notEmpty(fields)) {
+				fieldSet = Stream.of(fields).collect(Collectors.toSet());
+			}
+			return fieldSet;
+		});
 	}
 
 	/**
@@ -88,8 +103,8 @@ public class ReflectUtil {
 				Set<Field> set = new HashSet<>();
 				Set<Class<?>> ignores = null == ignoreClasses ? new HashSet<>() : ignoreClasses;
 				while (null != c && !ignores.contains(c)) {
-					Field[] fields = getDeclaredFields(c);
-					if (null != fields && fields.length > 0) {
+					Set<Field> fields = getDeclaredFields(c);
+					if (CollectionUtil.notEmpty(fields)) {
 						for (Field field : fields) {
 							if (field.getName().equals("this$0") || nameSet.contains(field.getName())) {
 								continue;
@@ -111,8 +126,15 @@ public class ReflectUtil {
 	 * @param clazz
 	 * @return
 	 */
-	public static Method[] getMethods(Class<?> clazz) {
-		return kvProcess(methodsCache, clazz, c -> c.getMethods());
+	public static Set<Method> getMethods(Class<?> clazz) {
+		return kvProcess(methodsCache, clazz, c -> {
+			Method[] methods = c.getMethods();
+			Set<Method> methodSet = new HashSet<>();
+			if (ArrayUtil.notEmpty(methods)) {
+				methodSet = Stream.of(methods).collect(Collectors.toSet());
+			}
+			return methodSet;
+		});
 	}
 
 	/**
@@ -120,8 +142,15 @@ public class ReflectUtil {
 	 * @param clazz
 	 * @return
 	 */
-	public static Method[] getDeclaredMethods(Class<?> clazz) {
-		return kvProcess(declaredMethodsCache, clazz, c -> c.getDeclaredMethods());
+	public static Set<Method> getDeclaredMethods(Class<?> clazz) {
+		return kvProcess(declaredMethodsCache, clazz, c -> {
+			Method[] methods = c.getDeclaredMethods();
+			Set<Method> methodSet = new HashSet<>();
+			if (ArrayUtil.notEmpty(methods)) {
+				methodSet = Stream.of(methods).collect(Collectors.toSet());
+			}
+			return methodSet;
+		});
 	}
 
 	/**
@@ -171,7 +200,7 @@ public class ReflectUtil {
 	public static Method getGetMethod(Field field) {
 		return kvProcess(getMethodCache, field, f -> {
 			String getMethodName = getGetMethodName(field);
-			return Stream.of(getMethods(field.getDeclaringClass()))
+			return getMethods(field.getDeclaringClass()).stream()
 				.filter(method -> method.getName().equals(getMethodName) && method.getParameters().length == 0)
 				.findFirst().get();
 		});
@@ -201,7 +230,7 @@ public class ReflectUtil {
 	public static Method getSetMethod(Field field) {
 		return kvProcess(setMethodCache, field, f -> {
 			String setMethodName = getSetMethodName(field);
-			Optional<Method> methodOptional = Stream.of(getMethods(field.getDeclaringClass()))
+			Optional<Method> methodOptional = getMethods(field.getDeclaringClass()).stream()
 				.filter(method -> method.getName().equals(setMethodName) && method.getParameters().length == 1 && method.getParameterTypes()[0] == field.getType())
 				.findFirst();
 			if (methodOptional.isPresent()) {

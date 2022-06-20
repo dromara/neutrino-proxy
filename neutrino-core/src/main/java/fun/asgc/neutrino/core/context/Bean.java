@@ -67,8 +67,8 @@ public class Bean implements LifeCycle {
 		}
 		isInit = true;
 
-		Method[] methods = ReflectUtil.getMethods(clazz);
-		if (null != methods && methods.length > 0) {
+		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		if (CollectionUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (method.isAnnotationPresent(Init.class) && method.getParameters().length == 0) {
 					try {
@@ -86,8 +86,8 @@ public class Bean implements LifeCycle {
 		if (!hasInstance()) {
 			return;
 		}
-		Method[] methods = ReflectUtil.getMethods(clazz);
-		if (null != methods && methods.length > 0) {
+		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		if (CollectionUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (method.isAnnotationPresent(Destroy.class) && method.getParameters().length == 0) {
 					try {
@@ -131,9 +131,9 @@ public class Bean implements LifeCycle {
 	}
 
 	private void inject(ApplicationContext context) {
-		Method[] methods = ReflectUtil.getMethods(clazz);
-		if (null != methods && methods.length > 0) {
-			Stream.of(methods).forEach(method -> {
+		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		if (CollectionUtil.notEmpty(methods)) {
+			methods.stream().forEach(method -> {
 				fun.asgc.neutrino.core.annotation.Bean bean = method.getAnnotation(fun.asgc.neutrino.core.annotation.Bean.class);
 				if (null == bean) {
 					return;
