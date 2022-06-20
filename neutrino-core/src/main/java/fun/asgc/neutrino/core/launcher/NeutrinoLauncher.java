@@ -126,6 +126,6 @@ public class NeutrinoLauncher {
 		if (StringUtil.notEmpty(banner)) {
 			environment.setBanner(banner);
 		}
-		System.out.println(environment.getBanner());
+		log.info(environment.getBanner());
 	}
 }
