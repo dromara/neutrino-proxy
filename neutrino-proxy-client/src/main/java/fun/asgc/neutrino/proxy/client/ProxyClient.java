@@ -34,7 +34,7 @@ import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
 public class ProxyClient {
 
 	public static void main(String[] args) {
-		NeutrinoLauncher.runSync(ProxyClient.class, args);
+		NeutrinoLauncher.run(ProxyClient.class, args);
 	}
 
 }

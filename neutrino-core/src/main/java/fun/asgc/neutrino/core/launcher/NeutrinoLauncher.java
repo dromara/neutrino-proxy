@@ -40,58 +40,38 @@ import java.lang.management.ManagementFactory;
  * @date: 2022/6/16
  */
 @Slf4j
-public class NeutrinoLauncher implements Launcher {
+public class NeutrinoLauncher {
 	private Environment environment;
 	private ApplicationContainer applicationContainer;
-	private static volatile  boolean running = true;
-	private static Object lock = new Object();
 
-	public static void run(final Class<?> clazz, final String[] args) {
+	public static SystemUtil.RunContext run(final Class<?> clazz, final String[] args) {
 		Assert.notNull(clazz, "启动类不能为空!");
-
-		ThreadUtil.run(() -> {
-			new NeutrinoLauncher(clazz, args).launch();
-		});
+		return new NeutrinoLauncher(clazz, args).launch();
 	}
 
 	public static void runSync(final Class<?> clazz, final String[] args) {
-		run(clazz, args);
-
-		synchronized (lock) {
-			while (running) {
-				try {
-					lock.wait();
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		}
+		run(clazz, args).sync();
 		log.info("Application already stop.");
 	}
 
-	public NeutrinoLauncher(Class<?> clazz, String[]  args) {
+	private NeutrinoLauncher(Class<?> clazz, String[]  args) {
 		this.environment = new Environment()
 			.setMainClass(clazz)
 			.setMainArgs(args);
 	}
 
-	@Override
-	public void launch() {
+	private SystemUtil.RunContext launch() {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
 		environmentInit();
 		this.applicationContainer = new DefaultApplicationContainer(environment);
-		SystemUtil.addShutdownHook(() -> {
-			synchronized (lock) {
-				this.applicationContainer.destroy();
-				running = false;
-				lock.notify();
-			}
-		});
+		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> this.applicationContainer.destroy());
 
 		stopWatch.stop();
 		printLog(environment, stopWatch);
+
+		return runContext;
 	}
 
 	/**
