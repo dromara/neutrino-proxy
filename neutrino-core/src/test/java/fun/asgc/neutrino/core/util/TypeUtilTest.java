@@ -92,23 +92,23 @@ public class TypeUtilTest {
 
 	@Test
 	public void conversionString() {
-		System.out.println(typeMatchers.conversion("aabb", boolean.class));
-		System.out.println(typeMatchers.conversion("aabb", byte.class));
-		System.out.println(typeMatchers.conversion("aabb", short.class));
-		System.out.println(typeMatchers.conversion("aabb", char.class));
-		System.out.println(typeMatchers.conversion("aabb", int.class));
-		System.out.println(typeMatchers.conversion("aabb", long.class));
-		System.out.println(typeMatchers.conversion("aabb", float.class));
-		System.out.println(typeMatchers.conversion("aabb", double.class));
-		System.out.println(typeMatchers.conversion("aabb", Boolean.class));
-		System.out.println(typeMatchers.conversion("aabb", Byte.class));
-		System.out.println(typeMatchers.conversion("aabb", Short.class));
-		System.out.println(typeMatchers.conversion("aabb", Character.class));
-		System.out.println(typeMatchers.conversion("aabb", Integer.class));
-		System.out.println(typeMatchers.conversion("aabb", Long.class));
-		System.out.println(typeMatchers.conversion("aabb", Float.class));
-		System.out.println(typeMatchers.conversion("aabb", Double.class));
-		System.out.println(typeMatchers.conversion("aabb", String.class));
+		System.out.println(typeMatchers.conversion("true", boolean.class));
+		System.out.println(typeMatchers.conversion("100", byte.class));
+		System.out.println(typeMatchers.conversion("101", short.class));
+		System.out.println(typeMatchers.conversion("a", char.class));
+		System.out.println(typeMatchers.conversion("1000", int.class));
+		System.out.println(typeMatchers.conversion("500000", long.class));
+		System.out.println(typeMatchers.conversion("1.3", float.class));
+		System.out.println(typeMatchers.conversion("566.0099", double.class));
+		System.out.println(typeMatchers.conversion("false", Boolean.class));
+		System.out.println(typeMatchers.conversion("88", Byte.class));
+		System.out.println(typeMatchers.conversion("444", Short.class));
+		System.out.println(typeMatchers.conversion("B", Character.class));
+		System.out.println(typeMatchers.conversion("99", Integer.class));
+		System.out.println(typeMatchers.conversion("5666666", Long.class));
+		System.out.println(typeMatchers.conversion("10.24", Float.class));
+		System.out.println(typeMatchers.conversion("3.1415926", Double.class));
+		System.out.println(typeMatchers.conversion('a', String.class));
 
 		System.out.println(typeMatchers.conversion("aabb", Animal.class));
 		System.out.println(typeMatchers.conversion("aabb:10", Cat.class));
@@ -117,7 +117,6 @@ public class TypeUtilTest {
 		System.out.println(typeMatchers.conversion(new Integer[]{10, 20, 30,20}, List.class));
 		System.out.println(typeMatchers.conversion(new Boolean[]{true, true, false}, List.class));
 		System.out.println(typeMatchers.conversion(new Animal[]{new Animal("aa"), new Animal("bb"), new Animal("cc"),}, List.class));
-
 
 		System.out.println(typeMatchers.conversion(Lists.newArrayList("11","22","33","22"), Object[].class));
 

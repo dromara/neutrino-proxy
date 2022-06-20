@@ -25,6 +25,7 @@ package fun.asgc.neutrino.core.util;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatchers;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -238,7 +239,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isByte(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isByte(getFieldType(field));
+	}
+
+	/**
+	 * 是否是byte类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isByte(Class clazz) {
 		return clazz == byte.class || clazz == Byte.class;
 	}
 
@@ -248,7 +257,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isShort(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isShort(getFieldType(field));
+	}
+
+	/**
+	 * 是否是short类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isShort(Class clazz) {
 		return clazz == short.class || clazz == Short.class;
 	}
 
@@ -258,7 +275,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isInteger(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isInteger(getFieldType(field));
+	}
+
+	/**
+	 * 是否是integer类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isInteger(Class clazz) {
 		return clazz == int.class || clazz == Integer.class;
 	}
 
@@ -286,7 +311,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isFloat(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isFloat(getFieldType(field));
+	}
+
+	/**
+	 * 是否是float类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isFloat(Class<?> clazz) {
 		return clazz == float.class || clazz == Float.class;
 	}
 
@@ -296,7 +329,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isDouble(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isDouble(getFieldType(field));
+	}
+
+	/**
+	 * 是否是double类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isDouble(Class<?> clazz) {
 		return clazz == double.class || clazz == Double.class;
 	}
 
@@ -326,7 +367,15 @@ public class TypeUtil {
 	 * @return
 	 */
 	public static boolean isString(Field field) {
-		Class<?> clazz = getFieldType(field);
+		return isString(getFieldType(field));
+	}
+
+	/**
+	 * 是否是String类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isString(Class clazz) {
 		return clazz == String.class;
 	}
 

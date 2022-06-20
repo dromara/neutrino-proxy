@@ -114,6 +114,22 @@ public class StringUtil {
 		return false;
 	}
 
+	public static boolean isNumeric(String cs) {
+		if (isEmpty(cs)) {
+			return false;
+		} else {
+			int sz = cs.length();
+
+			for(int i = 0; i < sz; ++i) {
+				if (!Character.isDigit(cs.charAt(i))) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
 	/**
 	 *
 	 * @param str
