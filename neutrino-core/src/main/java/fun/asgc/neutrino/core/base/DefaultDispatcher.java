@@ -64,27 +64,27 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 			log.error("{} 处理器列表为空.", name);
 			return;
 		}
-		this.name = name;
+		this.name = name == null ? "" : name;
 		this.handlerMap = new HashMap<>();
 		this.matcher = matcher;
 
 		for (Handler handler : handlerList) {
 			Match match = handler.getClass().getAnnotation(Match.class);
 			if (null == match) {
-				log.warn("类: {} 缺失Match注解", handler.getClass().getName());
+				log.warn("{} 类: {} 缺失Match注解", this.name, handler.getClass().getName());
 				continue;
 			}
 			if (StringUtil.isEmpty(match.type())) {
-				log.warn("类: {} match注解缺失type参数！", handler.getClass().getName());
+				log.warn("{} 类: {} match注解缺失type参数！", this.name, handler.getClass().getName());
 				continue;
 			}
 			if (handlerMap.containsKey(match.type())) {
-				log.warn("类: {} match注解type值{} 存在重复!", handler.getClass().getName(), match.type());
+				log.warn("{} 类: {} match注解type值{} 存在重复!", this.name, handler.getClass().getName(), match.type());
 				continue;
 			}
 			handlerMap.put(match.type(), handler);
 		}
-		log.info("{} 处理器初始化完成", name);
+		log.info("{} 处理器初始化完成", this.name);
 	}
 
 	@Override
@@ -94,19 +94,19 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		}
 		String type = matcher.apply(data);
 		if (null == type) {
-			log.warn("获取匹配类型失败 data:{]", JSONObject.toJSONString(data));
+			log.warn("{} 获取匹配类型失败 data:{]", this.name, JSONObject.toJSONString(data));
 			return;
 		}
 		Handler<Context,Data> handler = handlerMap.get(type);
 		if (null == handler) {
-			log.warn("找不到匹配的处理器 type:{}", type);
+			log.warn("{} 找不到匹配的处理器 type:{}", this.name, type);
 			return;
 		}
-		String name = handler.name();
-		if (StringUtil.isEmpty(name)) {
-			name = TypeUtil.getSimpleName(handler.getClass());
+		String handlerName = handler.name();
+		if (StringUtil.isEmpty(handlerName)) {
+			handlerName = TypeUtil.getSimpleName(handler.getClass());
 		}
-		log.debug("处理器[{}]执行.", name);
+		log.debug("{} 处理器[{}]执行.", this.name, handlerName);
 		handler.handle(context, data);
 	}
 }
