@@ -50,14 +50,28 @@ public enum TypeMatchLevel {
 	// 超类匹配，当且仅当目标类是匹配类的超类时
 	SUPER(5, 1000000, 2000000, "超类匹配"),
 	// 内置的扩展匹配
-	EXTENSION(6, 10000000, 20000000, "扩展匹配"),
+	EXTENSION(6, 10000000, 50000000, "扩展匹配"),
 	// 自定义匹配
-	CUSTOM(7, 100000000, 200000000, "自定义匹配");
+	CUSTOM(7, 100000000, 500000000, "自定义匹配"),
+	// 不匹配
+	NOT(8, Integer.MAX_VALUE, Integer.MAX_VALUE, "不匹配");
 	private static Map<Integer,TypeMatchLevel> levelMap = Stream.of(TypeMatchLevel.values()).collect(Collectors.toMap(TypeMatchLevel::getLevel, Function.identity()));
 
+	/**
+	 * 匹配级别
+	 */
 	private int level;
+	/**
+	 * 类型距离最小值
+	 */
 	private int distanceMin;
+	/**
+	 * 类型距离最大值
+	 */
 	private int distanceMax;
+	/**
+	 * 描述
+	 */
 	private String desc;
 
 	public static TypeMatchLevel byLevel(int level) {

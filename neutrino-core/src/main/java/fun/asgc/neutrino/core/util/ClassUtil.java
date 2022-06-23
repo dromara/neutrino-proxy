@@ -210,4 +210,32 @@ public class ClassUtil {
 		}
 		return annotation;
 	}
+
+	public static boolean isPublic(Class<?> clazz) {
+		return Modifier.isPublic(clazz.getModifiers());
+	}
+
+	public static boolean isPrivate(Class<?> clazz) {
+		return Modifier.isPrivate(clazz.getModifiers());
+	}
+
+	public static boolean isProtected(Class<?> clazz) {
+		return Modifier.isProtected(clazz.getModifiers());
+	}
+
+	public static boolean isFinal(Class<?> clazz) {
+		return Modifier.isFinal(clazz.getModifiers());
+	}
+
+	public static boolean isAbstract(Class<?> clazz) {
+		return Modifier.isAbstract(clazz.getModifiers());
+	}
+
+	public static boolean isStatic(Class<?> clazz) {
+		return Modifier.isStatic(clazz.getModifiers());
+	}
+
+	public static boolean isInterface(Class<?> clazz) {
+		return clazz.isInterface();
+	}
 }

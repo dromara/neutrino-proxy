@@ -63,7 +63,7 @@ public class TypeMatchInfo {
 		this.valueType = valueType;
 		this.targetType = targetType;
 		this.typeMatcher = typeMatcher;
-		this.typeDistance = TypeDistance.NOT;
+		this.typeDistance = TypeMatchLevel.NOT.getDistanceMin();
 	}
 
 	public boolean isNotMatch() {

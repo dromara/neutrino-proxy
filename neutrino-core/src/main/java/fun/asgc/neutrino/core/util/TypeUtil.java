@@ -25,7 +25,6 @@ package fun.asgc.neutrino.core.util;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatchers;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -74,7 +73,7 @@ public class TypeUtil {
 	/**
 	 * 基本类型的映射
 	 */
-	public static final Map<Class<?>, Class<?>> basicTypeMap = new HashMap<Class<?>, Class<?>>() {
+	private static final Map<Class<?>, Class<?>> basicTypeMap = new HashMap<Class<?>, Class<?>>() {
 		{
 			this.put(byte.class, byte.class);
 			this.put(short.class, short.class);
@@ -99,7 +98,7 @@ public class TypeUtil {
 	/**
 	 * 包装类型的映射
 	 */
-	public static final Map<Class<?>, Class<?>> wrapTypeMap = new HashMap<Class<?>, Class<?>>() {
+	private static final Map<Class<?>, Class<?>> wrapTypeMap = new HashMap<Class<?>, Class<?>>() {
 		{
 			this.put(byte.class, Byte.class);
 			this.put(short.class, Short.class);

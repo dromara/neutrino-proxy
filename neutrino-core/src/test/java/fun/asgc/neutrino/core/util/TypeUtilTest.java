@@ -36,7 +36,7 @@ public class TypeUtilTest {
 			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
 				TypeMatchInfo typeMatchInfo = new TypeMatchInfo(clazz, targetClass, this);
 				if (clazz == String.class && targetClass == Animal.class) {
-					typeMatchInfo.setTypeDistance(TypeDistance.CUSTOM_MIN);
+					typeMatchInfo.setTypeDistance(TypeMatchLevel.CUSTOM.getDistanceMin() + 1);
 					typeMatchInfo.setTypeConverter(((value, targetType) -> new Animal().setName((String)value)));
 				}
 				return typeMatchInfo;
@@ -47,7 +47,7 @@ public class TypeUtilTest {
 			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
 				TypeMatchInfo typeMatchInfo = new TypeMatchInfo(clazz, targetClass, this);
 				if (clazz == String.class && targetClass == Cat.class) {
-					typeMatchInfo.setTypeDistance(TypeDistance.CUSTOM_MIN);
+					typeMatchInfo.setTypeDistance(TypeMatchLevel.CUSTOM.getDistanceMin() + 2);
 					typeMatchInfo.setTypeConverter((value, targetType) -> {
 						String[] tmp = ((String)value).split(":");
 						Cat cat = new Cat();

@@ -25,7 +25,7 @@ package fun.asgc.neutrino.core.util;
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
-import fun.asgc.neutrino.core.type.TypeDistance;
+import fun.asgc.neutrino.core.type.TypeMatchLevel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -236,7 +236,7 @@ public class ReflectUtil {
 			if (methodOptional.isPresent()) {
 				return methodOptional.get();
 			}
-			int level = TypeDistance.MAX;
+			int level = TypeMatchLevel.NOT.getDistanceMax();
 			Method method = null;
 			for (Method m : getMethods(field.getDeclaringClass())) {
 				if (m.getName().equals(setMethodName) && m.getParameters().length == 1) {
@@ -247,7 +247,7 @@ public class ReflectUtil {
 					}
 				}
 			}
-			if (level < TypeDistance.MAX && method != null) {
+			if (level < TypeMatchLevel.NOT.getDistanceMin() && method != null) {
 				return method;
 			}
 			return null;
