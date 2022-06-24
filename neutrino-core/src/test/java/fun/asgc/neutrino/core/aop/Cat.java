@@ -15,18 +15,20 @@ package fun.asgc.neutrino.core.aop;
 /**
  *
  * @author: wen.y
- * @date: 2022/6/23
+ * @date: 2022/6/24
  */
-@Intercept({TestInterceptor.class, TestInterceptor2.class})
-public class Dog {
-	public Dog() {
-		System.out.println("狗出生");
-	}
-	public void call() {
-		System.out.println("汪汪汪");
+public class Cat {
+	public Cat() {
+		System.out.println("猫出生");
 	}
 
-	public String say(String msg) {
-		return "狗说:" + msg;
+	public void climb() {
+		System.out.println("猫在爬");
+	}
+
+	@Intercept(TestInterceptor2.class)
+	public int calc(int x, int y) {
+		System.out.println("猫在计算");
+		return x + y;
 	}
 }

@@ -32,4 +32,17 @@ public class Test1 {
 		Dog dog = Aop.get(Dog.class);
 		System.out.println(dog.say("hello"));
 	}
+
+	@Test
+	public void catClimb() {
+		Cat cat = Aop.get(Cat.class);
+		cat.climb();
+	}
+
+	@Test
+	public void catCalc() {
+		Cat cat = Aop.get(Cat.class);
+		System.out.println(cat.calc(10, 6));
+	}
+
 }
