@@ -23,6 +23,8 @@ package fun.asgc.neutrino.core.aop.proxy;
 
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.util.ArrayUtil;
+import fun.asgc.neutrino.core.util.Assert;
+import fun.asgc.neutrino.core.util.ClassUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,11 +49,17 @@ public class SubClassProxyFactory implements ProxyFactory {
 
 	@Override
 	public <T> T get(Class<T> clazz) {
+		Assert.isTrue(canProxy(clazz), String.format("类[%s]无法被代理!", clazz.getName()));
 		try {
 			return doGet(clazz);
 		} catch (ReflectiveOperationException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public boolean canProxy(Class<?> clazz) {
+		return !ClassUtil.isFinal(clazz) && !ClassUtil.isAbstract(clazz) && ClassUtil.isPublic(clazz) && !ClassUtil.isStatic(clazz);
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {

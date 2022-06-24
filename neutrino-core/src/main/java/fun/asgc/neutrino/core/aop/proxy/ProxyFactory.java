@@ -34,4 +34,11 @@ public interface ProxyFactory {
 	 * @return
 	 */
 	<T> T get(Class<T> clazz);
+
+	/**
+	 * 是否能被代理
+	 * @param clazz
+	 * @return
+	 */
+	boolean canProxy(Class<?> clazz);
 }
