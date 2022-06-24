@@ -51,7 +51,6 @@ public class NeutrinoLauncher {
 
 	public static void runSync(final Class<?> clazz, final String[] args) {
 		run(clazz, args).sync();
-		log.info("Application already stop.");
 	}
 
 	private NeutrinoLauncher(Class<?> clazz, String[]  args) {
@@ -66,7 +65,10 @@ public class NeutrinoLauncher {
 
 		environmentInit();
 		this.applicationContainer = new DefaultApplicationContainer(environment);
-		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> this.applicationContainer.destroy());
+		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
+			this.applicationContainer.destroy();
+			log.info("Application already stop.");
+		});
 
 		stopWatch.stop();
 		printLog(environment, stopWatch);
