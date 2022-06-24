@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.aop.proxy;
 
 import fun.asgc.neutrino.core.aop.Invocation;
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,7 +84,7 @@ public class SubClassProxyFactory implements ProxyFactory {
 		sb.append("import ").append(Invocation.class.getName()).append(";\n");
 		sb.append("public class ").append(proxyClassName).append(" extends ").append(clazz.getSimpleName()).append("{\n");
 		Method[] methods = clazz.getMethods();
-		if (methods != null && methods.length > 0) {
+		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (Modifier.isFinal(method.getModifiers())) {
 					continue;
@@ -109,14 +110,14 @@ public class SubClassProxyFactory implements ProxyFactory {
 	}
 
 	private String buildParametersString(Parameter[] parameters) {
-		if (null == parameters || parameters.length == 0) {
+		if (ArrayUtil.isEmpty(parameters)) {
 			return "";
 		}
 		return Stream.of(parameters).map(item -> item.getType().getName() + " " + item.getName()).collect(Collectors.joining(","));
 	}
 
 	private String buildParameterNamesString(Parameter[] parameters) {
-		if (null == parameters || parameters.length == 0) {
+		if (ArrayUtil.isEmpty(parameters)) {
 			return "";
 		}
 		return Stream.of(parameters).map(Parameter::getName).collect(Collectors.joining(","));
