@@ -27,7 +27,7 @@ package fun.asgc.neutrino.core.aop;
  * @date: 2022/6/23
  */
 @Intercept({TestInterceptor.class, TestInterceptor2.class})
- class Dog {
+public class Dog {
 	public Dog() {
 		System.out.println("狗出生");
 	}
