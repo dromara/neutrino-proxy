@@ -49,7 +49,6 @@ public class Invocation {
 		this.targetClass = this.targetMethod.getDeclaringClass();
 		this.proxy = proxy;
 		this.callback = callback;
-		this.targetClass = proxy.getClass().getSuperclass();
 		this.args = args;
 		this.interceptors = getInterceptors(this.targetMethod);
 	}
