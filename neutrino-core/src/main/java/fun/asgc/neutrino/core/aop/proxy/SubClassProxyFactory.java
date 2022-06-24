@@ -100,7 +100,7 @@ public class SubClassProxyFactory implements ProxyFactory {
 					.append(isVoid ? "\t\t\treturn null;\n" : "")
 					.append("\t\t").append("}").append(StringUtil.isEmpty(parameterNamesString) ? "" : "," + parameterNamesString).append(");").append("\n")
 					.append("\t\t").append("inv.invoke();").append("\n")
-					.append("\t\t").append(isVoid ? "" : "return inv.getReturnValue();").append("\n")
+					.append(isVoid ? "" : "\t\treturn inv.getReturnValue();\n")
 					.append("\t").append("}").append("\n");
 			}
 		}
