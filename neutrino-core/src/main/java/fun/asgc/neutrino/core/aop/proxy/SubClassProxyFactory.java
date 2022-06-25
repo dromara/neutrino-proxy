@@ -49,6 +49,7 @@ public class SubClassProxyFactory implements ProxyFactory {
 
 	@Override
 	public <T> T get(Class<T> clazz) {
+		Assert.notNull(clazz, "被代理类不能为空！");
 		Assert.isTrue(canProxy(clazz), String.format("类[%s]无法被代理!", clazz.getName()));
 		try {
 			return doGet(clazz);
@@ -59,7 +60,12 @@ public class SubClassProxyFactory implements ProxyFactory {
 
 	@Override
 	public boolean canProxy(Class<?> clazz) {
-		return !ClassUtil.isFinal(clazz) && !ClassUtil.isAbstract(clazz) && ClassUtil.isPublic(clazz) && !ClassUtil.isStatic(clazz);
+		return !ClassUtil.isFinal(clazz)
+			&& !ClassUtil.isAbstract(clazz)
+			&& ClassUtil.isPublic(clazz)
+			&& !ClassUtil.isStatic(clazz)
+			&& !ClassUtil.isInterface(clazz)
+			&& Stream.of(clazz.getConstructors()).filter(e -> e.getParameterCount() == 0).count() > 0;
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {
