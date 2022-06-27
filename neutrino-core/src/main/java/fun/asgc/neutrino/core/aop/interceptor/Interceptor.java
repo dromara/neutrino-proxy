@@ -19,33 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
+package fun.asgc.neutrino.core.aop.interceptor;
 
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import lombok.extern.slf4j.Slf4j;
+import fun.asgc.neutrino.core.aop.Invocation;
 
 /**
- *
  * @author: aoshiguchen
  * @date: 2022/6/24
  */
-@Slf4j
-public class TestInterceptor implements Interceptor {
-
-	public TestInterceptor() {
-		System.out.println("拦截器1实例化");
-	}
-
-	@Override
-	public void intercept(Invocation inv) {
-		try {
-			log.info("拦截器1 class:{} method:{} args:{} before", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			inv.invoke();
-			log.info("拦截器1 class:{} method:{} args:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-		} catch (Exception e) {
-			log.info("拦截器1 class:{} method:{} args:{} error", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			e.printStackTrace();
-		}
-	}
-
+public interface Interceptor {
+	/**
+	 * 拦截方法
+	 * @param inv
+	 */
+	void intercept(Invocation inv);
 }

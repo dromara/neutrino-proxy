@@ -21,31 +21,37 @@
  */
 package fun.asgc.neutrino.core.aop;
 
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import lombok.extern.slf4j.Slf4j;
+import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/6/27
  */
-@Slf4j
-public class TestInterceptor implements Interceptor {
+public class Panda {
 
-	public TestInterceptor() {
-		System.out.println("拦截器1实例化");
+	public Panda() {
+		System.out.println("熊猫出生");
 	}
 
-	@Override
-	public void intercept(Invocation inv) {
-		try {
-			log.info("拦截器1 class:{} method:{} args:{} before", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			inv.invoke();
-			log.info("拦截器1 class:{} method:{} args:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-		} catch (Exception e) {
-			log.info("拦截器1 class:{} method:{} args:{} error", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			e.printStackTrace();
-		}
+	public void eat() {
+		System.out.println("熊猫吃竹子");
 	}
 
+	@Intercept(exclude = InnerGlobalInterceptor.class)
+	public void play(String project) {
+		System.out.println("熊猫在玩" + project);
+	}
+
+	public Integer division(int x, int y) {
+		return x / y;
+	}
+
+	public void say(String msg) {
+		System.out.println("熊猫说：" + msg);
+	}
+
+	public String request(String a, String b) {
+		return String.format("参数 a:%s b:%s 处理结果", a, b);
+	}
 }

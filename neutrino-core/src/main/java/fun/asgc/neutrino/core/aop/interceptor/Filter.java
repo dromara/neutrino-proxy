@@ -19,16 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
+package fun.asgc.neutrino.core.aop.interceptor;
+
+import java.lang.reflect.Method;
 
 /**
+ * 过滤器
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/6/27
  */
-public interface Interceptor {
+public interface Filter {
+
 	/**
-	 * 拦截方法
-	 * @param inv
+	 * 是否过滤
+	 * @param targetClass
+	 * @param targetMethod
+	 * @param args
+	 * @return
 	 */
-	void intercept(Invocation inv);
+	default boolean filtration(Class<?> targetClass, Method targetMethod, Object[] args) {
+		return false;
+	}
+
 }

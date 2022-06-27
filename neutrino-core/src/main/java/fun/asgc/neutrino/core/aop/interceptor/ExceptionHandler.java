@@ -19,33 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
-
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import lombok.extern.slf4j.Slf4j;
+package fun.asgc.neutrino.core.aop.interceptor;
 
 /**
- *
+ * 异常处理器
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/6/27
  */
-@Slf4j
-public class TestInterceptor implements Interceptor {
+public interface ExceptionHandler {
 
-	public TestInterceptor() {
-		System.out.println("拦截器1实例化");
-	}
+	/**
+	 * 是否支持处理该异常
+	 * @param e
+	 * @return
+	 */
+	boolean support(Exception e);
 
-	@Override
-	public void intercept(Invocation inv) {
-		try {
-			log.info("拦截器1 class:{} method:{} args:{} before", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			inv.invoke();
-			log.info("拦截器1 class:{} method:{} args:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-		} catch (Exception e) {
-			log.info("拦截器1 class:{} method:{} args:{} error", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			e.printStackTrace();
-		}
-	}
-
+	/**
+	 * 异常处理
+	 * @param e
+	 * @return
+	 */
+	Object handle(Exception e);
 }

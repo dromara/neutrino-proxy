@@ -21,11 +21,14 @@
  */
 package fun.asgc.neutrino.core.aop;
 
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.aop.interceptor.InterceptorFactory;
 import fun.asgc.neutrino.core.aop.proxy.ProxyCache;
-import fun.asgc.neutrino.core.util.ArrayUtil;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +43,7 @@ public class Invocation {
 	private Object proxy;
 	private Supplier callback;
 	private Object[] args;
-	private Interceptor[] interceptors;
+	private List<Interceptor> interceptors;
 	private volatile int index = 0;
 	private Object returnValue;
 
@@ -50,43 +53,12 @@ public class Invocation {
 		this.proxy = proxy;
 		this.callback = callback;
 		this.args = args;
-		this.interceptors = getInterceptors(this.targetMethod);
-	}
-
-	/**
-	 * TODO 先简单实现为 newInstance
-	 * @param targetMethod
-	 * @return
-	 */
-	public static Interceptor[] getInterceptors(Method targetMethod) {
-		if (null == targetMethod) {
-			return null;
-		}
-		Intercept intercept = targetMethod.getAnnotation(Intercept.class);
-		if (null == intercept) {
-			intercept = targetMethod.getDeclaringClass().getAnnotation(Intercept.class);
-		}
-		if (null == intercept) {
-			return null;
-		}
-		Class<? extends Interceptor>[] classes = intercept.value();
-		if (ArrayUtil.isEmpty(classes)) {
-			return null;
-		}
-		Interceptor[] interceptors = new Interceptor[classes.length];
-		for (int i = 0; i < classes.length; i++) {
-			try {
-				interceptors[i] = classes[i].newInstance();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
-		return interceptors;
+		this.interceptors = InterceptorFactory.getListByTargetMethod(this.targetMethod);
 	}
 
 	public void invoke() {
-		if (ArrayUtil.notEmpty(this.interceptors) && index < this.interceptors.length) {
-			this.interceptors[index++].intercept(this);
+		if (CollectionUtil.notEmpty(this.interceptors) && index < this.interceptors.size()) {
+			this.interceptors.get(index++).intercept(this);
 		} else {
 			returnValue = callback.get();
 		}
@@ -96,6 +68,9 @@ public class Invocation {
 		return (T)returnValue;
 	}
 
+	public void setReturnValue(Object returnValue) {
+		this.returnValue = returnValue;
+	}
 
 	public Class<?> getTargetClass() {
 		return targetClass;
