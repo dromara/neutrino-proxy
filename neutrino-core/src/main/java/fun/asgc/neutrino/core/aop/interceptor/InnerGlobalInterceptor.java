@@ -52,7 +52,7 @@ public class InnerGlobalInterceptor implements Interceptor {
 			}
 			inv.invoke();
 			Object result = inv.getReturnValue();
-			log.info("内置顶层拦截器 class:{} method:{} args:{} result:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
+			log.debug("内置顶层拦截器 class:{} method:{} args:{} result:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
 
 			if (CollectionUtil.notEmpty(resultAdviceList)) {
 				for (ResultAdvice advice : resultAdviceList) {
@@ -61,9 +61,9 @@ public class InnerGlobalInterceptor implements Interceptor {
 			}
 			inv.setReturnValue(result);
 
-			log.info("内置顶层拦截器 class:{} method:{} args:{} result:{} finished.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
+			log.debug("内置顶层拦截器 class:{} method:{} args:{} result:{} finished.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
 		} catch (Exception e) {
-			log.info("内置顶层拦截器 class:{} method:{} args:{} exception.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
+			log.debug("内置顶层拦截器 class:{} method:{} args:{} exception.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
 			if (CollectionUtil.notEmpty(exceptionHandlerList)) {
 				for (ExceptionHandler handler : exceptionHandlerList) {
 					if (handler.support(e)) {
