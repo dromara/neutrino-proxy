@@ -415,6 +415,15 @@ public class TypeUtil {
 	}
 
 	/**
+	 * 是否是map类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isMap(Class<?> clazz) {
+		return Map.class.isAssignableFrom(clazz);
+	}
+
+	/**
 	 * 获取包装类型
 	 * @param clazz
 	 * @return
@@ -532,7 +541,7 @@ public class TypeUtil {
 	 * @param targetType
 	 * @return
 	 */
-	public static Object conversion(Object value, Class<?> targetType) {
-		return defaultTypeMatchers.conversion(value, targetType);
+	public static <T> T conversion(Object value, Class<T> targetType) {
+		return (T)defaultTypeMatchers.conversion(value, targetType);
 	}
 }

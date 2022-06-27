@@ -16,10 +16,10 @@ import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.util.TypeUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,6 +107,9 @@ public class TypeMatchers {
 					matchInfo.setTypeConverter((value, type) -> {
 						if (value == type || TypeUtil.getWrapType(value.getClass()) == type) {
 							return value;
+						}
+						if (TypeUtil.isInteger(clazz) && TypeUtil.isLong(targetClass)) {
+							return Long.valueOf(String.valueOf(value));
 						}
 						if (TypeUtil.isBoolean(value.getClass())) {
 							return ((boolean)value) ? 1 : 0;
@@ -240,7 +243,7 @@ public class TypeMatchers {
 				return matchInfo;
 			}
 		});
-		// 日期1
+		// 日期
 		extensionMatcherList.add(new TypeMatcher() {
 			@Override
 			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
@@ -254,11 +257,18 @@ public class TypeMatchers {
 							return new java.sql.Date((long)value);
 						}
 					}));
+				} else if (LocalDateTime.class.isAssignableFrom(clazz) && TypeUtil.isDate(targetClass)) {
+					matchInfo.setTypeDistance(TypeMatchLevel.EXTENSION.getDistanceMin() + 201);
+					matchInfo.setTypeConverter(((value, targetType) -> {
+						ZoneId zone = ZoneId.systemDefault();
+						Instant instant = ((LocalDateTime)value).atZone(zone).toInstant();
+						return Date.from(instant);
+					}));
 				}
 				return matchInfo;
 			}
 		});
-		// 日期2
+		// 日期
 		extensionMatcherList.add(new TypeMatcher() {
 			@Override
 			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {

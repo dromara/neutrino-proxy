@@ -285,6 +285,26 @@ public class ReflectUtil {
 
 	/**
 	 * 设置字段的值
+	 * @param fieldList
+	 * @param obj
+	 * @param value
+	 * @return
+	 */
+	public static boolean setFieldValue(List<Field> fieldList, Object obj, Object value) {
+		if (CollectionUtil.isEmpty(fieldList)) {
+			return false;
+		}
+		boolean result = true;
+		for (Field field : fieldList) {
+			if (!setFieldValue(field, obj, value)) {
+				result = false;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 设置字段的值
 	 * 先尝试通过set方法设置，若设置失败则通过字段直接设置
 	 * @param field
 	 * @param obj
@@ -300,6 +320,26 @@ public class ReflectUtil {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	/**
+	 * 获取字段的值
+	 * @param field
+	 * @param obj
+	 * @return
+	 */
+	public static Object getFieldValue(Field field, Object obj) {
+		Assert.notNull(field, "field不能为空");
+		Assert.notNull(obj, "对象不能为空");
+		try {
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
+			return field.get(obj);
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
 	}
 
 	/**
