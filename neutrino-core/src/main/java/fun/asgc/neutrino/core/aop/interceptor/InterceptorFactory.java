@@ -39,6 +39,7 @@ import java.util.*;
 public class InterceptorFactory {
 	private static final Cache<Class<? extends Interceptor>, Interceptor> interceptorCache = new MemoryCache<>();
 	private static final List<Interceptor> globalInterceptorList = Collections.synchronizedList(new ArrayList<>());
+	private static final Map<Method, List<Interceptor>> methodInterceptorListMap = new HashMap<>();
 
 	static {
 		registerGlobalInterceptor(InnerGlobalInterceptor.class);
@@ -59,15 +60,18 @@ public class InterceptorFactory {
 	}
 
 	public static List<Interceptor> getListByTargetMethod(Method targetMethod) {
-		if (null == targetMethod) {
-			return null;
-		}
+		Assert.notNull(targetMethod, "目标方法不能为空！");
 
-		List<Interceptor> interceptors = new ArrayList<>();
-		interceptors.addAll(globalInterceptorList);
-		addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-		addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
-		return interceptors;
+		return LockUtil.doubleCheckProcess(() -> !methodInterceptorListMap.containsKey(targetMethod),
+			targetMethod,
+			() -> {
+				List<Interceptor> interceptors = new ArrayList<>();
+				interceptors.addAll(globalInterceptorList);
+				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
+				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
+				methodInterceptorListMap.put(targetMethod, interceptors);
+			},
+			() -> methodInterceptorListMap.get(targetMethod));
 	}
 
 	private static void addInterceptorByAnnotation(List<Interceptor> interceptors, Intercept intercept) {
