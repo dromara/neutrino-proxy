@@ -50,6 +50,7 @@ public class DbCache {
 	private static final String GROUP_TABLE_NAME_FROM = "GROUP_TABLE_NAME_FROM";
 	private static final Cache<Class<?>, Cache<Field, String>> fieldToColumnCache = new MemoryCache<>();
 	private static final Object fieldToColumnCacheLock = new Object();
+	private static final Cache<Class<?>,String> classTableNameCache = new MemoryCache<>();
 
 	/**
 	 * 转换为列名
@@ -99,11 +100,20 @@ public class DbCache {
 	 * @return
 	 */
 	public static String toTableName(Class<?> clazz) {
-		Table table = clazz.getAnnotation(Table.class);
-		if (null != table && StringUtil.notEmpty(table.value())) {
-			return table.value();
-		}
-		return toTableName(TypeUtil.getSimpleName(clazz));
+		return LockUtil.doubleCheckProcess(() -> !classTableNameCache.containsKey(clazz),
+			clazz,
+			() -> {
+				Table table = clazz.getAnnotation(Table.class);
+				String tableName;
+				if (null != table && StringUtil.notEmpty(table.value())) {
+					tableName = table.value();
+				} else {
+					tableName =  toTableName(TypeUtil.getSimpleName(clazz));
+				}
+				classTableNameCache.set(clazz, tableName);
+			},
+			() -> classTableNameCache.get(clazz)
+		);
 	}
 
 	/**
@@ -167,6 +177,20 @@ public class DbCache {
 				list.addAll(cache.keySet());
 				return list;
 			}
+		);
+	}
+
+	/**
+	 * 根据类获取字段缓存
+	 * @param clazz
+	 * @return
+	 */
+	public static Cache<Field, String> getFieldCache(Class<?> clazz) {
+		return LockUtil.doubleCheckProcess(
+			() -> !fieldToColumnCache.containsKey(clazz),
+			clazz,
+			() -> initFieldCache(clazz),
+			() -> fieldToColumnCache.get(clazz)
 		);
 	}
 

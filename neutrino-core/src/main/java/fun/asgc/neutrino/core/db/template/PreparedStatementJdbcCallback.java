@@ -21,11 +21,11 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  *
@@ -45,27 +45,25 @@ public abstract class PreparedStatementJdbcCallback<T> implements JdbcCallback<T
 		try {
 			log.debug("sql:" + this.getSql());
 			StringBuffer sb = new StringBuffer();
-			for(Object o : params){
-				sb.append(o.toString()).append(",");
-			}
+			if (ArrayUtil.notEmpty(params)) {
+				for(Object o : params){
+					sb.append(o.toString()).append(",");
+				}
 
-			if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ','){
-				sb.deleteCharAt(sb.length() - 1);
+				if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ','){
+					sb.deleteCharAt(sb.length() - 1);
+				}
 			}
 			log.debug("params:" + sb.toString());
 			pstm = conn.prepareStatement(this.getSql());
-			for(int i = 0;i < params.length;i++){
-				pstm.setObject(i + 1, params[i]);
+			if (ArrayUtil.notEmpty(params)) {
+				for(int i = 0;i < params.length;i++){
+					pstm.setObject(i + 1, params[i]);
+				}
 			}
 			res = this.execute(pstm);
 		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			throw new RuntimeException(e);
 		}
 
 		return res;

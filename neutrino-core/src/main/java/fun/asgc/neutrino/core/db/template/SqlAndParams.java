@@ -51,6 +51,10 @@ public class SqlAndParams {
 		this.paramArray = paramArray;
 	}
 
+	public SqlAndParams(String sql) {
+		this.sql = sql;
+	}
+
 	public SqlAndParams(String sql,Map<String,Object> paramMap) {
 		this.sql = sql;
 		this.paramMap = paramMap;
@@ -78,6 +82,9 @@ public class SqlAndParams {
 	}
 
 	private void initParams() {
+		if (null == paramMap) {
+			paramMap = new HashMap<>();
+		}
 		List<Orderly> orderlyList = new ArrayList<>();
 		for(String key : paramMap.keySet()){
 			int index = sql.indexOf(":" + key);
@@ -96,5 +103,15 @@ public class SqlAndParams {
 
 	public String getSql(){
 		return sql;
+	}
+
+	@Override
+	public String toString() {
+		return "SqlAndParams{" +
+			"sql='" + sql + '\'' +
+			", paramArray=" + Arrays.toString(paramArray) +
+			", paramMap=" + paramMap +
+			", paramObject=" + paramObject +
+			'}';
 	}
 }

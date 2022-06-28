@@ -79,7 +79,7 @@ public class JdbcOperations {
 				try{
 					res =  ps.executeUpdate();
 				}catch(SQLException e){
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 				return res;
 			}
@@ -213,7 +213,7 @@ public class JdbcOperations {
 					}
 
 				}catch(Exception e){
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 
 				return res;
