@@ -21,14 +21,28 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import com.alibaba.druid.pool.DruidDataSource;
+import fun.asgc.neutrino.core.annotation.Bean;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Order;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
+@Order(0)
+@Component
+public class Configuration {
+
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		DruidDataSource dataSource = new DruidDataSource();
+		dataSource.setUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
+		dataSource.setUsername("root");
+		dataSource.setPassword("YWasgc@10520");
+		return new JdbcTemplate(dataSource);
+	}
 
 }

@@ -21,14 +21,17 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
-
+@NeutrinoApplication
+public class Launcher {
+	public static void main(String[] args) {
+		NeutrinoLauncher.runSync(Launcher.class, args);
+	}
 }

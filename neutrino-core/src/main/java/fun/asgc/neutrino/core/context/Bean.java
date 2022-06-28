@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.core.context;
 
 import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.aop.Aop;
 import fun.asgc.neutrino.core.container.LifeCycle;
 import fun.asgc.neutrino.core.container.BeanContainer;
 import fun.asgc.neutrino.core.util.*;
@@ -118,6 +119,8 @@ public class Bean implements LifeCycle {
 					Configuration configuration = clazz.getAnnotation(Configuration.class);
 					if (null != configuration) {
 						instance = ConfigUtil.getYmlConfig(clazz);
+					} else if (ClassUtil.isInterface(clazz)) {
+						instance = Aop.get(clazz);
 					} else {
 						// 由编码规避没有无参构造器的问题
 						instance = clazz.newInstance();

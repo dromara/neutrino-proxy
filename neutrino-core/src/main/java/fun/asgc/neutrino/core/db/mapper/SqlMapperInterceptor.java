@@ -21,14 +21,42 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.aop.Invocation;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import fun.asgc.neutrino.core.util.Assert;
+import fun.asgc.neutrino.core.util.StringUtil;
+
+import java.util.Collection;
 
 /**
+ * sqlmapper拦截器
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
+@Component
+public class SqlMapperInterceptor implements Interceptor {
 
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@Override
+	public void intercept(Invocation inv) {
+		Assert.notNull(jdbcTemplate, "JdbcTemplate未注入，调用失败!");
+		if (inv.getTargetMethod().isAnnotationPresent(Select.class)) {
+			Select select = inv.getTargetMethod().getAnnotation(Select.class);
+			String sql = select.value();
+			if (StringUtil.isEmpty(sql)) {
+				throw new RuntimeException("sql不能为空!");
+			}
+			Class<?> returnType = inv.getReturnType();
+			if (!Collection.class.isAssignableFrom(returnType)) {
+				Object res = jdbcTemplate.query(returnType, sql, inv.getArgs());
+				inv.setReturnValue(res);
+			}
+		}
+	}
 }

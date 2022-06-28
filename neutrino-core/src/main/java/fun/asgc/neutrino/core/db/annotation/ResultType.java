@@ -19,16 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.mapper;
+package fun.asgc.neutrino.core.db.annotation;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ResultType {
+	Class<?> value();
 }

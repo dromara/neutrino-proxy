@@ -48,7 +48,11 @@ public class InterceptorFactory {
 			clazz,
 			() -> {
 				try {
-					interceptorCache.set(clazz, clazz.newInstance());
+					if (BeanManager.getBean(clazz) != null) {
+						interceptorCache.set(clazz, BeanManager.getBean(clazz));
+					} else {
+						interceptorCache.set(clazz, clazz.newInstance());
+					}
 				} catch (InstantiationException|IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}

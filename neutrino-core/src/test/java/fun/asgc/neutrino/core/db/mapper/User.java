@@ -21,14 +21,28 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.core.db.annotation.Table;
+import lombok.Data;
+import lombok.ToString;
+
+import java.util.Date;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
-
+@ToString
+@Data
+@Table("user")
+public class User {
+	@Id
+	private Long id;
+	private String name;
+	private Integer age;
+	private String email;
+	private String sex;
+	private Date createTime;
+	private Date updateTime;
 }

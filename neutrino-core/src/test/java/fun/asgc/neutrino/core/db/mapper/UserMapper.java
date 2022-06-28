@@ -21,14 +21,17 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Select;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
-public interface SqlMapper {
+@Component
+public interface UserMapper extends SqlMapper {
 
+	@Select("select * from user where id = ?")
+	User findOneById(Long id);
 }
