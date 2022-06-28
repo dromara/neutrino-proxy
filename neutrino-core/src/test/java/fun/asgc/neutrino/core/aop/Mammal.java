@@ -21,28 +21,14 @@
  */
 package fun.asgc.neutrino.core.aop;
 
-import fun.asgc.neutrino.core.util.ReflectUtil;
-import org.junit.Test;
-
 /**
- *
+ * 哺乳动物
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-public class Test3 {
-
-	@Test
-	public void test1() {
-		Animal animal = Aop.get(Animal.class);
-		System.out.println(animal);
-		System.out.println(animal.say("aa"));
-	}
-
-	@Test
-	public void test2() {
-		Mammal mammal = Aop.get(Mammal.class);
-		mammal.crawl();
-
-		System.out.println(ReflectUtil.getInterfaceAll(Mammal.class));
-	}
+public interface Mammal extends Animal {
+	/**
+	 * 爬行
+	 */
+	void crawl();
 }

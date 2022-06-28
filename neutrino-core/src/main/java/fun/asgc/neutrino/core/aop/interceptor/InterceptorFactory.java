@@ -24,9 +24,7 @@ package fun.asgc.neutrino.core.aop.interceptor;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
-import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.LockUtil;
+import fun.asgc.neutrino.core.util.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -67,6 +65,15 @@ public class InterceptorFactory {
 			() -> {
 				List<Interceptor> interceptors = new ArrayList<>();
 				interceptors.addAll(globalInterceptorList);
+				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
+				if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
+					List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
+					if (CollectionUtil.notEmpty(interfaceList)) {
+						for (Class<?> clazz : interfaceList) {
+							addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
+						}
+					}
+				}
 				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
 				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
 				methodInterceptorListMap.put(targetMethod, interceptors);

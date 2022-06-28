@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.core.util;
 
 import com.google.common.collect.Sets;
+import fun.asgc.neutrino.core.base.Orderly;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
 import fun.asgc.neutrino.core.type.TypeMatchLevel;
@@ -376,5 +377,34 @@ public class ReflectUtil {
 			// ignore
 		}
 		return false;
+	}
+
+	/**
+	 * 获取该类的所有接口,并保持按照接口层级的顺序（顶级在最前、其次是第二级、...）
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Class<?>> getInterfaceAll(Class<?> clazz) {
+		List<Orderly<Class<?>>> list = new ArrayList<>();
+		if (ArrayUtil.notEmpty(clazz.getInterfaces())) {
+			addTo(list, clazz.getInterfaces(), 0);
+			int current = 0;
+			while (current < list.size()) {
+				Orderly<Class<?>> peek = list.get(current);
+				if (ArrayUtil.notEmpty(peek.getData().getInterfaces())) {
+					addTo(list, peek.getData().getInterfaces(), peek.getOrder() + 1);
+				}
+				current++;
+			}
+		}
+		return list.stream().sorted().map(Orderly::getData).collect(Collectors.toList());
+	}
+
+	private static void addTo(List<Orderly<Class<?>>> list, Class<?>[] classes, int level) {
+		if (ArrayUtil.notEmpty(classes)) {
+			for (Class<?> clazz : classes) {
+				list.add(new Orderly<Class<?>>().setData(clazz).setOrder(Integer.MAX_VALUE - level));
+			}
+		}
 	}
 }
