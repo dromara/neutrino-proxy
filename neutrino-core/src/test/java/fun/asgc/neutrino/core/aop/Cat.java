@@ -26,7 +26,7 @@ package fun.asgc.neutrino.core.aop;
  * @author: aoshiguchen
  * @date: 2022/6/24
  */
-public class Cat {
+public class Cat  {
 	public Cat() {
 		System.out.println("猫出生");
 	}

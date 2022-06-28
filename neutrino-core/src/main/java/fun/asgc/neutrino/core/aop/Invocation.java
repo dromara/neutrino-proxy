@@ -68,6 +68,10 @@ public class Invocation {
 		return (T)returnValue;
 	}
 
+	public Class<?> getReturnType() {
+		return targetMethod.getReturnType();
+	}
+
 	public void setReturnValue(Object returnValue) {
 		this.returnValue = returnValue;
 	}

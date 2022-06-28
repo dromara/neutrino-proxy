@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.aop.interceptor;
 
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -58,6 +59,9 @@ public class InnerGlobalInterceptor implements Interceptor {
 				for (ResultAdvice advice : resultAdviceList) {
 					result = advice.advice(inv.getTargetClass(), inv.getTargetMethod(), result);
 				}
+			}
+			if (null == result) {
+				result = TypeUtil.getDefaultValue(inv.getReturnType());
 			}
 			inv.setReturnValue(result);
 

@@ -60,12 +60,13 @@ public class SubClassProxyFactory implements ProxyFactory {
 
 	@Override
 	public boolean canProxy(Class<?> clazz) {
-		return !ClassUtil.isFinal(clazz)
+		return ClassUtil.isInterface(clazz) ||
+			(!ClassUtil.isFinal(clazz)
 			&& !ClassUtil.isAbstract(clazz)
 			&& ClassUtil.isPublic(clazz)
 			&& !ClassUtil.isStatic(clazz)
 			&& !ClassUtil.isInterface(clazz)
-			&& Stream.of(clazz.getConstructors()).filter(e -> e.getParameterCount() == 0).count() > 0;
+			&& Stream.of(clazz.getConstructors()).filter(e -> e.getParameterCount() == 0).count() > 0);
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {
@@ -93,6 +94,9 @@ public class SubClassProxyFactory implements ProxyFactory {
 	 * @return
 	 */
 	private String generateProxyClassSourceCode(Class<?> clazz, String proxyClassName) {
+		if (ClassUtil.isInterface(clazz)) {
+			return generateProxyClassSourceCodeForInterface(clazz, proxyClassName);
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("package " + clazz.getPackage().getName() + ";").append("\n");
 		sb.append("import ").append(Invocation.class.getName()).append(";\n");
@@ -113,6 +117,36 @@ public class SubClassProxyFactory implements ProxyFactory {
 					.append("\t\tInvocation inv = new Invocation(").append(methodId + "L,").append("this,").append("() -> {").append("\n")
 					.append("\t\t\t").append(isVoid ? "" : "return ").append("super.").append(method.getName()).append("(").append(parameterNamesString).append(");").append("\n")
 					.append(isVoid ? "\t\t\treturn null;\n" : "")
+					.append("\t\t").append("}").append(StringUtil.isEmpty(parameterNamesString) ? "" : "," + parameterNamesString).append(");").append("\n")
+					.append("\t\t").append("inv.invoke();").append("\n")
+					.append(isVoid ? "" : "\t\treturn inv.getReturnValue();\n")
+					.append("\t").append("}").append("\n");
+			}
+		}
+		sb.append("}").append("\n");
+		return sb.toString();
+	}
+
+	private String generateProxyClassSourceCodeForInterface(Class<?> clazz, String proxyClassName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("package " + clazz.getPackage().getName() + ";").append("\n");
+		sb.append("import ").append(Invocation.class.getName()).append(";\n");
+		sb.append("public class ").append(proxyClassName).append(" implements ").append(clazz.getSimpleName()).append("{\n");
+		Method[] methods = clazz.getMethods();
+		if (ArrayUtil.notEmpty(methods)) {
+			for (Method method : methods) {
+				if (Modifier.isFinal(method.getModifiers())) {
+					continue;
+				}
+				Long methodId = ProxyCache.setMethod(method);
+				Class<?> returnType = method.getReturnType();
+				boolean isVoid = returnType == void.class;
+				String parametersString = buildParametersString(method.getParameters());
+				String parameterNamesString = buildParameterNamesString(method.getParameters());
+
+				sb.append("\t").append("public").append(" ").append(returnType.getName()).append(" ").append(method.getName()).append("(").append(parametersString).append(") {").append("\n")
+					.append("\t\tInvocation inv = new Invocation(").append(methodId + "L,").append("this,").append("() -> {").append("\n")
+					.append("\t\t\treturn null;\n")
 					.append("\t\t").append("}").append(StringUtil.isEmpty(parameterNamesString) ? "" : "," + parameterNamesString).append(");").append("\n")
 					.append("\t\t").append("inv.invoke();").append("\n")
 					.append(isVoid ? "" : "\t\treturn inv.getReturnValue();\n")

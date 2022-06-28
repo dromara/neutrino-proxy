@@ -19,21 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package fun.asgc.neutrino.core.db.mapper;
 
 /**
- * Id
- * 在持久化模型中标注单一主键
  * @author: aoshiguchen
- * @date: 2022/6/27
+ * @date: 2022/6/28
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Id {
+public interface SqlMapper {
 
 }

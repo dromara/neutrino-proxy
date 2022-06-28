@@ -19,21 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.annotation;
+package fun.asgc.neutrino.core.aop;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.Test;
 
 /**
- * Id
- * 在持久化模型中标注单一主键
+ *
  * @author: aoshiguchen
- * @date: 2022/6/27
+ * @date: 2022/6/28
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Id {
+public class Test3 {
 
+	@Test
+	public void test1() {
+		Animal animal = Aop.get(Animal.class);
+		System.out.println(animal);
+		System.out.println(animal.say("aa"));
+	}
 }
