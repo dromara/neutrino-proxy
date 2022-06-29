@@ -41,4 +41,11 @@ public interface ProxyFactory {
 	 * @return
 	 */
 	boolean canProxy(Class<?> clazz);
+
+	/**
+	 * 判断指定类是否由当前代理策略产生
+	 * @param clazz
+	 * @return
+	 */
+	boolean isProxyClass(Class<?> clazz);
 }

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop.proxy;
+package fun.asgc.neutrino.core.aop;
 
 /**
  * 代理策略
@@ -33,8 +33,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ProxyStrategy {
+	// 在该模式下，代理策略由框架根据一定策略自动选择
+	AUTO(0, "自动选择"),
 	JDK_DYNAMIC_PROXY(1, "JDK动态代理"),
-	SUB_CLASS_PROXY(2, "子类代理");
+	ASGC_PROXY(2, "asgc子类代理");
 
 	private Integer strategy;
 	private String desc;

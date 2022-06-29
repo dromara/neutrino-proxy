@@ -42,7 +42,8 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class AsgcProxyFactory implements ProxyFactory {
-	private static String classNameTemplate = "%sAsgcProxy$$%s";
+	private static final String SYMBOLIC = "AsgcProxy$$";
+	private static final String classNameTemplate = "%s" + SYMBOLIC + "%s";
 	private static AtomicLong proxyClassCounter = new AtomicLong();
 	private ProxyCompiler compiler = new ProxyCompiler();
 	private ProxyClassLoader classLoader = new ProxyClassLoader();
@@ -67,6 +68,11 @@ public class AsgcProxyFactory implements ProxyFactory {
 			&& !ClassUtil.isStatic(clazz)
 			&& !ClassUtil.isInterface(clazz)
 			&& Stream.of(clazz.getConstructors()).filter(e -> e.getParameterCount() == 0).count() > 0);
+	}
+
+	@Override
+	public boolean isProxyClass(Class<?> clazz) {
+		return null != clazz && clazz.getSimpleName().contains(SYMBOLIC);
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {

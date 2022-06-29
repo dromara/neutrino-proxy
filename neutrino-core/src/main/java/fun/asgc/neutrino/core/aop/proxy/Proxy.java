@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.aop.ProxyStrategy;
+
 /**
  *
  * @author: aoshiguchen
@@ -28,10 +30,12 @@ package fun.asgc.neutrino.core.aop.proxy;
  */
 public class Proxy {
 	private static final ProxyFactory subClassProxyFactory = new AsgcProxyFactory();
+	private static final ProxyFactory jdkDynamicProxyFactory = new JdkDynamicProxyFactory();
 
 	public static ProxyFactory getProxyFactory(ProxyStrategy strategy) {
 		switch (strategy) {
-			case SUB_CLASS_PROXY: return subClassProxyFactory;
+			case ASGC_PROXY: return subClassProxyFactory;
+			case JDK_DYNAMIC_PROXY: return jdkDynamicProxyFactory;
 			default: return null;
 		}
 	}
