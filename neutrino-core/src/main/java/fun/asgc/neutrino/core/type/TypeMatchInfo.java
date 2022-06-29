@@ -71,6 +71,7 @@ public class TypeMatchInfo {
 	}
 
 	public boolean isMatched() {
-		return TypeMatchLevel.byTypeDistance(this.typeDistance) != null && typeConverter != null;
+		TypeMatchLevel matchLevel = TypeMatchLevel.byTypeDistance(this.typeDistance);
+		return  matchLevel != null && matchLevel != TypeMatchLevel.NOT && typeConverter != null;
 	}
 }
