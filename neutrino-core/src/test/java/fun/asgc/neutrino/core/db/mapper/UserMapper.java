@@ -22,7 +22,11 @@
 package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
+
+import java.util.List;
 
 /**
  *
@@ -34,4 +38,14 @@ public interface UserMapper extends SqlMapper {
 
 	@Select("select * from user where id = ?")
 	User findOneById(Long id);
+
+	@ResultType(User.class)
+	@Select("select * from user")
+	List<User> findAll();
+
+	@Select("select count(1) from user")
+	int count();
+
+	@Insert("insert into user(`id`,`name`,`age`,`email`,`sex`,`create_time`) values(:id,:name,:age,:email,:sex,:createTime)")
+	int add(User user);
 }

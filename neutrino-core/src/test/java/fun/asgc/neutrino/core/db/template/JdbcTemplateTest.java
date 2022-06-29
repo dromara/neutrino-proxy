@@ -138,6 +138,18 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
+	public void 查询单个字段记录2() {
+		int age = jdbcTemplate.queryForInt("select age from user where id = 1");
+		System.out.println(age);
+	}
+
+	@Test
+	public void 查询单个字段记录3() {
+		Long count = jdbcTemplate.queryForLong("select count(1) from user");
+		System.out.println(count);
+	}
+
+	@Test
 	public void 查询多个行记录1() {
 		List<Map> list = jdbcTemplate.queryForListMap("select * from user");
 		System.out.println(list);

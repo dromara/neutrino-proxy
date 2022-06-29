@@ -15,8 +15,12 @@ package fun.asgc.neutrino.core.db.mapper;
 import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.template.JdbcTemplateTest;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -32,6 +36,18 @@ public class Test1 implements ApplicationRunner {
 	@Override
 	public void run(String[] args) {
 		User user = userMapper.findOneById(1L);
-		log.info("查询结果:{}", JSONObject.toJSONString(user));
+		log.info("查询结果1:{}", JSONObject.toJSONString(user));
+		List<User> userList = userMapper.findAll();
+		log.info("查询结果2:{}", JSONObject.toJSONString(userList));
+		log.info("查询结果3:{}", userMapper.count());
+
+		User user2 = new User();
+		user2.setId(6L);
+		user2.setName("李八");
+		user2.setAge(24);
+		user2.setEmail("liba@qq.com");
+		user2.setSex("男");
+		user2.setCreateTime(new Date());
+		System.out.println(userMapper.add(user2));
 	}
 }

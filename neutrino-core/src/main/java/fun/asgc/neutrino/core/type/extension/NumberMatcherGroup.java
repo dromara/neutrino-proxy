@@ -164,6 +164,18 @@ public class NumberMatcherGroup extends AbstractExtensionMatcherGroup {
 				return matchInfo;
 			}
 		});
+		// Long - > int
+		add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (TypeUtil.isInteger(targetClass) && TypeUtil.isLong(clazz)) {
+					matchInfo.setTypeDistance(getDistanceMin() + 7);
+					matchInfo.setTypeConverter(((value, targetType) -> ((Long)value).intValue()));
+				}
+				return matchInfo;
+			}
+		});
 	}
 
 }
