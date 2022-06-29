@@ -22,13 +22,12 @@
 package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, exclude = InnerGlobalInterceptor.class)
+@Intercept(value = SqlMapperInterceptor.class, ignoreGlobal = true)
 public interface SqlMapper {
 
 }

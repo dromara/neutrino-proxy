@@ -37,4 +37,5 @@ import java.lang.annotation.*;
 public @interface Intercept {
 	Class<? extends Interceptor>[] value() default {};
 	Class<? extends Interceptor>[] exclude() default {};
+	boolean ignoreGlobal() default false;
 }

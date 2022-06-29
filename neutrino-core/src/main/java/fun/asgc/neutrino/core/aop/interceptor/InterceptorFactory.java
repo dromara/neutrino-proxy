@@ -105,6 +105,9 @@ public class InterceptorFactory {
 				}
 			}
 		}
+		if (intercept.ignoreGlobal()) {
+			interceptors.removeAll(globalInterceptorList);
+		}
 	}
 
 	/**

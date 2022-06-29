@@ -25,6 +25,7 @@ import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.InterceptorFactory;
 import fun.asgc.neutrino.core.aop.proxy.ProxyCache;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -61,6 +62,7 @@ public class Invocation {
 			this.interceptors.get(index++).intercept(this);
 		} else {
 			returnValue = callback.get();
+			returnValue = TypeUtil.conversion(returnValue, this.targetMethod.getReturnType());
 		}
 	}
 
