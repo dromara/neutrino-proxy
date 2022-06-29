@@ -36,13 +36,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
+ * Asgc代理（子类代理）
  * @author: aoshiguchen
  * @date: 2022/6/24
  */
 @Slf4j
-public class SubClassProxyFactory implements ProxyFactory {
-	private static String classNameTemplate = "%sSubClassProxy$$%s";
+public class AsgcProxyFactory implements ProxyFactory {
+	private static String classNameTemplate = "%sAsgcProxy$$%s";
 	private static AtomicLong proxyClassCounter = new AtomicLong();
 	private ProxyCompiler compiler = new ProxyCompiler();
 	private ProxyClassLoader classLoader = new ProxyClassLoader();

@@ -27,7 +27,7 @@ package fun.asgc.neutrino.core.aop.proxy;
  * @date: 2022/6/24
  */
 public class Proxy {
-	private static final ProxyFactory subClassProxyFactory = new SubClassProxyFactory();
+	private static final ProxyFactory subClassProxyFactory = new AsgcProxyFactory();
 
 	public static ProxyFactory getProxyFactory(ProxyStrategy strategy) {
 		switch (strategy) {
