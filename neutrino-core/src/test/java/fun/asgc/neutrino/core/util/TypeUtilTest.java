@@ -128,7 +128,7 @@ public class TypeUtilTest {
 
 	@Test
 	public void conversionInt() {
-		typeMatchers.setEnableExtensionMatcher(false);
+		typeMatchers.setEnableExtensionMatcher(true);
 
 		System.out.println(typeMatchers.conversion(100, boolean.class));
 		System.out.println(typeMatchers.conversion(101, byte.class));
