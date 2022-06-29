@@ -77,7 +77,7 @@ public class JdkDynamicProxyFactory implements ProxyFactory {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			Long methodId = ProxyCache.setMethod(method);
-			Invocation inv = new Invocation(methodId,this, () -> {
+			Invocation inv = new Invocation(methodId, proxy, () -> {
 				if (null != target) {
 					try {
 						return method.invoke(target, args);
