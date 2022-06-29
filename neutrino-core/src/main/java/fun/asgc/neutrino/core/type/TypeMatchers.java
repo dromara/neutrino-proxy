@@ -72,7 +72,7 @@ public class TypeMatchers {
 	 * 注册内置扩展匹配器组
 	 * @param typeMatcherGroup
 	 */
-	public static synchronized void registerExtensionTypeMatcher(TypeMatcherGroup typeMatcherGroup) {
+	private static synchronized void registerExtensionTypeMatcher(TypeMatcherGroup typeMatcherGroup) {
 		if (null == typeMatcherGroup || CollectionUtil.isEmpty(typeMatcherGroup.matchers())) {
 			return;
 		}
@@ -89,9 +89,6 @@ public class TypeMatchers {
 			}
 		}
 		extensionMatcherGroupList.add(typeMatcherGroup);
-		// 按照距离区间排序
-		extensionMatcherList = extensionMatcherGroupList.stream().sorted(Comparator.comparing(TypeMatcherGroup::getDistanceMin))
-			.map(TypeMatcherGroup::matchers).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	/**
@@ -269,5 +266,8 @@ public class TypeMatchers {
 		registerExtensionTypeMatcher(new ArrayMatcherGroup(extensionMatcherGroupDistance + extensionMatcherGroupSize * 7,
 			extensionMatcherGroupDistance + extensionMatcherGroupSize * 8 - 1));
 
+		// 按照距离区间排序
+		extensionMatcherList = extensionMatcherGroupList.stream().sorted(Comparator.comparing(TypeMatcherGroup::getDistanceMin))
+			.map(TypeMatcherGroup::matchers).flatMap(List::stream).collect(Collectors.toList());
 	}
 }
