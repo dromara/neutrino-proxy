@@ -42,8 +42,12 @@ public class InnerGlobalInterceptor implements Interceptor {
 	 */
 	private static final InterceptorWrapper interceptorWrapper = new InterceptorWrapper(InnerGlobalInterceptor.class.getSimpleName());
 
+	public InnerGlobalInterceptor() {
+		System.out.println("aaaaa");
+	}
+
 	@Override
-	public void intercept(Invocation inv) {
+	public void intercept(Invocation inv) throws Exception {
 		interceptorWrapper.intercept(inv);
 	}
 

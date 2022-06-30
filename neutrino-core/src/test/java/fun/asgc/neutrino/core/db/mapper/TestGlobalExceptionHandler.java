@@ -25,9 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class TestGlobalExceptionHandler implements ExceptionHandler {
 
+	/**
+	 *
+	 * @param e
+	 * @return
+	 */
 	@Override
 	public boolean support(Exception e) {
-		return true;
+		return false;
 	}
 
 	@Override

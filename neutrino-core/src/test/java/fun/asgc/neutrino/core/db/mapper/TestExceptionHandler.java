@@ -25,6 +25,11 @@ import java.sql.SQLException;
 @Slf4j
 public class TestExceptionHandler implements ExceptionHandler {
 
+	/**
+	 * 此处若拦截成功，则全局异常拦截不会执行
+	 * @param e
+	 * @return
+	 */
 	@Override
 	public boolean support(Exception e) {
 //		return e instanceof SQLException;

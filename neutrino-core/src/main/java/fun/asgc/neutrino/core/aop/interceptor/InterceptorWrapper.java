@@ -51,7 +51,7 @@ public class InterceptorWrapper implements Interceptor {
 	}
 
 	@Override
-	public void intercept(Invocation inv) {
+	public void intercept(Invocation inv) throws Exception {
 		try {
 			log.debug("拦截器：{} class:{} method:{} args:{} before", this.name, inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
 			if (CollectionUtil.notEmpty(filterList)) {
@@ -89,6 +89,7 @@ public class InterceptorWrapper implements Interceptor {
 					}
 				}
 			}
+			throw e;
 		}
 	}
 

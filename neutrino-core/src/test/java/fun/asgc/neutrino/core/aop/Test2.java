@@ -107,4 +107,14 @@ public class Test2 {
 		Panda panda = Aop.get(Panda.class);
 		panda.request("xxx", "yyy");
 	}
+
+	@Test
+	public void up() {
+		Panda panda = Aop.get(Panda.class);
+		try {
+			panda.up();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

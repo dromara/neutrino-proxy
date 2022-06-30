@@ -22,13 +22,12 @@
 package fun.asgc.neutrino.core.aop.proxy;
 
 import fun.asgc.neutrino.core.aop.Invocation;
-import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.ClassUtil;
+import fun.asgc.neutrino.core.util.*;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Set;
 
 /**
  * JDK动态代理
@@ -82,7 +81,16 @@ public class JdkDynamicProxyFactory implements ProxyFactory {
 				}
 				return null;
 			}, args);
-			inv.invoke();
+			try {
+				inv.invoke();
+			} catch (Exception e) {
+				Set<Class<?>> exceptionTypes = ReflectUtil.getExceptionTypes(method);
+				if (CollectionUtil.notEmpty(exceptionTypes) && exceptionTypes.contains(e.getClass())) {
+					throw e;
+				} else {
+					e.printStackTrace();
+				}
+			}
 			return inv.getReturnValue();
 		}
 	}

@@ -59,6 +59,10 @@ public class Test1 implements ApplicationRunner {
 		user2.setEmail("liba@qq.com");
 		user2.setSex("男");
 		user2.setCreateTime(new Date());
-		System.out.println(userMapper.add(user2));
+		try {
+			System.out.println(userMapper.add(user2));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

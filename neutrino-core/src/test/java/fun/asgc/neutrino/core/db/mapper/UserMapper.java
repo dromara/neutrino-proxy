@@ -49,5 +49,5 @@ public interface UserMapper extends SqlMapper {
 	int count();
 
 	@Insert("insert into user(`id`,`name`,`age`,`email`,`sex`,`create_time`) values(:id,:name,:age,:email,:sex,:createTime)")
-	int add(User user);
+	int add(User user) throws Exception;
 }

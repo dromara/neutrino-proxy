@@ -54,4 +54,8 @@ public class Panda {
 	public String request(String a, String b) {
 		return String.format("参数 a:%s b:%s 处理结果", a, b);
 	}
+
+	public void up() throws Exception {
+		throw new Exception("跳太高，摔死了!");
+	}
 }
