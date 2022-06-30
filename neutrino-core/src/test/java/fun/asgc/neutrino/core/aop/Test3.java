@@ -21,8 +21,11 @@
  */
 package fun.asgc.neutrino.core.aop;
 
+import fun.asgc.neutrino.core.aop.proxy.Proxy;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
+
+import java.lang.reflect.Method;
 
 /**
  *
@@ -34,6 +37,7 @@ public class Test3 {
 	@Test
 	public void test1() {
 		Animal animal = Aop.get(Animal.class);
+//		Animal animal = Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY).get(Animal.class);
 		System.out.println(animal);
 		System.out.println(animal.say("aa"));
 	}
@@ -44,5 +48,11 @@ public class Test3 {
 		mammal.crawl();
 
 		System.out.println(ReflectUtil.getInterfaceAll(Mammal.class));
+	}
+
+	@Test
+	public void test3() throws Exception {
+		Bear bear = Aop.get(Bear.class);
+		bear.up();
 	}
 }

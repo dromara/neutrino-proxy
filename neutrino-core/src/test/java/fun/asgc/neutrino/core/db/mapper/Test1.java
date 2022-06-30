@@ -15,6 +15,9 @@ package fun.asgc.neutrino.core.db.mapper;
 import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Init;
+import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
+import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
 import fun.asgc.neutrino.core.db.template.JdbcTemplateTest;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,14 @@ import java.util.List;
 public class Test1 implements ApplicationRunner {
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private TestGlobalExceptionHandler testGlobalExceptionHandler;
+
+	@Init
+	public void init() {
+		log.info("初始化，注册全局异常拦截器{}...", testGlobalExceptionHandler.hashCode());
+		InnerGlobalInterceptor.registerExceptionHandler(testGlobalExceptionHandler);
+	}
 
 	@Override
 	public void run(String[] args) {

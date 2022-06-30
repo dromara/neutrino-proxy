@@ -24,12 +24,14 @@ package fun.asgc.neutrino.core.aop;
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/28
+ * @date: 2022/6/30
  */
-@Intercept(TestInterceptor.class)
-public interface Animal {
+public class Bear {
+	public Bear() {
+		System.out.println("熊出生");
+	}
 
-	int say(String msg);
-
-	void hello() throws Exception;
+	public void up() throws Exception {
+		throw new Exception("飞得太高，摔死了");
+	}
 }

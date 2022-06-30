@@ -49,6 +49,7 @@ public class ReflectUtil {
 	private static Cache<Class<?>, Set<Method>> declaredMethodsCache = new MemoryCache<>();
 	private static Cache<Field,Method> getMethodCache = new MemoryCache<>();
 	private static Cache<Field,Method> setMethodCache = new MemoryCache<>();
+	private static Cache<Method, Set<Class<?>>> methodExceptionTypesCache = new MemoryCache<>();
 
 	/**
 	 * 获取字段列表
@@ -151,6 +152,22 @@ public class ReflectUtil {
 				methodSet = Stream.of(methods).collect(Collectors.toSet());
 			}
 			return methodSet;
+		});
+	}
+
+	/**
+	 * 获取异常集合
+	 * @param method
+	 * @return
+	 */
+	public static Set<Class<?>> getExceptionTypes(Method method) {
+		return kvProcess(methodExceptionTypesCache, method, c -> {
+			Class<?>[] classes = method.getExceptionTypes();
+			Set<Class<?>> classSet = new HashSet<>();
+			if (ArrayUtil.notEmpty(classes)) {
+				classSet = Stream.of(classes).collect(Collectors.toSet());
+			}
+			return classSet;
 		});
 	}
 

@@ -27,7 +27,6 @@ import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.ClassUtil;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -79,11 +78,7 @@ public class JdkDynamicProxyFactory implements ProxyFactory {
 			Long methodId = ProxyCache.setMethod(method);
 			Invocation inv = new Invocation(methodId, proxy, () -> {
 				if (null != target) {
-					try {
-						return method.invoke(target, args);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					return method.invoke(target, args);
 				}
 				return null;
 			}, args);

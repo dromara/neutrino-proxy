@@ -21,10 +21,14 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.ReflectUtil;
+
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -35,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ProxyCache {
 	private static final AtomicLong methodId = new AtomicLong();
 	private static final Map<Long, Method> methodCache = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Long, Set<Class<?>>> methodExceptionTypesCache = Collections.synchronizedMap(new HashMap<>());
 
 	public static Long generateMethodId() {
 		return methodId.incrementAndGet();
@@ -43,10 +48,19 @@ public class ProxyCache {
 	public static Long setMethod(Method method) {
 		Long id = generateMethodId();
 		methodCache.put(id, method);
+		methodExceptionTypesCache.put(id, ReflectUtil.getExceptionTypes(method));
 		return id;
 	}
 
 	public static Method getMethod(Long id) {
 		return methodCache.get(id);
+	}
+
+	public static boolean checkMethodThrow(Long id, Exception e) {
+		Set<Class<?>> exceptionTypes = methodExceptionTypesCache.get(id);
+		if (CollectionUtil.isEmpty(exceptionTypes)) {
+			return false;
+		}
+		return exceptionTypes.contains(e.getClass());
 	}
 }

@@ -22,15 +22,15 @@
 package fun.asgc.neutrino.core.aop.proxy;
 
 import fun.asgc.neutrino.core.aop.Invocation;
-import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.ClassUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,10 +103,14 @@ public class AsgcProxyFactory implements ProxyFactory {
 		if (ClassUtil.isInterface(clazz)) {
 			return generateProxyClassSourceCodeForInterface(clazz, proxyClassName);
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("package " + clazz.getPackage().getName() + ";").append("\n");
-		sb.append("import ").append(Invocation.class.getName()).append(";\n");
-		sb.append("public class ").append(proxyClassName).append(" extends ").append(clazz.getSimpleName()).append("{\n");
+		Set<Class<?>> importClasses = new HashSet<>();
+		StringBuilder header = new StringBuilder();
+		header.append("package " + clazz.getPackage().getName() + ";").append("\n");
+		appendImport(header, Invocation.class, importClasses);
+		appendImport(header, ProxyCache.class, importClasses);
+
+		StringBuilder body = new StringBuilder();
+		body.append("public class ").append(proxyClassName).append(" extends ").append(clazz.getSimpleName()).append("{\n");
 		Method[] methods = clazz.getMethods();
 		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
@@ -115,29 +119,54 @@ public class AsgcProxyFactory implements ProxyFactory {
 				}
 				Long methodId = ProxyCache.setMethod(method);
 				Class<?> returnType = method.getReturnType();
+				Set<Class<?>> exceptionTypes = ReflectUtil.getExceptionTypes(method);
 				boolean isVoid = returnType == void.class;
+				boolean isThrow = CollectionUtil.notEmpty(exceptionTypes);
 				String parametersString = buildParametersString(method.getParameters());
 				String parameterNamesString = buildParameterNamesString(method.getParameters());
+				String throwString = isThrow ? "throws " + buildTypeNameString(exceptionTypes) : "";
+				if (isThrow) {
+					for (Class<?> c : exceptionTypes) {
+						appendImport(header, c, importClasses);
+					}
+				}
 
-				sb.append("\t").append("public").append(" ").append(returnType.getName()).append(" ").append(method.getName()).append("(").append(parametersString).append(") {").append("\n")
+				body.append("\t").append("public").append(" ").append(returnType.getName()).append(" ").append(method.getName()).append("(").append(parametersString).append(") ").append(throwString).append(" {").append("\n")
 					.append("\t\tInvocation inv = new Invocation(").append(methodId + "L,").append("this,").append("() -> {").append("\n")
 					.append("\t\t\t").append(isVoid ? "" : "return ").append("super.").append(method.getName()).append("(").append(parameterNamesString).append(");").append("\n")
 					.append(isVoid ? "\t\t\treturn null;\n" : "")
 					.append("\t\t").append("}").append(StringUtil.isEmpty(parameterNamesString) ? "" : "," + parameterNamesString).append(");").append("\n")
-					.append("\t\t").append("inv.invoke();").append("\n")
+					.append("\t\t").append("try {\n")
+					.append("\t\t\t").append("inv.invoke();").append("\n")
+					.append("\t\t").append("} catch (Exception e) {\n");
+
+				if (isThrow) {
+					body.append("\t\t\t").append("if (ProxyCache.checkMethodThrow(" + methodId + "L,e)) {").append("\n")
+						.append("\t\t\t\t").append("throw e;").append("\n")
+						.append("\t\t\t").append("} else {").append("\n")
+						.append("\t\t\t\t").append("e.printStackTrace();").append("\n")
+						.append("\t\t\t").append("}").append("\n");
+				} else {
+					body.append("\t\t\t").append("e.printStackTrace();").append("\n");
+				}
+				body.append("\t\t").append("}\n")
 					.append(isVoid ? "" : "\t\treturn inv.getReturnValue();\n")
 					.append("\t").append("}").append("\n");
 			}
 		}
-		sb.append("}").append("\n");
-		return sb.toString();
+		body.append("}").append("\n");
+		return header.toString().concat(body.toString());
 	}
 
 	private String generateProxyClassSourceCodeForInterface(Class<?> clazz, String proxyClassName) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("package " + clazz.getPackage().getName() + ";").append("\n");
-		sb.append("import ").append(Invocation.class.getName()).append(";\n");
-		sb.append("public class ").append(proxyClassName).append(" implements ").append(clazz.getSimpleName()).append("{\n");
+		Set<Class<?>> importClasses = new HashSet<>();
+		StringBuilder header = new StringBuilder();
+		header.append("package " + clazz.getPackage().getName() + ";").append("\n");
+		appendImport(header, Invocation.class, importClasses);
+		appendImport(header, ProxyCache.class, importClasses);
+
+		StringBuilder body = new StringBuilder();
+		body.append("public class ").append(proxyClassName).append(" implements ").append(clazz.getSimpleName()).append("{\n");
 		Method[] methods = clazz.getMethods();
 		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
@@ -146,21 +175,57 @@ public class AsgcProxyFactory implements ProxyFactory {
 				}
 				Long methodId = ProxyCache.setMethod(method);
 				Class<?> returnType = method.getReturnType();
+				Set<Class<?>> exceptionTypes = ReflectUtil.getExceptionTypes(method);
 				boolean isVoid = returnType == void.class;
+				boolean isThrow = CollectionUtil.notEmpty(exceptionTypes);
 				String parametersString = buildParametersString(method.getParameters());
 				String parameterNamesString = buildParameterNamesString(method.getParameters());
+				String throwString = isThrow ? "throws " + buildTypeNameString(exceptionTypes) : "";
+				if (isThrow) {
+					for (Class<?> c : exceptionTypes) {
+						appendImport(header, c, importClasses);
+					}
+				}
 
-				sb.append("\t").append("public").append(" ").append(returnType.getName()).append(" ").append(method.getName()).append("(").append(parametersString).append(") {").append("\n")
+				body.append("\t").append("public").append(" ").append(returnType.getName()).append(" ").append(method.getName()).append("(").append(parametersString).append(") ").append(throwString).append(" {").append("\n")
 					.append("\t\tInvocation inv = new Invocation(").append(methodId + "L,").append("this,").append("() -> {").append("\n")
 					.append("\t\t\treturn null;\n")
 					.append("\t\t").append("}").append(StringUtil.isEmpty(parameterNamesString) ? "" : "," + parameterNamesString).append(");").append("\n")
-					.append("\t\t").append("inv.invoke();").append("\n")
+					.append("\t\t").append("try {\n")
+					.append("\t\t\t").append("inv.invoke();").append("\n")
+					.append("\t\t").append("} catch (Exception e) {\n");
+
+				if (isThrow) {
+					body.append("\t\t\t").append("if (ProxyCache.checkMethodThrow(" + methodId + "L,e)) {").append("\n")
+						.append("\t\t\t\t").append("throw e;").append("\n")
+						.append("\t\t\t").append("} else {").append("\n")
+						.append("\t\t\t\t").append("e.printStackTrace();").append("\n")
+						.append("\t\t\t").append("}").append("\n");
+				} else {
+					body.append("\t\t\t").append("e.printStackTrace();").append("\n");
+				}
+				body.append("\t\t").append("}\n")
 					.append(isVoid ? "" : "\t\treturn inv.getReturnValue();\n")
 					.append("\t").append("}").append("\n");
+
 			}
 		}
-		sb.append("}").append("\n");
-		return sb.toString();
+		body.append("}").append("\n");
+		return header.toString().concat(body.toString());
+	}
+
+	/**
+	 * 追加import语句，java.lang包下不需要import
+	 * @param sb
+	 * @param clazz
+	 * @param importClasses
+	 */
+	private synchronized void appendImport(StringBuilder sb, Class<?> clazz, Set<Class<?>> importClasses) {
+		if (importClasses.contains(clazz) || clazz.getName().startsWith("java.lang.")) {
+			return;
+		}
+		importClasses.add(clazz);
+		sb.append("import ").append(clazz.getName()).append(";\n");
 	}
 
 	private String buildParametersString(Parameter[] parameters) {
@@ -175,5 +240,12 @@ public class AsgcProxyFactory implements ProxyFactory {
 			return "";
 		}
 		return Stream.of(parameters).map(Parameter::getName).collect(Collectors.joining(","));
+	}
+
+	private String buildTypeNameString(Set<Class<?>> classes) {
+		if (CollectionUtil.isEmpty(classes)) {
+			return "";
+		}
+		return classes.stream().map(Class::getName).collect(Collectors.joining(","));
 	}
 }

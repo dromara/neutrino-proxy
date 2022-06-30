@@ -42,13 +42,13 @@ public class Invocation {
 	private Class<?> targetClass;
 	private Method targetMethod;
 	private Object proxy;
-	private Supplier callback;
+	private AopCallback callback;
 	private Object[] args;
 	private List<Interceptor> interceptors;
 	private volatile int index = 0;
 	private Object returnValue;
 
-	public Invocation(Long methodId, Object proxy, Supplier callback, Object... args) {
+	public Invocation(Long methodId, Object proxy, AopCallback callback, Object... args) {
 		this.targetMethod = ProxyCache.getMethod(methodId);
 		this.targetClass = this.targetMethod.getDeclaringClass();
 		this.proxy = proxy;
@@ -62,7 +62,7 @@ public class Invocation {
 		if (CollectionUtil.notEmpty(this.interceptors) && index < this.interceptors.size()) {
 			this.interceptors.get(index++).intercept(this);
 		} else {
-			returnValue = callback.get();
+			returnValue = callback.callback();
 			returnValue = TypeUtil.conversion(returnValue, this.targetMethod.getReturnType());
 		}
 	}

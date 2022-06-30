@@ -12,28 +12,27 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
+import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.SQLException;
-
 /**
- *
+ * 全局异常处理
  * @author: aoshiguchen
  * @date: 2022/6/30
  */
 @Slf4j
-public class TestExceptionHandler implements ExceptionHandler {
+@Component
+public class TestGlobalExceptionHandler implements ExceptionHandler {
 
 	@Override
 	public boolean support(Exception e) {
-//		return e instanceof SQLException;
-		return false;
+		return true;
 	}
 
 	@Override
 	public Object handle(Exception e) {
-		log.error("SQL执行异常", e);
+		log.error("全局异常 {}" + this.hashCode(), e);
 		return null;
 	}
 }

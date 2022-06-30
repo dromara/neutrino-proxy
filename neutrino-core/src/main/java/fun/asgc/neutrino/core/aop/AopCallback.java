@@ -22,14 +22,15 @@
 package fun.asgc.neutrino.core.aop;
 
 /**
- *
+ * aop回调
  * @author: aoshiguchen
- * @date: 2022/6/28
+ * @date: 2022/6/30
  */
-@Intercept(TestInterceptor.class)
-public interface Animal {
-
-	int say(String msg);
-
-	void hello() throws Exception;
+@FunctionalInterface
+public interface AopCallback<T> {
+	/**
+	 * 回调
+	 * @return
+	 */
+	T callback() throws Exception;
 }

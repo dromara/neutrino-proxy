@@ -27,7 +27,7 @@ import fun.asgc.neutrino.core.aop.Intercept;
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
-@Intercept(value = SqlMapperInterceptor.class, ignoreGlobal = true)
+@Intercept(SqlMapperInterceptor.class)
 public interface SqlMapper {
 
 }
