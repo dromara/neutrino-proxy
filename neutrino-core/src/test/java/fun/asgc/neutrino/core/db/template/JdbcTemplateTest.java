@@ -27,6 +27,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +50,12 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
-	public void 新增数据1() {
+	public void 新增数据1() throws SQLException {
 		jdbcTemplate.update("insert into user(`id`,`name`,`age`,`email`,`sex`,`create_time`) values(?,?,?,?,?,?)", 1, "张三", 21, "zhangsan@qq.com", "男", new Date());
 	}
 
 	@Test
-	public void 数据新增2() {
+	public void 数据新增2() throws SQLException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", 2);
 		params.put("name", "李四");
@@ -66,7 +67,7 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
-	public void 数据新增3() {
+	public void 数据新增3() throws SQLException {
 		User user = new User();
 		user.setId(3L);
 		user.setName("王五");
@@ -78,12 +79,12 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
-	public void 更新数据1() {
+	public void 更新数据1() throws SQLException {
 		jdbcTemplate.update("update user set age = ? ,update_time = ? where id = ?", 31, new Date(), 1);
 	}
 
 	@Test
-	public void 更新数据2() {
+	public void 更新数据2() throws SQLException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", 2);
 		params.put("updateTime", new Date());
@@ -92,7 +93,7 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
-	public void 更新数据3() {
+	public void 更新数据3() throws SQLException {
 		User user = new User();
 		user.setId(3L);
 		user.setAge(33);
@@ -101,68 +102,68 @@ public class JdbcTemplateTest {
 	}
 
 	@Test
-	public void 删除数据1() {
+	public void 删除数据1() throws SQLException {
 		jdbcTemplate.update("delete from user where id = ?",  1L);
 	}
 
 	@Test
-	public void 删除数据2() {
+	public void 删除数据2() throws SQLException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", 2);
 		jdbcTemplate.updateByMap("delete from user where id = :id", params);
 	}
 
 	@Test
-	public void 删除数据3() {
+	public void 删除数据3() throws SQLException {
 		User user = new User();
 		user.setId(3L);
 		jdbcTemplate.updateByModel("delete from user where id = :id", user);
 	}
 
 	@Test
-	public void 查询单个行记录1() {
+	public void 查询单个行记录1() throws SQLException {
 		Map<String, Object> map = jdbcTemplate.queryForMap("select * from user where id = ?", 1);
 		System.out.println(map);
 	}
 
 	@Test
-	public void 查询单个行记录2() {
+	public void 查询单个行记录2() throws SQLException {
 		User user = jdbcTemplate.query(User.class, "select * from user where id = 1");
 		System.out.println(user);
 	}
 
 	@Test
-	public void 查询单个字段记录1() {
+	public void 查询单个字段记录1() throws SQLException {
 		String name = jdbcTemplate.queryForString("select name from user where id = ?", 1);
 		System.out.println(name);
 	}
 
 	@Test
-	public void 查询单个字段记录2() {
+	public void 查询单个字段记录2() throws SQLException {
 		int age = jdbcTemplate.queryForInt("select age from user where id = 1");
 		System.out.println(age);
 	}
 
 	@Test
-	public void 查询单个字段记录3() {
+	public void 查询单个字段记录3() throws SQLException {
 		Long count = jdbcTemplate.queryForLong("select count(1) from user");
 		System.out.println(count);
 	}
 
 	@Test
-	public void 查询多个行记录1() {
+	public void 查询多个行记录1() throws SQLException {
 		List<Map> list = jdbcTemplate.queryForListMap("select * from user");
 		System.out.println(list);
 	}
 
 	@Test
-	public void 查询多个行记录2() {
+	public void 查询多个行记录2() throws SQLException {
 		List<User> list = jdbcTemplate.queryForList(User.class, "select * from user");
 		System.out.println(list);
 	}
 
 	@Test
-	public void 查询多个字段记录1() {
+	public void 查询多个字段记录1() throws SQLException {
 		List<Integer> list = jdbcTemplate.queryForListInt("select age from user");
 		System.out.println(list);
 	}

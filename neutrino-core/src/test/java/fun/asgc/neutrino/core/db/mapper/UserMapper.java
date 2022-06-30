@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
@@ -33,6 +34,7 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
+@Intercept(exceptionHandler = TestExceptionHandler.class)
 @Component
 public interface UserMapper extends SqlMapper {
 

@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
+import java.sql.SQLException;
+
 /**
  * @author: aoshiguchen
  * @date: 2022/6/27
@@ -31,6 +33,6 @@ public interface JdbcCallback<T> {
 	 * 执行
 	 * @return
 	 */
-	T execute();
+	T execute() throws SQLException;
 
 }

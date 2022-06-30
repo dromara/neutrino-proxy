@@ -21,7 +21,10 @@
  */
 package fun.asgc.neutrino.core.aop;
 
+import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
+import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
 
 import java.lang.annotation.*;
 
@@ -35,7 +38,39 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Intercept {
+	/**
+	 * 指定拦截器
+	 * @return
+	 */
 	Class<? extends Interceptor>[] value() default {};
+
+	/**
+	 * 排除拦截器
+	 * @return
+	 */
 	Class<? extends Interceptor>[] exclude() default {};
+
+	/**
+	 * 忽略一切全局拦截器
+	 * @return
+	 */
 	boolean ignoreGlobal() default false;
+
+	/**
+	 * 指定过滤器
+	 * @return
+	 */
+	Class<? extends Filter>[] filter() default {};
+
+	/**
+	 * 指定异常处理器
+	 * @return
+	 */
+	Class<? extends ExceptionHandler>[] exceptionHandler() default {};
+
+	/**
+	 * 指定结果处理器
+	 * @return
+	 */
+	Class<? extends ResultAdvice>[] resultAdvice() default {};
 }

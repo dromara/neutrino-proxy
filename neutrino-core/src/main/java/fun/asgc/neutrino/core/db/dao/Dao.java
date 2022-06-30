@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.db.dao;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public interface Dao<T> {
 	 * @param po
 	 * @return
 	 */
-	T add(T po);
+	T add(T po) throws SQLException;
 
 	//==============================================修改=====================
 
@@ -70,13 +71,13 @@ public interface Dao<T> {
 	int delete();
 
 	//==============================================查询=====================
-	Long count();
-	Long count(T po, String ...field);
+	Long count() throws SQLException;
+	Long count(T po, String ...field) throws SQLException;
 
-	T findOneById(Serializable id);
-	T findOne(T po, String ...field);
-	List<T> find();
-	List<T> find(T po, String ...field);
+	T findOneById(Serializable id) throws SQLException;
+	T findOne(T po, String ...field) throws SQLException;
+	List<T> find() throws SQLException;
+	List<T> find(T po, String ...field) throws SQLException;
 
 	List<T> findPage(int beginNo, int pageSize);
 	List<T> findPage(T po,int beginNo, int pageSize, String ...field);

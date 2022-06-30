@@ -55,9 +55,10 @@ public class Invocation {
 		this.callback = callback;
 		this.args = args;
 		this.interceptors = InterceptorFactory.getListByTargetMethod(this.targetMethod);
+		this.returnValue = TypeUtil.getDefaultValue(this.targetMethod.getReturnType());
 	}
 
-	public void invoke() {
+	public void invoke() throws Exception {
 		if (CollectionUtil.notEmpty(this.interceptors) && index < this.interceptors.size()) {
 			this.interceptors.get(index++).intercept(this);
 		} else {

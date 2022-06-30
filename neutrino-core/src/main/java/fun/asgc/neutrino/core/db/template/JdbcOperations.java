@@ -53,15 +53,8 @@ public class JdbcOperations {
 	 * @param <T>
 	 * @return
 	 */
-	public <T> T execute(JdbcCallback<T> callback) {
-		T res = null;
-		try {
-			res = callback.execute();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		return res;
+	public <T> T execute(JdbcCallback<T> callback) throws SQLException {
+		return callback.execute();
 	}
 
 	/**
@@ -71,17 +64,11 @@ public class JdbcOperations {
 	 * @param params
 	 * @return
 	 */
-	public int executeUpdate(final Connection conn , final String sql, final Object[] params) {
+	public int executeUpdate(final Connection conn , final String sql, final Object[] params) throws SQLException {
 		return this.execute(new PreparedStatementJdbcCallback<Integer>(){
 			@Override
-			public Integer execute(PreparedStatement ps) {
-				int res = -1;
-				try{
-					res =  ps.executeUpdate();
-				}catch(SQLException e){
-					throw new RuntimeException(e);
-				}
-				return res;
+			public Integer execute(PreparedStatement ps) throws SQLException {
+				return ps.executeUpdate();
 			}
 			@Override
 			public Object[] getParams() {
@@ -107,7 +94,7 @@ public class JdbcOperations {
 	 * @param <T>
 	 * @return
 	 */
-	public <T> T executeQuery(final Connection conn,final Class<T> clazz,final String sql,final Object[] params) {
+	public <T> T executeQuery(final Connection conn,final Class<T> clazz,final String sql,final Object[] params) throws SQLException {
 		return this.execute(new PreparedStatementJdbcCallback<T>() {
 
 			@Override
@@ -172,7 +159,7 @@ public class JdbcOperations {
 	 * @param <T>
 	 * @return
 	 */
-	public <T> List<T> executeQueryForList(final Connection conn, final Class<T> clazz, final String sql, final Object[] params) {
+	public <T> List<T> executeQueryForList(final Connection conn, final Class<T> clazz, final String sql, final Object[] params) throws SQLException {
 		return this.execute(new PreparedStatementJdbcCallback<List<T>>() {
 			@Override
 			public List<T> execute(PreparedStatement ps) {

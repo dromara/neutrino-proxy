@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  *
@@ -36,35 +37,32 @@ import java.sql.PreparedStatement;
 public abstract class PreparedStatementJdbcCallback<T> implements JdbcCallback<T> {
 
 	@Override
-	public T execute() {
+	public T execute() throws SQLException {
 		PreparedStatement pstm = null;
 		Object[] params = this.getParams();
 		Connection conn = getConnection();
 
 		T res = null;
-		try {
-			log.debug("sql:" + this.getSql());
-			StringBuffer sb = new StringBuffer();
-			if (ArrayUtil.notEmpty(params)) {
-				for(Object o : params){
-					sb.append(o.toString()).append(",");
-				}
 
-				if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ','){
-					sb.deleteCharAt(sb.length() - 1);
-				}
+		log.debug("sql:" + this.getSql());
+		StringBuffer sb = new StringBuffer();
+		if (ArrayUtil.notEmpty(params)) {
+			for(Object o : params){
+				sb.append(o.toString()).append(",");
 			}
-			log.debug("params:" + sb.toString());
-			pstm = conn.prepareStatement(this.getSql());
-			if (ArrayUtil.notEmpty(params)) {
-				for(int i = 0;i < params.length;i++){
-					pstm.setObject(i + 1, params[i]);
-				}
+
+			if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ','){
+				sb.deleteCharAt(sb.length() - 1);
 			}
-			res = this.execute(pstm);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
+		log.debug("params:" + sb.toString());
+		pstm = conn.prepareStatement(this.getSql());
+		if (ArrayUtil.notEmpty(params)) {
+			for(int i = 0;i < params.length;i++){
+				pstm.setObject(i + 1, params[i]);
+			}
+		}
+		res = this.execute(pstm);
 
 		return res;
 	}
@@ -86,7 +84,7 @@ public abstract class PreparedStatementJdbcCallback<T> implements JdbcCallback<T
 	 * @param ps
 	 * @return
 	 */
-	abstract T execute(PreparedStatement ps);
+	abstract T execute(PreparedStatement ps) throws SQLException;
 
 	/**
 	 * 获取数据库连接

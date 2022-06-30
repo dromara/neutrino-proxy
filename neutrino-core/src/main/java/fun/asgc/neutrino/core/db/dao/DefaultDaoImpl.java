@@ -35,6 +35,7 @@ import fun.asgc.neutrino.core.util.ReflectUtil;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -88,7 +89,7 @@ public class DefaultDaoImpl<T> implements Dao<T> {
 	}
 
 	@Override
-	public T add(T po) {
+	public T add(T po) throws SQLException {
 		SqlAndParams sqlAndParams = this.sqlDialect.add(po);
 		jdbcTemplate.update(sqlAndParams.getSql());
 		Serializable idValue = getIdValue(po);
@@ -109,13 +110,13 @@ public class DefaultDaoImpl<T> implements Dao<T> {
 	}
 
 	@Override
-	public Long count() {
+	public Long count() throws SQLException {
 		SqlAndParams sqlAndParams = this.sqlDialect.count(entryClass, null);
 		return jdbcTemplate.queryForLong(sqlAndParams.getSql(), sqlAndParams.getParamArray());
 	}
 
 	@Override
-	public Long count(T po, String... field) {
+	public Long count(T po, String... field) throws SQLException {
 		Set<String> filter = Sets.newHashSet(field);
 		Cache<Field, String> fieldCache = DbCache.getFieldCache(entryClass);
 		SqlAndParams sqlAndParams = this.sqlDialect.count(entryClass, new LinkedHashMap<String, Object>(){
@@ -132,7 +133,7 @@ public class DefaultDaoImpl<T> implements Dao<T> {
 	}
 
 	@Override
-	public T findOneById(Serializable id) {
+	public T findOneById(Serializable id) throws SQLException {
 		SqlAndParams sqlAndParams = this.sqlDialect.find(entryClass, new LinkedHashMap<String, Object>(){
 			{
 				this.put(idColumnName, id);
@@ -142,7 +143,7 @@ public class DefaultDaoImpl<T> implements Dao<T> {
 	}
 
 	@Override
-	public T findOne(T po, String... field) {
+	public T findOne(T po, String... field) throws SQLException {
 		Set<String> filter = Sets.newHashSet(field);
 		Cache<Field, String> fieldCache = DbCache.getFieldCache(entryClass);
 		SqlAndParams sqlAndParams = this.sqlDialect.find(entryClass, new LinkedHashMap<String, Object>(){
@@ -159,13 +160,13 @@ public class DefaultDaoImpl<T> implements Dao<T> {
 	}
 
 	@Override
-	public List<T> find() {
+	public List<T> find() throws SQLException {
 		SqlAndParams sqlAndParams = this.sqlDialect.find(entryClass, null);
 		return jdbcTemplate.queryForList(entryClass, sqlAndParams);
 	}
 
 	@Override
-	public List<T> find(T po, String... field) {
+	public List<T> find(T po, String... field) throws SQLException {
 		Set<String> filter = Sets.newHashSet(field);
 		Cache<Field, String> fieldCache = DbCache.getFieldCache(entryClass);
 		SqlAndParams sqlAndParams = this.sqlDialect.find(entryClass, new LinkedHashMap<String, Object>(){

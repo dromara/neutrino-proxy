@@ -34,6 +34,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -50,12 +51,13 @@ public class SqlMapperInterceptor implements Interceptor {
 	private static final Cache<Method, Params> paramsCache = new MemoryCache<>();
 
 	@Override
-	public void intercept(Invocation inv) {
+	public void intercept(Invocation inv) throws SQLException {
 		Assert.notNull(jdbcTemplate, "JdbcTemplate未注入，调用失败!");
 		Params params = getParams(inv.getTargetMethod());
 		if (null == params) {
 			return;
 		}
+
 		String sql = params.getSql();
 		Class<?> resultType = params.getResultType();
 		Object res = null;

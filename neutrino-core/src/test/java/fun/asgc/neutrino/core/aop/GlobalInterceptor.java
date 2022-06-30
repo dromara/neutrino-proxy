@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalInterceptor implements Interceptor {
 
 	@Override
-	public void intercept(Invocation inv) {
+	public void intercept(Invocation inv) throws Exception {
 		log.info("全局拦截器1 class:{} method:{} args:{} before", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
 		inv.invoke();
 		log.info("全局拦截器1 class:{} method:{} args:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());

@@ -28,6 +28,8 @@ import fun.asgc.neutrino.core.util.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 拦截器工厂
@@ -38,29 +40,123 @@ public class InterceptorFactory {
 	private static final Cache<Class<? extends Interceptor>, Interceptor> interceptorCache = new MemoryCache<>();
 	private static final List<Interceptor> globalInterceptorList = Collections.synchronizedList(new ArrayList<>());
 	private static final Map<Method, List<Interceptor>> methodInterceptorListMap = new HashMap<>();
+	private static final Cache<Class<? extends Filter>, Filter> filterCache = new MemoryCache<>();
+	private static final Cache<Class<? extends ResultAdvice>, ResultAdvice> resultAdviceCache = new MemoryCache<>();
+	private static final Cache<Class<? extends ExceptionHandler>, ExceptionHandler> exceptionHandlerCache = new MemoryCache<>();
 
 	static {
 		registerGlobalInterceptor(InnerGlobalInterceptor.class);
 	}
 
-	public static <T extends Interceptor> T get(Class<T> clazz) {
-		return (T)LockUtil.doubleCheckProcess(() -> !interceptorCache.containsKey(clazz),
+	/**
+	 * 获取或新建缓存bean实例
+	 * @param clazz
+	 * @param cache
+	 * @param <T>
+	 * @return
+	 */
+	private static <T> T getOrNewCacheBean(Class<T> clazz, Cache cache) {
+		return (T)LockUtil.doubleCheckProcess(() -> !cache.containsKey(clazz),
 			clazz,
 			() -> {
 				try {
 					if (BeanManager.getBean(clazz) != null) {
-						interceptorCache.set(clazz, BeanManager.getBean(clazz));
+						cache.set(clazz, BeanManager.getBean(clazz));
 					} else {
-						interceptorCache.set(clazz, clazz.newInstance());
+						cache.set(clazz, clazz.newInstance());
 					}
 				} catch (InstantiationException|IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
 			},
-			() -> interceptorCache.get(clazz)
+			() -> cache.get(clazz)
 		);
 	}
 
+	/**
+	 * 获取拦截器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends Interceptor> T get(Class<? extends Interceptor> clazz) {
+		return (T)getOrNewCacheBean(clazz, interceptorCache);
+	}
+
+	/**
+	 * 获取过滤器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends Filter> T getFilter(Class<? extends Filter> clazz) {
+		return (T)getOrNewCacheBean(clazz, filterCache);
+	}
+
+	/**
+	 * 获取过滤器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends Filter> List<T> getFilterList(Class<? extends Filter>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getFilter(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取结果处理器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends ResultAdvice> T getResultAdvice(Class<? extends ResultAdvice> clazz) {
+		return (T)getOrNewCacheBean(clazz, resultAdviceCache);
+	}
+
+	/**
+	 * 获取结果处理器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends ResultAdvice> List<T> getResultAdviceList(Class<? extends ResultAdvice>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getResultAdvice(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取异常处理器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends ExceptionHandler> T getExceptionHandler(Class<? extends ExceptionHandler> clazz) {
+		return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
+	}
+
+	/**
+	 * 获取异常处理器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	private static <T extends ExceptionHandler> List<T> getExceptionHandlerList(Class<? extends ExceptionHandler>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getExceptionHandler(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取目标方法的拦截器实例集合
+	 * @param targetMethod
+	 * @return
+	 */
 	public static List<Interceptor> getListByTargetMethod(Method targetMethod) {
 		Assert.notNull(targetMethod, "目标方法不能为空！");
 
@@ -69,6 +165,8 @@ public class InterceptorFactory {
 			() -> {
 				List<Interceptor> interceptors = new ArrayList<>();
 				interceptors.addAll(globalInterceptorList);
+				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
+				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
 				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
 				if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
 					List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
@@ -78,13 +176,16 @@ public class InterceptorFactory {
 						}
 					}
 				}
-				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
 				methodInterceptorListMap.put(targetMethod, interceptors);
 			},
 			() -> methodInterceptorListMap.get(targetMethod));
 	}
 
+	/**
+	 * 根据拦截器注解，将拦截器添加到拦截器集合中
+	 * @param interceptors
+	 * @param intercept
+	 */
 	private static void addInterceptorByAnnotation(List<Interceptor> interceptors, Intercept intercept) {
 		if (null == interceptors || null == intercept) {
 			return;
@@ -104,6 +205,22 @@ public class InterceptorFactory {
 					interceptors.remove(interceptor);
 				}
 			}
+		}
+		if (ArrayUtil.notEmpty(intercept.filter()) || ArrayUtil.notEmpty(intercept.resultAdvice()) || ArrayUtil.notEmpty(intercept.exceptionHandler())) {
+			InterceptorWrapper wrapper = new InterceptorWrapper();
+			List<Filter> filterList = getFilterList(intercept.filter());
+			List<ResultAdvice> resultAdviceList = getResultAdviceList(intercept.resultAdvice());
+			List<ExceptionHandler> exceptionHandlerList = getExceptionHandlerList(intercept.exceptionHandler());
+			if (CollectionUtil.notEmpty(filterList)) {
+				wrapper.registerFilter(filterList);
+			}
+			if (CollectionUtil.notEmpty(resultAdviceList)) {
+				wrapper.registerResultAdvice(resultAdviceList);
+			}
+			if (CollectionUtil.notEmpty(exceptionHandlerList)) {
+				wrapper.registerExceptionHandler(exceptionHandlerList);
+			}
+			interceptors.add(wrapper);
 		}
 		if (intercept.ignoreGlobal()) {
 			interceptors.removeAll(globalInterceptorList);

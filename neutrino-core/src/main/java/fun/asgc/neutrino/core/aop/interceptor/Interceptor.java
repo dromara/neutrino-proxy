@@ -32,5 +32,5 @@ public interface Interceptor {
 	 * 拦截方法
 	 * @param inv
 	 */
-	void intercept(Invocation inv);
+	void intercept(Invocation inv) throws Exception;
 }

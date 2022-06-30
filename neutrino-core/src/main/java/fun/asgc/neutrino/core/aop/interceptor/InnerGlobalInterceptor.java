@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.aop.interceptor;
 
 import fun.asgc.neutrino.core.aop.Invocation;
+import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,59 +37,57 @@ import java.util.List;
  */
 @Slf4j
 public class InnerGlobalInterceptor implements Interceptor {
-	private static final List<Filter> filterList = new ArrayList<>();
-	private static final List<ResultAdvice> resultAdviceList = new ArrayList<>();
-	private static final List<ExceptionHandler> exceptionHandlerList = new ArrayList<>();
+	/**
+	 * 拦截器包装器
+	 */
+	private static final InterceptorWrapper interceptorWrapper = new InterceptorWrapper(InnerGlobalInterceptor.class.getSimpleName());
 
 	@Override
 	public void intercept(Invocation inv) {
-		try {
-			log.debug("内置顶层拦截器 class:{} method:{} args:{} before", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			if (CollectionUtil.notEmpty(filterList)) {
-				for (Filter filter : filterList) {
-					if (filter.filtration(inv.getTargetClass(), inv.getTargetMethod(), inv.getArgs())) {
-						return;
-					}
-				}
-			}
-			inv.invoke();
-			Object result = inv.getReturnValue();
-			log.debug("内置顶层拦截器 class:{} method:{} args:{} result:{} after", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
-
-			if (CollectionUtil.notEmpty(resultAdviceList)) {
-				for (ResultAdvice advice : resultAdviceList) {
-					result = advice.advice(inv.getTargetClass(), inv.getTargetMethod(), result);
-				}
-			}
-			if (null == result) {
-				result = TypeUtil.getDefaultValue(inv.getReturnType());
-			}
-			inv.setReturnValue(result);
-
-			log.debug("内置顶层拦截器 class:{} method:{} args:{} result:{} finished.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
-		} catch (Exception e) {
-			log.debug("内置顶层拦截器 class:{} method:{} args:{} exception.", inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			if (CollectionUtil.notEmpty(exceptionHandlerList)) {
-				for (ExceptionHandler handler : exceptionHandlerList) {
-					if (handler.support(e)) {
-						Object result = handler.handle(e);
-						inv.setReturnValue(result);
-						return;
-					}
-				}
-			}
-		}
+		interceptorWrapper.intercept(inv);
 	}
 
+	/**
+	 * 注册过滤器
+	 * @param filter
+	 */
 	public static synchronized void registerFilter(Filter filter) {
-		filterList.add(filter);
+		interceptorWrapper.registerFilter(filter);
 	}
 
+	/**
+	 * 注册过滤器
+	 * @param filterList
+	 */
+	public static synchronized void registerFilter(List<Filter> filterList) {
+		interceptorWrapper.registerFilter(filterList);
+	}
+
+	/**
+	 * 注册结果处理器
+	 * @param resultAdvice
+	 */
 	public static synchronized void registerResultAdvice(ResultAdvice resultAdvice) {
-		resultAdviceList.add(resultAdvice);
+		interceptorWrapper.registerResultAdvice(resultAdvice);
 	}
 
+	/**
+	 * 注册结果处理器
+	 * @param resultAdviceList
+	 */
+	public static synchronized void registerResultAdvice(List<ResultAdvice> resultAdviceList) {
+		interceptorWrapper.registerResultAdvice(resultAdviceList);
+	}
+
+	/**
+	 * 注册异常处理器
+	 * @param exceptionHandler
+	 */
 	public static synchronized void registerExceptionHandler(ExceptionHandler exceptionHandler) {
-		exceptionHandlerList.add(exceptionHandler);
+		interceptorWrapper.registerExceptionHandler(exceptionHandler);
+	}
+
+	public static synchronized void registerExceptionHandler(List<ExceptionHandler> exceptionHandlerList) {
+		interceptorWrapper.registerExceptionHandler(exceptionHandlerList);
 	}
 }

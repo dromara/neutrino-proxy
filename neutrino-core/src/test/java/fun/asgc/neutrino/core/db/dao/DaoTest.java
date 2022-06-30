@@ -29,6 +29,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class DaoTest {
 	}
 
 	@Test
-	public void add() {
+	public void add() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		User user = new User();
 		user.setId(4L);
@@ -63,14 +64,14 @@ public class DaoTest {
 	}
 
 	@Test
-	public void findOneById() {
+	public void findOneById() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		User user = userDao.findOneById(3);
 		System.out.println(user);
 	}
 
 	@Test
-	public void findOne1() {
+	public void findOne1() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		User user = userDao.findOne(new User()
 		.setId(1L), "id");
@@ -78,7 +79,7 @@ public class DaoTest {
 	}
 
 	@Test
-	public void findOne2() {
+	public void findOne2() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		User user = userDao.findOne(new User()
 			.setAge(23), "age");
@@ -86,7 +87,7 @@ public class DaoTest {
 	}
 
 	@Test
-	public void findOne3() {
+	public void findOne3() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		User user = userDao.findOne(new User()
 			.setAge(23)
@@ -95,27 +96,27 @@ public class DaoTest {
 	}
 
 	@Test
-	public void find1() {
+	public void find1() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		List<User> userList = userDao.find();
 		System.out.println(userList);
 	}
 
 	@Test
-	public void find2() {
+	public void find2() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		List<User> userList = userDao.find(new User().setAge(21), "age");
 		System.out.println(userList);
 	}
 
 	@Test
-	public void count1() {
+	public void count1() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		System.out.println(userDao.count());
 	}
 
 	@Test
-	public void count2() {
+	public void count2() throws SQLException {
 		Dao<User> userDao = new DefaultDaoImpl<>(dataSource, dbType, User.class);
 		System.out.println(userDao.count(new User().setAge(21), "age"));
 	}
