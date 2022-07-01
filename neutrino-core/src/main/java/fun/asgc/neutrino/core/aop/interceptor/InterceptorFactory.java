@@ -190,22 +190,6 @@ public class InterceptorFactory {
 		if (null == interceptors || null == intercept) {
 			return;
 		}
-		if (ArrayUtil.notEmpty(intercept.value())) {
-			for (Class<? extends Interceptor> clazz : intercept.value()) {
-				Interceptor interceptor = get(clazz);
-				if (null != interceptor && !interceptors.contains(interceptor)) {
-					interceptors.add(interceptor);
-				}
-			}
-		}
-		if (ArrayUtil.notEmpty(intercept.exclude())) {
-			for (Class<? extends Interceptor> clazz : intercept.exclude()) {
-				Interceptor interceptor = get(clazz);
-				if (null != interceptor && interceptors.contains(interceptor)) {
-					interceptors.remove(interceptor);
-				}
-			}
-		}
 		if (ArrayUtil.notEmpty(intercept.filter()) || ArrayUtil.notEmpty(intercept.resultAdvice()) || ArrayUtil.notEmpty(intercept.exceptionHandler())) {
 			InterceptorWrapper wrapper = new InterceptorWrapper();
 			List<Filter> filterList = getFilterList(intercept.filter());
@@ -221,6 +205,22 @@ public class InterceptorFactory {
 				wrapper.registerExceptionHandler(exceptionHandlerList);
 			}
 			interceptors.add(wrapper);
+		}
+		if (ArrayUtil.notEmpty(intercept.value())) {
+			for (Class<? extends Interceptor> clazz : intercept.value()) {
+				Interceptor interceptor = get(clazz);
+				if (null != interceptor && !interceptors.contains(interceptor)) {
+					interceptors.add(interceptor);
+				}
+			}
+		}
+		if (ArrayUtil.notEmpty(intercept.exclude())) {
+			for (Class<? extends Interceptor> clazz : intercept.exclude()) {
+				Interceptor interceptor = get(clazz);
+				if (null != interceptor && interceptors.contains(interceptor)) {
+					interceptors.remove(interceptor);
+				}
+			}
 		}
 		if (intercept.ignoreGlobal()) {
 			interceptors.removeAll(globalInterceptorList);
