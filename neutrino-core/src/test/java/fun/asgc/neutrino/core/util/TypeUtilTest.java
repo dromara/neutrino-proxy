@@ -92,6 +92,7 @@ public class TypeUtilTest {
 
 	@Test
 	public void conversionString() {
+		typeMatchers.setEnableExtensionMatcher(false);
 		System.out.println(typeMatchers.conversion("true", boolean.class));
 		System.out.println(typeMatchers.conversion("100", byte.class));
 		System.out.println(typeMatchers.conversion("101", short.class));

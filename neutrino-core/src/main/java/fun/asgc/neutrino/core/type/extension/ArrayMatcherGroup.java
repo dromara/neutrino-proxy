@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.type.extension;
 
+import fun.asgc.neutrino.core.type.AbstractMatcherGroup;
 import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatcher;
 
@@ -32,13 +33,13 @@ import java.util.Set;
  * @author: aoshiguchen
  * @date: 2022/6/29
  */
-public class ArrayMatcherGroup extends AbstractExtensionMatcherGroup {
+public class ArrayMatcherGroup extends AbstractMatcherGroup {
 
 	public ArrayMatcherGroup(int distanceMin, int distanceMax) {
 		super(distanceMin, distanceMax);
-		this.init();
 	}
 
+	@Override
 	public void init() {
 		// List -> Object[]
 		add(new TypeMatcher() {

@@ -61,14 +61,6 @@ public class TypeMatchers {
 	}
 
 	/**
-	 * 注册自定义类型匹配器具
-	 * @param typeMatcher
-	 */
-	public synchronized void registerCustomTypeMatcher(TypeMatcher typeMatcher) {
-		customTypeMatcherList.add(typeMatcher);
-	}
-
-	/**
 	 * 注册内置扩展匹配器组
 	 * @param typeMatcherGroup
 	 */
@@ -89,6 +81,32 @@ public class TypeMatchers {
 			}
 		}
 		extensionMatcherGroupList.add(typeMatcherGroup);
+	}
+
+	/**
+	 * 注册自定义类型匹配器具
+	 * @param typeMatcher
+	 */
+	public synchronized void registerCustomTypeMatcher(TypeMatcher typeMatcher) {
+		Assert.notNull(typeMatcher, "匹配器不能为空!");
+		customTypeMatcherList.add(typeMatcher);
+	}
+
+	/**
+	 * 注册自定义匹配器组
+	 * @param typeMatcherGroup
+	 */
+	public synchronized void registerCustomTypeMatcher(TypeMatcherGroup typeMatcherGroup) {
+		if (null == typeMatcherGroup || CollectionUtil.isEmpty(typeMatcherGroup.matchers())) {
+			return;
+		}
+		// 自定义匹配器距离区间检测
+		if (typeMatcherGroup.getDistanceMin() < TypeMatchLevel.CUSTOM.getDistanceMin() ||
+			typeMatcherGroup.getDistanceMax() > TypeMatchLevel.CUSTOM.getDistanceMax() ||
+			typeMatcherGroup.getDistanceMax() < typeMatcherGroup.getDistanceMin()) {
+			throw new RuntimeException(String.format("自定义扩展器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
+		}
+		customTypeMatcherList.addAll(typeMatcherGroup.matchers());
 	}
 
 	/**

@@ -19,20 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.type.extension;
-
-import fun.asgc.neutrino.core.type.TypeMatcher;
-import fun.asgc.neutrino.core.type.TypeMatcherGroup;
+package fun.asgc.neutrino.core.type;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 抽象的扩展类型匹配器组
+ * 抽象的匹配器组
  * @author: aoshiguchen
  * @date: 2022/6/29
  */
-public abstract class AbstractExtensionMatcherGroup implements TypeMatcherGroup {
+public abstract class AbstractMatcherGroup implements TypeMatcherGroup {
 	/**
 	 * 最小距离
 	 */
@@ -48,11 +45,14 @@ public abstract class AbstractExtensionMatcherGroup implements TypeMatcherGroup 
 	 */
 	private List<TypeMatcher> matchers;
 
-	public AbstractExtensionMatcherGroup(int distanceMin, int distanceMax) {
+	public AbstractMatcherGroup(int distanceMin, int distanceMax) {
 		this.distanceMin = distanceMin;
 		this.distanceMax = distanceMax;
 		this.matchers = new ArrayList<>();
+		this.init();
 	}
+
+	protected abstract void init();
 
 	@Override
 	public List<TypeMatcher> matchers() {

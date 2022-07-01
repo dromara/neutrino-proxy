@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.type.extension;
 
 
+import fun.asgc.neutrino.core.type.AbstractMatcherGroup;
 import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatcher;
 
@@ -34,13 +35,13 @@ import java.util.stream.Stream;
  * @author: aoshiguchen
  * @date: 2022/6/29
  */
-public class ListMatcherGroup extends AbstractExtensionMatcherGroup {
+public class ListMatcherGroup extends AbstractMatcherGroup {
 
 	public ListMatcherGroup(int distanceMin, int distanceMax) {
 		super(distanceMin, distanceMax);
-		this.init();
 	}
 
+	@Override
 	public void init() {
 		add(new TypeMatcher() {
 			@Override

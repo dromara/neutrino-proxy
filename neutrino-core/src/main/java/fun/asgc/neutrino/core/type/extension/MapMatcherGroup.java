@@ -21,18 +21,20 @@
  */
 package fun.asgc.neutrino.core.type.extension;
 
+import fun.asgc.neutrino.core.type.AbstractMatcherGroup;
+
 /**
  * Map匹配器组
  * @author: aoshiguchen
  * @date: 2022/6/29
  */
-public class MapMatcherGroup extends AbstractExtensionMatcherGroup {
+public class MapMatcherGroup extends AbstractMatcherGroup {
 
 	public MapMatcherGroup(int distanceMin, int distanceMax) {
 		super(distanceMin, distanceMax);
-		this.init();
 	}
 
+	@Override
 	public void init() {
 
 	}
