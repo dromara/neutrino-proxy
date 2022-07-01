@@ -72,15 +72,32 @@ public class TypeMatchers {
 		if (typeMatcherGroup.getDistanceMin() < TypeMatchLevel.EXTENSION.getDistanceMin() ||
 			typeMatcherGroup.getDistanceMax() > TypeMatchLevel.EXTENSION.getDistanceMax() ||
 			typeMatcherGroup.getDistanceMax() < typeMatcherGroup.getDistanceMin()) {
-			throw new RuntimeException(String.format("内置扩展器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
+			throw new RuntimeException(String.format("内置扩展匹配器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
 		}
 		for (TypeMatcherGroup group : extensionMatcherGroupList) {
 			// 距离区间不能重叠
 			if (!(typeMatcherGroup.getDistanceMin() > group.getDistanceMax() || typeMatcherGroup.getDistanceMax() < group.getDistanceMin())) {
-				throw new RuntimeException(String.format("内置扩展器:[%s]与[%s] 距离区间定义有重叠!", typeMatcherGroup.getClass().getSimpleName(), group.getClass().getSimpleName()));
+				throw new RuntimeException(String.format("内置扩展匹配器:[%s]与[%s] 距离区间定义有重叠!", typeMatcherGroup.getClass().getSimpleName(), group.getClass().getSimpleName()));
 			}
 		}
 		extensionMatcherGroupList.add(typeMatcherGroup);
+	}
+
+	/**
+	 * 注册默认的类型匹配器组
+	 * @param typeMatcherGroup
+	 */
+	private static synchronized void registerDefaultTypeMatcher(TypeMatcherGroup typeMatcherGroup) {
+		if (null == typeMatcherGroup || CollectionUtil.isEmpty(typeMatcherGroup.matchers())) {
+			return;
+		}
+		// 自定义匹配器距离区间检测
+		if (typeMatcherGroup.getDistanceMin() < TypeMatchLevel.NULL.getDistanceMin() ||
+			typeMatcherGroup.getDistanceMax() > TypeMatchLevel.SUPER.getDistanceMax() ||
+			typeMatcherGroup.getDistanceMax() < typeMatcherGroup.getDistanceMin()) {
+			throw new RuntimeException(String.format("默认匹配器组器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
+		}
+		defaultTypeMatcherList.addAll(typeMatcherGroup.matchers());
 	}
 
 	/**
@@ -104,7 +121,7 @@ public class TypeMatchers {
 		if (typeMatcherGroup.getDistanceMin() < TypeMatchLevel.CUSTOM.getDistanceMin() ||
 			typeMatcherGroup.getDistanceMax() > TypeMatchLevel.CUSTOM.getDistanceMax() ||
 			typeMatcherGroup.getDistanceMax() < typeMatcherGroup.getDistanceMin()) {
-			throw new RuntimeException(String.format("自定义扩展器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
+			throw new RuntimeException(String.format("自定义扩展匹配器:[%s] 距离区间定义有误!", typeMatcherGroup.getClass().getSimpleName()));
 		}
 		customTypeMatcherList.addAll(typeMatcherGroup.matchers());
 	}
@@ -169,99 +186,8 @@ public class TypeMatchers {
 	 * 初始化
 	 */
 	private static void init() {
-		// 空匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				if (null == clazz) {
-					matchInfo.setTypeDistance(TypeMatchLevel.NULL.getDistanceMin());
-					matchInfo.setTypeConverter((value, type) -> TypeUtil.getDefaultValue(type));
-				}
-				return matchInfo;
-			}
-		});
-		// 完美匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				if (clazz == targetClass) {
-					matchInfo.setTypeDistance(TypeMatchLevel.PERFECT.getDistanceMin());
-					matchInfo.setTypeConverter((value, type) -> value);
-				}
-				return matchInfo;
-			}
-		});
-		// 装箱匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				if (TypeUtil.isStrictBasicType(clazz) && TypeUtil.getWrapType(clazz) == targetClass) {
-					matchInfo.setTypeDistance(TypeMatchLevel.PACKING.getDistanceMin());
-					matchInfo.setTypeConverter((value, type) -> value);
-				}
-				return matchInfo;
-			}
-		});
-		// 拆箱匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				if (TypeUtil.isStrictBasicType(targetClass) && TypeUtil.getWrapType(targetClass) == clazz) {
-					matchInfo.setTypeDistance(TypeMatchLevel.UNPACKING.getDistanceMin());
-					matchInfo.setTypeConverter((value, type) -> value);
-				}
-				return matchInfo;
-			}
-		});
-		// 类型提升匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				int index1 = TypeUtil.basicTypeList.indexOf(clazz);
-				int index2 = TypeUtil.basicTypeList.indexOf(targetClass);
-				if (index2 > index1 && index1 >= 0) {
-					matchInfo.setTypeDistance(TypeMatchLevel.ASCENSION.getDistanceMin() + (index2 - index1));
-					matchInfo.setTypeConverter((value, type) -> {
-						if (value == type || TypeUtil.getWrapType(value.getClass()) == type) {
-							return value;
-						}
-						if (TypeUtil.isInteger(clazz) && TypeUtil.isLong(targetClass)) {
-							return Long.valueOf(String.valueOf(value));
-						}
-						if (TypeUtil.isBoolean(value.getClass())) {
-							return ((boolean)value) ? 1 : 0;
-						}
-						if (TypeUtil.isBoolean(type)) {
-							return TypeUtil.isChar(value.getClass()) ? ((char)value == 0 ? false : true) :
-								(((Number)value).intValue() == 0 ? false : true);
-						}
-						if (TypeUtil.isChar(type)) {
-							return (char)(int)value;
-						}
-						return value;
-					});
-				}
-				return matchInfo;
-			}
-		});
-		// 超类匹配
-		defaultTypeMatcherList.add(new TypeMatcher() {
-			@Override
-			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
-				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
-				if (targetClass.isAssignableFrom(clazz)) {
-					int level = TypeUtil.getInheritLevel(targetClass, clazz);
-					matchInfo.setTypeDistance(TypeMatchLevel.SUPER.getDistanceMin() + level);
-					matchInfo.setTypeConverter((value, type) -> value);
-				}
-				return matchInfo;
-			}
-		});
+		// 注册默认的类型匹配器组
+		registerDefaultTypeMatcher(new DefaultTypeMatcherGroup(TypeMatchLevel.NULL.getDistanceMin(), TypeMatchLevel.SUPER.getDistanceMax()));
 
 		// 注册内置扩展匹配
 		int extensionMatcherGroupSize = 100000;
