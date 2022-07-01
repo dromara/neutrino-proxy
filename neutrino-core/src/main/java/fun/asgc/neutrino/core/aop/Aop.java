@@ -53,17 +53,13 @@ public class Aop {
 	 * @return
 	 */
 	private static ProxyFactory getProxyFactory(Class<?> clazz) {
-		switch (proxyStrategy) {
-			case AUTO: {
-				if (ClassUtil.isInterface(clazz)) {
-					return Proxy.getProxyFactory(ProxyStrategy.JDK_DYNAMIC_PROXY);
-				}
-				return Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY);
+		if (proxyStrategy == ProxyStrategy.AUTO) {
+			if (ClassUtil.isInterface(clazz)) {
+				return Proxy.getProxyFactory(ProxyStrategy.JDK_DYNAMIC_PROXY);
 			}
-			case ASGC_PROXY: return Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY);
-			case JDK_DYNAMIC_PROXY: Proxy.getProxyFactory(ProxyStrategy.JDK_DYNAMIC_PROXY);
+			return Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY);
 		}
-		return null;
+		return Proxy.getProxyFactory(proxyStrategy);
 	}
 
 	/**

@@ -32,6 +32,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@SuppressWarnings("all")
 public enum ProxyStrategy {
 	// 在该模式下，代理策略由框架根据一定策略自动选择
 	AUTO(0, "自动选择"),
