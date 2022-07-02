@@ -19,21 +19,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.exception.BeanException;
 
 /**
- *
+ * bean注册表
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public interface BeanRegistry {
+
+	/**
+	 * 注册bean
+	 * @param obj
+	 * @throws BeanException
+	 */
+	void registerBean(Object obj) throws BeanException;
+
+	/**
+	 * 注册bean
+	 * @param obj
+	 * @param name
+	 * @throws BeanException
+	 */
+	void registerBean(Object obj, String name) throws BeanException;
+
+	/**
+	 * 注册bean
+	 * @param type
+	 * @throws BeanException
+	 */
+	void registerBean(Class<?> type) throws BeanException;
+
+	/**
+	 * 注册bean
+	 * @param type
+	 * @param name
+	 * @throws BeanException
+	 */
+	void registerBean(Class<?> type, String name) throws BeanException;
+
+	/**
+	 * 判断是否包含此bean
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	boolean hasBean(Class<?> type, String name);
+
+	/**
+	 * 查询bean容器中有多少个叫该名称的bean
+	 * @param name
+	 * @return
+	 */
+	int countBean(String name);
+
+	/**
+	 * 查询bean容器中有多少个该类型的bean
+	 * @param type
+	 * @return
+	 */
+	int countBean(Class<?> type);
 }

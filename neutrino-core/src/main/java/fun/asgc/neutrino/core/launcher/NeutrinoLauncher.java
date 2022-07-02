@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.container.ApplicationContainer;
 import fun.asgc.neutrino.core.container.DefaultApplicationContainer;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
+import fun.asgc.neutrino.core.context.ApplicationContext;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +65,15 @@ public class NeutrinoLauncher {
 		stopWatch.start();
 
 		environmentInit();
-		this.applicationContainer = new DefaultApplicationContainer(environment);
+//		this.applicationContainer = new DefaultApplicationContainer(environment);
+//		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
+//			this.applicationContainer.destroy();
+//			log.info("Application already stop.");
+//		});
+		ApplicationContext context = new ApplicationContext(environment);
+		context.run();
 		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
-			this.applicationContainer.destroy();
+			context.destroy();
 			log.info("Application already stop.");
 		});
 

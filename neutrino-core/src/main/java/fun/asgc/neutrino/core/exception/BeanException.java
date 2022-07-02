@@ -19,23 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package fun.asgc.neutrino.core.container;
+package fun.asgc.neutrino.core.exception;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-public interface LifeCycle {
+public class BeanException extends InternalException {
 
-	/**
-	 * 初始化
-	 */
-	void init();
+	public BeanException(String message) {
+		super(message);
+	}
 
-	/**
-	 * 销毁
-	 */
-	void destroy();
+	public BeanException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

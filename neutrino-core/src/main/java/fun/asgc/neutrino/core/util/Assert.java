@@ -204,6 +204,12 @@ public abstract class Assert {
 		}
 	}
 
+	public static void notEmpty(String s, String message) {
+		if (StringUtil.isEmpty(s)) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
 	/**
 	 *
 	 * @param array

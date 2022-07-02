@@ -19,57 +19,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.container;
-
-import fun.asgc.neutrino.core.bean.BeanWrapper;
+import fun.asgc.neutrino.core.exception.BeanException;
 
 import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-public interface BeanContainer extends Container {
+public interface BeanFactory {
 
 	/**
-	 * 是否存在bean实例
-	 * @param clazz
-	 * @return
-	 */
-	boolean hasBean(Class<?> clazz);
-
-	/**
-	 * 是否存在bean实例
+	 * 尝试根据名称获取bean
 	 * @param name
+	 * @param args
 	 * @return
+	 * @throws BeanException
 	 */
-	boolean hasBean(String name);
+	<T> T getBean(String name, Object... args) throws BeanException;
 
 	/**
-	 * 获取bean实例
-	 * @param clazz
+	 * 尝试根据类型获取bean
+	 * @param type
+	 * @param args
+	 * @param <T>
 	 * @return
+	 * @throws BeanException
 	 */
-	BeanWrapper getBean(Class<?> clazz);
+	<T> T getBean(Class<T> type, Object... args) throws BeanException;
 
 	/**
-	 * 获取bean实例
+	 * 尝试根据Bean身份标识获取bean
+	 * @param identity
+	 * @param args
+	 * @param <T>
+	 * @return
+	 * @throws BeanException
+	 */
+	<T> T getBean(BeanIdentity identity, Object... args) throws BeanException;
+
+	/**
+	 * 根据类型+名称获取bean
+	 * @param type
 	 * @param name
+	 * @param args
+	 * @param <T>
 	 * @return
+	 * @throws BeanException
 	 */
-	BeanWrapper getBean(String name);
+	<T> T getBeanByTypeAndName(Class<T> type, String name, Object... args) throws BeanException;
 
 	/**
-	 * 获取bean集合
+	 * 尝试根据类型获取bean
+	 * @param type
+	 * @param args
+	 * @param <T>
 	 * @return
+	 * @throws BeanException
 	 */
-	List<BeanWrapper> beanList();
-
-	/**
-	 * 添加bean
-	 * @param bean
-	 */
-	void addBean(BeanWrapper bean);
+	<T> List<T> getBeanList(Class<T> type, Object... args) throws BeanException;
 }

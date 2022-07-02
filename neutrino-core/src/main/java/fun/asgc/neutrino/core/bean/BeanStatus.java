@@ -19,21 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- *
+ * Bean的几种状态
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/2
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+@Getter
+@AllArgsConstructor
+public enum BeanStatus {
+	REGISTER(1, "已注册"),
+	DEPENDENCY_CHECKING(2, "依赖关系检测完成"),
+	INSTANCE(3, "已实例化"),
+	INJECT(4, "已完成注入"),
+	INIT(5, "已初始化"),
+	RUNNING(6, "运行中"),
+	DESTROY(7, "已销毁");
+	private static final Map<Integer, BeanStatus> cache = Stream.of(BeanStatus.values()).collect(Collectors.toMap(BeanStatus::getStatus, Function.identity()));
+
+	private Integer status;
+	private String desc;
+
+	public static BeanStatus of(Integer status) {
+		return cache.get(status);
+	}
 }

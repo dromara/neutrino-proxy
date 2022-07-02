@@ -54,4 +54,10 @@ public class Test1 {
 		System.out.println(cat.calc(10, 6));
 	}
 
+	@Test
+	public void dogCalc() {
+		Dog dog = Aop.get(Dog.class);
+		System.out.println(dog.calc(1, 2));
+	}
+
 }

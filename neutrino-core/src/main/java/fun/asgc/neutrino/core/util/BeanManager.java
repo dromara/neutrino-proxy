@@ -25,13 +25,11 @@ package fun.asgc.neutrino.core.util;
 import fun.asgc.neutrino.core.container.BeanContainer;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationContext;
-import fun.asgc.neutrino.core.context.Bean;
+import fun.asgc.neutrino.core.bean.BeanWrapper;
 import fun.asgc.neutrino.core.context.Environment;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -64,7 +62,7 @@ public class BeanManager {
 			return context;
 		} else {
 			if (null != context.getBeanContainer()) {
-				Bean bean = context.getBeanContainer().getBean(name);
+				BeanWrapper bean = context.getBeanContainer().getBean(name);
 				if (null != bean) {
 					if (!bean.hasInstance()) {
 						bean.newInstance(context);
@@ -90,7 +88,7 @@ public class BeanManager {
 			return (T)context;
 		} else {
 			if (null != context.getBeanContainer()) {
-				Bean bean = context.getBeanContainer().getBean(clazz);
+				BeanWrapper bean = context.getBeanContainer().getBean(clazz);
 				if (null != bean) {
 					if (!bean.hasInstance()) {
 						bean.newInstance(context);
@@ -113,7 +111,7 @@ public class BeanManager {
 			return null;
 		}
 		return context.getBeanContainer().beanList().stream()
-			.map(Bean::getClazz)
+			.map(BeanWrapper::getType)
 			.filter(item -> superClass.isAssignableFrom(item))
 			.map(item -> (T)getBean(item))
 			.filter(Objects::nonNull)

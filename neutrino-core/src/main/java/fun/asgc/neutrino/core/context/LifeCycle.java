@@ -20,20 +20,22 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package fun.asgc.neutrino.core.context;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public interface LifeCycle {
+
+	/**
+	 * 初始化
+	 */
+	void init();
+
+	/**
+	 * 销毁
+	 */
+	void destroy();
 }

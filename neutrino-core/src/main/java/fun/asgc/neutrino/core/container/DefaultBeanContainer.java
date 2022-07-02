@@ -25,7 +25,7 @@ package fun.asgc.neutrino.core.container;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Order;
-import fun.asgc.neutrino.core.context.Bean;
+import fun.asgc.neutrino.core.bean.BeanWrapper;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
 import fun.asgc.neutrino.core.context.Environment;
@@ -49,9 +49,9 @@ import java.util.List;
 public class DefaultBeanContainer implements BeanContainer {
 	private Environment environment;
 	private ClassContainer classContainer;
-	private Cache<String, Bean> nameBeanCache;
-	private Cache<Class<?>, Bean> classBeanCache;
-	private List<Bean> beans;
+	private Cache<String, BeanWrapper> nameBeanCache;
+	private Cache<Class<?>, BeanWrapper> classBeanCache;
+	private List<BeanWrapper> beans;
 
 	public DefaultBeanContainer(Environment environment) {
 		this.environment = environment;
@@ -72,12 +72,12 @@ public class DefaultBeanContainer implements BeanContainer {
 	}
 
 	@Override
-	public Bean getBean(Class<?> clazz) {
+	public BeanWrapper getBean(Class<?> clazz) {
 		return classBeanCache.get(clazz);
 	}
 
 	@Override
-	public Bean getBean(String name) {
+	public BeanWrapper getBean(String name) {
 		return nameBeanCache.get(name);
 	}
 
@@ -96,8 +96,8 @@ public class DefaultBeanContainer implements BeanContainer {
 				orderValue = order.value();
 			}
 
-			addBean(new Bean()
-				.setClazz(clazz)
+			addBean(new BeanWrapper()
+				.setType(clazz)
 				.setName(name)
 				.setComponent(component)
 				.setOrder(orderValue)
@@ -107,7 +107,7 @@ public class DefaultBeanContainer implements BeanContainer {
 
 		if (!classBeanCache.isEmpty()) {
 			beans = Lists.newArrayList(classBeanCache.values());
-			Collections.sort(beans, Comparator.comparingInt(Bean::getOrder));
+			Collections.sort(beans, Comparator.comparingInt(BeanWrapper::getOrder));
 		}
 
 		log.info("bean容器初始化完成");
@@ -120,21 +120,21 @@ public class DefaultBeanContainer implements BeanContainer {
 	}
 
 	@Override
-	public void addBean(Bean bean) {
+	public void addBean(BeanWrapper bean) {
 		if (null == bean) {
 			return;
 		}
 		// TODO 暂时由编码时规避名字冲突
-		if (ApplicationRunner.class.isAssignableFrom(bean.getClazz())) {
+		if (ApplicationRunner.class.isAssignableFrom(bean.getType())) {
 			bean.setOrder(Integer.MIN_VALUE);
 			bean.setBoot(true);
 		}
-		classBeanCache.set(bean.getClazz(), bean);
+		classBeanCache.set(bean.getType(), bean);
 		nameBeanCache.set(bean.getName(), bean);
 	}
 
 	@Override
-	public List<Bean> beanList() {
+	public List<BeanWrapper> beanList() {
 		return beans;
 	}
 }

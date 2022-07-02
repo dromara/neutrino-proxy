@@ -19,21 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/2
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public class ClassScanner {
+	private Set<Class<?>> classes = new HashSet<>();
+	private List<String> scanBasePackages;
+
+	public ClassScanner(List<String> scanBasePackages) {
+		this.scanBasePackages = scanBasePackages;
+	}
+
 }

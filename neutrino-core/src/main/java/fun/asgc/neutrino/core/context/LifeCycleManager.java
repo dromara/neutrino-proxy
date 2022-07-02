@@ -19,21 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.context;
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.base.CodeBlock;
 
 /**
  *
- * @author: aoshiguchen
- * @date: 2022/6/16
+ * @author: 生命周期管理
+ * @date: 2022/7/2
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public class LifeCycleManager {
+	/**
+	 * 生命周期状态
+	 */
+	private LifeCycleStatus status;
+
+	private LifeCycleManager() {
+		this.status = LifeCycleStatus.CREATE;
+	}
+
+	public synchronized void init(CodeBlock codeBlock) {
+		if (this.status == LifeCycleStatus.CREATE) {
+			codeBlock.execute();
+			this.status = LifeCycleStatus.INIT;
+		}
+	}
+
+	public synchronized void run(CodeBlock codeBlock) {
+		if (this.status == LifeCycleStatus.INIT) {
+			codeBlock.execute();
+			this.status = LifeCycleStatus.RUN;
+		}
+	}
+
+	public synchronized void destroy(CodeBlock codeBlock) {
+		if (this.status != LifeCycleStatus.DESTROY) {
+			codeBlock.execute();
+			this.status = LifeCycleStatus.DESTROY;
+		}
+	}
+
+	public static LifeCycleManager create() {
+		return new LifeCycleManager();
+	}
+
+	public LifeCycleStatus getStatus() {
+		return status;
+	}
 }

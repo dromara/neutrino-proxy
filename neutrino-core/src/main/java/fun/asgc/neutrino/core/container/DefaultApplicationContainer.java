@@ -67,7 +67,7 @@ public class DefaultApplicationContainer implements ApplicationContainer {
 		this.beanContainer.beanList().forEach(bean -> {
 			if (bean.isBoot()) {
 				if (bean.hasInstance()) {
-					if (ApplicationRunner.class.isAssignableFrom(bean.getClazz())) {
+					if (ApplicationRunner.class.isAssignableFrom(bean.getType())) {
 						ApplicationRunner runner = (ApplicationRunner)bean.getInstance();
 						runner.run(environment.getMainArgs());
 					}

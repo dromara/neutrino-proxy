@@ -19,21 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
+import fun.asgc.neutrino.core.aop.Animal;
+import org.junit.Test;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public class BeanIdentityTest {
+
+	@Test
+	public void test1() {
+		System.out.println(new BeanIdentity("animal", Animal.class).equals(new BeanIdentity("animal", Animal.class)));
+		System.out.println(new BeanIdentity("animal", Animal.class) == new BeanIdentity("animal", Animal.class));
+	}
+
+	@Test
+	public void test2() {
+		Map<BeanIdentity, String> map = new HashMap<>();
+		map.put(new BeanIdentity("1", String.class), "1");
+		map.put(new BeanIdentity("1", String.class), "2");
+		System.out.println(map);
+	}
+
 }

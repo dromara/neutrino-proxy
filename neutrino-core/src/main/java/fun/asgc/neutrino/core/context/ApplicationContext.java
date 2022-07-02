@@ -22,10 +22,22 @@
 
 package fun.asgc.neutrino.core.context;
 
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
+import fun.asgc.neutrino.core.aop.interceptor.Filter;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
+import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.container.BeanContainer;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.runner.ApplicationRunner;
+import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -34,7 +46,8 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain = true)
 @Data
-public class ApplicationContext {
+@Slf4j
+public class ApplicationContext implements LifeCycle {
 
 	/**
 	 * 应用环境
@@ -48,4 +61,92 @@ public class ApplicationContext {
 	 * bean容器
 	 */
 	private BeanContainer beanContainer;
+	/**
+	 * 根Bean工厂
+	 */
+	private SimpleBeanFactory rootBeanFactory;
+	/**
+	 * bean工厂
+	 */
+	private SimpleBeanFactory applicationBeanFactory;
+	/**
+	 * 生命周期管理者
+	 */
+	private LifeCycleManager lifeCycleManager = LifeCycleManager.create();
+
+	public ApplicationContext() {
+
+	}
+
+	public ApplicationContext(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
+	public synchronized void init() {
+		this.lifeCycleManager.init(() -> {
+			try {
+				this.rootBeanFactory = new SimpleBeanFactory("rootBeanFactory");
+				this.applicationBeanFactory = new SimpleBeanFactory(rootBeanFactory, "applicationBeanFactory");
+				this.rootBeanFactory.registerBean(environment, "rootEnvironment");
+				this.rootBeanFactory.registerBean(this, "rootApplicationContext");
+				this.rootBeanFactory.registerBean(environment.getConfig(), "rootApplicationConfig");
+				register();
+				this.applicationBeanFactory.init();
+				// TODO 后面优化掉这种不安全的BeanManager
+				BeanManager.setContext(this);
+			} catch (Exception e) {
+				log.error("应用上下文初始化异常!", e);
+				System.exit(-1);
+			}
+
+			log.info("应用上下文初始化完成");
+		});
+	}
+
+	@Override
+	public void destroy() {
+		this.lifeCycleManager.destroy(() -> {
+
+			this.applicationBeanFactory.destroy();
+			log.info("应用上下文销毁");
+		});
+	}
+
+	/**
+	 * bean注册
+	 * 所有的拦截器默认都是bean组件，没带Component注解时，默认是延迟加载的
+	 */
+	private void register() throws IOException, ClassNotFoundException {
+		Set<Class<?>> classes = ClassUtil.scan(environment.getScanBasePackages());
+		if (CollectionUtil.isEmpty(classes)) {
+			return;
+		}
+		classes.stream()
+			.filter(item -> ClassUtil.isAnnotateWith(item, Component.class)
+				|| Interceptor.class.isAssignableFrom(item)
+				|| Filter.class.isAssignableFrom(item)
+				|| ExceptionHandler.class.isAssignableFrom(item)
+				|| ResultAdvice.class.isAssignableFrom(item)
+			)
+			.forEach(clazz -> {
+				String beanName = TypeUtil.getDefaultVariableName(clazz);
+				Component component = ClassUtil.getAnnotation(clazz, Component.class);
+				if (null != component && StringUtil.notEmpty(component.value())) {
+					beanName = component.value();
+				}
+				this.applicationBeanFactory.registerBean(clazz, beanName);
+			});
+	}
+
+	/**
+	 * 应用上下文启动
+	 */
+	public void run() {
+		init();
+		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
+		if (CollectionUtil.notEmpty(applicationRunnerList)) {
+			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
+		}
+	}
 }

@@ -19,21 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.util;
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.function.Supplier;
 
 /**
- *
+ * 函数工具
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public class FunctionUtil {
+
+	/**
+	 * 获取第一个非空值
+	 * @param suppliers
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> T getFirstNotNull(Supplier<T> ...suppliers) {
+		T res;
+		if (ArrayUtil.notEmpty(suppliers)) {
+			for (Supplier<T> supplier : suppliers) {
+				if (null != supplier) {
+					res = supplier.get();
+					if (null != res) {
+						return res;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 }

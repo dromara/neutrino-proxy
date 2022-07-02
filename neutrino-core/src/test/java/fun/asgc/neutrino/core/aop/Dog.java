@@ -39,4 +39,10 @@ public class Dog {
 	public String say(String msg) {
 		return "狗说:" + msg;
 	}
+
+	// static 测试static方法
+	public int calc(int x, int y) {
+		System.out.println("计算 " + x + " + " + "y");
+		return x + y;
+	}
 }

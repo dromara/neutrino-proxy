@@ -20,22 +20,23 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.bean;
 
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.aop.Aop;
-import fun.asgc.neutrino.core.container.LifeCycle;
+import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.container.BeanContainer;
+import fun.asgc.neutrino.core.context.ApplicationConfig;
+import fun.asgc.neutrino.core.context.ApplicationContext;
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  *
@@ -45,14 +46,16 @@ import java.util.stream.Stream;
 @Slf4j
 @Accessors(chain = true)
 @Data
-public class Bean implements LifeCycle {
+public class BeanWrapper implements LifeCycle {
 	private String name;
-	private Class<?> clazz;
+	private Class<?> type;
 	private Object instance;
 	private Component component;
 	private int order;
 	private boolean isBoot;
 	private volatile boolean isInit;
+	private BeanStatus status;
+	private boolean isLazy;
 
 	public boolean hasInstance() {
 		return null != instance;
@@ -68,14 +71,14 @@ public class Bean implements LifeCycle {
 		}
 		isInit = true;
 
-		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		Set<Method> methods = ReflectUtil.getMethods(type);
 		if (CollectionUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (method.isAnnotationPresent(Init.class) && method.getParameters().length == 0) {
 					try {
 						method.invoke(instance);
 					} catch (Exception e) {
-						log.error(String.format("初始化方法执行异常 class:%s method:%s", clazz.getName(), method.getName()), e);
+						log.error(String.format("初始化方法执行异常 class:%s method:%s", type.getName(), method.getName()), e);
 					}
 				}
 			}
@@ -87,14 +90,14 @@ public class Bean implements LifeCycle {
 		if (!hasInstance()) {
 			return;
 		}
-		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		Set<Method> methods = ReflectUtil.getMethods(type);
 		if (CollectionUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (method.isAnnotationPresent(Destroy.class) && method.getParameters().length == 0) {
 					try {
 						method.invoke(instance);
 					} catch (Exception e) {
-						log.error(String.format("销毁方法执行异常 class:%s method:%s", clazz.getName(), method.getName()), e);
+						log.error(String.format("销毁方法执行异常 class:%s method:%s", type.getName(), method.getName()), e);
 					}
 				}
 			}
@@ -116,14 +119,14 @@ public class Bean implements LifeCycle {
 			() -> {
 				try {
 					// 暂时先只支持yml配置
-					Configuration configuration = clazz.getAnnotation(Configuration.class);
+					Configuration configuration = type.getAnnotation(Configuration.class);
 					if (null != configuration) {
-						instance = ConfigUtil.getYmlConfig(clazz);
-					} else if (ClassUtil.isInterface(clazz)) {
-						instance = Aop.get(clazz);
+						instance = ConfigUtil.getYmlConfig(type);
+					} else if (ClassUtil.isInterface(type)) {
+						instance = Aop.get(type);
 					} else {
 						// 由编码规避没有无参构造器的问题
-						instance = clazz.newInstance();
+						instance = type.newInstance();
 					}
 				} catch (Exception e) {
 					// ignore
@@ -134,7 +137,7 @@ public class Bean implements LifeCycle {
 	}
 
 	private void inject(ApplicationContext context) {
-		Set<Method> methods = ReflectUtil.getMethods(clazz);
+		Set<Method> methods = ReflectUtil.getMethods(type);
 		if (CollectionUtil.notEmpty(methods)) {
 			methods.stream().forEach(method -> {
 				fun.asgc.neutrino.core.annotation.Bean bean = method.getAnnotation(fun.asgc.neutrino.core.annotation.Bean.class);
@@ -153,8 +156,8 @@ public class Bean implements LifeCycle {
 							log.error("bean 实例不能为空!");
 							return;
 						}
-						context.getBeanContainer().addBean(new Bean()
-							.setClazz(obj.getClass())
+						context.getBeanContainer().addBean(new BeanWrapper()
+							.setType(obj.getClass())
 							.setBoot(false)
 							.setComponent(null)
 							.setInstance(obj)
@@ -167,7 +170,7 @@ public class Bean implements LifeCycle {
 				}
 			});
 		}
-		Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(clazz);
+		Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(type);
 		if (CollectionUtil.notEmpty(fieldSet)) {
 			fieldSet.forEach(field -> {
 				Autowired autowired = field.getAnnotation(Autowired.class);
@@ -184,17 +187,17 @@ public class Bean implements LifeCycle {
 					ReflectUtil.setFieldValue(field, instance, context);
 				} else {
 					Class<?> autowiredType = field.getType();
-					Bean autowiredBean = null;
+					BeanWrapper autowiredBean = null;
 					if (StringUtil.isEmpty(autowired.value())) {
 						autowiredBean = context.getBeanContainer().getBean(autowiredType);
 					} else {
 						autowiredBean = context.getBeanContainer().getBean(autowired.value());
 					}
 					if (null == autowiredBean) {
-						throw new RuntimeException(String.format("类 %s 自动装配字段:%s 依赖bean不存在!", clazz.getName(), field.getName()));
+						throw new RuntimeException(String.format("类 %s 自动装配字段:%s 依赖bean不存在!", type.getName(), field.getName()));
 					}
-					if (autowiredBean.isDependOn(clazz)) {
-						throw new RuntimeException(String.format("类[%s]与类[%s]存在循环依赖!", clazz.getName(), field.getType().getName()));
+					if (autowiredBean.isDependOn(type)) {
+						throw new RuntimeException(String.format("类[%s]与类[%s]存在循环依赖!", type.getName(), field.getType().getName()));
 					}
 					autowiredBean.newInstance(context);
 					ReflectUtil.setFieldValue(field, instance, autowiredBean.getInstance());
@@ -204,7 +207,7 @@ public class Bean implements LifeCycle {
 	}
 
 	public boolean isLazy() {
-		Lazy lazy = ClassUtil.getAnnotation(clazz, Lazy.class);
+		Lazy lazy = ClassUtil.getAnnotation(type, Lazy.class);
 		return null != lazy;
 	}
 
@@ -212,7 +215,7 @@ public class Bean implements LifeCycle {
 		if (null == target) {
 			return false;
 		}
-		Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(clazz);
+		Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(type);
 		if (CollectionUtil.isEmpty(fieldSet)) {
 			return false;
 		}
@@ -226,5 +229,9 @@ public class Bean implements LifeCycle {
 			}
 		}
 		return false;
+	}
+
+	public void run() {
+
 	}
 }

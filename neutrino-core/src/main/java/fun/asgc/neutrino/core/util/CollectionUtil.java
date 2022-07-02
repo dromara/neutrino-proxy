@@ -25,6 +25,7 @@ package fun.asgc.neutrino.core.util;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  *
@@ -59,6 +60,11 @@ public class CollectionUtil {
 	public static boolean notEmpty(Collection<?> collection) {
 		return !isEmpty(collection);
 	}
+
+	public static boolean notEmpty(Map map) {
+		return !isEmpty(map);
+	}
+
 
 	/**
 	 *
@@ -337,5 +343,22 @@ public class CollectionUtil {
 			elements.add(enumeration.nextElement());
 		}
 		return elements.toArray(array);
+	}
+
+	/**
+	 * 将另一个集合的内容添加到指定集合中
+	 * @param supplier
+	 *  @param list
+	 */
+	public static <T> List<T> addAll(Supplier<List<T>> supplier, List<T> ...list) {
+		List<T> res = supplier.get();
+		if (ArrayUtil.notEmpty(list)) {
+			for (List<T> l : list) {
+				if (null != l && CollectionUtil.notEmpty(l)) {
+					res.addAll(l);
+				}
+			}
+		}
+		return res;
 	}
 }

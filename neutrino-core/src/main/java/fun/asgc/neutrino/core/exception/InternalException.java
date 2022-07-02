@@ -33,4 +33,7 @@ public class InternalException extends RuntimeException {
 		super(message);
 	}
 
+	public InternalException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

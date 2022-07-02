@@ -22,6 +22,8 @@
 
 package fun.asgc.neutrino.core.container;
 
+import fun.asgc.neutrino.core.context.LifeCycle;
+
 /**
  *
  * @author: aoshiguchen

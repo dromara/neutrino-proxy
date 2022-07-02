@@ -19,21 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.context;
 
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  *
- * @author: aoshiguchen
- * @date: 2022/6/16
+ * @author: 生命周期状态
+ * @date: 2022/7/2
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+@Getter
+@AllArgsConstructor
+public enum LifeCycleStatus {
+	CREATE(1, "已创建"),
+	INIT(2, "已初始化"),
+	RUN(3, "运行"),
+	DESTROY(4, "已销毁");
+
+	private Integer status;
+	private String desc;
 }

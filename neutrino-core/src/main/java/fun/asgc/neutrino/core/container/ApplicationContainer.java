@@ -29,6 +29,4 @@ package fun.asgc.neutrino.core.container;
  */
 public interface ApplicationContainer extends Container {
 
-
-
 }

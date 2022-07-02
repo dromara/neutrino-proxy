@@ -19,57 +19,75 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.container;
-
-import fun.asgc.neutrino.core.bean.BeanWrapper;
-
-import java.util.List;
+import fun.asgc.neutrino.core.util.Assert;
 
 /**
+ * 用于标识bean的身份
+ *
+ * 此处用名称+类型作为bean的唯一标识
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-public interface BeanContainer extends Container {
+public class BeanIdentity implements Identity {
+	/**
+	 * 名称
+	 */
+	private String name;
+	/**
+	 * 类型
+	 */
+	private Class<?> type;
+	/**
+	 * hashCode
+	 */
+	private int identityHashCode;
+
+	public BeanIdentity(String name, Class<?> type) {
+		Assert.notEmpty(name, "名称不能为空！");
+		Assert.notNull(type, "类型不能为空!");
+		this.name = name;
+		this.type = type;
+		this.identityHashCode = System.identityHashCode(name) + System.identityHashCode(type);
+	}
 
 	/**
-	 * 是否存在bean实例
-	 * @param clazz
+	 * 获取名称
 	 * @return
 	 */
-	boolean hasBean(Class<?> clazz);
+	public String getName() {
+		return this.name;
+	}
 
 	/**
-	 * 是否存在bean实例
-	 * @param name
+	 * 获取类型
 	 * @return
 	 */
-	boolean hasBean(String name);
+	public Class<?> getType() {
+		return this.type;
+	}
 
-	/**
-	 * 获取bean实例
-	 * @param clazz
-	 * @return
-	 */
-	BeanWrapper getBean(Class<?> clazz);
+	@Override
+	public boolean isOnly() {
+		return Boolean.TRUE;
+	}
 
-	/**
-	 * 获取bean实例
-	 * @param name
-	 * @return
-	 */
-	BeanWrapper getBean(String name);
+	@Override
+	public boolean equals(Object obj) {
+		if (null == obj) {
+			return false;
+		}
+		if (!(obj instanceof BeanIdentity)) {
+			return false;
+		}
+		BeanIdentity beanIdentity = (BeanIdentity)obj;
+		return this.name.equals(beanIdentity.getName()) && this.type.equals(beanIdentity.getType());
+	}
 
-	/**
-	 * 获取bean集合
-	 * @return
-	 */
-	List<BeanWrapper> beanList();
-
-	/**
-	 * 添加bean
-	 * @param bean
-	 */
-	void addBean(BeanWrapper bean);
+	@Override
+	public int hashCode() {
+		return identityHashCode;
+	}
 }

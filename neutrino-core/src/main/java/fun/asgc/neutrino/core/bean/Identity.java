@@ -19,21 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package fun.asgc.neutrino.core.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package fun.asgc.neutrino.core.bean;
 
 /**
+ * Identity 用于标识一个身份。
+ *
+ * 当`isOnly()`为true时，该标识是一个唯一标识。
+ *
+ * 如：身份证、财富、年龄都可以作为人的身份象征，但只有身份证是唯一标识。
+ * 这个唯一性取决与理论上的定义，而非实际数据。
+ * 例如有三个人，年龄分别是18、19、20，此时对于这三人而言，年龄是唯一的，但年龄这个标识我们仍然认为是非唯一标识。
+ * 除非在特定场景下，这些数据固定不变、或者确保以后新增的数据也不会打破这一设定。
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/1
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Lazy {
-	boolean value() default true;
+public interface Identity {
+	/**
+	 * 是否唯一标识
+	 * @return
+	 */
+	boolean isOnly();
 }
