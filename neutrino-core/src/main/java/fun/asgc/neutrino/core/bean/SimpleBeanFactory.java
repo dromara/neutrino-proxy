@@ -21,15 +21,17 @@
  */
 package fun.asgc.neutrino.core.bean;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Lazy;
 import fun.asgc.neutrino.core.annotation.Order;
 import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
-import fun.asgc.neutrino.core.util.ClassUtil;
-import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -69,18 +71,51 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 	}
 
 	@Override
-	protected boolean dependencyCheck(BeanWrapper bean) throws BeanException {
-		return false;
+	protected void dependencyCheck(BeanWrapper bean) throws Exception {
+		LockUtil.doubleCheckProcess(
+			() -> BeanStatus.REGISTER == bean.getStatus(),
+			bean,
+			() -> {
+				Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(bean.getType());
+				if (CollectionUtil.notEmpty(fieldSet)) {
+					fieldSet.forEach(field -> {
+						Autowired autowired = field.getAnnotation(Autowired.class);
+						if (null == autowired) {
+							return;
+						}
+						String name = field.getName();
+						// TODO
+					});
+				}
+			}
+		);
 	}
 
 	@Override
 	protected <T> T newInstance(BeanWrapper bean) throws BeanException {
-		return null;
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> BeanStatus.DEPENDENCY_CHECKING == bean.getStatus(),
+				bean,
+				() -> {
+					bean.getClass().newInstance();
+				},
+				() -> (T)bean.getInstance()
+			);
+		} catch (Exception e) {
+			throw new BeanException(String.format("Bean[type:%s name:%s] 实例化异常", bean.getType().getName(), bean.getName()), e);
+		}
 	}
 
 	@Override
-	protected boolean inject(BeanWrapper bean) throws BeanException {
-		return false;
+	protected void inject(BeanWrapper bean) throws Exception {
+		LockUtil.doubleCheckProcess(
+			() -> BeanStatus.INSTANCE == bean.getStatus(),
+			bean,
+			() -> {
+				// TODO
+			}
+		);
 	}
 
 	@Override

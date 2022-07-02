@@ -43,13 +43,17 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
 
 
     public ClientChannelHandler() {
-        LockUtil.doubleCheckProcess(() -> null == dispatcher,
-            ClientChannelHandler.class,
-            () -> {
-                dispatcher = new DefaultDispatcher<>("消息调度器",
-                    BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
-                    proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-            });
+        try {
+            LockUtil.doubleCheckProcess(() -> null == dispatcher,
+                ClientChannelHandler.class,
+                () -> {
+                    dispatcher = new DefaultDispatcher<>("消息调度器",
+                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
+                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
+                });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

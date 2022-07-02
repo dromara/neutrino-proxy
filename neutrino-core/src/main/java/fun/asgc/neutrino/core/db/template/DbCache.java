@@ -58,12 +58,17 @@ public class DbCache {
 	 * @return
 	 */
 	public static String toColumnName(String s) {
-		return LockUtil.doubleCheckProcess(
-			() -> !nameMappingCache.containsKey(GROUP_COLUMN_NAME_TO, s),
-			GROUP_COLUMN_NAME_TO,
-			() -> nameMappingCache.set(GROUP_COLUMN_NAME_TO, s, DefaultColumnNameConvert.getInstance().to(s)),
-			() -> nameMappingCache.get(GROUP_COLUMN_NAME_TO, s)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !nameMappingCache.containsKey(GROUP_COLUMN_NAME_TO, s),
+				GROUP_COLUMN_NAME_TO,
+				() -> nameMappingCache.set(GROUP_COLUMN_NAME_TO, s, DefaultColumnNameConvert.getInstance().to(s)),
+				() -> nameMappingCache.get(GROUP_COLUMN_NAME_TO, s)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -72,12 +77,17 @@ public class DbCache {
 	 * @return
 	 */
 	public static String fromColumnName(String s) {
-		return LockUtil.doubleCheckProcess(
-			() -> !nameMappingCache.containsKey(GROUP_COLUMN_NAME_FROM, s),
-			GROUP_COLUMN_NAME_FROM,
-			() -> nameMappingCache.set(GROUP_COLUMN_NAME_FROM, s, DefaultColumnNameConvert.getInstance().from(s)),
-			() -> nameMappingCache.get(GROUP_COLUMN_NAME_FROM, s)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !nameMappingCache.containsKey(GROUP_COLUMN_NAME_FROM, s),
+				GROUP_COLUMN_NAME_FROM,
+				() -> nameMappingCache.set(GROUP_COLUMN_NAME_FROM, s, DefaultColumnNameConvert.getInstance().from(s)),
+				() -> nameMappingCache.get(GROUP_COLUMN_NAME_FROM, s)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -86,12 +96,17 @@ public class DbCache {
 	 * @return
 	 */
 	public static String toTableName(String s) {
-		return LockUtil.doubleCheckProcess(
-			() -> !nameMappingCache.containsKey(GROUP_TABLE_NAME_TO, s),
-			GROUP_TABLE_NAME_TO,
-			() -> nameMappingCache.set(GROUP_TABLE_NAME_TO, s, DefaultTableNameConvert.getInstance().to(s)),
-			() -> nameMappingCache.get(GROUP_TABLE_NAME_TO, s)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !nameMappingCache.containsKey(GROUP_TABLE_NAME_TO, s),
+				GROUP_TABLE_NAME_TO,
+				() -> nameMappingCache.set(GROUP_TABLE_NAME_TO, s, DefaultTableNameConvert.getInstance().to(s)),
+				() -> nameMappingCache.get(GROUP_TABLE_NAME_TO, s)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -100,20 +115,25 @@ public class DbCache {
 	 * @return
 	 */
 	public static String toTableName(Class<?> clazz) {
-		return LockUtil.doubleCheckProcess(() -> !classTableNameCache.containsKey(clazz),
-			clazz,
-			() -> {
-				Table table = clazz.getAnnotation(Table.class);
-				String tableName;
-				if (null != table && StringUtil.notEmpty(table.value())) {
-					tableName = table.value();
-				} else {
-					tableName =  toTableName(TypeUtil.getSimpleName(clazz));
-				}
-				classTableNameCache.set(clazz, tableName);
-			},
-			() -> classTableNameCache.get(clazz)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(() -> !classTableNameCache.containsKey(clazz),
+				clazz,
+				() -> {
+					Table table = clazz.getAnnotation(Table.class);
+					String tableName;
+					if (null != table && StringUtil.notEmpty(table.value())) {
+						tableName = table.value();
+					} else {
+						tableName =  toTableName(TypeUtil.getSimpleName(clazz));
+					}
+					classTableNameCache.set(clazz, tableName);
+				},
+				() -> classTableNameCache.get(clazz)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -122,12 +142,17 @@ public class DbCache {
 	 * @return
 	 */
 	public static String fromTableName(String s) {
-		return LockUtil.doubleCheckProcess(
-			() -> !nameMappingCache.containsKey(GROUP_TABLE_NAME_FROM, s),
-			GROUP_TABLE_NAME_FROM,
-			() -> nameMappingCache.set(GROUP_TABLE_NAME_FROM, s, DefaultTableNameConvert.getInstance().from(s)),
-			() -> nameMappingCache.get(GROUP_TABLE_NAME_FROM, s)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !nameMappingCache.containsKey(GROUP_TABLE_NAME_FROM, s),
+				GROUP_TABLE_NAME_FROM,
+				() -> nameMappingCache.set(GROUP_TABLE_NAME_FROM, s, DefaultTableNameConvert.getInstance().from(s)),
+				() -> nameMappingCache.get(GROUP_TABLE_NAME_FROM, s)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -137,25 +162,30 @@ public class DbCache {
 	 * @return
 	 */
 	public static List<Field> getField(Class<?> clazz, String column) {
-		return LockUtil.doubleCheckProcess(
-			() -> !fieldToColumnCache.containsKey(clazz),
-			fieldToColumnCacheLock,
-			() -> initFieldCache(clazz),
-			() -> {
-				List<Field> list = Lists.newArrayList();
-				Cache<Field, String> cache = fieldToColumnCache.get(clazz);
-				if (null == cache || cache.isEmpty()) {
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !fieldToColumnCache.containsKey(clazz),
+				fieldToColumnCacheLock,
+				() -> initFieldCache(clazz),
+				() -> {
+					List<Field> list = Lists.newArrayList();
+					Cache<Field, String> cache = fieldToColumnCache.get(clazz);
+					if (null == cache || cache.isEmpty()) {
+						return list;
+					}
+					for (Field field : cache.keySet()) {
+						if (cache.get(field).equals(column)) {
+							list.add(field);
+						}
+					}
+
 					return list;
 				}
-				for (Field field : cache.keySet()) {
-					if (cache.get(field).equals(column)) {
-						list.add(field);
-					}
-				}
-
-				return list;
-			}
-		);
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -164,20 +194,25 @@ public class DbCache {
 	 * @return
 	 */
 	public static List<Field> getFieldList(Class<?> clazz) {
-		return LockUtil.doubleCheckProcess(
-			() -> !fieldToColumnCache.containsKey(clazz),
-			fieldToColumnCacheLock,
-			() -> initFieldCache(clazz),
-			() -> {
-				List<Field> list = Lists.newArrayList();
-				Cache<Field, String> cache = fieldToColumnCache.get(clazz);
-				if (null == cache || cache.isEmpty()) {
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !fieldToColumnCache.containsKey(clazz),
+				fieldToColumnCacheLock,
+				() -> initFieldCache(clazz),
+				() -> {
+					List<Field> list = Lists.newArrayList();
+					Cache<Field, String> cache = fieldToColumnCache.get(clazz);
+					if (null == cache || cache.isEmpty()) {
+						return list;
+					}
+					list.addAll(cache.keySet());
 					return list;
 				}
-				list.addAll(cache.keySet());
-				return list;
-			}
-		);
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -186,26 +221,36 @@ public class DbCache {
 	 * @return
 	 */
 	public static Cache<Field, String> getFieldCache(Class<?> clazz) {
-		return LockUtil.doubleCheckProcess(
-			() -> !fieldToColumnCache.containsKey(clazz),
-			clazz,
-			() -> initFieldCache(clazz),
-			() -> fieldToColumnCache.get(clazz)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !fieldToColumnCache.containsKey(clazz),
+				clazz,
+				() -> initFieldCache(clazz),
+				() -> fieldToColumnCache.get(clazz)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static String getColumnNameByField(Field field) {
-		return LockUtil.doubleCheckProcess(
-			() -> !fieldToColumnCache.containsKey(field.getDeclaringClass()),
-			fieldToColumnCacheLock,
-			() -> initFieldCache(field.getDeclaringClass()),
-			() -> {
-				if (!fieldToColumnCache.containsKey(field.getDeclaringClass()) || !fieldToColumnCache.get(field.getDeclaringClass()).containsKey(field)) {
-					return null;
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !fieldToColumnCache.containsKey(field.getDeclaringClass()),
+				fieldToColumnCacheLock,
+				() -> initFieldCache(field.getDeclaringClass()),
+				() -> {
+					if (!fieldToColumnCache.containsKey(field.getDeclaringClass()) || !fieldToColumnCache.get(field.getDeclaringClass()).containsKey(field)) {
+						return null;
+					}
+					return fieldToColumnCache.get(field.getDeclaringClass()).get(field);
 				}
-				return fieldToColumnCache.get(field.getDeclaringClass()).get(field);
-			}
-		);
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

@@ -53,11 +53,15 @@ public class MemoryCacheGroup<K,V> implements CacheGroup<K,V> {
 
 	@Override
 	public void set(String group, K k, V v) {
-		LockUtil.doubleCheckProcess(() -> !cacheGroup.containsKey(group),
-			group,
-			() -> cacheGroup.set(group, new MemoryCache<>())
-		);
-		cacheGroup.get(group).set(k, v);
+		try {
+			LockUtil.doubleCheckProcess(() -> !cacheGroup.containsKey(group),
+				group,
+				() -> cacheGroup.set(group, new MemoryCache<>())
+			);
+			cacheGroup.get(group).set(k, v);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

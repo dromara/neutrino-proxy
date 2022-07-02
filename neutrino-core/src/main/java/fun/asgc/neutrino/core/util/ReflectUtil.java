@@ -57,14 +57,19 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Field> getFields(Class<?> clazz) {
-		return kvProcess(fieldsCache, clazz, c -> {
-			Field[] fields = c.getFields();
-			Set<Field> fieldSet = new HashSet<>();
-			if (ArrayUtil.notEmpty(fields)) {
-				fieldSet = Stream.of(fields).collect(Collectors.toSet());
-			}
-			return fieldSet;
-		});
+		try {
+			return kvProcess(fieldsCache, clazz, c -> {
+				Field[] fields = c.getFields();
+				Set<Field> fieldSet = new HashSet<>();
+				if (ArrayUtil.notEmpty(fields)) {
+					fieldSet = Stream.of(fields).collect(Collectors.toSet());
+				}
+				return fieldSet;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -73,14 +78,19 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Field> getDeclaredFields(Class<?> clazz) {
-		return kvProcess(declaredFieldsCache, clazz, c -> {
-			Field[] fields = c.getDeclaredFields();
-			Set<Field> fieldSet = new HashSet<>();
-			if (ArrayUtil.notEmpty(fields)) {
-				fieldSet = Stream.of(fields).collect(Collectors.toSet());
-			}
-			return fieldSet;
-		});
+		try {
+			return kvProcess(declaredFieldsCache, clazz, c -> {
+				Field[] fields = c.getDeclaredFields();
+				Set<Field> fieldSet = new HashSet<>();
+				if (ArrayUtil.notEmpty(fields)) {
+					fieldSet = Stream.of(fields).collect(Collectors.toSet());
+				}
+				return fieldSet;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -98,29 +108,34 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Field> getInheritChainDeclaredFieldSet(Class<?> clazz, Set<Class<?>> ignoreClasses) {
-		return kvProcess(inheritChainDeclaredFieldSetCache,
-			clazz,
-			(Class<?> c) -> {
-				Set<String> nameSet = new HashSet<>();
-				Set<Field> set = new HashSet<>();
-				Set<Class<?>> ignores = null == ignoreClasses ? new HashSet<>() : ignoreClasses;
-				while (null != c && !ignores.contains(c)) {
-					Set<Field> fields = getDeclaredFields(c);
-					if (CollectionUtil.notEmpty(fields)) {
-						for (Field field : fields) {
-							if (field.getName().equals("this$0") || nameSet.contains(field.getName())) {
-								continue;
+		try {
+			return kvProcess(inheritChainDeclaredFieldSetCache,
+				clazz,
+				(Class<?> c) -> {
+					Set<String> nameSet = new HashSet<>();
+					Set<Field> set = new HashSet<>();
+					Set<Class<?>> ignores = null == ignoreClasses ? new HashSet<>() : ignoreClasses;
+					while (null != c && !ignores.contains(c)) {
+						Set<Field> fields = getDeclaredFields(c);
+						if (CollectionUtil.notEmpty(fields)) {
+							for (Field field : fields) {
+								if (field.getName().equals("this$0") || nameSet.contains(field.getName())) {
+									continue;
+								}
+								nameSet.add(field.getName());
+								set.add(field);
 							}
-							nameSet.add(field.getName());
-							set.add(field);
 						}
-					}
 
-					c = c.getSuperclass();
+						c = c.getSuperclass();
+					}
+					return set;
 				}
-				return set;
-			}
-		);
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -129,14 +144,19 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
-		return kvProcess(methodsCache, clazz, c -> {
-			Method[] methods = c.getMethods();
-			Set<Method> methodSet = new HashSet<>();
-			if (ArrayUtil.notEmpty(methods)) {
-				methodSet = Stream.of(methods).collect(Collectors.toSet());
-			}
-			return methodSet;
-		});
+		try {
+			return kvProcess(methodsCache, clazz, c -> {
+				Method[] methods = c.getMethods();
+				Set<Method> methodSet = new HashSet<>();
+				if (ArrayUtil.notEmpty(methods)) {
+					methodSet = Stream.of(methods).collect(Collectors.toSet());
+				}
+				return methodSet;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -145,14 +165,19 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Method> getDeclaredMethods(Class<?> clazz) {
-		return kvProcess(declaredMethodsCache, clazz, c -> {
-			Method[] methods = c.getDeclaredMethods();
-			Set<Method> methodSet = new HashSet<>();
-			if (ArrayUtil.notEmpty(methods)) {
-				methodSet = Stream.of(methods).collect(Collectors.toSet());
-			}
-			return methodSet;
-		});
+		try {
+			return kvProcess(declaredMethodsCache, clazz, c -> {
+				Method[] methods = c.getDeclaredMethods();
+				Set<Method> methodSet = new HashSet<>();
+				if (ArrayUtil.notEmpty(methods)) {
+					methodSet = Stream.of(methods).collect(Collectors.toSet());
+				}
+				return methodSet;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -161,14 +186,19 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Set<Class<?>> getExceptionTypes(Method method) {
-		return kvProcess(methodExceptionTypesCache, method, c -> {
-			Class<?>[] classes = method.getExceptionTypes();
-			Set<Class<?>> classSet = new HashSet<>();
-			if (ArrayUtil.notEmpty(classes)) {
-				classSet = Stream.of(classes).collect(Collectors.toSet());
-			}
-			return classSet;
-		});
+		try {
+			return kvProcess(methodExceptionTypesCache, method, c -> {
+				Class<?>[] classes = method.getExceptionTypes();
+				Set<Class<?>> classSet = new HashSet<>();
+				if (ArrayUtil.notEmpty(classes)) {
+					classSet = Stream.of(classes).collect(Collectors.toSet());
+				}
+				return classSet;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -180,7 +210,7 @@ public class ReflectUtil {
 	 * @param <V>
 	 * @return
 	 */
-	private static <K,V> V kvProcess(Cache<K,V> cache, K k, Function<K,V>fn) {
+	private static <K,V> V kvProcess(Cache<K,V> cache, K k, Function<K,V>fn) throws Exception {
 		return LockUtil.doubleCheckProcess(
 			() -> !cache.containsKey(k),
 			k,
@@ -216,12 +246,17 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Method getGetMethod(Field field) {
-		return kvProcess(getMethodCache, field, f -> {
-			String getMethodName = getGetMethodName(field);
-			return getMethods(field.getDeclaringClass()).stream()
-				.filter(method -> method.getName().equals(getMethodName) && method.getParameters().length == 0)
-				.findFirst().get();
-		});
+		try {
+			return kvProcess(getMethodCache, field, f -> {
+				String getMethodName = getGetMethodName(field);
+				return getMethods(field.getDeclaringClass()).stream()
+					.filter(method -> method.getName().equals(getMethodName) && method.getParameters().length == 0)
+					.findFirst().get();
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -246,30 +281,35 @@ public class ReflectUtil {
 	 * @return
 	 */
 	public static Method getSetMethod(Field field) {
-		return kvProcess(setMethodCache, field, f -> {
-			String setMethodName = getSetMethodName(field);
-			Optional<Method> methodOptional = getMethods(field.getDeclaringClass()).stream()
-				.filter(method -> method.getName().equals(setMethodName) && method.getParameters().length == 1 && method.getParameterTypes()[0] == field.getType())
-				.findFirst();
-			if (methodOptional.isPresent()) {
-				return methodOptional.get();
-			}
-			int level = TypeMatchLevel.NOT.getDistanceMax();
-			Method method = null;
-			for (Method m : getMethods(field.getDeclaringClass())) {
-				if (m.getName().equals(setMethodName) && m.getParameters().length == 1) {
-					int curLevel = TypeUtil.typeMatch(m.getParameterTypes()[0], field.getType()).getTypeDistance();
-					if (curLevel < level) {
-						level = curLevel;
-						method = m;
+		try {
+			return kvProcess(setMethodCache, field, f -> {
+				String setMethodName = getSetMethodName(field);
+				Optional<Method> methodOptional = getMethods(field.getDeclaringClass()).stream()
+					.filter(method -> method.getName().equals(setMethodName) && method.getParameters().length == 1 && method.getParameterTypes()[0] == field.getType())
+					.findFirst();
+				if (methodOptional.isPresent()) {
+					return methodOptional.get();
+				}
+				int level = TypeMatchLevel.NOT.getDistanceMax();
+				Method method = null;
+				for (Method m : getMethods(field.getDeclaringClass())) {
+					if (m.getName().equals(setMethodName) && m.getParameters().length == 1) {
+						int curLevel = TypeUtil.typeMatch(m.getParameterTypes()[0], field.getType()).getTypeDistance();
+						if (curLevel < level) {
+							level = curLevel;
+							method = m;
+						}
 					}
 				}
-			}
-			if (level < TypeMatchLevel.NOT.getDistanceMin() && method != null) {
-				return method;
-			}
-			return null;
-		});
+				if (level < TypeMatchLevel.NOT.getDistanceMin() && method != null) {
+					return method;
+				}
+				return null;
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

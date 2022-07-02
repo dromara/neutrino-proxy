@@ -114,26 +114,31 @@ public class BeanWrapper implements LifeCycle {
 	}
 
 	private boolean newInstance0() {
-		return LockUtil.doubleCheckProcess(() -> !hasInstance(),
-			this,
-			() -> {
-				try {
-					// 暂时先只支持yml配置
-					Configuration configuration = type.getAnnotation(Configuration.class);
-					if (null != configuration) {
-						instance = ConfigUtil.getYmlConfig(type);
-					} else if (ClassUtil.isInterface(type)) {
-						instance = Aop.get(type);
-					} else {
-						// 由编码规避没有无参构造器的问题
-						instance = type.newInstance();
+		try {
+			return LockUtil.doubleCheckProcess(() -> !hasInstance(),
+				this,
+				() -> {
+					try {
+						// 暂时先只支持yml配置
+						Configuration configuration = type.getAnnotation(Configuration.class);
+						if (null != configuration) {
+							instance = ConfigUtil.getYmlConfig(type);
+						} else if (ClassUtil.isInterface(type)) {
+							instance = Aop.get(type);
+						} else {
+							// 由编码规避没有无参构造器的问题
+							instance = type.newInstance();
+						}
+					} catch (Exception e) {
+						// ignore
 					}
-				} catch (Exception e) {
-					// ignore
-				}
-			},
-			() -> hasInstance()
-		);
+				},
+				() -> hasInstance()
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	private void inject(ApplicationContext context) {

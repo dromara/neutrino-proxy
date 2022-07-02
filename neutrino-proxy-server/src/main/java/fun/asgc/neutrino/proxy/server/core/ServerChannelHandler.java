@@ -40,13 +40,17 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
 
     public ServerChannelHandler() {
-        LockUtil.doubleCheckProcess(() -> null == dispatcher,
-            ServerChannelHandler.class,
-            () -> {
-                dispatcher = new DefaultDispatcher<>("消息调度器",
-                    BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
-                    proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-         });
+        try {
+            LockUtil.doubleCheckProcess(() -> null == dispatcher,
+                ServerChannelHandler.class,
+                () -> {
+                    dispatcher = new DefaultDispatcher<>("消息调度器",
+                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
+                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
+             });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -371,25 +371,29 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 */
 	protected <T> T getOrNew(BeanWrapper bean) throws BeanException {
-		return (T)LockUtil.doubleCheckProcess(
-			() -> !(BeanStatus.INIT == bean.getStatus() || BeanStatus.RUNNING == bean.getStatus()),
-			bean,
-			() -> {
-				if (BeanStatus.REGISTER == bean.getStatus()) {
-					dependencyCheck(bean);
-				}
-				if (BeanStatus.DEPENDENCY_CHECKING == bean.getStatus()) {
-					newInstance(bean);
-				}
-				if (BeanStatus.INSTANCE == bean.getStatus()) {
-					inject(bean);
-				}
-				if (BeanStatus.INJECT == bean.getStatus()) {
-					bean.init();
-				}
-			},
-			() -> bean.getInstance()
-		);
+		try {
+			return (T)LockUtil.doubleCheckProcess(
+				() -> !(BeanStatus.INIT == bean.getStatus() || BeanStatus.RUNNING == bean.getStatus()),
+				bean,
+				() -> {
+					if (BeanStatus.REGISTER == bean.getStatus()) {
+						dependencyCheck(bean);
+					}
+					if (BeanStatus.DEPENDENCY_CHECKING == bean.getStatus()) {
+						newInstance(bean);
+					}
+					if (BeanStatus.INSTANCE == bean.getStatus()) {
+						inject(bean);
+					}
+					if (BeanStatus.INJECT == bean.getStatus()) {
+						bean.init();
+					}
+				},
+				() -> bean.getInstance()
+			);
+		} catch (Exception e) {
+			throw new BeanException(String.format("Bean[type:%s name:%s] getOrNew bean实例异常!"), e);
+		}
 	}
 
 	/**
@@ -398,7 +402,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 * @throws BeanException
 	 */
-	protected abstract boolean dependencyCheck(BeanWrapper bean) throws BeanException;
+	protected abstract void dependencyCheck(BeanWrapper bean) throws Exception;
 
 	/**
 	 * 实例化
@@ -415,5 +419,5 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 * @throws BeanException
 	 */
-	protected abstract boolean inject(BeanWrapper bean) throws BeanException;
+	protected abstract void inject(BeanWrapper bean) throws Exception;
 }

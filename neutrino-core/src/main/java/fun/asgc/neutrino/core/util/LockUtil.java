@@ -40,7 +40,7 @@ public class LockUtil {
 	 * @param lock
 	 * @param lockProcess
 	 */
-	public static void doubleCheckProcess(BooleanSupplier isLock, Object lock, CodeBlock lockProcess) {
+	public static void doubleCheckProcess(BooleanSupplier isLock, Object lock, CodeBlock lockProcess) throws Exception {
 		if (isLock.getAsBoolean()) {
 			synchronized (lock) {
 				if (isLock.getAsBoolean()) {
@@ -57,9 +57,8 @@ public class LockUtil {
 	 * @param lockProcess
 	 * @param nonLockProcess
 	 */
-	public static <T> T doubleCheckProcess(BooleanSupplier isLock, Object lock, CodeBlock lockProcess, Supplier<T> nonLockProcess) {
+	public static <T> T doubleCheckProcess(BooleanSupplier isLock, Object lock, CodeBlock lockProcess, Supplier<T> nonLockProcess) throws Exception {
 		doubleCheckProcess(isLock, lock, lockProcess);
 		return nonLockProcess.get();
 	}
-
 }

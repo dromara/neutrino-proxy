@@ -33,6 +33,5 @@ public interface CodeBlock {
 	/**
 	 * 执行
 	 */
-	void execute();
-
+	void execute() throws Exception;
 }

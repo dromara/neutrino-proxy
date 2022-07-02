@@ -51,7 +51,7 @@ public class SqlMapperInterceptor implements Interceptor {
 	private static final Cache<Method, Params> paramsCache = new MemoryCache<>();
 
 	@Override
-	public void intercept(Invocation inv) throws SQLException {
+	public void intercept(Invocation inv) throws Exception {
 		Assert.notNull(jdbcTemplate, "JdbcTemplate未注入，调用失败!");
 		Params params = getParams(inv.getTargetMethod());
 		if (null == params) {
@@ -85,7 +85,7 @@ public class SqlMapperInterceptor implements Interceptor {
 	 * @param method
 	 * @return
 	 */
-	private static Params getParams(Method method) {
+	private static Params getParams(Method method) throws Exception {
 		return LockUtil.doubleCheckProcess(
 			() -> !paramsCache.containsKey(method),
 			method,

@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.util;
 
+import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import lombok.Data;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
@@ -53,11 +54,15 @@ public class LockUtilTest {
 	 */
 	@Test
 	public void test2() {
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 10; i++)  {
 			ThreadUtil.run(() -> {
-				LockUtil.doubleCheckProcess(() -> a == null,
-					LockUtilTest.class,
-					() -> a = new A());
+				try {
+					LockUtil.doubleCheckProcess(() -> a == null,
+						LockUtilTest.class,
+						() -> a = new A());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			});
 		}
 		SystemUtil.waitProcessDestroy().sync();

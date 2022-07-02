@@ -53,7 +53,11 @@ public class SystemUtil {
 		SystemUtil.addShutdownHook(() -> {
 			synchronized (context) {
 				if (null != destroy) {
-					destroy.execute();
+					try {
+						destroy.execute();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 				context.stop();
 				context.notify();

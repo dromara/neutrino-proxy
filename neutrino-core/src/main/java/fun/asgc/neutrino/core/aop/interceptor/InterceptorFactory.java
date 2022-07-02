@@ -55,7 +55,7 @@ public class InterceptorFactory {
 	 * @param <T>
 	 * @return
 	 */
-	private static <T> T getOrNewCacheBean(Class<T> clazz, Cache cache) {
+	private static <T> T getOrNewCacheBean(Class<T> clazz, Cache cache) throws Exception {
 		return (T)LockUtil.doubleCheckProcess(() -> !cache.containsKey(clazz),
 			clazz,
 			() -> {
@@ -80,7 +80,12 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	public static <T extends Interceptor> T get(Class<? extends Interceptor> clazz) {
-		return (T)getOrNewCacheBean(clazz, interceptorCache);
+		try {
+			return (T)getOrNewCacheBean(clazz, interceptorCache);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -90,7 +95,12 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends Filter> T getFilter(Class<? extends Filter> clazz) {
-		return (T)getOrNewCacheBean(clazz, filterCache);
+		try {
+			return (T)getOrNewCacheBean(clazz, filterCache);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -113,7 +123,12 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends ResultAdvice> T getResultAdvice(Class<? extends ResultAdvice> clazz) {
-		return (T)getOrNewCacheBean(clazz, resultAdviceCache);
+		try {
+			return (T)getOrNewCacheBean(clazz, resultAdviceCache);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -136,7 +151,12 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends ExceptionHandler> T getExceptionHandler(Class<? extends ExceptionHandler> clazz) {
-		return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
+		try {
+			return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -160,25 +180,30 @@ public class InterceptorFactory {
 	public static List<Interceptor> getListByTargetMethod(Method targetMethod) {
 		Assert.notNull(targetMethod, "目标方法不能为空！");
 
-		return LockUtil.doubleCheckProcess(() -> !methodInterceptorListMap.containsKey(targetMethod),
-			targetMethod,
-			() -> {
-				List<Interceptor> interceptors = new ArrayList<>();
-				interceptors.addAll(globalInterceptorList);
-				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
-				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
-				if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
-					List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
-					if (CollectionUtil.notEmpty(interfaceList)) {
-						for (Class<?> clazz : interfaceList) {
-							addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
+		try {
+			return LockUtil.doubleCheckProcess(() -> !methodInterceptorListMap.containsKey(targetMethod),
+				targetMethod,
+				() -> {
+					List<Interceptor> interceptors = new ArrayList<>();
+					interceptors.addAll(globalInterceptorList);
+					addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
+					addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
+					// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
+					if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
+						List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
+						if (CollectionUtil.notEmpty(interfaceList)) {
+							for (Class<?> clazz : interfaceList) {
+								addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
+							}
 						}
 					}
-				}
-				methodInterceptorListMap.put(targetMethod, interceptors);
-			},
-			() -> methodInterceptorListMap.get(targetMethod));
+					methodInterceptorListMap.put(targetMethod, interceptors);
+				},
+				() -> methodInterceptorListMap.get(targetMethod));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

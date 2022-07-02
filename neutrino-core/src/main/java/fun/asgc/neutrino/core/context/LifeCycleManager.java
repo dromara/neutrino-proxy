@@ -40,22 +40,34 @@ public class LifeCycleManager {
 
 	public synchronized void init(CodeBlock codeBlock) {
 		if (this.status == LifeCycleStatus.CREATE) {
-			codeBlock.execute();
-			this.status = LifeCycleStatus.INIT;
+			try {
+				codeBlock.execute();
+				this.status = LifeCycleStatus.INIT;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public synchronized void run(CodeBlock codeBlock) {
 		if (this.status == LifeCycleStatus.INIT) {
-			codeBlock.execute();
-			this.status = LifeCycleStatus.RUN;
+			try {
+				codeBlock.execute();
+				this.status = LifeCycleStatus.RUN;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public synchronized void destroy(CodeBlock codeBlock) {
 		if (this.status != LifeCycleStatus.DESTROY) {
-			codeBlock.execute();
-			this.status = LifeCycleStatus.DESTROY;
+			try {
+				codeBlock.execute();
+				this.status = LifeCycleStatus.DESTROY;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

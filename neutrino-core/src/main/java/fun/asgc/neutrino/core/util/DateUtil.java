@@ -35,12 +35,17 @@ import java.util.Date;
 public class DateUtil {
 	private static final Cache<String, SimpleDateFormat> sdfCache = new MemoryCache<>();
 	private static SimpleDateFormat getSimpleDateFormat(String format) {
-		return LockUtil.doubleCheckProcess(
-			() -> !sdfCache.containsKey(format),
-			format,
-			() -> sdfCache.set(format, new SimpleDateFormat(format)),
-			() -> sdfCache.get(format)
-		);
+		try {
+			return LockUtil.doubleCheckProcess(
+				() -> !sdfCache.containsKey(format),
+				format,
+				() -> sdfCache.set(format, new SimpleDateFormat(format)),
+				() -> sdfCache.get(format)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
