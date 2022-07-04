@@ -124,11 +124,7 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 					NonIntercept nonIntercept = ClassUtil.getAnnotation(bean.getType(), NonIntercept.class);
 					boolean isNonIntercept = (null != nonIntercept && nonIntercept.value()) ? true : false;
 
-					// TODO 此处factoryBean可能还未注入、初始化，需要思考优化
-					FactoryBean factoryBean = getFactory(bean);
-					if (null != factoryBean) {
-						bean.setInstance(factoryBean.getInstance());
-					} else if (ClassUtil.isInterface(bean.getType())) {
+					if (ClassUtil.isInterface(bean.getType())) {
 						bean.setInstance(Aop.get(bean.getType()));
 					} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
 						bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));

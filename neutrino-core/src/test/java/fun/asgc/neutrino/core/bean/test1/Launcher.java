@@ -23,7 +23,7 @@ package fun.asgc.neutrino.core.bean.test1;
 
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.BeanMatchMode;
-import fun.asgc.neutrino.core.bean.BeanStatus;
+import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
 
 import java.util.List;
@@ -52,6 +52,8 @@ public class Launcher {
 	private Dog dog;
 	@Autowired("dog")
 	private Dog dog2;
+	@Autowired
+	private Dog dog10;
 	@Autowired(value = "dog", matchMode = BeanMatchMode.ByName, parameterTypes = Dog.class)
 	private Object[] dogs1;
 	@Autowired(matchMode = BeanMatchMode.ByType, parameterTypes = Dog.class)
@@ -59,11 +61,14 @@ public class Launcher {
 	@Autowired(matchMode = BeanMatchMode.ByType, parameterTypes = Animal.class)
 	private List<Animal> list;
 
+	@Autowired
+	private SimpleBeanFactory applicationBeanFactory;
+
 	@Init
 	public void init() {
 		System.out.println("初始化---");
-		cat.call();
-		dog.call();
+//		cat.call();
+//		dog.call();
 	}
 
 	@Destroy

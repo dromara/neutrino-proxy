@@ -31,6 +31,7 @@ import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +216,20 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	private <T> T doGetBeanByName(Class<T> type, String name, Object... args) throws BeanException {
 		List<BeanWrapper> beanList  = findBeanList(type, name);
 		if (CollectionUtil.isEmpty(beanList)) {
-			return null;
+			// TODO check
+			List<BeanWrapper> factoryBeanWrapperList = findFactoryBeanListByName(type, name);
+			if (CollectionUtil.isEmpty(factoryBeanWrapperList)) {
+				return null;
+			} else if (factoryBeanWrapperList.size() > 1) {
+				throw  new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
+			}
+			BeanWrapper factoryBeanWrapper = factoryBeanWrapperList.get(0);
+			dependencyCheck(factoryBeanWrapperList);
+			newInstance(factoryBeanWrapperList);
+			inject(factoryBeanWrapperList);
+			factoryBeanWrapper.init();
+
+			return (T)((FactoryBean)factoryBeanWrapper.getInstance()).getInstance();
 		} else if (beanList.size() > 1) {
 			throw new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
 		}
@@ -234,6 +248,12 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 
 	private <T> T doGetBeanByTypeAndName(Class<T> type, String name, Object... args) throws BeanException {
 		BeanWrapper bean = findBean(type, name);
+		if (null == bean) {
+			BeanWrapper factoryBeanWrapper = findFactoryBean(type, name);
+			if (null != factoryBeanWrapper) {
+				return (T)((FactoryBean)factoryBeanWrapper.getInstance()).getInstance();
+			}
+		}
 		if (null == bean) {
 			return null;
 		}
@@ -333,17 +353,69 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	}
 
 	/**
+	 * 查找工厂bean
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	private BeanWrapper findFactoryBean(Class<?> type, String name) {
+		Assert.notNull(type, "bean的类型不能为空!");
+		Assert.notNull(name, "bean的名称不能为空！");
+		return factoryBeanCache.get(new BeanIdentity(name, type));
+	}
+
+	/**
+	 * 查找工厂bean列表
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	private List<BeanWrapper> findFactoryBeanListByName(Class<?> type, String name) {
+		Assert.notNull(type, "bean的类型不能为空!");
+		Assert.notNull(name, "bean的名称不能为空！");
+		List<BeanWrapper> list = new ArrayList<>();
+		for (BeanIdentity identity : factoryBeanCache.keySet()) {
+			if (type.isAssignableFrom(identity.getType()) && identity.getName().equals(name)) {
+				list.add(factoryBeanCache.get(identity));
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 查找工厂bean列表
+	 * @param type
+	 * @return
+	 */
+	private List<BeanWrapper> findFactoryBeanListByType(Class<?> type) {
+		Assert.notNull(type, "bean的类型不能为空!");
+		List<BeanWrapper> list = new ArrayList<>();
+		for (BeanIdentity identity : factoryBeanCache.keySet()) {
+			if (type.isAssignableFrom(identity.getType())) {
+				list.add(factoryBeanCache.get(identity));
+			}
+		}
+		return list;
+	}
+
+	/**
 	 * 新增一个bean
 	 * @param bean
 	 */
 	protected void addBean(BeanWrapper bean) throws BeanException {
 		beanCache.put(new BeanIdentity(bean.getName(), bean.getType()), bean);
 		if (FactoryBean.class.isAssignableFrom(bean.getType())) {
+			dependencyCheck(bean);
+			newInstance(bean);
 			// 工厂bean
-			if (factoryBeanCache.containsKey(bean.getBeanIdentity())) {
+			BeanIdentity identity = ((FactoryBean)bean.getInstance()).getBeanIdentity();
+			if (factoryBeanCache.containsKey(identity)) {
 				throw new BeanException(String.format("Bean[type:%s name:%s] 存在多个factoryBean!", bean.getType().getName(), bean.getName()));
 			}
-			factoryBeanCache.put(bean.getBeanIdentity(), bean);
+			if (beanCache.containsKey(identity)) {
+				throw new BeanException(String.format("Bean[type:%s name:%s] 定义与BeanFactory[type:%s name:%s]冲突!", identity.getType().getName(), identity.getName(), bean.getType().getName(), bean.getName()));
+			}
+			factoryBeanCache.put(identity, bean);
 		}
 	}
 
@@ -478,7 +550,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 				() -> bean.getInstance()
 			);
 		} catch (Exception e) {
-			throw new BeanException(String.format("Bean[type:%s name:%s] getOrNew bean实例异常!"), e);
+			throw new BeanException(String.format("Bean[type:%s name:%s] getOrNew bean实例异常!", bean.getType().getName(), bean.getName()), e);
 		}
 	}
 

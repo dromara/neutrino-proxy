@@ -21,6 +21,9 @@
  */
 package fun.asgc.neutrino.core.util;
 
+import fun.asgc.neutrino.core.aop.AopCallback;
+import fun.asgc.neutrino.core.base.CodeBlock;
+
 import java.util.function.Supplier;
 
 /**
@@ -47,6 +50,33 @@ public class FunctionUtil {
 					}
 				}
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * 忽略异常
+	 * @param codeBlock
+	 */
+	public static void ignoreException(CodeBlock codeBlock) {
+		try {
+			codeBlock.execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 忽略异常
+	 * @param callback
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> T ignoreException(AopCallback<T> callback) {
+		try {
+			return callback.callback();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

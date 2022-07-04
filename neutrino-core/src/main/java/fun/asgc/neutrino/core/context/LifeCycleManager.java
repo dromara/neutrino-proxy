@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.context;
 
 import fun.asgc.neutrino.core.base.CodeBlock;
+import fun.asgc.neutrino.core.util.FunctionUtil;
 
 /**
  *
@@ -40,34 +41,28 @@ public class LifeCycleManager {
 
 	public synchronized void init(CodeBlock codeBlock) {
 		if (this.status == LifeCycleStatus.CREATE) {
-			try {
+			FunctionUtil.ignoreException(() -> {
 				codeBlock.execute();
 				this.status = LifeCycleStatus.INIT;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			});
 		}
 	}
 
 	public synchronized void run(CodeBlock codeBlock) {
 		if (this.status == LifeCycleStatus.INIT) {
-			try {
+			FunctionUtil.ignoreException(() -> {
 				codeBlock.execute();
 				this.status = LifeCycleStatus.RUN;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			});
 		}
 	}
 
 	public synchronized void destroy(CodeBlock codeBlock) {
 		if (this.status != LifeCycleStatus.DESTROY) {
-			try {
+			FunctionUtil.ignoreException(() -> {
 				codeBlock.execute();
 				this.status = LifeCycleStatus.DESTROY;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			});
 		}
 	}
 

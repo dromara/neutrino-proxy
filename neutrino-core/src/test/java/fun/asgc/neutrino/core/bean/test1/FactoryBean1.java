@@ -22,21 +22,27 @@
 package fun.asgc.neutrino.core.bean.test1;
 
 import fun.asgc.neutrino.core.annotation.Component;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.bean.BeanIdentity;
+import fun.asgc.neutrino.core.bean.FactoryBean;
+import fun.asgc.neutrino.core.exception.BeanException;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/4
  */
-@Accessors(chain = true)
-@Data
+@NonIntercept
 @Component
-public class Dog extends Animal {
-	private String color;
+public class FactoryBean1 implements FactoryBean<Dog> {
+
 	@Override
-	public void call() {
-		System.out.println("汪汪汪");
+	public Dog getInstance() throws BeanException {
+		return new Dog().setColor("黄色");
+	}
+
+	@Override
+	public BeanIdentity getBeanIdentity() {
+		return new BeanIdentity("dog10", Dog.class);
 	}
 }
