@@ -38,6 +38,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 /**
  *
@@ -238,5 +239,9 @@ public class ClassUtil {
 
 	public static boolean isInterface(Class<?> clazz) {
 		return clazz.isInterface();
+	}
+
+	public static boolean hasNoArgsConstructor(Class<?> clazz) {
+		return Stream.of(clazz.getConstructors()).filter(c -> c.getParameterCount() == 0).count() > 0;
 	}
 }

@@ -56,6 +56,7 @@ public class BeanWrapper implements LifeCycle {
 	private volatile boolean isInit;
 	private BeanStatus status;
 	private boolean isLazy;
+	private BeanIdentity beanIdentity;
 
 	public boolean hasInstance() {
 		return null != instance;
@@ -63,12 +64,11 @@ public class BeanWrapper implements LifeCycle {
 
 	@Override
 	public void init() {
-		if (isInit) {
+		if (BeanStatus.INJECT != status) {
 			return;
 		}
-		if (!hasInstance()) {
-			return;
-		}
+		this.setStatus(BeanStatus.INIT);
+		log.info("Bean[type:{} name:{}]初始化...", getType().getName(), getName());
 		isInit = true;
 
 		Set<Method> methods = ReflectUtil.getMethods(type);
@@ -238,5 +238,14 @@ public class BeanWrapper implements LifeCycle {
 
 	public void run() {
 
+	}
+
+	public BeanIdentity getIdentity() {
+		return LockUtil.doubleCheckProcessForNoException(
+			() -> null == beanIdentity,
+			this,
+			() -> beanIdentity = new BeanIdentity(this.name, this.type),
+			() -> beanIdentity
+		);
 	}
 }

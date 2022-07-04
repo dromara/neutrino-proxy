@@ -37,14 +37,10 @@ import java.util.Set;
 public class JdkDynamicProxyFactory implements ProxyFactory {
 
 	@Override
-	public <T> T get(Class<T> clazz) {
+	public <T> T get(Class<T> clazz) throws Exception {
 		Assert.notNull(clazz, "被代理类不能为空！");
 		Assert.isTrue(canProxy(clazz), String.format("类[%s]无法被代理!", clazz.getName()));
-		try {
-			return doGet(clazz);
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
+		return doGet(clazz);
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {

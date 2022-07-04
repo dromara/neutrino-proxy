@@ -21,15 +21,16 @@
  */
 package fun.asgc.neutrino.core.bean;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Lazy;
-import fun.asgc.neutrino.core.annotation.Order;
+import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.aop.Aop;
 import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,54 +69,144 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			beanWrapper.setOrder(order.value());
 		}
 		addBean(beanWrapper);
+		registerBeanForMethod(type);
 	}
 
-	@Override
-	protected void dependencyCheck(BeanWrapper bean) throws Exception {
-		LockUtil.doubleCheckProcess(
-			() -> BeanStatus.REGISTER == bean.getStatus(),
-			bean,
-			() -> {
-				Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(bean.getType());
-				if (CollectionUtil.notEmpty(fieldSet)) {
-					fieldSet.forEach(field -> {
-						Autowired autowired = field.getAnnotation(Autowired.class);
-						if (null == autowired) {
-							return;
-						}
-						String name = field.getName();
-						// TODO
-					});
-				}
+	/**
+	 * 根据method注册bean
+	 * @param type
+	 */
+	private void registerBeanForMethod(Class<?> type) {
+		Set<Method> methods = ReflectUtil.getMethods(type);
+		if (CollectionUtil.isEmpty(methods)) {
+			return;
+		}
+		for (Method method : methods) {
+			Bean bean = method.getAnnotation(Bean.class);
+			if (null == bean) {
+				continue;
 			}
-		);
+			String beanName = bean.value();
+			if (StringUtil.isEmpty(beanName)) {
+				beanName = method.getName();
+			}
+			Class<?> beanType = method.getReturnType();
+			if (method.getParameters().length > 0) {
+				throw new BeanException(String.format("Bean[type:%s name:%s] 注册失败，Class:%s method:%s 方法不能带参数!", beanType.getName(), beanName, type.getName(), method.getName()));
+			}
+			addBean(beanType, beanName);
+		}
 	}
 
 	@Override
-	protected <T> T newInstance(BeanWrapper bean) throws BeanException {
+	protected void dependencyCheck(BeanWrapper bean) throws BeanException {
+		try {
+			LockUtil.doubleCheckProcess(
+				() -> BeanStatus.REGISTER == bean.getStatus(),
+				bean,
+				() -> {
+					// TODO
+					bean.setStatus(BeanStatus.DEPENDENCY_CHECKING);
+				}
+			);
+		} catch (Exception e) {
+			throw new BeanException(String.format("Bean[type:%s name:%s] 依赖检测异常!", bean.getType().getName(), bean.getName()));
+		}
+	}
+
+	@Override
+	protected <T> T newInstance(BeanWrapper bean, Object... args) throws BeanException {
 		try {
 			return LockUtil.doubleCheckProcess(
 				() -> BeanStatus.DEPENDENCY_CHECKING == bean.getStatus(),
 				bean,
 				() -> {
-					bean.getClass().newInstance();
+					// TODO 此处factoryBean可能还未注入、初始化，需要思考优化
+					FactoryBean factoryBean = getFactory(bean);
+					if (null != factoryBean) {
+						bean.setInstance(factoryBean.getInstance());
+					} else if (ClassUtil.isInterface(bean.getType())) {
+						bean.setInstance(Aop.get(bean.getType()));
+					} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
+						bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
+					} else {
+						if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
+							bean.setInstance(Aop.get(bean.getType()));
+						} else {
+							// TODO 暂不支持有参构造器
+							throw new BeanException(String.format("Bean[type:%s name:%s] 没有无参构造器，实例化失败!", bean.getType().getName(), bean.getName()));
+						}
+					}
+					if (null != bean.getInstance()) {
+						bean.setStatus(BeanStatus.INSTANCE);
+					}
 				},
 				() -> (T)bean.getInstance()
 			);
-		} catch (Exception e) {
+		} catch (BeanException e) {
+			throw e;
+		}catch (Exception e) {
 			throw new BeanException(String.format("Bean[type:%s name:%s] 实例化异常", bean.getType().getName(), bean.getName()), e);
 		}
 	}
 
 	@Override
-	protected void inject(BeanWrapper bean) throws Exception {
-		LockUtil.doubleCheckProcess(
-			() -> BeanStatus.INSTANCE == bean.getStatus(),
-			bean,
-			() -> {
-				// TODO
-			}
-		);
+	protected void inject(BeanWrapper bean) throws BeanException {
+		try {
+			LockUtil.doubleCheckProcess(
+				() -> BeanStatus.INSTANCE == bean.getStatus(),
+				bean,
+				() -> {
+					Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(bean.getType());
+					if (CollectionUtil.isEmpty(fieldSet)) {
+						bean.setStatus(BeanStatus.INJECT);
+						return;
+					}
+					for (Field field : fieldSet) {
+						Autowired autowired = field.getAnnotation(Autowired.class);
+						if (null == autowired) {
+							continue;
+						}
+						String beanName = autowired.value();
+						if (StringUtil.isEmpty(beanName)) {
+							beanName = field.getName();
+						}
+						Class<?> parameterType = autowired.parameterTypes().length == 0 ? Object.class : autowired.parameterTypes()[0];
+						BeanMatchMode matchMode = autowired.matchMode();
+						Object obj = null;
+						if (matchMode == BeanMatchMode.ByType) {
+							if (TypeUtil.isListable(field.getType())) {
+								List list = getBeanList(parameterType);
+								obj = TypeUtil.listTo(list, field.getType());
+							} else {
+								obj = getBean(field.getType());
+							}
+						} else if(matchMode == BeanMatchMode.ByName) {
+							if (TypeUtil.isListable(field.getType())) {
+								List list = getBeanListByName(parameterType, beanName);
+								obj = TypeUtil.listTo(list, field.getType());
+							} else {
+								obj = getBeanByName(field.getType(), beanName);
+							}
+						} else if (matchMode == BeanMatchMode.ByTypeName) {
+							obj = getBeanByTypeAndName(field.getType(), beanName);
+							if (TypeUtil.isListable(field.getType())) {
+								obj = TypeUtil.listTo(Lists.newArrayList(obj), field.getType());
+							}
+						}
+						if (null == obj) {
+							throw new BeanException(String.format("Bean[type:%s name:%s field:%s] 注入异常", bean.getType().getName(), bean.getName(), field.getName()));
+						}
+						ReflectUtil.setFieldValue(field, bean.getInstance(), obj);
+					}
+					bean.setStatus(BeanStatus.INJECT);
+				}
+			);
+		} catch (BeanException e){
+			throw e;
+		}catch (Exception e) {
+			throw new BeanException(String.format("Bean[type:%s name:%s] 注入异常", bean.getType().getName(), bean.getName()), e);
+		}
 	}
 
 	@Override

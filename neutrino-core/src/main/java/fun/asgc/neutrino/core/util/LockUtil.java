@@ -55,10 +55,36 @@ public class LockUtil {
 	 * @param isLock
 	 * @param lock
 	 * @param lockProcess
+	 */
+	public static void doubleCheckProcessForNoException(BooleanSupplier isLock, Object lock, CodeBlock lockProcess) {
+		try {
+			doubleCheckProcess(isLock, lock, lockProcess);
+		} catch (Exception e) {
+			// ignore
+		}
+	}
+
+	/**
+	 * 双重校验处理
+	 * @param isLock
+	 * @param lock
+	 * @param lockProcess
 	 * @param nonLockProcess
 	 */
 	public static <T> T doubleCheckProcess(BooleanSupplier isLock, Object lock, CodeBlock lockProcess, Supplier<T> nonLockProcess) throws Exception {
 		doubleCheckProcess(isLock, lock, lockProcess);
+		return nonLockProcess.get();
+	}
+
+	/**
+	 * 双重校验处理
+	 * @param isLock
+	 * @param lock
+	 * @param lockProcess
+	 * @param nonLockProcess
+	 */
+	public static <T> T doubleCheckProcessForNoException(BooleanSupplier isLock, Object lock, CodeBlock lockProcess, Supplier<T> nonLockProcess) {
+		doubleCheckProcessForNoException(isLock, lock, lockProcess);
 		return nonLockProcess.get();
 	}
 }

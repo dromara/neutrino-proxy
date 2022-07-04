@@ -53,6 +53,10 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 */
 	protected Map<BeanIdentity, BeanWrapper> beanCache;
 	/**
+	 * 工厂bean缓存
+	 */
+	protected Map<BeanIdentity, BeanWrapper> factoryBeanCache;
+	/**
 	 * 互斥锁
 	 */
 	private Object mutex;
@@ -73,6 +77,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		Assert.notNull(name, "工厂名称不能为空");
 		this.parent = parent;
 		this.beanCache = new ConcurrentHashMap<>(256);
+		this.factoryBeanCache = new ConcurrentHashMap<>(256);
 		this.name = name;
 		if (null == parent) {
 			this.mutex = new Object();
@@ -89,6 +94,14 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		return null != bean ? bean : doGetBean(name, args);
 	}
 
+
+	@Override
+	public <T> T getBeanByName(Class<T> type, String name, Object... args) {
+		Assert.notEmpty(name, "Bean名称不能为空!");
+		T bean = (null == parent) ? null : parent.getBeanByName(type, name, args);
+		return null != bean ? bean : doGetBeanByName(type, name, args);
+	}
+
 	@Override
 	public <T> T getBean(Class<T> type, Object... args) throws BeanException {
 		Assert.notNull(type, "Bean类型不能为空!");
@@ -101,7 +114,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		Assert.notEmpty(name, "Bean名称不能为空!");
 		Assert.notNull(type, "Bean类型不能为空!");
 		T bean = (null == parent) ? null : parent.getBeanByTypeAndName(type, name, args);
-		return null != bean ? bean : doGetBeanByNameAndType(name, type, args);
+		return null != bean ? bean : doGetBeanByTypeAndName(type, name, args);
 	}
 
 	@Override
@@ -115,6 +128,14 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		return CollectionUtil.addAll(() -> new LinkedList<>(),
 			null == parent ? null : parent.getBeanList(type, args),
 			doGetBeanList(type, args)
+		);
+	}
+
+	@Override
+	public <T> List<T> getBeanListByName(Class<T> type, String name, Object... args) throws BeanException {
+		return CollectionUtil.addAll(() -> new LinkedList<>(),
+			null == parent ? null : parent.getBeanListByName(type, name, args),
+			doGetBeanListByName(type, name, args)
 		);
 	}
 
@@ -188,7 +209,17 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		} else if (beanList.size() > 1) {
 			throw new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
 		}
-		return getOrNew(beanList.get(0));
+		return getOrNew(beanList.get(0), args);
+	}
+
+	private <T> T doGetBeanByName(Class<T> type, String name, Object... args) throws BeanException {
+		List<BeanWrapper> beanList  = findBeanList(type, name);
+		if (CollectionUtil.isEmpty(beanList)) {
+			return null;
+		} else if (beanList.size() > 1) {
+			throw new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
+		}
+		return getOrNew(beanList.get(0), args);
 	}
 
 	private <T> T doGetBean(Class<T> type, Object... args) throws BeanException {
@@ -198,15 +229,15 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		} else if (beanList.size() > 1) {
 			throw new BeanException(String.format("Bean[type:%s] 存在多个实例!", type));
 		}
-		return getOrNew(beanList.get(0));
+		return getOrNew(beanList.get(0), args);
 	}
 
-	private <T> T doGetBeanByNameAndType(String name, Class<T> type, Object... args) throws BeanException {
+	private <T> T doGetBeanByTypeAndName(Class<T> type, String name, Object... args) throws BeanException {
 		BeanWrapper bean = findBean(type, name);
 		if (null == bean) {
 			return null;
 		}
-		return getOrNew(bean);
+		return getOrNew(bean, args);
 	}
 
 	private <T> List<T> doGetBeanList(Class<T> type, Object... args) throws BeanException {
@@ -214,7 +245,15 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		if (CollectionUtil.isEmpty(beanList)) {
 			return null;
 		}
-		return getOrNew(beanList);
+		return getOrNew(beanList, args);
+	}
+
+	private  <T> List<T> doGetBeanListByName(Class<T> type, String name, Object... args) throws BeanException {
+		List<BeanWrapper> beanList  = findBeanList(type, name);
+		if (CollectionUtil.isEmpty(beanList)) {
+			return null;
+		}
+		return getOrNew(beanList, args);
 	}
 
 	private boolean doHasBean(Class<?> type, String name) {
@@ -268,6 +307,22 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	/**
 	 * 查找bean
 	 * @param type
+	 * @return
+	 */
+	private List<BeanWrapper> findBeanList(Class<?> type, String name) {
+		Assert.notNull(type, "bean的类型不能为空!");
+		List<BeanWrapper> beanList = new LinkedList<>();
+		for (BeanIdentity identity : beanCache.keySet()) {
+			if (type.isAssignableFrom(identity.getType()) && identity.getName().equals(name)) {
+				beanList.add(beanCache.get(identity));
+			}
+		}
+		return beanList;
+	}
+
+	/**
+	 * 查找bean
+	 * @param type
 	 * @param name
 	 * @return
 	 */
@@ -281,8 +336,36 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * 新增一个bean
 	 * @param bean
 	 */
-	protected void addBean(BeanWrapper bean) {
+	protected void addBean(BeanWrapper bean) throws BeanException {
 		beanCache.put(new BeanIdentity(bean.getName(), bean.getType()), bean);
+		if (FactoryBean.class.isAssignableFrom(bean.getType())) {
+			// 工厂bean
+			if (factoryBeanCache.containsKey(bean.getBeanIdentity())) {
+				throw new BeanException(String.format("Bean[type:%s name:%s] 存在多个factoryBean!", bean.getType().getName(), bean.getName()));
+			}
+			factoryBeanCache.put(bean.getBeanIdentity(), bean);
+		}
+	}
+
+	/**
+	 * 获取bean的工厂
+	 * @param bean
+	 * @return
+	 */
+	protected FactoryBean getFactory(BeanWrapper bean) throws BeanException {
+		BeanWrapper factoryBeanWrapper = factoryBeanCache.get(bean.getIdentity());
+		if (null == factoryBeanWrapper) {
+			return null;
+		}
+		dependencyCheck(factoryBeanWrapper);
+		newInstance(factoryBeanWrapper);
+		inject(factoryBeanWrapper);
+		factoryBeanWrapper.init();
+
+		if (BeanStatus.INIT == factoryBeanWrapper.getStatus() || BeanStatus.RUNNING == factoryBeanWrapper.getStatus()) {
+			return (FactoryBean)factoryBeanWrapper.getInstance();
+		}
+		throw new BeanException(String.format("Bean[type:%s name%s] 获取工厂 Beanfactory[type:%s name:%s]异常!", bean.getType().getName(), bean.getName(), factoryBeanWrapper.getType().getName(), factoryBeanWrapper.getName()));
 	}
 
 	@Override
@@ -318,19 +401,22 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 * @throws BeanException
 	 */
-	protected <T> List<T> getOrNew(List<BeanWrapper> beanList) throws BeanException {
-		List<T> list = new LinkedList<>();
+	protected <T> List<T> getOrNew(List<BeanWrapper> beanList, Object... args) throws BeanException {
 		if (CollectionUtil.isEmpty(beanList)) {
-			return list;
+			return null;
 		}
-		for (BeanWrapper bean : beanList) {
-			T instance = getOrNew(bean);
-			if (null == instance) {
-				throw new BeanException(String.format("Bean[type:%s name:%s]实例化失败!", bean.getType().getName(), bean.getName()));
+		dependencyCheck(beanList);
+		newInstance(beanList, args);
+		inject(beanList);
+		beanList.forEach(beanWrapper -> beanWrapper.init());
+
+		for (BeanWrapper beanWrapper : beanList) {
+			if (beanWrapper.getStatus().getStatus() < BeanStatus.INIT.getStatus()) {
+				throw new BeanException(String.format("Bean[type:%s name:%s]实例化失败!", beanWrapper.getType().getName(), beanWrapper.getName()));
 			}
-			list.add(instance);
 		}
-		return list;
+
+		return beanList.stream().filter(beanWrapper -> BeanStatus.DESTROY != beanWrapper.getStatus()).map(beanWrapper -> (T)beanWrapper.getInstance()).collect(Collectors.toList());
 	}
 
 	/**
@@ -370,7 +456,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @param <T>
 	 * @return
 	 */
-	protected <T> T getOrNew(BeanWrapper bean) throws BeanException {
+	protected <T> T getOrNew(BeanWrapper bean, Object... args) throws BeanException {
 		try {
 			return (T)LockUtil.doubleCheckProcess(
 				() -> !(BeanStatus.INIT == bean.getStatus() || BeanStatus.RUNNING == bean.getStatus()),
@@ -398,11 +484,47 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 
 	/**
 	 * 依赖关系检测
+	 * @param beanList
+	 * @return
+	 * @throws BeanException
+	 */
+	protected void dependencyCheck(List<BeanWrapper> beanList) throws BeanException {
+		for (BeanWrapper beanWrapper : beanList) {
+			dependencyCheck(beanWrapper);
+		}
+	}
+
+	/**
+	 * 实例化
+	 * @param beanList
+	 * @return
+	 * @throws BeanException
+	 */
+	protected void newInstance(List<BeanWrapper> beanList, Object... args) throws BeanException {
+		for (BeanWrapper beanWrapper : beanList) {
+			newInstance(beanWrapper, args);
+		}
+	}
+
+	/**
+	 * 注入
+	 * @param beanList
+	 * @return
+	 * @throws BeanException
+	 */
+	protected void inject(List<BeanWrapper> beanList) throws BeanException {
+		for (BeanWrapper beanWrapper : beanList) {
+			inject(beanWrapper);
+		}
+	}
+
+	/**
+	 * 依赖关系检测
 	 * @param bean
 	 * @return
 	 * @throws BeanException
 	 */
-	protected abstract void dependencyCheck(BeanWrapper bean) throws Exception;
+	protected abstract void dependencyCheck(BeanWrapper bean) throws BeanException;
 
 	/**
 	 * 实例化
@@ -411,7 +533,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 * @throws BeanException
 	 */
-	protected abstract <T> T newInstance(BeanWrapper bean) throws BeanException;
+	protected abstract <T> T newInstance(BeanWrapper bean, Object... args) throws BeanException;
 
 	/**
 	 * 注入
@@ -419,5 +541,5 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @return
 	 * @throws BeanException
 	 */
-	protected abstract void inject(BeanWrapper bean) throws Exception;
+	protected abstract void inject(BeanWrapper bean) throws BeanException;
 }

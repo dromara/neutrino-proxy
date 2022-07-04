@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.type.TypeMatchers;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -489,6 +490,57 @@ public class TypeUtil {
 	 */
 	public static Object getDefaultValue(Class<?> clazz) {
 		return defaultValueMap.get(clazz);
+	}
+
+	/**
+	 * 是否是集合类型
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isCollection(Class<?> clazz) {
+		return Collection.class.isAssignableFrom(clazz);
+	}
+
+	/**
+	 * 是否可列举
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isListable(Class<?> clazz) {
+		return clazz.isArray() || isCollection(clazz);
+	}
+
+	/**
+	 * 是否是list
+	 * @param clazz
+	 * @return
+	 */
+	public static boolean isList(Class<?> clazz) {
+		return List.class.isAssignableFrom(clazz);
+	}
+
+	/**
+	 * list转成其他形式
+	 * @param list
+	 * @param targetType
+	 * @return
+	 */
+	public static Object listTo(List list, Class<?> targetType) {
+		if (null == list) {
+			return null;
+		}
+		if (isList(targetType)) {
+			return list;
+		}
+		// 数组
+		if (targetType.isArray()) {
+			return list.toArray();
+		}
+		// set
+		if (Set.class.isAssignableFrom(targetType)) {
+			return list.stream().collect(Collectors.toSet());
+		}
+		return null;
 	}
 
 	/**

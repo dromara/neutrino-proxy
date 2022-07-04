@@ -49,14 +49,10 @@ public class AsgcProxyFactory implements ProxyFactory {
 	private ProxyClassLoader classLoader = new ProxyClassLoader();
 
 	@Override
-	public <T> T get(Class<T> clazz) {
+	public <T> T get(Class<T> clazz) throws Exception {
 		Assert.notNull(clazz, "被代理类不能为空！");
 		Assert.isTrue(canProxy(clazz), String.format("类[%s]无法被代理!", clazz.getName()));
-		try {
-			return doGet(clazz);
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
+		return doGet(clazz);
 	}
 
 	@Override
@@ -114,7 +110,7 @@ public class AsgcProxyFactory implements ProxyFactory {
 		Method[] methods = clazz.getMethods();
 		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
-				if (Modifier.isFinal(method.getModifiers())) {
+				if (Modifier.isFinal(method.getModifiers()) || Modifier.isStatic(method.getModifiers())) {
 					continue;
 				}
 				Long methodId = ProxyCache.setMethod(method);

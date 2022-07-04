@@ -19,25 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- *
+ * Bean实例化的方式
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+@Getter
+@AllArgsConstructor
+public enum BeanInstantiationMode {
+	// newInstance
+	DIRECT(1, "直接"),
+	METHOD(2, "方法"),
+	FACTORY(3, "工厂");
+	private Integer mode;
+	private String desc;
 }

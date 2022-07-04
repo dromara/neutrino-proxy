@@ -33,7 +33,7 @@ public interface ProxyFactory {
 	 * @param <T>
 	 * @return
 	 */
-	<T> T get(Class<T> clazz);
+	<T> T get(Class<T> clazz) throws Exception;
 
 	/**
 	 * 是否能被代理

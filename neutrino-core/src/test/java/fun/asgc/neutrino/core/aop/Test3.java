@@ -21,10 +21,10 @@
  */
 package fun.asgc.neutrino.core.aop;
 
-import fun.asgc.neutrino.core.aop.proxy.Proxy;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 public class Test3 {
 
 	@Test
-	public void test1() {
+	public void test1() throws Exception {
 		Animal animal = Aop.get(Animal.class);
 //		Animal animal = Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY).get(Animal.class);
 		System.out.println(animal);
@@ -43,7 +43,7 @@ public class Test3 {
 	}
 
 	@Test
-	public void test2() {
+	public void test2() throws Exception {
 		Mammal mammal = Aop.get(Mammal.class);
 		mammal.crawl();
 
@@ -54,5 +54,34 @@ public class Test3 {
 	public void test3() throws Exception {
 		Bear bear = Aop.get(Bear.class);
 		bear.up();
+	}
+
+	@Test
+	public void test4() throws InvocationTargetException, IllegalAccessException {
+		Method hello1 = ReflectUtil.getMethods(A.class).stream().filter(m -> m.getName().equals("hello1")).findFirst().get();
+		Method hello11 = ReflectUtil.getMethods(B.class).stream().filter(m -> m.getName().equals("hello1")).findFirst().get();
+		A a = new A();
+		B b = new B();
+//		hello1.invoke(a);
+//		hello1.invoke(b);
+		hello11.invoke(a); // 异常
+		hello11.invoke(b);
+	}
+
+	public static class A {
+		public void hello1() {
+			System.out.println("hello1");
+		}
+		public void hello2() {
+			System.out.println("hello2");
+		}
+	}
+
+	public static class B extends A {
+		@Override
+		public void hello1() {
+			super.hello1();
+			System.out.println("----");
+		}
 	}
 }

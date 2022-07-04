@@ -65,17 +65,17 @@ public class NeutrinoLauncher {
 		stopWatch.start();
 
 		environmentInit();
-		this.applicationContainer = new DefaultApplicationContainer(environment);
-		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
-			this.applicationContainer.destroy();
-			log.info("Application already stop.");
-		});
-//		ApplicationContext context = new ApplicationContext(environment);
-//		context.run();
+//		this.applicationContainer = new DefaultApplicationContainer(environment);
 //		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
-//			context.destroy();
+//			this.applicationContainer.destroy();
 //			log.info("Application already stop.");
 //		});
+		ApplicationContext context = new ApplicationContext(environment);
+		context.run();
+		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
+			context.destroy();
+			log.info("Application already stop.");
+		});
 
 		stopWatch.stop();
 		printLog(environment, stopWatch);

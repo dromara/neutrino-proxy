@@ -78,38 +78,38 @@ public class Test2 {
 	}
 
 	@Test
-	public void eat() {
+	public void eat() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		panda.eat();
 	}
 
 	@Test
-	public void play() {
+	public void play() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		panda.play("滑板");
 	}
 
 	@Test
-	public void division() {
+	public void division() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		System.out.println(panda.division(10, 5));
 		panda.division(10, 0);
 	}
 
 	@Test
-	public void say() {
+	public void say() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		panda.say("hello");
 	}
 
 	@Test
-	public void request() {
+	public void request() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		panda.request("xxx", "yyy");
 	}
 
 	@Test
-	public void up() {
+	public void up() throws Exception {
 		Panda panda = Aop.get(Panda.class);
 		try {
 			panda.up();

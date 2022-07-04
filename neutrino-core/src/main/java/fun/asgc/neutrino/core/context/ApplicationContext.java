@@ -147,6 +147,9 @@ public class ApplicationContext implements LifeCycle {
 		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
 		if (CollectionUtil.notEmpty(applicationRunnerList)) {
 			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
-		}
+//			for (ApplicationRunner runner : applicationRunnerList) {
+//				runner.run(this.environment.getMainArgs());
+//			}
+ 		}
 	}
 }

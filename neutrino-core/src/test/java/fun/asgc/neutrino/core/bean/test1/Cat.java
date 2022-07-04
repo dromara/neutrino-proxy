@@ -19,25 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean.test1;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Init;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+@Component
+public class Cat extends Animal {
+
+	@Init
+	public void a() {
+		System.out.println("11111");
+	}
+
+	@Override
+	public void call() {
+		System.out.println("喵喵喵");
+	}
 }

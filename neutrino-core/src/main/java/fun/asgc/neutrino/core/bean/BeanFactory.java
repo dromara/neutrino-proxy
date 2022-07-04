@@ -42,6 +42,16 @@ public interface BeanFactory {
 	<T> T getBean(String name, Object... args) throws BeanException;
 
 	/**
+	 * 尝试根据名称获取bean,此处的type不做强制限定，可以是bean的接口或超类型
+	 * @param type
+	 * @param name
+	 * @param args
+	 * @param <T>
+	 * @return
+	 */
+	<T> T getBeanByName(Class<T> type, String name, Object... args);
+
+	/**
 	 * 尝试根据类型获取bean
 	 * @param type
 	 * @param args
@@ -81,4 +91,15 @@ public interface BeanFactory {
 	 * @throws BeanException
 	 */
 	<T> List<T> getBeanList(Class<T> type, Object... args) throws BeanException;
+
+	/**
+	 * 尝试根据名称获取bean,此处的type不做强制限定，可以是bean的接口或超类型
+	 * @param type
+	 * @param name
+	 * @param args
+	 * @param <T>
+	 * @return
+	 * @throws BeanException
+	 */
+	<T> List<T> getBeanListByName(Class<T> type, String name, Object... args) throws BeanException;
 }

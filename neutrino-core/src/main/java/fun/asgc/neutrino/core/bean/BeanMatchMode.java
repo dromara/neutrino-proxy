@@ -19,25 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- *
+ * bean的匹配模式
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+@Getter
+@AllArgsConstructor
+public enum BeanMatchMode {
+	ByType(1, "根据类型匹配"),
+	ByName(2, "根据名称匹配"),
+	ByTypeName(3, "根据类型+名称匹配");
+
+	private Integer mode;
+	private String desc;
 }

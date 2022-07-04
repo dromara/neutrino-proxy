@@ -19,25 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.util;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.Test;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+public class ClassUtilTest {
+
+	@Test
+	public void hasNoArgsConstructor() {
+		System.out.println(ClassUtil.hasNoArgsConstructor(ClassUtilTest.class));
+	}
+
 }

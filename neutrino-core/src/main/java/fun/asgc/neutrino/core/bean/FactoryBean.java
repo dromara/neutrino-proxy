@@ -19,25 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.exception.BeanException;
 
 /**
- *
+ * 工厂Bean
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+public interface FactoryBean<T> {
+	/**
+	 * 获取bean实例
+	 * @return
+	 * @throws BeanException
+	 */
+	T getInstance() throws BeanException;
+
+	/**
+	 * 获取Bean身份
+	 * @return
+	 */
+	BeanIdentity getBeanIdentity();
 }

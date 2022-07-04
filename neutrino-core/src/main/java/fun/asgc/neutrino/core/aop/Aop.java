@@ -38,17 +38,12 @@ public class Aop {
 	private static ProxyStrategy proxyStrategy = ProxyStrategy.AUTO;
 	private static final Cache<Class<?>, Object> proxyBeanCache = new MemoryCache<>();
 
-	public static <T> T get(Class<T> clazz) {
-		try {
-			return (T)LockUtil.doubleCheckProcess(() -> !proxyBeanCache.containsKey(clazz),
-				clazz,
-				() -> proxyBeanCache.set(clazz, getProxyFactory(clazz).get(clazz)),
-				() -> proxyBeanCache.get(clazz)
-			);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public static <T> T get(Class<T> clazz) throws Exception {
+		return (T)LockUtil.doubleCheckProcess(() -> !proxyBeanCache.containsKey(clazz),
+			clazz,
+			() -> proxyBeanCache.set(clazz, getProxyFactory(clazz).get(clazz)),
+			() -> proxyBeanCache.get(clazz)
+		);
 	}
 
 	/**

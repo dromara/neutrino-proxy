@@ -22,10 +22,12 @@
 package fun.asgc.neutrino.core.bean;
 
 import fun.asgc.neutrino.core.aop.Animal;
+import fun.asgc.neutrino.core.bean.test1.Cat;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -46,6 +48,14 @@ public class BeanIdentityTest {
 		map.put(new BeanIdentity("1", String.class), "1");
 		map.put(new BeanIdentity("1", String.class), "2");
 		System.out.println(map);
+	}
+
+	@Test
+	public void test3() {
+		Cat cat = new Cat();
+		Map<BeanIdentity, Integer> a = new ConcurrentHashMap<>();
+		a.put(new BeanIdentity("cat", Cat.class), 1);
+		System.out.println(a.get(new BeanIdentity("cat", Cat.class)));
 	}
 
 }

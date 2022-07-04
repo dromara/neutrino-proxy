@@ -31,31 +31,31 @@ import org.junit.Test;
 public class Test1 {
 
 	@Test
-	public void dogCall() {
+	public void dogCall() throws Exception {
 		Dog dog = Aop.get(Dog.class);
 		dog.call();
 	}
 
 	@Test
-	public void dogSay() {
+	public void dogSay() throws Exception {
 		Dog dog = Aop.get(Dog.class);
 		System.out.println(dog.say("hello"));
 	}
 
 	@Test
-	public void catClimb() {
+	public void catClimb() throws Exception {
 		Cat cat = Aop.get(Cat.class);
 		cat.climb();
 	}
 
 	@Test
-	public void catCalc() {
+	public void catCalc() throws Exception {
 		Cat cat = Aop.get(Cat.class);
 		System.out.println(cat.calc(10, 6));
 	}
 
 	@Test
-	public void dogCalc() {
+	public void dogCalc() throws Exception {
 		Dog dog = Aop.get(Dog.class);
 		System.out.println(dog.calc(1, 2));
 	}

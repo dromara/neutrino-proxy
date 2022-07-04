@@ -43,7 +43,7 @@ public class InnerGlobalInterceptor implements Interceptor {
 	private static final InterceptorWrapper interceptorWrapper = new InterceptorWrapper(InnerGlobalInterceptor.class.getSimpleName());
 
 	public InnerGlobalInterceptor() {
-		System.out.println("aaaaa");
+
 	}
 
 	@Override

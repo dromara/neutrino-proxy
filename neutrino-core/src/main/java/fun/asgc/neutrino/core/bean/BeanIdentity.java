@@ -50,7 +50,7 @@ public class BeanIdentity implements Identity {
 		Assert.notNull(type, "类型不能为空!");
 		this.name = name;
 		this.type = type;
-		this.identityHashCode = System.identityHashCode(name) + System.identityHashCode(type);
+		this.identityHashCode = System.identityHashCode(type);
 	}
 
 	/**
@@ -78,6 +78,9 @@ public class BeanIdentity implements Identity {
 	public boolean equals(Object obj) {
 		if (null == obj) {
 			return false;
+		}
+		if (obj == this) {
+			return true;
 		}
 		if (!(obj instanceof BeanIdentity)) {
 			return false;
