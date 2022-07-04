@@ -19,21 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package fun.asgc.neutrino.core.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- *
+ * 用于指定一个bean不需要拦截.这个标注只是一个建议
+ * 1、bean是一个接口，将强制采用aop代理
+ * 2、bean采用factoryBean实例化，由factoryBean决定是否代理
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/4
  */
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
-@NonIntercept
-public @interface NeutrinoApplication {
-	String[] scanBasePackages() default {};
+@Target(ElementType.TYPE)
+public @interface NonIntercept {
+	boolean value() default true;
 }

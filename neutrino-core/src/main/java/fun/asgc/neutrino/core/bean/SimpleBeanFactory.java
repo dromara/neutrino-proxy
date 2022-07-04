@@ -121,6 +121,9 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 				() -> BeanStatus.DEPENDENCY_CHECKING == bean.getStatus(),
 				bean,
 				() -> {
+					NonIntercept nonIntercept = ClassUtil.getAnnotation(bean.getType(), NonIntercept.class);
+					boolean isNonIntercept = (null != nonIntercept && nonIntercept.value()) ? true : false;
+
 					// TODO 此处factoryBean可能还未注入、初始化，需要思考优化
 					FactoryBean factoryBean = getFactory(bean);
 					if (null != factoryBean) {
@@ -131,7 +134,11 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 						bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
 					} else {
 						if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
-							bean.setInstance(Aop.get(bean.getType()));
+							if (isNonIntercept) {
+								bean.setInstance(bean.getType().newInstance());
+							} else {
+								bean.setInstance(Aop.get(bean.getType()));
+							}
 						} else {
 							// TODO 暂不支持有参构造器
 							throw new BeanException(String.format("Bean[type:%s name:%s] 没有无参构造器，实例化失败!", bean.getType().getName(), bean.getName()));

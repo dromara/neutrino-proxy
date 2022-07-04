@@ -21,10 +21,7 @@
  */
 package fun.asgc.neutrino.core.bean.test1;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Destroy;
-import fun.asgc.neutrino.core.annotation.Init;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.BeanMatchMode;
 import fun.asgc.neutrino.core.bean.BeanStatus;
 import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
