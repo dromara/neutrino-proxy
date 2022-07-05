@@ -79,5 +79,4 @@ public class Launcher {
 	public static void main(String[] args) {
 		NeutrinoLauncher.run(Launcher.class, args).sync();
 	}
-
 }

@@ -206,7 +206,20 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	private <T> T doGetBean(String name, Object... args) throws BeanException {
 		List<BeanWrapper> beanList  = findBeanList(name);
 		if (CollectionUtil.isEmpty(beanList)) {
-			return null;
+			// TODO check
+			List<BeanWrapper> factoryBeanWrapperList = findFactoryBeanListByName(name);
+			if (CollectionUtil.isEmpty(factoryBeanWrapperList)) {
+				return null;
+			} else if (factoryBeanWrapperList.size() > 1) {
+				throw  new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
+			}
+			BeanWrapper factoryBeanWrapper = factoryBeanWrapperList.get(0);
+			dependencyCheck(factoryBeanWrapperList);
+			newInstance(factoryBeanWrapperList);
+			inject(factoryBeanWrapperList);
+			factoryBeanWrapper.init();
+
+			return (T)((FactoryBean)factoryBeanWrapper.getInstance()).getInstance();
 		} else if (beanList.size() > 1) {
 			throw new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
 		}
@@ -239,7 +252,20 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	private <T> T doGetBean(Class<T> type, Object... args) throws BeanException {
 		List<BeanWrapper> beanList  = findBeanList(type);
 		if (CollectionUtil.isEmpty(beanList)) {
-			return null;
+			// TODO check
+			List<BeanWrapper> factoryBeanWrapperList = findFactoryBeanListByType(type);
+			if (CollectionUtil.isEmpty(factoryBeanWrapperList)) {
+				return null;
+			} else if (factoryBeanWrapperList.size() > 1) {
+				throw  new BeanException(String.format("Bean[name:%s] 存在多个实例!", name));
+			}
+			BeanWrapper factoryBeanWrapper = factoryBeanWrapperList.get(0);
+			dependencyCheck(factoryBeanWrapperList);
+			newInstance(factoryBeanWrapperList);
+			inject(factoryBeanWrapperList);
+			factoryBeanWrapper.init();
+
+			return (T)((FactoryBean)factoryBeanWrapper.getInstance()).getInstance();
 		} else if (beanList.size() > 1) {
 			throw new BeanException(String.format("Bean[type:%s] 存在多个实例!", type));
 		}
@@ -376,6 +402,22 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 		List<BeanWrapper> list = new ArrayList<>();
 		for (BeanIdentity identity : factoryBeanCache.keySet()) {
 			if (type.isAssignableFrom(identity.getType()) && identity.getName().equals(name)) {
+				list.add(factoryBeanCache.get(identity));
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 查找工厂bean列表
+	 * @param name
+	 * @return
+	 */
+	private List<BeanWrapper> findFactoryBeanListByName(String name) {
+		Assert.notNull(name, "bean的名称不能为空！");
+		List<BeanWrapper> list = new ArrayList<>();
+		for (BeanIdentity identity : factoryBeanCache.keySet()) {
+			if (identity.getName().equals(name)) {
 				list.add(factoryBeanCache.get(identity));
 			}
 		}
