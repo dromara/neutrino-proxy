@@ -21,26 +21,20 @@
  */
 package fun.asgc.neutrino.core.aop;
 
-import fun.asgc.neutrino.core.aop.proxy.AsgcProxyGenerator;
-import org.junit.Test;
+
+import java.util.Arrays;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/6
  */
-public class AsgcProxyGeneratorTest {
-
-	@Test
-	public void test1() {
-		String result = AsgcProxyGenerator.getInstance().generator("A", Panda.class);
-		System.out.println(result);
+public class Giraffe {
+	public void run(String[] args) {
+		System.out.println("运行:" + Arrays.toString(args));
 	}
 
-	@Test
-	public void test2() {
-		String result = AsgcProxyGenerator.getInstance().generator("A", Giraffe.class);
-		System.out.println(result);
+	public Dog getDog() {
+		return new Dog();
 	}
-
 }

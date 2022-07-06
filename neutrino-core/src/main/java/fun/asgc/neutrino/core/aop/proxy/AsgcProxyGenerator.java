@@ -28,7 +28,6 @@ import lombok.experimental.Accessors;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import sun.management.MethodInfo;
 
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -144,9 +143,18 @@ public class AsgcProxyGenerator {
 	 * @param clazz
 	 */
 	private synchronized void appendImport(List<Class<?>> importClasses, Class<?> clazz) {
-		if (importClasses.contains(clazz) || clazz.getName().startsWith("java.lang.") || TypeUtil.isNormalBasicType(clazz) || clazz == void.class) {
+		if (importClasses.contains(clazz) ||
+			clazz.getName().startsWith("java.lang.") ||
+			TypeUtil.isNormalBasicType(clazz) ||
+			clazz == void.class
+		) {
 			return;
 		}
+		if (clazz.isArray()) {
+			appendImport(importClasses, clazz.getComponentType());
+			return;
+		}
+
 		importClasses.add(clazz);
 	}
 
