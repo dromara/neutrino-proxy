@@ -22,7 +22,12 @@
 package fun.asgc.neutrino.core.aop;
 
 import fun.asgc.neutrino.core.aop.proxy.AsgcProxyGenerator;
+import fun.asgc.neutrino.core.base.Handler;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  *
@@ -41,6 +46,25 @@ public class AsgcProxyGeneratorTest {
 	public void test2() {
 		String result = AsgcProxyGenerator.getInstance().generator("A", Giraffe.class);
 		System.out.println(result);
+	}
+
+	@Test
+	public void test3() throws InvocationTargetException, IllegalAccessException {
+		Method[] methods = A.class.getDeclaredMethods();
+		methods[0].invoke(new A(), "aa", "bb");
+		System.out.println(methods[0].isSynthetic());
+	}
+
+	public static class A implements Handler<String,String>{
+		public void handle(String s, String s2) {
+			System.out.println("hello");
+		}
+
+		public void a() {
+
+		}
+
+
 	}
 
 }

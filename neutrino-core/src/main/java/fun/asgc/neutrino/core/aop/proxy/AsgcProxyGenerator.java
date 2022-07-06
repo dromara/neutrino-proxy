@@ -79,7 +79,10 @@ public class AsgcProxyGenerator {
 		Method[] methods = targetType.getMethods();
 		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
-				if (Modifier.isFinal(method.getModifiers()) || Modifier.isStatic(method.getModifiers())) {
+				if (Modifier.isFinal(method.getModifiers()) ||
+					Modifier.isStatic(method.getModifiers()) ||
+					method.isSynthetic()
+				) {
 					continue;
 				}
 				Long methodId = ProxyCache.setMethod(method);
