@@ -60,11 +60,13 @@ public class InterceptorFactory {
 			clazz,
 			() -> {
 				try {
-					if (BeanManager.getBean(clazz) != null) {
-						cache.set(clazz, BeanManager.getBean(clazz));
-					} else {
-						cache.set(clazz, clazz.newInstance());
-					}
+					// TODO
+					cache.set(clazz, clazz.newInstance());
+//					if (BeanManager.getBean(clazz) != null) {
+//						cache.set(clazz, BeanManager.getBean(clazz));
+//					} else {
+//						cache.set(clazz, clazz.newInstance());
+//					}
 				} catch (InstantiationException|IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
