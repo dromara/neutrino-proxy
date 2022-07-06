@@ -52,14 +52,15 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 	}
 
 	@Override
-	protected void addBean(Class<?> type, String name) {
+	protected BeanWrapper addBean(Class<?> type, String name) {
 		log.debug("addBean[type:{} name:{}]", type.getName(), name);
 		BeanWrapper beanWrapper = new BeanWrapper()
 			.setType(type)
 			.setName(name)
 			.setLazy(Boolean.FALSE)
 			.setOrder(Integer.MAX_VALUE)
-			.setStatus(BeanStatus.REGISTER);
+			.setStatus(BeanStatus.REGISTER)
+			.setInstantiationMode(BeanInstantiationMode.DIRECT);
 		Lazy lazy = ClassUtil.getAnnotation(type, Lazy.class);
 		if (null != lazy) {
 			beanWrapper.setLazy(lazy.value());
@@ -69,14 +70,16 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			beanWrapper.setOrder(order.value());
 		}
 		addBean(beanWrapper);
-		registerBeanForMethod(type);
+		registerBeanForMethod(beanWrapper, type);
+		return beanWrapper;
 	}
 
 	/**
 	 * 根据method注册bean
+	 * @param factoryBean
 	 * @param type
 	 */
-	private void registerBeanForMethod(Class<?> type) {
+	private void registerBeanForMethod(BeanWrapper factoryBean, Class<?> type) {
 		Set<Method> methods = ReflectUtil.getMethods(type);
 		if (CollectionUtil.isEmpty(methods)) {
 			return;
@@ -94,7 +97,19 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			if (method.getParameters().length > 0) {
 				throw new BeanException(String.format("Bean[type:%s name:%s] 注册失败，Class:%s method:%s 方法不能带参数!", beanType.getName(), beanName, type.getName(), method.getName()));
 			}
-			addBean(beanType, beanName);
+			BeanWrapper beanWrapper = addBean(beanType, beanName);
+			beanWrapper.setFactoryBean(factoryBean);
+			beanWrapper.setInstantiationMode(BeanInstantiationMode.METHOD);
+			beanWrapper.setInstantiationMethod(method);
+
+			Lazy lazy = method.getAnnotation(Lazy.class);
+			if (null != lazy) {
+				beanWrapper.setLazy(lazy.value());
+			}
+			Order order = method.getAnnotation(Order.class);
+			if (null != order) {
+				beanWrapper.setOrder(order.value());
+			}
 		}
 	}
 
@@ -124,22 +139,40 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 					NonIntercept nonIntercept = ClassUtil.getAnnotation(bean.getType(), NonIntercept.class);
 					boolean isNonIntercept = (null != nonIntercept && nonIntercept.value()) ? true : false;
 
-					if (ClassUtil.isInterface(bean.getType())) {
-						bean.setInstance(Aop.get(bean.getType()));
-					} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
-						bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
-					} else {
-						if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
-							if (isNonIntercept) {
-								bean.setInstance(bean.getType().newInstance());
-							} else {
-								bean.setInstance(Aop.get(bean.getType()));
-							}
+					if (BeanInstantiationMode.DIRECT == bean.getInstantiationMode()) {
+						// 直接实例化
+						if (ClassUtil.isInterface(bean.getType())) {
+							bean.setInstance(Aop.get(bean.getType()));
+						} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
+							bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
 						} else {
-							// TODO 暂不支持有参构造器
-							throw new BeanException(String.format("Bean[type:%s name:%s] 没有无参构造器，实例化失败!", bean.getType().getName(), bean.getName()));
+							if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
+								if (isNonIntercept) {
+									bean.setInstance(bean.getType().newInstance());
+								} else {
+									bean.setInstance(Aop.get(bean.getType()));
+								}
+							} else {
+								// TODO 暂不支持有参构造器
+								throw new BeanException(String.format("Bean[type:%s name:%s] 没有无参构造器，实例化失败!", bean.getType().getName(), bean.getName()));
+							}
 						}
+					} else if (BeanInstantiationMode.METHOD == bean.getInstantiationMode()) {
+						// 通过bean方法实例化
+						BeanWrapper factoryBean = bean.getFactoryBean();
+						if (!factoryBean.hasInstance()) {
+							newInstance(factoryBean);
+						}
+						bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance()));
+					} else if (BeanInstantiationMode.FACTORY == bean.getInstantiationMode()) {
+						// 通过FactoryBean实例化
+						BeanWrapper factoryBean = bean.getFactoryBean();
+						if (!factoryBean.hasInstance()) {
+							newInstance(factoryBean);
+						}
+						bean.setInstance(((FactoryBean)factoryBean.getInstance()).getInstance());
 					}
+
 					if (null != bean.getInstance()) {
 						bean.setStatus(BeanStatus.INSTANCE);
 					}

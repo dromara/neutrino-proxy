@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.config.ProxyConfig;
@@ -51,6 +52,7 @@ import java.util.List;
  * @date: 2022/6/16
  */
 @Slf4j
+@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.AUTH)
 @Component
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {

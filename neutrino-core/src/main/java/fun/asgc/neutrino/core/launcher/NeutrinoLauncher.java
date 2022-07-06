@@ -25,8 +25,6 @@ package fun.asgc.neutrino.core.launcher;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
-import fun.asgc.neutrino.core.container.ApplicationContainer;
-import fun.asgc.neutrino.core.container.DefaultApplicationContainer;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationContext;
 import fun.asgc.neutrino.core.context.Environment;
@@ -43,7 +41,6 @@ import java.lang.management.ManagementFactory;
 @Slf4j
 public class NeutrinoLauncher {
 	private Environment environment;
-	private ApplicationContainer applicationContainer;
 
 	public static SystemUtil.RunContext run(final Class<?> clazz, final String[] args) {
 		Assert.notNull(clazz, "启动类不能为空!");
@@ -65,11 +62,6 @@ public class NeutrinoLauncher {
 		stopWatch.start();
 
 		environmentInit();
-//		this.applicationContainer = new DefaultApplicationContainer(environment);
-//		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
-//			this.applicationContainer.destroy();
-//			log.info("Application already stop.");
-//		});
 		ApplicationContext context = new ApplicationContext(environment);
 		context.run();
 		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {

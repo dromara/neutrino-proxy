@@ -244,4 +244,18 @@ public class ClassUtil {
 	public static boolean hasNoArgsConstructor(Class<?> clazz) {
 		return Stream.of(clazz.getConstructors()).filter(c -> c.getParameterCount() == 0).count() > 0;
 	}
+
+	/**
+	 * 获取bean名称
+	 * @param type
+	 * @return
+	 */
+	public static String getBeanName(Class<?> type) {
+		String name = TypeUtil.getDefaultVariableName(type);
+		Component component = ClassUtil.getAnnotation(type, Component.class);
+		if (null != component && StringUtil.notEmpty(component.value())) {
+			name = component.value();
+		}
+		return name;
+	}
 }

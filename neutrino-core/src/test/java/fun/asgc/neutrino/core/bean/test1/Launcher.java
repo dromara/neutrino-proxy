@@ -54,6 +54,8 @@ public class Launcher {
 	private Dog dog2;
 	@Autowired
 	private Dog dog10;
+	@Autowired
+	private Dog dog11;
 	@Autowired(value = "dog", matchMode = BeanMatchMode.ByName, parameterTypes = Dog.class)
 	private Object[] dogs1;
 	@Autowired(matchMode = BeanMatchMode.ByType, parameterTypes = Dog.class)
@@ -78,5 +80,10 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		NeutrinoLauncher.run(Launcher.class, args).sync();
+	}
+
+	@Bean
+	public Dog dog11() {
+		return new Dog().setColor("red");
 	}
 }

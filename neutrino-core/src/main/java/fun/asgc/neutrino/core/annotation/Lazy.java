@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * @date: 2022/6/16
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE,ElementType.METHOD})
 public @interface Lazy {
 	boolean value() default true;
 }

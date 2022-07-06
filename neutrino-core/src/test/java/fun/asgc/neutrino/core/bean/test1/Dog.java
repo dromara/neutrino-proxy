@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.bean.test1;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -33,6 +34,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Data
 @Component
+@NonIntercept
 public class Dog extends Animal {
 	private String color;
 	@Override

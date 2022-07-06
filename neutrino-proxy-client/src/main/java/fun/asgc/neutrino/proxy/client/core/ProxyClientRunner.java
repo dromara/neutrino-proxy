@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
@@ -57,6 +58,7 @@ import java.security.KeyStore;
  * @date: 2022/6/16
  */
 @Slf4j
+@NonIntercept
 @Component
 public class ProxyClientRunner implements ApplicationRunner {
 	@Autowired

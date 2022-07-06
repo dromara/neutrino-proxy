@@ -25,6 +25,7 @@ package fun.asgc.neutrino.proxy.client.handler;
 import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2022/6/16
  */
 @Slf4j
+@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.ERROR)
 @Component
 public class ProxyMessageErrorHandler implements ProxyMessageHandler {

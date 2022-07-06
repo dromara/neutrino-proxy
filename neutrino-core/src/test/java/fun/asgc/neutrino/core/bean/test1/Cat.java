@@ -23,12 +23,14 @@ package fun.asgc.neutrino.core.bean.test1;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Init;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/4
  */
+@NonIntercept
 @Component
 public class Cat extends Animal {
 

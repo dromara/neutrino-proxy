@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.cache.Cache;
@@ -43,6 +44,7 @@ import java.util.Map;
  * @author: aoshiguchen
  * @date: 2022/6/28
  */
+@NonIntercept
 @Component
 public class SqlMapperInterceptor implements Interceptor {
 

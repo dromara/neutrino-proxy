@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.client.handler;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
@@ -37,6 +38,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.TRANSFER)
 @Component
 public class ProxyMessageTransferHandler implements ProxyMessageHandler {

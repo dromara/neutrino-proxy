@@ -23,12 +23,7 @@
 package fun.asgc.neutrino.core.bean;
 
 import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.aop.Aop;
 import fun.asgc.neutrino.core.context.LifeCycle;
-import fun.asgc.neutrino.core.container.BeanContainer;
-import fun.asgc.neutrino.core.context.ApplicationConfig;
-import fun.asgc.neutrino.core.context.ApplicationContext;
-import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -57,6 +52,9 @@ public class BeanWrapper implements LifeCycle {
 	private BeanStatus status;
 	private boolean isLazy;
 	private BeanIdentity beanIdentity;
+	private BeanWrapper factoryBean;
+	private BeanInstantiationMode instantiationMode;
+	private Method instantiationMethod;
 
 	public boolean hasInstance() {
 		return null != instance;
@@ -101,113 +99,6 @@ public class BeanWrapper implements LifeCycle {
 					}
 				}
 			}
-		}
-	}
-
-	public boolean newInstance(ApplicationContext context) {
-		boolean result = newInstance0();
-		if (result) {
-			inject(context);
-			init();
-		}
-		return result;
-	}
-
-	private boolean newInstance0() {
-		try {
-			return LockUtil.doubleCheckProcess(() -> !hasInstance(),
-				this,
-				() -> {
-					try {
-						// 暂时先只支持yml配置
-						Configuration configuration = type.getAnnotation(Configuration.class);
-						if (null != configuration) {
-							instance = ConfigUtil.getYmlConfig(type);
-						} else if (ClassUtil.isInterface(type)) {
-							instance = Aop.get(type);
-						} else {
-							// 由编码规避没有无参构造器的问题
-							instance = type.newInstance();
-						}
-					} catch (Exception e) {
-						// ignore
-					}
-				},
-				() -> hasInstance()
-			);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-	private void inject(ApplicationContext context) {
-		Set<Method> methods = ReflectUtil.getMethods(type);
-		if (CollectionUtil.notEmpty(methods)) {
-			methods.stream().forEach(method -> {
-				fun.asgc.neutrino.core.annotation.Bean bean = method.getAnnotation(fun.asgc.neutrino.core.annotation.Bean.class);
-				if (null == bean) {
-					return;
-				}
-				String name = bean.value();
-				if (StringUtil.isEmpty(name)) {
-					name = method.getName();
-				}
-				// TODO 方法带参数的情况、class重复的问题，暂时由编码规避
-				if (method.getParameters().length == 0) {
-					try {
-						Object obj = method.invoke(this.instance);
-						if (null == obj) {
-							log.error("bean 实例不能为空!");
-							return;
-						}
-						context.getBeanContainer().addBean(new BeanWrapper()
-							.setType(obj.getClass())
-							.setBoot(false)
-							.setComponent(null)
-							.setInstance(obj)
-							.setName(name)
-							.setOrder(Integer.MAX_VALUE)
-						);
-					} catch (Exception e) {
-						log.error(String.format("bean [%s] 实例化失败!", name), e);
-					}
-				}
-			});
-		}
-		Set<Field> fieldSet = ReflectUtil.getInheritChainDeclaredFieldSet(type);
-		if (CollectionUtil.notEmpty(fieldSet)) {
-			fieldSet.forEach(field -> {
-				Autowired autowired = field.getAnnotation(Autowired.class);
-				if (null == autowired) {
-					return;
-				}
-				if (field.getType() == Environment.class) {
-					ReflectUtil.setFieldValue(field, instance, context.getEnvironment());
-				} else if(field.getType() == ApplicationConfig.class) {
-					ReflectUtil.setFieldValue(field, instance, context.getApplicationConfig());
-				} else if(field.getType() == BeanContainer.class) {
-					ReflectUtil.setFieldValue(field, instance, context.getBeanContainer());
-				} else if (field.getType() == ApplicationContext.class) {
-					ReflectUtil.setFieldValue(field, instance, context);
-				} else {
-					Class<?> autowiredType = field.getType();
-					BeanWrapper autowiredBean = null;
-					if (StringUtil.isEmpty(autowired.value())) {
-						autowiredBean = context.getBeanContainer().getBean(autowiredType);
-					} else {
-						autowiredBean = context.getBeanContainer().getBean(autowired.value());
-					}
-					if (null == autowiredBean) {
-						throw new RuntimeException(String.format("类 %s 自动装配字段:%s 依赖bean不存在!", type.getName(), field.getName()));
-					}
-					if (autowiredBean.isDependOn(type)) {
-						throw new RuntimeException(String.format("类[%s]与类[%s]存在循环依赖!", type.getName(), field.getType().getName()));
-					}
-					autowiredBean.newInstance(context);
-					ReflectUtil.setFieldValue(field, instance, autowiredBean.getInstance());
-				}
-			});
 		}
 	}
 

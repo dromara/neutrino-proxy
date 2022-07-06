@@ -27,8 +27,8 @@ import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
+import fun.asgc.neutrino.core.bean.BeanFactoryAware;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.container.BeanContainer;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
@@ -58,10 +58,6 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	private ApplicationConfig applicationConfig;
 	/**
-	 * bean容器
-	 */
-	private BeanContainer beanContainer;
-	/**
 	 * 根Bean工厂
 	 */
 	private SimpleBeanFactory rootBeanFactory;
@@ -74,9 +70,6 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	private LifeCycleManager lifeCycleManager = LifeCycleManager.create();
 
-	public ApplicationContext() {
-
-	}
 
 	public ApplicationContext(Environment environment) {
 		this.environment = environment;
@@ -93,8 +86,6 @@ public class ApplicationContext implements LifeCycle {
 				this.rootBeanFactory.registerBean(environment.getConfig(), "rootApplicationConfig");
 				register();
 				this.applicationBeanFactory.init();
-				// TODO 后面优化掉这种不安全的BeanManager
-				BeanManager.setContext(this);
 			} catch (Exception e) {
 				log.error("应用上下文初始化异常!", e);
 				System.exit(-1);
@@ -137,6 +128,9 @@ public class ApplicationContext implements LifeCycle {
 				}
 				this.applicationBeanFactory.registerBean(clazz, beanName);
 			});
+		if (!applicationBeanFactory.hasBean(BeanManager.class)) {
+			applicationBeanFactory.registerBean(BeanManager.class);
+		}
 	}
 
 	/**
@@ -144,12 +138,13 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	public void run() {
 		init();
+		List<BeanFactoryAware> beanFactoryAwareList = this.applicationBeanFactory.getBeanList(BeanFactoryAware.class);
+		if (CollectionUtil.notEmpty(beanFactoryAwareList)) {
+			beanFactoryAwareList.forEach(beanFactoryAware -> beanFactoryAware.setBeanFactory(applicationBeanFactory));
+		}
 		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
 		if (CollectionUtil.notEmpty(applicationRunnerList)) {
 			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
-//			for (ApplicationRunner runner : applicationRunnerList) {
-//				runner.run(this.environment.getMainArgs());
-//			}
  		}
 	}
 }

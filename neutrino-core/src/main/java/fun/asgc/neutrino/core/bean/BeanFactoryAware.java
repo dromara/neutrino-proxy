@@ -19,20 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package fun.asgc.neutrino.core.exception;
-
-import fun.asgc.neutrino.core.container.Container;
+package fun.asgc.neutrino.core.bean;
 
 /**
- *
+ * 用于标识需要beanFactory的组件
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/6
  */
-public class ContainerInitException extends RuntimeException {
+public interface BeanFactoryAware {
 
-	public ContainerInitException(Container container) {
-		super(String.format("容器:[%s] 初始化异常", container.getClass().getName()));
-	}
-
+	/**
+	 * 设置bean工厂
+	 * @param beanFactory
+	 */
+	void setBeanFactory(BeanFactory beanFactory);
 }

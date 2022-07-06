@@ -69,6 +69,13 @@ public interface BeanRegistry {
 	boolean hasBean(Class<?> type, String name);
 
 	/**
+	 * 判断是否包含此bean
+	 * @param type
+	 * @return
+	 */
+	boolean hasBean(Class<?> type);
+
+	/**
 	 * 查询bean容器中有多少个叫该名称的bean
 	 * @param name
 	 * @return
