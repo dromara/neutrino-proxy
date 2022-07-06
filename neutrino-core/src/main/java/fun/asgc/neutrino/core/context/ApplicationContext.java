@@ -85,6 +85,10 @@ public class ApplicationContext implements LifeCycle {
 				this.rootBeanFactory.registerBean(this, "rootApplicationContext");
 				this.rootBeanFactory.registerBean(environment.getConfig(), "rootApplicationConfig");
 				register();
+				List<BeanFactoryAware> beanFactoryAwareList = this.applicationBeanFactory.getBeanList(BeanFactoryAware.class);
+				if (CollectionUtil.notEmpty(beanFactoryAwareList)) {
+					beanFactoryAwareList.forEach(beanFactoryAware -> beanFactoryAware.setBeanFactory(applicationBeanFactory));
+				}
 				this.applicationBeanFactory.init();
 			} catch (Exception e) {
 				log.error("应用上下文初始化异常!", e);
@@ -138,10 +142,6 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	public void run() {
 		init();
-		List<BeanFactoryAware> beanFactoryAwareList = this.applicationBeanFactory.getBeanList(BeanFactoryAware.class);
-		if (CollectionUtil.notEmpty(beanFactoryAwareList)) {
-			beanFactoryAwareList.forEach(beanFactoryAware -> beanFactoryAware.setBeanFactory(applicationBeanFactory));
-		}
 		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
 		if (CollectionUtil.notEmpty(applicationRunnerList)) {
 			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
