@@ -48,14 +48,14 @@ public class BeanManager implements BeanFactoryAware {
 
 	public static Object getBean(String name) {
 		if (null == beanFactory) {
-			throw new RuntimeException("Beanfactory尚未初始化");
+			throw new RuntimeException("BeanFactory尚未初始化");
 		}
 		return beanFactory.getBean(name);
 	}
 
 	public static <T> T getBean(Class<T> clazz) {
 		if (null == beanFactory) {
-			throw new RuntimeException("Beanfactory尚未初始化");
+			throw new RuntimeException("BeanFactory尚未初始化");
 		}
 		return beanFactory.getBean(clazz);
 	}
@@ -68,7 +68,7 @@ public class BeanManager implements BeanFactoryAware {
 	 */
 	public static <T> List<T> getBeanListBySuperClass(Class<T> superClass) {
 		if (null == beanFactory) {
-			throw new RuntimeException("Beanfactory尚未初始化");
+			throw new RuntimeException("BeanFactory尚未初始化");
 		}
 		return beanFactory.getBeanList(superClass);
 	}
