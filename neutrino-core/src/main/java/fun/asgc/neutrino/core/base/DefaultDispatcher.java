@@ -94,7 +94,7 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		}
 		String type = matcher.apply(data);
 		if (null == type) {
-			log.warn("{} 获取匹配类型失败 data:{]", this.name, JSONObject.toJSONString(data));
+			log.warn("{} 获取匹配类型失败 data:{}", this.name, JSONObject.toJSONString(data));
 			return;
 		}
 		Handler<Context,Data> handler = handlerMap.get(type);
