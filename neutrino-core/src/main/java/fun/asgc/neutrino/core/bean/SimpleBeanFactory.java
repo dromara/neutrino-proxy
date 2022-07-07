@@ -24,6 +24,10 @@ package fun.asgc.neutrino.core.bean;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.aop.Aop;
+import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
+import fun.asgc.neutrino.core.aop.interceptor.Filter;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
 import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
@@ -31,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +47,11 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class SimpleBeanFactory extends AbstractBeanFactory {
+
+	/**
+	 * 类集合
+	 */
+	private Set<Class<?>> classes = new HashSet<>();
 
 	public SimpleBeanFactory(String name) {
 		super(name);
@@ -255,5 +265,27 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			getOrNew(beanWrapperList);
 		}
 		super.init();
+	}
+
+	public void register(Set<Class<?>> classes) {
+		if (CollectionUtil.isEmpty(classes)) {
+			return;
+		}
+		this.classes.addAll(classes);
+		classes.stream()
+			.filter(item -> ClassUtil.isAnnotateWith(item, Component.class)
+				|| Interceptor.class.isAssignableFrom(item)
+				|| Filter.class.isAssignableFrom(item)
+				|| ExceptionHandler.class.isAssignableFrom(item)
+				|| ResultAdvice.class.isAssignableFrom(item)
+			)
+			.forEach(clazz -> {
+				String beanName = TypeUtil.getDefaultVariableName(clazz);
+				Component component = ClassUtil.getAnnotation(clazz, Component.class);
+				if (null != component && StringUtil.notEmpty(component.value())) {
+					beanName = component.value();
+				}
+				registerBean(clazz, beanName);
+			});
 	}
 }

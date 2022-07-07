@@ -22,11 +22,6 @@
 
 package fun.asgc.neutrino.core.context;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
-import fun.asgc.neutrino.core.aop.interceptor.Filter;
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.bean.BeanFactoryAware;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
@@ -37,6 +32,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -116,27 +112,11 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	private void register() throws IOException, ClassNotFoundException {
 		Set<Class<?>> classes = ClassUtil.scan(environment.getScanBasePackages());
-		if (CollectionUtil.isEmpty(classes)) {
-			return;
+		if (null == classes) {
+			classes = new HashSet<>();
 		}
-		classes.stream()
-			.filter(item -> ClassUtil.isAnnotateWith(item, Component.class)
-				|| Interceptor.class.isAssignableFrom(item)
-				|| Filter.class.isAssignableFrom(item)
-				|| ExceptionHandler.class.isAssignableFrom(item)
-				|| ResultAdvice.class.isAssignableFrom(item)
-			)
-			.forEach(clazz -> {
-				String beanName = TypeUtil.getDefaultVariableName(clazz);
-				Component component = ClassUtil.getAnnotation(clazz, Component.class);
-				if (null != component && StringUtil.notEmpty(component.value())) {
-					beanName = component.value();
-				}
-				this.applicationBeanFactory.registerBean(clazz, beanName);
-			});
-		if (!applicationBeanFactory.hasBean(BeanManager.class)) {
-			applicationBeanFactory.registerBean(BeanManager.class);
-		}
+		classes.add(BeanManager.class);
+		applicationBeanFactory.register(classes);
 	}
 
 	/**
