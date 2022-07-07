@@ -84,8 +84,86 @@ public class InterceptorFactory {
 	 * @param <T>
 	 * @return
 	 */
-	public static <T extends Interceptor> T get(Class<? extends Interceptor> clazz) {
+	public static <T extends Interceptor> T getOrNew(Class<? extends Interceptor> clazz) {
 		return (T)getOrNewCacheBean(clazz, interceptorCache);
+	}
+
+	/**
+	 * 获取过滤器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends Filter> T getOrNewFilter(Class<? extends Filter> clazz) {
+		return (T)getOrNewCacheBean(clazz, filterCache);
+	}
+
+	/**
+	 * 获取过滤器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends Filter> List<T> getOrNewFilterList(Class<? extends Filter>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getOrNewFilter(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取结果处理器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends ResultAdvice> T getOrNewResultAdvice(Class<? extends ResultAdvice> clazz) {
+		return (T)getOrNewCacheBean(clazz, resultAdviceCache);
+	}
+
+	/**
+	 * 获取结果处理器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends ResultAdvice> List<T> getOrNewResultAdviceList(Class<? extends ResultAdvice>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getOrNewResultAdvice(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取异常处理器实例
+	 * @param clazz
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends ExceptionHandler> T getOrNewExceptionHandler(Class<? extends ExceptionHandler> clazz) {
+		return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
+	}
+
+	/**
+	 * 获取异常处理器列表
+	 * @param classes
+	 * @param <T>
+	 * @return
+	 */
+	public static <T extends ExceptionHandler> List<T> getOrNewExceptionHandlerList(Class<? extends ExceptionHandler>[] classes) {
+		if (ArrayUtil.isEmpty(classes)) {
+			return null;
+		}
+		return Stream.of(classes).map(c -> (T)getOrNewExceptionHandler(c)).filter(Objects::nonNull).collect(Collectors.toList());
+	}
+
+	/**
+	 * 获取拦截器实例
+	 * @param clazz
+	 * @return
+	 */
+	public static Interceptor get(Class<? extends Interceptor> clazz) {
+		return InterceptorWrapper.create(clazz);
 	}
 
 	/**
@@ -170,6 +248,9 @@ public class InterceptorFactory {
 			() -> {
 				List<Interceptor> interceptors = new ArrayList<>();
 				interceptors.addAll(globalInterceptorList);
+				if (classInterceptorListMap.containsKey(targetMethod.getDeclaringClass())) {
+					interceptors.addAll(classInterceptorListMap.get(targetMethod.getDeclaringClass()));
+				}
 				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
 				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
 				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
@@ -196,24 +277,24 @@ public class InterceptorFactory {
 			return;
 		}
 		if (ArrayUtil.notEmpty(intercept.filter()) || ArrayUtil.notEmpty(intercept.resultAdvice()) || ArrayUtil.notEmpty(intercept.exceptionHandler())) {
-			DefaultInterceptor wrapper = new DefaultInterceptor();
+			DefaultInterceptor interceptor = new DefaultInterceptor();
 			List<Filter> filterList = getFilterList(intercept.filter());
 			List<ResultAdvice> resultAdviceList = getResultAdviceList(intercept.resultAdvice());
 			List<ExceptionHandler> exceptionHandlerList = getExceptionHandlerList(intercept.exceptionHandler());
 			if (CollectionUtil.notEmpty(filterList)) {
-				wrapper.registerFilter(filterList);
+				interceptor.registerFilter(filterList);
 			}
 			if (CollectionUtil.notEmpty(resultAdviceList)) {
-				wrapper.registerResultAdvice(resultAdviceList);
+				interceptor.registerResultAdvice(resultAdviceList);
 			}
 			if (CollectionUtil.notEmpty(exceptionHandlerList)) {
-				wrapper.registerExceptionHandler(exceptionHandlerList);
+				interceptor.registerExceptionHandler(exceptionHandlerList);
 			}
-			interceptors.add(wrapper);
+			interceptors.add(interceptor);
 		}
 		if (ArrayUtil.notEmpty(intercept.value())) {
 			for (Class<? extends Interceptor> clazz : intercept.value()) {
-				Interceptor interceptor = get(clazz);
+				Interceptor interceptor = getOrNew(clazz);
 				if (null != interceptor && !interceptors.contains(interceptor)) {
 					interceptors.add(interceptor);
 				}
@@ -222,13 +303,11 @@ public class InterceptorFactory {
 		if (ArrayUtil.notEmpty(intercept.exclude())) {
 			for (Class<? extends Interceptor> clazz : intercept.exclude()) {
 				Interceptor interceptor = get(clazz);
-				if (null != interceptor && interceptors.contains(interceptor)) {
-					interceptors.remove(interceptor);
-				}
+				removeInterceptor(interceptors, interceptor);
 			}
 		}
 		if (intercept.ignoreGlobal()) {
-			interceptors.removeAll(globalInterceptorList);
+			removeInterceptor(interceptors, globalInterceptorList);
 		}
 	}
 
@@ -239,8 +318,143 @@ public class InterceptorFactory {
 	public static synchronized void registerGlobalInterceptor(Class<? extends  Interceptor> clazz) {
 		Assert.notNull(clazz, "class不能为空!");
 		Interceptor interceptor = get(clazz);
-		if (!globalInterceptorList.contains(interceptor)) {
+		if (!containsInterceptor(globalInterceptorList, interceptor)) {
 			globalInterceptorList.add(interceptor);
 		}
+	}
+
+	/**
+	 * 注册类的拦截器
+	 * @param targetType
+	 * @param interceptorType
+	 */
+	public static synchronized void registerInterceptor(Class<?> targetType, Class<? extends Interceptor> interceptorType) {
+		Assert.notNull(targetType, "目标类型不能为空不能为空!");
+		Assert.notNull(targetType, "目标类型不能为空不能为空!");
+		if (!classInterceptorListMap.containsKey(targetType)) {
+			classInterceptorListMap.put(targetType, new ArrayList<>());
+		}
+		Interceptor interceptor = get(interceptorType);
+		if (!containsInterceptor(classInterceptorListMap.get(targetType), interceptor)) {
+			classInterceptorListMap.get(targetType).add(interceptor);
+		}
+	}
+
+
+	/**
+	 * 删除指定拦截器
+	 * @param list
+	 * @param removeList
+	 */
+	private static void removeInterceptor(List<Interceptor> list, List<Interceptor> removeList) {
+		if (CollectionUtil.isEmpty(list) || CollectionUtil.isEmpty(removeList)) {
+			return;
+		}
+		removeList.forEach(item -> removeInterceptor(list, item));
+	}
+
+	private static boolean containsInterceptor(List<Interceptor> list, Interceptor interceptor) {
+		if (CollectionUtil.isEmpty(list) || null == interceptor) {
+			return false;
+		}
+		Iterator<Interceptor> iter = list.iterator();
+		while (iter.hasNext()) {
+			Interceptor item = iter.next();
+			if (typeEquals(item, interceptor)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 删除指定拦截器
+	 * @param list
+	 * @param interceptor
+	 */
+	private static void removeInterceptor(List<Interceptor> list, Interceptor interceptor) {
+		if (CollectionUtil.isEmpty(list) || null == interceptor) {
+			return;
+		}
+		Iterator<Interceptor> iter = list.iterator();
+		while (iter.hasNext()) {
+			Interceptor item = iter.next();
+			if (typeEquals(item, interceptor)) {
+				iter.remove();
+				return;
+			}
+		}
+	}
+
+	private static boolean typeEquals(Interceptor a, Interceptor b) {
+		if (a == b) {
+			return true;
+		}
+		if (null == a || null == b) {
+			return false;
+		}
+		Class<?> type1 = a.getClass();
+		Class<?> type2 = b.getClass();
+		if (a instanceof InterceptorWrapper) {
+			type1 = ((InterceptorWrapper)a).getType();
+		}
+		if (b instanceof InterceptorWrapper) {
+			type2 = ((InterceptorWrapper)b).getType();
+		}
+		return type1 == type2;
+	}
+
+	private static boolean typeEquals(Filter a, Filter b) {
+		if (a == b) {
+			return true;
+		}
+		if (null == a || null == b) {
+			return false;
+		}
+		Class<?> type1 = a.getClass();
+		Class<?> type2 = b.getClass();
+		if (a instanceof FilterWrapper) {
+			type1 = ((FilterWrapper)a).getType();
+		}
+		if (b instanceof FilterWrapper) {
+			type2 = ((FilterWrapper)b).getType();
+		}
+		return type1 == type2;
+	}
+
+	private static boolean typeEquals(ResultAdvice a, ResultAdvice b) {
+		if (a == b) {
+			return true;
+		}
+		if (null == a || null == b) {
+			return false;
+		}
+		Class<?> type1 = a.getClass();
+		Class<?> type2 = b.getClass();
+		if (a instanceof ResultAdviceWrapper) {
+			type1 = ((ResultAdviceWrapper)a).getType();
+		}
+		if (b instanceof ResultAdviceWrapper) {
+			type2 = ((ResultAdviceWrapper)b).getType();
+		}
+		return type1 == type2;
+	}
+
+	private static boolean typeEquals(ExceptionHandler a, ExceptionHandler b) {
+		if (a == b) {
+			return true;
+		}
+		if (null == a || null == b) {
+			return false;
+		}
+		Class<?> type1 = a.getClass();
+		Class<?> type2 = b.getClass();
+		if (a instanceof ExceptionHandlerWrapper) {
+			type1 = ((ExceptionHandlerWrapper)a).getType();
+		}
+		if (b instanceof ExceptionHandlerWrapper) {
+			type2 = ((ExceptionHandlerWrapper)b).getType();
+		}
+		return type1 == type2;
 	}
 }

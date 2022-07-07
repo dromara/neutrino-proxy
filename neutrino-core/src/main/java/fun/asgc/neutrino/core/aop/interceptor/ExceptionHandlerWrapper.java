@@ -21,64 +21,64 @@
  */
 package fun.asgc.neutrino.core.aop.interceptor;
 
-import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.LockUtil;
 
 /**
- * 拦截器包装器
- * 用于支持拦截器以type或者实例形式注册
  *
- * 以type类型注册时，拦截器的实例化时机延迟到首次调用
  * @author: aoshiguchen
- * @date: 2022/7/6
+ * @date: 2022/7/7
  */
-public class InterceptorWrapper implements Interceptor {
+public class ExceptionHandlerWrapper implements ExceptionHandler {
 	/**
-	 * 拦截器实例
+	 * 过滤器实例
 	 */
-	private volatile Interceptor instance;
+	private volatile ExceptionHandler instance;
 	/**
-	 * 拦截器类型
+	 * 过滤器类型
 	 */
-	private Class<? extends Interceptor> type;
+	private Class<? extends ExceptionHandler> type;
 
-	private InterceptorWrapper() {
+	private ExceptionHandlerWrapper() {
 
 	}
 
-
-	private Interceptor getInstance() {
+	private ExceptionHandler getInstance() {
 		// 若未实例化，则在此先实例化
 		return LockUtil.doubleCheckProcessForNoException(
 			() -> null == instance,
 			this,
-			() -> instance = InterceptorFactory.getOrNew(type),
+			() -> instance = InterceptorFactory.getOrNewExceptionHandler(type),
 			() -> instance
 		);
 	}
 
 	@Override
-	public void intercept(Invocation inv) throws Exception {
-		getInstance().intercept(inv);
+	public boolean support(Exception e) {
+		return getInstance().support(e);
 	}
 
-	public static InterceptorWrapper create(Class<? extends Interceptor> type) {
-		Assert.notNull(type, "拦截器类型不能为空!");
-		InterceptorWrapper wrapper = new InterceptorWrapper();
+	@Override
+	public Object handle(Exception e) {
+		return getInstance().handle(e);
+	}
+
+	public static ExceptionHandlerWrapper create(Class<? extends ExceptionHandler> type) {
+		Assert.notNull(type, "异常处理器类型不能为空!");
+		ExceptionHandlerWrapper wrapper = new ExceptionHandlerWrapper();
 		wrapper.type = type;
 		return wrapper;
 	}
 
-	public static InterceptorWrapper create(Interceptor instance) {
-		Assert.notNull(instance, "拦截器实例不能为空！");
-		InterceptorWrapper wrapper = new InterceptorWrapper();
+	public static ExceptionHandlerWrapper create(ExceptionHandler instance) {
+		Assert.notNull(instance, "异常处理器实例不能为空！");
+		ExceptionHandlerWrapper wrapper = new ExceptionHandlerWrapper();
 		wrapper.instance = instance;
 		wrapper.type = instance.getClass();
 		return wrapper;
 	}
 
-	public Class<? extends Interceptor> getType() {
+	public Class<? extends ExceptionHandler> getType() {
 		return type;
 	}
 }

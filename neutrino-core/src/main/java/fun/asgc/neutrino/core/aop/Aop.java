@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.aop;
 
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.aop.interceptor.InterceptorFactory;
 import fun.asgc.neutrino.core.aop.proxy.Proxy;
 import fun.asgc.neutrino.core.aop.proxy.ProxyFactory;
 import fun.asgc.neutrino.core.cache.Cache;
@@ -129,5 +131,17 @@ public class Aop {
 	public static synchronized void setProxyStrategy(ProxyStrategy proxyStrategy) {
 		Assert.notNull(proxyStrategy, "代理策略不能为空!");
 		Aop.proxyStrategy = proxyStrategy;
+	}
+
+	/**
+	 * 注册全局拦截器
+	 * @param clazz
+	 */
+	public static void intercept(Class<? extends Interceptor> interceptorType) {
+		InterceptorFactory.registerGlobalInterceptor(interceptorType);
+	}
+
+	public static void intercept(Class<?> targetType, Class<? extends Interceptor> interceptorType) {
+		InterceptorFactory.registerInterceptor(targetType, interceptorType);
 	}
 }

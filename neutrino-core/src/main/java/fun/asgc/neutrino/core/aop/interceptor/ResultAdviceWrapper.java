@@ -21,64 +21,62 @@
  */
 package fun.asgc.neutrino.core.aop.interceptor;
 
-import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.LockUtil;
 
-/**
- * 拦截器包装器
- * 用于支持拦截器以type或者实例形式注册
- *
- * 以type类型注册时，拦截器的实例化时机延迟到首次调用
- * @author: aoshiguchen
- * @date: 2022/7/6
- */
-public class InterceptorWrapper implements Interceptor {
-	/**
-	 * 拦截器实例
-	 */
-	private volatile Interceptor instance;
-	/**
-	 * 拦截器类型
-	 */
-	private Class<? extends Interceptor> type;
+import java.lang.reflect.Method;
 
-	private InterceptorWrapper() {
+/**
+ *
+ * @author: aoshiguchen
+ * @date: 2022/7/7
+ */
+public class ResultAdviceWrapper implements ResultAdvice {
+	/**
+	 * 过滤器实例
+	 */
+	private volatile ResultAdvice instance;
+	/**
+	 * 过滤器类型
+	 */
+	private Class<? extends ResultAdvice> type;
+
+	private ResultAdviceWrapper() {
 
 	}
 
-
-	private Interceptor getInstance() {
+	private ResultAdvice getInstance() {
 		// 若未实例化，则在此先实例化
 		return LockUtil.doubleCheckProcessForNoException(
 			() -> null == instance,
 			this,
-			() -> instance = InterceptorFactory.getOrNew(type),
+			() -> instance = InterceptorFactory.getOrNewResultAdvice(type),
 			() -> instance
 		);
 	}
 
 	@Override
-	public void intercept(Invocation inv) throws Exception {
-		getInstance().intercept(inv);
+	public Object advice(Class<?> targetClass, Method targetMethod, Object result) {
+		return getInstance().advice(targetClass, targetMethod, result);
 	}
 
-	public static InterceptorWrapper create(Class<? extends Interceptor> type) {
-		Assert.notNull(type, "拦截器类型不能为空!");
-		InterceptorWrapper wrapper = new InterceptorWrapper();
+
+	public static ResultAdviceWrapper create(Class<? extends ResultAdvice> type) {
+		Assert.notNull(type, "过滤器类型不能为空!");
+		ResultAdviceWrapper wrapper = new ResultAdviceWrapper();
 		wrapper.type = type;
 		return wrapper;
 	}
 
-	public static InterceptorWrapper create(Interceptor instance) {
-		Assert.notNull(instance, "拦截器实例不能为空！");
-		InterceptorWrapper wrapper = new InterceptorWrapper();
+	public static ResultAdviceWrapper create(ResultAdvice instance) {
+		Assert.notNull(instance, "过滤器实例不能为空！");
+		ResultAdviceWrapper wrapper = new ResultAdviceWrapper();
 		wrapper.instance = instance;
 		wrapper.type = instance.getClass();
 		return wrapper;
 	}
 
-	public Class<? extends Interceptor> getType() {
+	public Class<? extends ResultAdvice> getType() {
 		return type;
 	}
 }
