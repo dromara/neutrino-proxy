@@ -25,7 +25,6 @@ package fun.asgc.neutrino.core.context;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.bean.BeanFactoryAware;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
 import lombok.experimental.Accessors;

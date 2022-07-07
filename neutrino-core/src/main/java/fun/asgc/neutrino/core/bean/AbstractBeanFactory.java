@@ -21,7 +21,6 @@
  */
 package fun.asgc.neutrino.core.bean;
 
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.context.LifeCycleManager;
 import fun.asgc.neutrino.core.context.LifeCycleStatus;
@@ -29,7 +28,6 @@ import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

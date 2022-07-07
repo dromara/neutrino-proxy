@@ -23,7 +23,7 @@ package fun.asgc.neutrino.core.bean.test1;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.runner.ApplicationRunner;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
 
 /**
  *

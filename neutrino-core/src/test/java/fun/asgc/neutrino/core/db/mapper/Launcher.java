@@ -22,7 +22,7 @@
 package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
 
 /**
  *

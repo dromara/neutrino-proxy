@@ -23,7 +23,7 @@
 package fun.asgc.neutrino.proxy.client;
 
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
 
 /**
  *

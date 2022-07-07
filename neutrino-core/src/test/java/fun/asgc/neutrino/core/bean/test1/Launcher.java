@@ -25,7 +25,7 @@ import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.bean.BeanMatchMode;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.launcher.NeutrinoLauncher;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
 
 import java.util.List;
 import java.util.Set;

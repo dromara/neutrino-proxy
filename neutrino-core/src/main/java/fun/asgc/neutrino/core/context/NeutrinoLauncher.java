@@ -20,14 +20,11 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.core.launcher;
+package fun.asgc.neutrino.core.context;
 
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
-import fun.asgc.neutrino.core.context.ApplicationConfig;
-import fun.asgc.neutrino.core.context.ApplicationContext;
-import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 

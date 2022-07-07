@@ -29,7 +29,7 @@ import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
 import fun.asgc.neutrino.core.exception.BeanException;
-import fun.asgc.neutrino.core.runner.ApplicationRunner;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 

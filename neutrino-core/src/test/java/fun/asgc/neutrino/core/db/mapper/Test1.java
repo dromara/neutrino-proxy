@@ -16,10 +16,8 @@ import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Init;
-import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.InnerGlobalInterceptor;
-import fun.asgc.neutrino.core.db.template.JdbcTemplateTest;
-import fun.asgc.neutrino.core.runner.ApplicationRunner;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
