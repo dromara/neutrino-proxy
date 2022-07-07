@@ -22,12 +22,8 @@
 package fun.asgc.neutrino.core.aop.interceptor;
 
 import fun.asgc.neutrino.core.aop.Invocation;
-import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +36,7 @@ public class InnerGlobalInterceptor implements Interceptor {
 	/**
 	 * 拦截器包装器
 	 */
-	private static final InterceptorWrapper interceptorWrapper = new InterceptorWrapper(InnerGlobalInterceptor.class.getSimpleName());
+	private static final DefaultInterceptor interceptorWrapper = new DefaultInterceptor(InnerGlobalInterceptor.class.getSimpleName());
 
 	public InnerGlobalInterceptor() {
 

@@ -23,123 +23,53 @@ package fun.asgc.neutrino.core.aop.interceptor;
 
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.TypeUtil;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
+import fun.asgc.neutrino.core.util.LockUtil;
 
 /**
- * 拦截器的包装器
+ * 拦截器包装器
+ * 用于支持拦截器以type或者实例形式注册
+ *
+ * 以type类型注册时，拦截器的实例化时机延迟到首次调用
  * @author: aoshiguchen
- * @date: 2022/6/30
+ * @date: 2022/7/6
  */
-@Slf4j
 public class InterceptorWrapper implements Interceptor {
-	private final List<Filter> filterList = new ArrayList<>();
-	private final List<ResultAdvice> resultAdviceList = new ArrayList<>();
-	private final List<ExceptionHandler> exceptionHandlerList = new ArrayList<>();
-	private String name;
+	/**
+	 * 拦截器实例
+	 */
+	private volatile Interceptor instance;
+	/**
+	 * 拦截器类型
+	 */
+	private Class<? extends Interceptor> type;
 
-	public InterceptorWrapper() {
-		this.name = this.getClass().getSimpleName();
-	}
+	private InterceptorWrapper() {
 
-	public InterceptorWrapper(String name) {
-		this.name = name;
 	}
 
 	@Override
 	public void intercept(Invocation inv) throws Exception {
-		try {
-			log.debug("拦截器：{} class:{} method:{} args:{} before", this.name, inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			if (CollectionUtil.notEmpty(filterList)) {
-				for (Filter filter : filterList) {
-					if (filter.filtration(inv.getTargetClass(), inv.getTargetMethod(), inv.getArgs())) {
-						return;
-					}
-				}
-			}
-			inv.invoke();
-			Object result = inv.getReturnValue();
-			log.debug("拦截器：{} class:{} method:{} args:{} result:{} after", this.name, inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
-
-			if (CollectionUtil.notEmpty(resultAdviceList)) {
-				for (ResultAdvice advice : resultAdviceList) {
-					result = advice.advice(inv.getTargetClass(), inv.getTargetMethod(), result);
-				}
-			}
-			if (null == result) {
-				result = TypeUtil.getDefaultValue(inv.getReturnType());
-			}
-			inv.setReturnValue(result);
-
-			log.debug("拦截器：{} class:{} method:{} args:{} result:{} finished.", this.name, inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs(), result);
-		} catch (Exception e) {
-			log.debug("拦截器：{} class:{} method:{} args:{} exception.", this.name, inv.getTargetClass().getName(), inv.getTargetMethod().getName(), inv.getArgs());
-			if (CollectionUtil.notEmpty(exceptionHandlerList)) {
-				for (ExceptionHandler handler : exceptionHandlerList) {
-					if (handler.support(e)) {
-						Object result = handler.handle(e);
-						if (null != result) {
-							inv.setReturnValue(result);
-						}
-						return;
-					}
-				}
-			}
-			throw e;
-		}
+		// 若未实例化，则在此先实例化
+		LockUtil.doubleCheckProcess(
+			() -> null == instance,
+			this,
+			() -> InterceptorFactory.get(type)
+		);
+		instance.intercept(inv);
 	}
 
-	/**
-	 * 注册过滤器
-	 * @param filter
-	 */
-	public synchronized void registerFilter(Filter filter) {
-		Assert.notNull(filter, "过滤器不能为空!");
-		this.filterList.add(filter);
+	public static InterceptorWrapper create(Class<? extends Interceptor> type) {
+		Assert.notNull(type, "拦截器类型不能为空!");
+		InterceptorWrapper wrapper = new InterceptorWrapper();
+		wrapper.type = type;
+		return wrapper;
 	}
 
-	/**
-	 * 注册过滤器
-	 * @param filterList
-	 */
-	public synchronized void registerFilter(List<Filter> filterList) {
-		Assert.notEmpty(filterList, "过滤器不能为空!");
-		this.filterList.addAll(filterList);
-	}
-
-	/**
-	 * 注册结果处理器
-	 * @param resultAdvice
-	 */
-	public synchronized void registerResultAdvice(ResultAdvice resultAdvice) {
-		Assert.notNull(resultAdvice, "结果处理器不能为空!");
-		this.resultAdviceList.add(resultAdvice);
-	}
-
-	/**
-	 * 注册结果处理器
-	 * @param resultAdviceList
-	 */
-	public synchronized void registerResultAdvice(List<ResultAdvice> resultAdviceList) {
-		Assert.notEmpty(resultAdviceList, "结果处理器不能为空!");
-		this.resultAdviceList.addAll(resultAdviceList);
-	}
-
-	/**
-	 * 注册异常处理器
-	 * @param exceptionHandler
-	 */
-	public synchronized void registerExceptionHandler(ExceptionHandler exceptionHandler) {
-		Assert.notNull(exceptionHandler, "异常处理器不能为空!");
-		this.exceptionHandlerList.add(exceptionHandler);
-	}
-
-	public synchronized void registerExceptionHandler(List<ExceptionHandler> exceptionHandlerList) {
-		Assert.notEmpty(exceptionHandlerList, "异常处理器不能为空!");
-		this.exceptionHandlerList.addAll(exceptionHandlerList);
+	public static InterceptorWrapper create(Interceptor instance) {
+		Assert.notNull(instance, "拦截器实例不能为空！");
+		InterceptorWrapper wrapper = new InterceptorWrapper();
+		wrapper.instance = instance;
+		wrapper.type = instance.getClass();
+		return wrapper;
 	}
 }

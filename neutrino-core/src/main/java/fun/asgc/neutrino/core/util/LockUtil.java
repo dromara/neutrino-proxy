@@ -61,6 +61,7 @@ public class LockUtil {
 			doubleCheckProcess(isLock, lock, lockProcess);
 		} catch (Exception e) {
 			// ignore
+			e.printStackTrace();
 		}
 	}
 

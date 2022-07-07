@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,7 +69,9 @@ public class AsgcProxyFactory implements ProxyFactory {
 		proxyClass.setName(generateClassName(clazz));
 		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), clazz); // generateProxyClassSourceCode(clazz, proxyClass.getName());
 		proxyClass.setSourceCode(sourceCode);
-		log.debug("类:{} 的代理类源码:\n{}", clazz.getName(), sourceCode);
+		if (GlobalConfig.isIsPrintGeneratorCode()) {
+			log.debug("类:{} 的代理类源码:\n{}", clazz.getName(), sourceCode);
+		}
 
 		compiler.compile(proxyClass);
 		Class<T> retClass = (Class<T>)classLoader.loadProxyClass(proxyClass);

@@ -27,6 +27,7 @@ import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
+import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.bean.BeanFactoryAware;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.runner.ApplicationRunner;
@@ -79,6 +80,7 @@ public class ApplicationContext implements LifeCycle {
 	public synchronized void init() {
 		this.lifeCycleManager.init(() -> {
 			try {
+				GlobalConfig.setIsContainerStartup(true);
 				this.rootBeanFactory = new SimpleBeanFactory("rootBeanFactory");
 				this.applicationBeanFactory = new SimpleBeanFactory(rootBeanFactory, "applicationBeanFactory");
 				this.rootBeanFactory.registerBean(environment, "rootEnvironment");

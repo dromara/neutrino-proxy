@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.aop.interceptor;
 
 import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
 import fun.asgc.neutrino.core.util.*;
@@ -39,6 +40,7 @@ import java.util.stream.Stream;
 public class InterceptorFactory {
 	private static final Cache<Class<? extends Interceptor>, Interceptor> interceptorCache = new MemoryCache<>();
 	private static final List<Interceptor> globalInterceptorList = Collections.synchronizedList(new ArrayList<>());
+	private static final Map<Class<?>, List<Interceptor>> classInterceptorListMap = new HashMap<>();
 	private static final Map<Method, List<Interceptor>> methodInterceptorListMap = new HashMap<>();
 	private static final Cache<Class<? extends Filter>, Filter> filterCache = new MemoryCache<>();
 	private static final Cache<Class<? extends ResultAdvice>, ResultAdvice> resultAdviceCache = new MemoryCache<>();
@@ -55,20 +57,21 @@ public class InterceptorFactory {
 	 * @param <T>
 	 * @return
 	 */
-	private static <T> T getOrNewCacheBean(Class<T> clazz, Cache cache) throws Exception {
-		return (T)LockUtil.doubleCheckProcess(() -> !cache.containsKey(clazz),
+	private static <T> T getOrNewCacheBean(Class<T> clazz, Cache cache) {
+		return (T)LockUtil.doubleCheckProcessForNoException(() -> !cache.containsKey(clazz),
 			clazz,
 			() -> {
 				try {
-					// TODO
-//					cache.set(clazz, clazz.newInstance());
-					if (BeanManager.getBean(clazz) != null) {
-						cache.set(clazz, BeanManager.getBean(clazz));
-					} else {
-						cache.set(clazz, clazz.newInstance());
+					Object obj = null;
+					if (GlobalConfig.isIsContainerStartup()) {
+						obj = BeanManager.getBean(clazz);
 					}
+					if (null == obj) {
+						obj = clazz.newInstance();
+					}
+					cache.set(clazz, obj);
 				} catch (InstantiationException|IllegalAccessException e) {
-					throw new RuntimeException(e);
+					throw e;
 				}
 			},
 			() -> cache.get(clazz)
@@ -82,12 +85,7 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	public static <T extends Interceptor> T get(Class<? extends Interceptor> clazz) {
-		try {
-			return (T)getOrNewCacheBean(clazz, interceptorCache);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (T)getOrNewCacheBean(clazz, interceptorCache);
 	}
 
 	/**
@@ -97,12 +95,7 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends Filter> T getFilter(Class<? extends Filter> clazz) {
-		try {
-			return (T)getOrNewCacheBean(clazz, filterCache);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (T)getOrNewCacheBean(clazz, filterCache);
 	}
 
 	/**
@@ -125,12 +118,7 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends ResultAdvice> T getResultAdvice(Class<? extends ResultAdvice> clazz) {
-		try {
-			return (T)getOrNewCacheBean(clazz, resultAdviceCache);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (T)getOrNewCacheBean(clazz, resultAdviceCache);
 	}
 
 	/**
@@ -153,12 +141,7 @@ public class InterceptorFactory {
 	 * @return
 	 */
 	private static <T extends ExceptionHandler> T getExceptionHandler(Class<? extends ExceptionHandler> clazz) {
-		try {
-			return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return (T)getOrNewCacheBean(clazz, exceptionHandlerCache);
 	}
 
 	/**
@@ -182,30 +165,25 @@ public class InterceptorFactory {
 	public static List<Interceptor> getListByTargetMethod(Method targetMethod) {
 		Assert.notNull(targetMethod, "目标方法不能为空！");
 
-		try {
-			return LockUtil.doubleCheckProcess(() -> !methodInterceptorListMap.containsKey(targetMethod),
-				targetMethod,
-				() -> {
-					List<Interceptor> interceptors = new ArrayList<>();
-					interceptors.addAll(globalInterceptorList);
-					addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-					addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
-					// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
-					if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
-						List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
-						if (CollectionUtil.notEmpty(interfaceList)) {
-							for (Class<?> clazz : interfaceList) {
-								addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
-							}
+		return LockUtil.doubleCheckProcessForNoException(() -> !methodInterceptorListMap.containsKey(targetMethod),
+			targetMethod,
+			() -> {
+				List<Interceptor> interceptors = new ArrayList<>();
+				interceptors.addAll(globalInterceptorList);
+				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
+				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
+				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
+				if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
+					List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
+					if (CollectionUtil.notEmpty(interfaceList)) {
+						for (Class<?> clazz : interfaceList) {
+							addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
 						}
 					}
-					methodInterceptorListMap.put(targetMethod, interceptors);
-				},
-				() -> methodInterceptorListMap.get(targetMethod));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+				}
+				methodInterceptorListMap.put(targetMethod, interceptors);
+			},
+			() -> methodInterceptorListMap.get(targetMethod));
 	}
 
 	/**
@@ -218,7 +196,7 @@ public class InterceptorFactory {
 			return;
 		}
 		if (ArrayUtil.notEmpty(intercept.filter()) || ArrayUtil.notEmpty(intercept.resultAdvice()) || ArrayUtil.notEmpty(intercept.exceptionHandler())) {
-			InterceptorWrapper wrapper = new InterceptorWrapper();
+			DefaultInterceptor wrapper = new DefaultInterceptor();
 			List<Filter> filterList = getFilterList(intercept.filter());
 			List<ResultAdvice> resultAdviceList = getResultAdviceList(intercept.resultAdvice());
 			List<ExceptionHandler> exceptionHandlerList = getExceptionHandlerList(intercept.exceptionHandler());
