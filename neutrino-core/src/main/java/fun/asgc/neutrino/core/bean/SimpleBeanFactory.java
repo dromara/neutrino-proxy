@@ -33,6 +33,7 @@ import fun.asgc.neutrino.core.runner.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.processing.Filer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -70,7 +71,8 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			.setLazy(Boolean.FALSE)
 			.setOrder(Integer.MAX_VALUE)
 			.setStatus(BeanStatus.REGISTER)
-			.setInstantiationMode(BeanInstantiationMode.DIRECT);
+			.setInstantiationMode(BeanInstantiationMode.DIRECT)
+			.setNonIntercept(false);
 		Lazy lazy = ClassUtil.getAnnotation(type, Lazy.class);
 		if (null != lazy) {
 			beanWrapper.setLazy(lazy.value());
@@ -79,6 +81,21 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 		if (null != order) {
 			beanWrapper.setOrder(order.value());
 		}
+		// ApplicationRunner、Configuration、Interceptor、Filter、ExceptionHandler、ResultAdvice默认不拦截
+		if (ApplicationRunner.class.isAssignableFrom(type) ||
+			type.isAnnotationPresent(Configuration.class) ||
+			Interceptor.class.isAssignableFrom(type) ||
+			Filer.class.isAssignableFrom(type) ||
+			ExceptionHandler.class.isAssignableFrom(type) ||
+			ResultAdvice.class.isAssignableFrom(type)
+		) {
+			beanWrapper.setNonIntercept(true);
+		}
+		NonIntercept nonIntercept = ClassUtil.getAnnotation(type, NonIntercept.class);
+		if (null != nonIntercept) {
+			beanWrapper.setNonIntercept(nonIntercept.value());
+		}
+
 		addBean(beanWrapper);
 		registerBeanForMethod(beanWrapper, type);
 		return beanWrapper;
@@ -111,6 +128,7 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			beanWrapper.setFactoryBean(factoryBean);
 			beanWrapper.setInstantiationMode(BeanInstantiationMode.METHOD);
 			beanWrapper.setInstantiationMethod(method);
+			beanWrapper.setNonIntercept(false);
 
 			Lazy lazy = method.getAnnotation(Lazy.class);
 			if (null != lazy) {
@@ -146,18 +164,30 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 				() -> BeanStatus.DEPENDENCY_CHECKING == bean.getStatus(),
 				bean,
 				() -> {
-					NonIntercept nonIntercept = ClassUtil.getAnnotation(bean.getType(), NonIntercept.class);
-					boolean isNonIntercept = (null != nonIntercept && nonIntercept.value()) ? true : false;
-
 					if (BeanInstantiationMode.DIRECT == bean.getInstantiationMode()) {
 						// 直接实例化
 						if (ClassUtil.isInterface(bean.getType())) {
-							bean.setInstance(Aop.get(bean.getType()));
+							Class<?> implementationType = findOneImplementationAndReturn(bean.getType());
+							// 如果是一个接口，且有唯一实现类，则采用该实现类的实例作为bean。否则直接代理该接口
+							if (null == implementationType) {
+								bean.setInstance(Aop.get(bean.getType()));
+							} else {
+								if (ClassUtil.hasNoArgsConstructor(implementationType)) {
+									if (bean.isNonIntercept()) {
+										bean.setInstance(implementationType.newInstance());
+									} else {
+										bean.setInstance(Aop.get(implementationType, bean.getType()));
+									}
+								} else {
+									// TODO 暂不支持有参构造器
+									throw new BeanException(String.format("Bean[type:%s name:%s] 没有无参构造器，实例化失败!", bean.getType().getName(), bean.getName()));
+								}
+							}
 						} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
 							bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
 						} else {
 							if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
-								if (isNonIntercept) {
+								if (bean.isNonIntercept()) {
 									bean.setInstance(bean.getType().newInstance());
 								} else {
 									bean.setInstance(Aop.get(bean.getType()));
@@ -287,5 +317,23 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 				}
 				registerBean(clazz, beanName);
 			});
+	}
+
+	/**
+	 * 查找指定接口的唯一实现类，若存在一个则返回
+	 * @param clazz
+	 * @return
+	 */
+	private Class<?> findOneImplementationAndReturn(Class<?> clazz) {
+		if (!ClassUtil.isInterface(clazz) || CollectionUtil.isEmpty(this.classes)) {
+			return null;
+		}
+		Set<Class<?>> cls = classes.stream().filter(c -> clazz.isAssignableFrom(c)
+				&& !ClassUtil.isInterface(c) && !ClassUtil.isAbstract(c) && !ClassUtil.isStatic(c) && ClassUtil.isPublic(c)
+		).collect(Collectors.toSet());
+		if (cls.size() == 1) {
+			return cls.iterator().next();
+		}
+		return null;
 	}
 }

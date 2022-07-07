@@ -55,6 +55,7 @@ public class BeanWrapper implements LifeCycle {
 	private BeanWrapper factoryBean;
 	private BeanInstantiationMode instantiationMode;
 	private Method instantiationMethod;
+	private boolean isNonIntercept;
 
 	public boolean hasInstance() {
 		return null != instance;

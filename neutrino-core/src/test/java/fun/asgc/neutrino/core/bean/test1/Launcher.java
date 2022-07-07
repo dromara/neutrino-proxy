@@ -34,7 +34,6 @@ import java.util.Set;
  * @author: aoshiguchen
  * @date: 2022/7/4
  */
-@NonIntercept(false)
 @NeutrinoApplication
 public class Launcher {
 
