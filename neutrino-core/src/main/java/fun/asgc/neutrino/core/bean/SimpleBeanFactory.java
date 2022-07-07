@@ -81,13 +81,14 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 		if (null != order) {
 			beanWrapper.setOrder(order.value());
 		}
-		// ApplicationRunner、Configuration、Interceptor、Filter、ExceptionHandler、ResultAdvice默认不拦截
+		// 默认不拦截
 		if (ApplicationRunner.class.isAssignableFrom(type) ||
 			type.isAnnotationPresent(Configuration.class) ||
 			Interceptor.class.isAssignableFrom(type) ||
 			Filer.class.isAssignableFrom(type) ||
 			ExceptionHandler.class.isAssignableFrom(type) ||
-			ResultAdvice.class.isAssignableFrom(type)
+			ResultAdvice.class.isAssignableFrom(type) ||
+			BeanFactoryAware.class.isAssignableFrom(type)
 		) {
 			beanWrapper.setNonIntercept(true);
 		}

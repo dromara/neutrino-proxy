@@ -23,7 +23,6 @@
 package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.bean.BeanFactory;
 import fun.asgc.neutrino.core.bean.BeanFactoryAware;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,6 @@ import java.util.List;
  * @date: 2022/6/16
  */
 @Slf4j
-@NonIntercept
 @Component
 public class BeanManager implements BeanFactoryAware {
 	private static volatile BeanFactory beanFactory;
