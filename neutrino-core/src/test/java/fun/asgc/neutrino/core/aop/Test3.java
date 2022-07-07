@@ -37,8 +37,8 @@ public class Test3 {
 
 	@Test
 	public void test1() throws Exception {
-//		Animal animal = Aop.get(Animal.class);
-		Animal animal = Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY).get(Animal.class);
+		Animal animal = Aop.get(Animal.class);
+//		Animal animal = Proxy.getProxyFactory(ProxyStrategy.ASGC_PROXY).get(Animal.class);
 		System.out.println(animal);
 		System.out.println(animal.say("aa"));
 	}

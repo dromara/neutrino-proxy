@@ -44,18 +44,31 @@ public class JdkDynamicProxyFactory implements ProxyFactory {
 	}
 
 	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {
-		if (ClassUtil.isInterface(clazz)) {
-			return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
-				new Class[]{clazz},
-				new JdkDynamicProxy(null)
-			);
-		}
-		return null;
+		return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
+			new Class[]{clazz},
+			new JdkDynamicProxy(null)
+		);
 	}
 
 	@Override
 	public boolean canProxy(Class<?> clazz) {
-		return ClassUtil.isInterface(clazz) || ArrayUtil.notEmpty(clazz.getInterfaces());
+		return ClassUtil.isInterface(clazz);
+	}
+
+	@Override
+	public <T, P> P get(Class<T> targetType, Class<P> proxyType) throws Exception {
+		Assert.notNull(targetType, "被代理类不能为空！");
+		Assert.notNull(proxyType, "代理类类型不能为空！");
+		Assert.isTrue(canProxy(targetType, proxyType), String.format("类[targetType:%s, proxyType:%s]无法被代理!", targetType.getName(), proxyType.getName()));
+		return (P) Proxy.newProxyInstance(targetType.getClassLoader(),
+			new Class[]{proxyType},
+			new JdkDynamicProxy(targetType.newInstance())
+		);
+	}
+
+	@Override
+	public boolean canProxy(Class<?> targetType, Class<?> proxyType) {
+		return ClassUtil.isInterface(proxyType) && proxyType.isAssignableFrom(targetType);
 	}
 
 	@Override

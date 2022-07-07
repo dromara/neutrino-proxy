@@ -42,10 +42,10 @@ public class AsgcProxyFactory implements ProxyFactory {
 	private ProxyClassLoader classLoader = new ProxyClassLoader();
 
 	@Override
-	public <T> T get(Class<T> clazz) throws Exception {
-		Assert.notNull(clazz, "被代理类不能为空！");
-		Assert.isTrue(canProxy(clazz), String.format("类[%s]无法被代理!", clazz.getName()));
-		return doGet(clazz);
+	public <T> T get(Class<T> targetType) throws Exception {
+		Assert.notNull(targetType, "被代理类不能为空！");
+		Assert.isTrue(canProxy(targetType), String.format("类[%s]无法被代理!", targetType.getName()));
+		return doGet(targetType, targetType);
 	}
 
 	@Override
@@ -60,22 +60,35 @@ public class AsgcProxyFactory implements ProxyFactory {
 	}
 
 	@Override
+	public <T, P> P get(Class<T> targetType, Class<P> proxyType) throws Exception {
+		Assert.notNull(targetType, "被代理类不能为空！");
+		Assert.notNull(proxyType, "代理类类型不能为空！");
+		Assert.isTrue(canProxy(targetType, proxyType), String.format("类[targetType:%s, proxyType:%s]无法被代理!", targetType.getName(), proxyType.getName()));
+		return doGet(targetType, proxyType);
+	}
+
+	@Override
+	public boolean canProxy(Class<?> targetType, Class<?> proxyType) {
+		return canProxy(targetType) && proxyType.isAssignableFrom(targetType);
+	}
+
+	@Override
 	public boolean isProxyClass(Class<?> clazz) {
 		return null != clazz && clazz.getSimpleName().contains(SYMBOLIC);
 	}
 
-	private <T> T doGet(Class<T> clazz) throws ReflectiveOperationException {
-		ProxyClass proxyClass = new ProxyClass(clazz);
-		proxyClass.setName(generateClassName(clazz));
-		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), clazz); // generateProxyClassSourceCode(clazz, proxyClass.getName());
+	private <T,P> P doGet(Class<T> targetType, Class<P> proxyType) throws ReflectiveOperationException {
+		ProxyClass proxyClass = new ProxyClass(targetType);
+		proxyClass.setName(generateClassName(targetType));
+		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), targetType, proxyType); // generateProxyClassSourceCode(clazz, proxyClass.getName());
 		proxyClass.setSourceCode(sourceCode);
 		if (GlobalConfig.isIsPrintGeneratorCode()) {
-			log.debug("类:{} 的代理类源码:\n{}", clazz.getName(), sourceCode);
+			log.debug("类:{} 的代理类源码:\n{}", targetType.getName(), sourceCode);
 		}
 
 		compiler.compile(proxyClass);
-		Class<T> retClass = (Class<T>)classLoader.loadProxyClass(proxyClass);
-		T obj = retClass.newInstance();
+		Class<P> retClass = (Class<P>)classLoader.loadProxyClass(proxyClass);
+		P obj = retClass.newInstance();
 		return obj;
 	}
 

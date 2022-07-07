@@ -19,52 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop.proxy;
+package fun.asgc.neutrino.core.aop;
 
 /**
+ * 播放器接口
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/7/7
  */
-public interface ProxyFactory {
+@Intercept(value = TestInterceptor.class, ignoreGlobal = true)
+public interface Player {
+	/**
+	 * 开机
+	 */
+	void on();
 
 	/**
-	 * 获取一个类的代理实例
-	 * @param clazz
-	 * @param <T>
-	 * @return
+	 * 关机
 	 */
-	<T> T get(Class<T> clazz) throws Exception;
+	void off();
 
 	/**
-	 * 是否能被代理
-	 * @param clazz
-	 * @return
+	 * 播放
 	 */
-	boolean canProxy(Class<?> clazz);
-
-	/**
-	 * 获取一个类的代理类实例
-	 * @param targetType
-	 * @param proxyType
-	 * @param <T>
-	 * @param <P>
-	 * @return
-	 * @throws Exception
-	 */
-	<T,P> P get(Class<T> targetType, Class<P> proxyType) throws Exception;
-
-	/**
-	 * 是否能被代理
-	 * @param targetType
-	 * @param proxyType
-	 * @return
-	 */
-	boolean canProxy(Class<?> targetType, Class<?> proxyType);
-
-	/**
-	 * 判断指定类是否由当前代理策略产生
-	 * @param clazz
-	 * @return
-	 */
-	boolean isProxyClass(Class<?> clazz);
+	void play();
 }

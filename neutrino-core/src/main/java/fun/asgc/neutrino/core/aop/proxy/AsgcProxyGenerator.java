@@ -28,6 +28,7 @@ import lombok.experimental.Accessors;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import sun.management.MethodInfo;
 
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -63,6 +64,10 @@ public class AsgcProxyGenerator {
 	}
 
 	public String generator(String proxyClassName, Class<?> targetType) {
+		return generator(proxyClassName, targetType, targetType);
+	}
+
+	public String generator(String proxyClassName, Class<?> targetType, Class<?> proxyType) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("package", targetType.getPackage().getName());
 		List<Class<?>> importList = new ArrayList<>();
@@ -76,7 +81,7 @@ public class AsgcProxyGenerator {
 		List<MethodInfo> methodInfoList = new ArrayList<>();
 		map.put("methodInfoList", methodInfoList);
 
-		Method[] methods = targetType.getMethods();
+		Method[] methods = proxyType.getMethods();
 		if (ArrayUtil.notEmpty(methods)) {
 			for (Method method : methods) {
 				if (Modifier.isFinal(method.getModifiers()) ||

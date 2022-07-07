@@ -19,52 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop.proxy;
+package fun.asgc.neutrino.core.aop;
 
 /**
+ *
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/7/7
  */
-public interface ProxyFactory {
+@Intercept(value = TestInterceptor.class, ignoreGlobal = true)
+public class DefaultPlayer implements Player {
 
-	/**
-	 * 获取一个类的代理实例
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T get(Class<T> clazz) throws Exception;
+	private String name;
 
-	/**
-	 * 是否能被代理
-	 * @param clazz
-	 * @return
-	 */
-	boolean canProxy(Class<?> clazz);
+	public DefaultPlayer(String name) {
+		this.name = name;
+	}
 
-	/**
-	 * 获取一个类的代理类实例
-	 * @param targetType
-	 * @param proxyType
-	 * @param <T>
-	 * @param <P>
-	 * @return
-	 * @throws Exception
-	 */
-	<T,P> P get(Class<T> targetType, Class<P> proxyType) throws Exception;
+	public DefaultPlayer() {
+		this.name = "未知设备";
+	}
 
-	/**
-	 * 是否能被代理
-	 * @param targetType
-	 * @param proxyType
-	 * @return
-	 */
-	boolean canProxy(Class<?> targetType, Class<?> proxyType);
+	@Override
+	public void on() {
+		System.out.println(String.format("%s 开机", name));
+	}
 
-	/**
-	 * 判断指定类是否由当前代理策略产生
-	 * @param clazz
-	 * @return
-	 */
-	boolean isProxyClass(Class<?> clazz);
+	@Override
+	public void off() {
+		System.out.println(String.format("%s 关机", name));
+	}
+
+	@Override
+	public void play() {
+		System.out.println(String.format("%s 开始播放", name));
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

@@ -19,52 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop.proxy;
+package fun.asgc.neutrino.core.aop;
 
 /**
+ *
  * @author: aoshiguchen
- * @date: 2022/6/24
+ * @date: 2022/7/7
  */
-public interface ProxyFactory {
+public class RadioPlayer extends DefaultPlayer implements SoundPlayer {
 
-	/**
-	 * 获取一个类的代理实例
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T get(Class<T> clazz) throws Exception;
+	public RadioPlayer() {
+		super("收音机");
+	}
 
-	/**
-	 * 是否能被代理
-	 * @param clazz
-	 * @return
-	 */
-	boolean canProxy(Class<?> clazz);
+	@Override
+	public void volumeIncrease() {
+		System.out.println(String.format("%s 音量增加", getName()));
+	}
 
-	/**
-	 * 获取一个类的代理类实例
-	 * @param targetType
-	 * @param proxyType
-	 * @param <T>
-	 * @param <P>
-	 * @return
-	 * @throws Exception
-	 */
-	<T,P> P get(Class<T> targetType, Class<P> proxyType) throws Exception;
-
-	/**
-	 * 是否能被代理
-	 * @param targetType
-	 * @param proxyType
-	 * @return
-	 */
-	boolean canProxy(Class<?> targetType, Class<?> proxyType);
-
-	/**
-	 * 判断指定类是否由当前代理策略产生
-	 * @param clazz
-	 * @return
-	 */
-	boolean isProxyClass(Class<?> clazz);
+	@Override
+	public void volumeReduce() {
+		System.out.println(String.format("%s 音量减少", getName()));
+	}
 }
