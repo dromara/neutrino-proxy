@@ -21,7 +21,10 @@
  */
 package fun.asgc.neutrino.core.aop;
 
+import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
+
+import java.lang.reflect.Method;
 
 /**
  *
@@ -35,5 +38,18 @@ public class Test5 {
 		Aop.intercept(Panda.class, TestInterceptor.class);
 		Panda panda = Aop.get(Panda.class);
 		panda.eat();
+		panda.say("hello");
+	}
+
+	@Test
+	public void test2() throws Exception {
+		// 只拦截一个方法
+		Method method = ReflectUtil.getMethods(Panda.class).stream().filter(m -> m.getName().equals("say")).findFirst().get();
+		Aop.intercept(method, TestInterceptor.class);
+
+		Panda panda = Aop.get(Panda.class);
+		panda.eat();
+
+		panda.say("hello");
 	}
 }

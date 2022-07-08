@@ -243,28 +243,26 @@ public class InterceptorFactory {
 	public static List<Interceptor> getListByTargetMethod(Method targetMethod) {
 		Assert.notNull(targetMethod, "目标方法不能为空！");
 
-		return LockUtil.doubleCheckProcessForNoException(() -> !methodInterceptorListMap.containsKey(targetMethod),
-			targetMethod,
-			() -> {
-				List<Interceptor> interceptors = new ArrayList<>();
-				interceptors.addAll(globalInterceptorList);
-				if (classInterceptorListMap.containsKey(targetMethod.getDeclaringClass())) {
-					interceptors.addAll(classInterceptorListMap.get(targetMethod.getDeclaringClass()));
-				}
-				addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-				addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
-				// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
-				if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
-					List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
-					if (CollectionUtil.notEmpty(interfaceList)) {
-						for (Class<?> clazz : interfaceList) {
-							addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
-						}
+			List<Interceptor> interceptors = new ArrayList<>();
+			interceptors.addAll(globalInterceptorList);
+			if (classInterceptorListMap.containsKey(targetMethod.getDeclaringClass())) {
+				interceptors.addAll(classInterceptorListMap.get(targetMethod.getDeclaringClass()));
+			}
+			addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
+			addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
+			if (CollectionUtil.notEmpty(methodInterceptorListMap.get(targetMethod))) {
+				interceptors.addAll(methodInterceptorListMap.get(targetMethod));
+			}
+			// 如果被代理方法所属类是一个接口，那么该接口所有继承接口链路上的注解都对该方法生效
+			if (ClassUtil.isInterface(targetMethod.getDeclaringClass())) {
+				List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
+				if (CollectionUtil.notEmpty(interfaceList)) {
+					for (Class<?> clazz : interfaceList) {
+						addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
 					}
 				}
-				methodInterceptorListMap.put(targetMethod, interceptors);
-			},
-			() -> methodInterceptorListMap.get(targetMethod));
+			}
+			return interceptors;
 	}
 
 	/**
@@ -330,13 +328,30 @@ public class InterceptorFactory {
 	 */
 	public static synchronized void registerInterceptor(Class<?> targetType, Class<? extends Interceptor> interceptorType) {
 		Assert.notNull(targetType, "目标类型不能为空不能为空!");
-		Assert.notNull(targetType, "目标类型不能为空不能为空!");
+		Assert.notNull(interceptorType, "拦截器类型不能为空不能为空!");
 		if (!classInterceptorListMap.containsKey(targetType)) {
 			classInterceptorListMap.put(targetType, new ArrayList<>());
 		}
 		Interceptor interceptor = get(interceptorType);
 		if (!containsInterceptor(classInterceptorListMap.get(targetType), interceptor)) {
 			classInterceptorListMap.get(targetType).add(interceptor);
+		}
+	}
+
+	/**
+	 * 注册方法的拦截器
+	 * @param targetMethod
+	 * @param interceptorType
+	 */
+	public static synchronized void registerInterceptor(Method targetMethod, Class<? extends Interceptor> interceptorType) {
+		Assert.notNull(targetMethod, "目标方法不能为空不能为空!");
+		Assert.notNull(interceptorType, "拦截器类型不能为空不能为空!");
+		if (!methodInterceptorListMap.containsKey(targetMethod)) {
+			methodInterceptorListMap.put(targetMethod, new ArrayList<>());
+		}
+		Interceptor interceptor = get(interceptorType);
+		if (!containsInterceptor(methodInterceptorListMap.get(targetMethod), interceptor)) {
+			methodInterceptorListMap.get(targetMethod).add(interceptor);
 		}
 	}
 

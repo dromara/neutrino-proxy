@@ -31,6 +31,8 @@ import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.ClassUtil;
 import fun.asgc.neutrino.core.util.LockUtil;
 
+import java.lang.reflect.Method;
+
 /**
  *
  * @author: aoshiguchen
@@ -141,7 +143,21 @@ public class Aop {
 		InterceptorFactory.registerGlobalInterceptor(interceptorType);
 	}
 
+	/**
+	 * 注册类级别的拦截器
+	 * @param targetType
+	 * @param interceptorType
+	 */
 	public static void intercept(Class<?> targetType, Class<? extends Interceptor> interceptorType) {
 		InterceptorFactory.registerInterceptor(targetType, interceptorType);
+	}
+
+	/**
+	 * 注册方法级别的拦截器
+	 * @param targetMethod
+	 * @param interceptorType
+	 */
+	public static void intercept(Method targetMethod, Class<? extends Interceptor> interceptorType) {
+		InterceptorFactory.registerInterceptor(targetMethod, interceptorType);
 	}
 }
