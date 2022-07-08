@@ -80,7 +80,7 @@ public class AsgcProxyFactory implements ProxyFactory {
 	private <T,P> P doGet(Class<T> targetType, Class<P> proxyType) throws ReflectiveOperationException {
 		ProxyClass proxyClass = new ProxyClass(targetType);
 		proxyClass.setName(generateClassName(targetType));
-		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), targetType, proxyType); // generateProxyClassSourceCode(clazz, proxyClass.getName());
+		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), targetType, proxyType);
 		proxyClass.setSourceCode(sourceCode);
 		if (GlobalConfig.isIsPrintGeneratorCode()) {
 			log.debug("类:{} 的代理类源码:\n{}", targetType.getName(), sourceCode);
