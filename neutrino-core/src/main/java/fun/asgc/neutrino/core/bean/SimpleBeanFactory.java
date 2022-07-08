@@ -123,7 +123,9 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			}
 			Class<?> beanType = method.getReturnType();
 			if (method.getParameters().length > 0) {
-				throw new BeanException(String.format("Bean[type:%s name:%s] 注册失败，Class:%s method:%s 方法不能带参数!", beanType.getName(), beanName, type.getName(), method.getName()));
+				if (!(method.getParameters().length == 1 && method.getParameters()[0].isAnnotationPresent(Autowired.class))) {
+					throw new BeanException(String.format("Bean[type:%s name:%s] 注册失败，Class:%s method:%s 方法仅支持最多带一个参数，且参数必须带`Autowired`注解!", beanType.getName(), beanName, type.getName(), method.getName()));
+				}
 			}
 			BeanWrapper beanWrapper = addBean(beanType, beanName);
 			beanWrapper.setFactoryBean(factoryBean);
@@ -204,7 +206,24 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 						if (!factoryBean.hasInstance()) {
 							newInstance(factoryBean);
 						}
-						bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance()));
+						if (bean.getInstantiationMethod().getParameters().length == 0) {
+							bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance()));
+						} else {
+							// 暂时只处理一个参数的情况
+							Autowired autowired = bean.getInstantiationMethod().getParameters()[0].getAnnotation(Autowired.class);
+							String beanName = autowired.value();
+							Class<?> beanType = bean.getInstantiationMethod().getParameters()[0].getType();
+							Object arg = null;
+							if (BeanMatchMode.ByName == autowired.matchMode()) {
+								arg = getBean(beanName);
+							} else if(BeanMatchMode.ByType == autowired.matchMode()) {
+								arg = getBean(beanType);
+							} else {
+								arg = getBeanByTypeAndName(beanType, beanName);
+							}
+							bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance(), arg));
+						}
+
 					} else if (BeanInstantiationMode.FACTORY == bean.getInstantiationMode()) {
 						// 通过FactoryBean实例化
 						BeanWrapper factoryBean = bean.getFactoryBean();

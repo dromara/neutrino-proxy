@@ -19,25 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.bean.test3;
 
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Bean;
+import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/8
  */
-@Target({ElementType.FIELD, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+@NeutrinoApplication
+public class Launcher implements ApplicationRunner {
+	@Autowired
+	private Person person;
+
+	@Override
+	public void run(String[] args) {
+		person.walkTheDog();
+	}
+
+	public static void main(String[] args) {
+		NeutrinoLauncher.run(Launcher.class, args).sync();
+	}
+
+	@Bean
+	public Dog dog() {
+		return new Dog("大黄");
+	}
+
+	@Bean
+	public Person person(@Autowired("dog") Dog dog) {
+		Person person = new Person("张三");
+		person.setPet(dog);
+		return person;
+	}
 }

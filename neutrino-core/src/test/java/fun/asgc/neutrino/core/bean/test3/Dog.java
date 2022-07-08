@@ -19,25 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package fun.asgc.neutrino.core.annotation;
-
-import fun.asgc.neutrino.core.bean.BeanMatchMode;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package fun.asgc.neutrino.core.bean.test3;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/8
  */
-@Target({ElementType.FIELD, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Autowired {
-	String value() default "";
-	BeanMatchMode matchMode() default BeanMatchMode.ByTypeName;
-	Class<?>[] parameterTypes() default {};
+public class Dog {
+	private String name;
+	public Dog(String name) {
+		this.name = name;
+		System.out.println(String.format("%s出生了 %s", name, this.hashCode()));
+	}
+
+	public void call() {
+		System.out.println(String.format("%s叫：汪汪汪", this.name));
+	}
+
+	public String getName() {
+		return name;
+	}
 }
