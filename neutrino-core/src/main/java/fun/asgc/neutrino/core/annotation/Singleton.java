@@ -19,35 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.annotation;
 
-import fun.asgc.neutrino.core.aop.Invocation;
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import fun.asgc.neutrino.core.util.LockUtil;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 单例拦截器
  * @author: aoshiguchen
  * @date: 2022/7/8
  */
-public class SingletonInterceptor implements Interceptor {
-	private static final Map<Method, Object> cache = new ConcurrentHashMap<>();
-
-	@Override
-	public void intercept(Invocation inv) throws Exception {
-		LockUtil.doubleCheckProcess(
-			() -> !cache.containsKey(inv.getTargetMethod()),
-			inv.getTargetMethod(),
-			() -> {
-				inv.invoke();
-				cache.put(inv.getTargetMethod(), inv.getReturnValue());
-			}
-		);
-		inv.setReturnValue(cache.get(inv.getTargetMethod()));
-	}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface Singleton {
+	boolean value() default true;
 }

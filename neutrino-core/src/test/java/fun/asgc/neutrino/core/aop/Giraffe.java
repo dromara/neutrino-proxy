@@ -22,6 +22,8 @@
 package fun.asgc.neutrino.core.aop;
 
 
+import fun.asgc.neutrino.core.annotation.Singleton;
+
 import java.util.Arrays;
 
 /**
@@ -34,7 +36,9 @@ public class Giraffe {
 		System.out.println("运行:" + Arrays.toString(args));
 	}
 
+	@Singleton
 	public Dog getDog() {
+		System.out.println("new Dog");
 		return new Dog();
 	}
 }

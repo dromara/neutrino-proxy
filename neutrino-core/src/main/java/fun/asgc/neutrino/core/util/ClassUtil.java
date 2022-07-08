@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -211,6 +212,37 @@ public class ClassUtil {
 			}
 		}
 		return annotation;
+	}
+
+	public static <T extends Annotation> T getAnnotation(Method method, Class<T> annotationType) {
+		T annotation = method.getAnnotation(annotationType);
+		if (null == annotation) {
+			Annotation[] annotations = method.getAnnotations();
+			for (Annotation item : annotations) {
+				Class<? extends Annotation> aClass = item.annotationType();
+				if (aClass.isAnnotationPresent(annotationType)) {
+					return aClass.getAnnotation(annotationType);
+				}
+			}
+		}
+		return annotation;
+	}
+
+	public static boolean isAnnotationPresent(Method method, Class annotationType) {
+		Annotation annotation = method.getAnnotation(annotationType);
+		if (null != annotation) {
+			return true;
+		}
+		if (null == annotation) {
+			Annotation[] annotations = method.getAnnotations();
+			for (Annotation item : annotations) {
+				Class<? extends Annotation> aClass = item.annotationType();
+				if (aClass.isAnnotationPresent(annotationType)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static boolean isPublic(Class<?> clazz) {

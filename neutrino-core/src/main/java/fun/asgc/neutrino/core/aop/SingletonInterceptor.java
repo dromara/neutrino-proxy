@@ -21,45 +21,32 @@
  */
 package fun.asgc.neutrino.core.aop;
 
-import fun.asgc.neutrino.core.util.ReflectUtil;
-import org.junit.Test;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.util.LockUtil;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * 单例拦截器
  * @author: aoshiguchen
- * @date: 2022/7/7
+ * @date: 2022/7/8
  */
-public class Test5 {
+public class SingletonInterceptor implements Interceptor {
+	private static final Map<Method, Object> cache = new ConcurrentHashMap<>();
 
-	@Test
-	public void test1() throws Exception {
-		Aop.intercept(Panda.class, TestInterceptor.class);
-		Panda panda = Aop.get(Panda.class);
-		panda.eat();
-		panda.say("hello");
+	@Override
+	public void intercept(Invocation inv) throws Exception {
+		LockUtil.doubleCheckProcess(
+			() -> !cache.containsKey(inv.getTargetMethod()),
+			inv.getTargetMethod(),
+			() -> {
+				inv.invoke();
+				cache.put(inv.getTargetMethod(), inv.getReturnValue());
+			}
+		);
+		inv.setReturnValue(cache.get(inv.getTargetMethod()));
 	}
 
-	@Test
-	public void test2() throws Exception {
-		// 只拦截一个方法
-		Method method = ReflectUtil.getMethods(Panda.class).stream().filter(m -> m.getName().equals("say")).findFirst().get();
-		Aop.intercept(method, TestInterceptor.class);
-
-		Panda panda = Aop.get(Panda.class);
-		panda.eat();
-
-		panda.say("hello");
-	}
-
-	/**
-	 * 单例测试
-	 * @throws Exception
-	 */
-	@Test
-	public void test3() throws Exception{
-		Giraffe giraffe = Aop.get(Giraffe.class);
-		System.out.println(giraffe.getDog() == giraffe.getDog());
-	}
 }

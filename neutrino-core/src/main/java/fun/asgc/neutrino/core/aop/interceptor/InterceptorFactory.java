@@ -21,7 +21,9 @@
  */
 package fun.asgc.neutrino.core.aop.interceptor;
 
+import fun.asgc.neutrino.core.annotation.Singleton;
 import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.aop.SingletonInterceptor;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
@@ -261,6 +263,11 @@ public class InterceptorFactory {
 						addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
 					}
 				}
+			}
+			Singleton singleton = ClassUtil.getAnnotation(targetMethod, Singleton.class);
+			if (null != singleton && singleton.value()) {
+				SingletonInterceptor interceptor = getOrNew(SingletonInterceptor.class);
+				interceptors.add(interceptor);
 			}
 			return interceptors;
 	}
