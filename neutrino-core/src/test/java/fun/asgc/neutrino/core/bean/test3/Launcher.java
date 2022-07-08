@@ -45,7 +45,7 @@ public class Launcher implements ApplicationRunner {
 	public void run(String[] args) {
 		person.walkTheDog();
 		System.out.println("---------------------");
-		person.walkTheDog();
+		person2.walkTheDog();
 	}
 
 	public static void main(String[] args) {
