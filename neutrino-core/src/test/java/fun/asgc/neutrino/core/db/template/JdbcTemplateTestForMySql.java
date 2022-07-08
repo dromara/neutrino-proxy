@@ -38,7 +38,7 @@ import java.util.Map;
  * @author: aoshiguchen
  * @date: 2022/6/27
  */
-public class JdbcTemplateTest {
+public class JdbcTemplateTestForMySql {
 	private JdbcTemplate jdbcTemplate;
 
 	{
