@@ -19,26 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
+package fun.asgc.neutrino.core.aop.support;
 
-
-import fun.asgc.neutrino.core.aop.support.Singleton;
-
-import java.util.Arrays;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/6
+ * @date: 2022/7/8
  */
-public class Giraffe {
-	public void run(String[] args) {
-		System.out.println("运行:" + Arrays.toString(args));
-	}
-
-	@Singleton
-	public Dog getDog() {
-		System.out.println("new Dog");
-		return new Dog();
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface Async {
+	boolean value() default true;
 }

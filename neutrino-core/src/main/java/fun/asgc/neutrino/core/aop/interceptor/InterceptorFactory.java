@@ -21,9 +21,11 @@
  */
 package fun.asgc.neutrino.core.aop.interceptor;
 
-import fun.asgc.neutrino.core.annotation.Singleton;
+import fun.asgc.neutrino.core.aop.support.Async;
+import fun.asgc.neutrino.core.aop.support.AsyncInterceptor;
+import fun.asgc.neutrino.core.aop.support.Singleton;
 import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.aop.SingletonInterceptor;
+import fun.asgc.neutrino.core.aop.support.SingletonInterceptor;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
@@ -264,9 +266,14 @@ public class InterceptorFactory {
 					}
 				}
 			}
-			Singleton singleton = ClassUtil.getAnnotation(targetMethod, Singleton.class);
+			Singleton singleton = ClassUtil.getSingletonAnnotation(targetMethod);
 			if (null != singleton && singleton.value()) {
 				SingletonInterceptor interceptor = getOrNew(SingletonInterceptor.class);
+				interceptors.add(interceptor);
+			}
+			Async async = ClassUtil.getAsyncAnnotation(targetMethod);
+			if (null != async && async.value()) {
+				AsyncInterceptor interceptor = getOrNew(AsyncInterceptor.class);
 				interceptors.add(interceptor);
 			}
 			return interceptors;

@@ -19,26 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
+package fun.asgc.neutrino.core.aop.support;
 
+import fun.asgc.neutrino.core.aop.Invocation;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.util.LockUtil;
 
-import fun.asgc.neutrino.core.aop.support.Singleton;
-
-import java.util.Arrays;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
+ * 单例拦截器
  * @author: aoshiguchen
- * @date: 2022/7/6
+ * @date: 2022/7/8
  */
-public class Giraffe {
-	public void run(String[] args) {
-		System.out.println("运行:" + Arrays.toString(args));
+public class SingletonInterceptor implements Interceptor {
+	private static final Map<Method, Object> cache = new ConcurrentHashMap<>();
+
+	@Override
+	public void intercept(Invocation inv) throws Exception {
+		LockUtil.doubleCheckProcess(
+			() -> !cache.containsKey(inv.getTargetMethod()),
+			inv.getTargetMethod(),
+			() -> {
+				inv.invoke();
+				cache.put(inv.getTargetMethod(), inv.getReturnValue());
+			}
+		);
+		inv.setReturnValue(cache.get(inv.getTargetMethod()));
 	}
 
-	@Singleton
-	public Dog getDog() {
-		System.out.println("new Dog");
-		return new Dog();
-	}
 }

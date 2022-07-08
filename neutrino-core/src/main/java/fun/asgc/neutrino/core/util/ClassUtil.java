@@ -23,6 +23,8 @@
 package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.aop.support.Async;
+import fun.asgc.neutrino.core.aop.support.Singleton;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
 import lombok.extern.slf4j.Slf4j;
@@ -243,6 +245,22 @@ public class ClassUtil {
 			}
 		}
 		return false;
+	}
+
+	public static Singleton getSingletonAnnotation(Method method) {
+		Singleton singleton = getAnnotation(method, Singleton.class);
+		if (null != singleton) {
+			return singleton;
+		}
+		return getAnnotation(method.getDeclaringClass(), Singleton.class);
+	}
+
+	public static Async getAsyncAnnotation(Method method) {
+		Async async = getAnnotation(method, Async.class);
+		if (null != async) {
+			return async;
+		}
+		return getAnnotation(method.getDeclaringClass(), Async.class);
 	}
 
 	public static boolean isPublic(Class<?> clazz) {

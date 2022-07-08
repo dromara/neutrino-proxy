@@ -22,6 +22,8 @@
 
 package fun.asgc.neutrino.core.annotation;
 
+import fun.asgc.neutrino.core.aop.support.Singleton;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

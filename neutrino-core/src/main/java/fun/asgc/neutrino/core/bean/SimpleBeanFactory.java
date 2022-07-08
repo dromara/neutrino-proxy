@@ -24,7 +24,6 @@ package fun.asgc.neutrino.core.bean;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.aop.Aop;
-import fun.asgc.neutrino.core.aop.SingletonInterceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;

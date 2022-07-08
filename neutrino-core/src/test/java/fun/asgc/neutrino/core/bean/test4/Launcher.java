@@ -19,34 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop;
+package fun.asgc.neutrino.core.bean.test4;
 
-import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import fun.asgc.neutrino.core.util.LockUtil;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.aop.support.Async;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
 
 /**
- * 单例拦截器
+ *
  * @author: aoshiguchen
  * @date: 2022/7/8
  */
-public class SingletonInterceptor implements Interceptor {
-	private static final Map<Method, Object> cache = new ConcurrentHashMap<>();
+@NonIntercept(false)
+@NeutrinoApplication
+public class Launcher implements ApplicationRunner {
+
 
 	@Override
-	public void intercept(Invocation inv) throws Exception {
-		LockUtil.doubleCheckProcess(
-			() -> !cache.containsKey(inv.getTargetMethod()),
-			inv.getTargetMethod(),
-			() -> {
-				inv.invoke();
-				cache.put(inv.getTargetMethod(), inv.getReturnValue());
-			}
-		);
-		inv.setReturnValue(cache.get(inv.getTargetMethod()));
+	public void run(String[] args) {
+		System.out.println("1111111");
+		hello();
+		System.out.println("2222");
+	}
+
+	public static void main(String[] args) {
+		NeutrinoLauncher.run(Launcher.class, args).sync();
+	}
+
+	@Async
+	public void hello() {
+		try {
+			Thread.sleep(5000);
+			System.out.println("hello");
+		} catch (Exception e) {
+
+		}
 	}
 
 }

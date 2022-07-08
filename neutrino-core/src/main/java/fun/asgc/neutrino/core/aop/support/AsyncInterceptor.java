@@ -19,19 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.annotation;
+package fun.asgc.neutrino.core.aop.support;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import fun.asgc.neutrino.core.aop.Invocation;
+import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
+ * 异步拦截器
  * @author: aoshiguchen
  * @date: 2022/7/8
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface Singleton {
-	boolean value() default true;
+public class AsyncInterceptor implements Interceptor {
+	private static final ExecutorService executorService = new ThreadPoolExecutor(10, 50,
+		10L, TimeUnit.SECONDS,
+		new LinkedBlockingQueue<Runnable>());
+
+	@Override
+	public void intercept(Invocation inv) throws Exception {
+		executorService.submit(() -> {
+			try {
+				inv.invoke();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
 }
