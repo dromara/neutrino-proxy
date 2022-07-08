@@ -117,6 +117,8 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 			if (null == bean) {
 				continue;
 			}
+			Aop.intercept(method, SingletonInterceptor.class);
+
 			String beanName = bean.value();
 			if (StringUtil.isEmpty(beanName)) {
 				beanName = method.getName();

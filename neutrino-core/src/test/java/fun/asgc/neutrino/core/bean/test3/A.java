@@ -21,55 +21,13 @@
  */
 package fun.asgc.neutrino.core.bean.test3;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Bean;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.context.ApplicationRunner;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
-
 /**
- *
  * @author: aoshiguchen
  * @date: 2022/7/8
  */
-@NonIntercept(false)
-@NeutrinoApplication
-public class Launcher implements ApplicationRunner {
-	@Autowired
-	private Person person;
-	@Autowired
-	private Person person2;
+public interface A {
 
-	@Override
-	public void run(String[] args) {
-		person.walkTheDog();
-		System.out.println("---------------------");
-		person.walkTheDog();
-	}
+	Dog dog();
 
-	public static void main(String[] args) {
-		NeutrinoLauncher.run(Launcher.class, args).sync();
-	}
-
-	@Bean
-	public Dog dog() {
-		System.out.println("hhahahahahahahahaah");
-		return new Dog("大黄");
-	}
-
-	@Bean
-	public Person person(@Autowired("dog") Dog dog) {
-		Person person = new Person("张三");
-		person.setPet(dog);
-		return person;
-	}
-
-	@Bean
-	public Person person2() {
-		Person person = new Person("李四");
-		person.setPet(dog());
-		System.out.println("-----------------" + (dog() == dog()));
-		return person;
-	}
+	Person person(Dog dog);
 }
