@@ -19,36 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package fun.asgc.neutrino.core.context;
 
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.Value;
-import lombok.Data;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.web.WebApplicationServer;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/9
  */
-@Data
-@Configuration(prefix = "neutrino")
-public class ApplicationConfig {
-	private Application application;
-	private Http http;
+@NonIntercept
+@Component
+public class ExtensionServiceLoader implements ApplicationRunner {
+	@Autowired
+	private ApplicationConfig rootApplicationConfig;
+	@Autowired
+	private SimpleBeanFactory applicationBeanFactory;
 
-	@Data
-	public static class Application {
-		/**
-		 * 应用名称
-		 */
-		private String name;
+	@Override
+	public void run(String[] args) {
+		startHttpServer();
 	}
 
-	@Data
-	public static class Http {
-		private Integer port;
-		@Value("context-path")
-		private String contextPath;
+	private void startHttpServer() {
+		if (null == rootApplicationConfig) {
+			return;
+		}
+		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
+		if (null == http || null == http.getPort()) {
+			return;
+		}
+		applicationBeanFactory.registerBean(WebApplicationServer.class);
 	}
 }

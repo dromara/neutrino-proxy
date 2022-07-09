@@ -1,6 +1,9 @@
 neutrino:
   application:
     name: neutrino-proxy-server
+  http:
+    port: 8080
+    context-path: /
 
   proxy:
     protocol:

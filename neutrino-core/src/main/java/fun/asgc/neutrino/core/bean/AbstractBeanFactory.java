@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.bean;
 
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.context.LifeCycleManager;
 import fun.asgc.neutrino.core.context.LifeCycleStatus;
@@ -32,6 +33,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +65,14 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * 生命周期管理
 	 */
 	private LifeCycleManager lifeCycleManager = LifeCycleManager.create();
+	/**
+	 * 环境参数
+	 */
+	private static volatile Environment environment;
+	/**
+	 * 调度器
+	 */
+	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	public AbstractBeanFactory(String name) {
 		this(null, name);
@@ -362,6 +374,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 				beanCache.values().stream().filter(b -> BeanStatus.INJECT == b.getStatus()).forEach(bean -> bean.init());
 			}
 			log.info("bean工厂[{}]初始化.", getName());
+			scheduledExecutor.scheduleWithFixedDelay(this::run, 0, 1, TimeUnit.SECONDS);
 		});
 	}
 
@@ -526,4 +539,31 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @throws BeanException
 	 */
 	protected abstract void inject(BeanWrapper bean) throws BeanException;
+
+	/**
+	 * 运行
+	 */
+	private void run() {
+		beanCache.values().stream().filter(b -> b.getStatus().getStatus() < BeanStatus.RUNNING.getStatus()).forEach(b -> {
+			try {
+				getOrNew(b);
+				b.run(getEnvironment().getMainArgs());
+			} catch (Exception e) {
+				// ignore
+			}
+		});
+	}
+
+	/**
+	 * 获取环境参数
+	 * @return
+	 */
+	private Environment getEnvironment() {
+		return LockUtil.doubleCheckProcessForNoException(
+			() -> null == environment,
+			this,
+			() -> environment = getBean(Environment.class),
+			() -> environment
+		);
+	}
 }

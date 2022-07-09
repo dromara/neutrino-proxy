@@ -50,10 +50,6 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	private Environment environment;
 	/**
-	 * 应用配置
-	 */
-	private ApplicationConfig applicationConfig;
-	/**
 	 * 根Bean工厂
 	 */
 	private SimpleBeanFactory rootBeanFactory;
@@ -115,6 +111,7 @@ public class ApplicationContext implements LifeCycle {
 			classes = new HashSet<>();
 		}
 		classes.add(BeanManager.class);
+		classes.add(ExtensionServiceLoader.class);
 		applicationBeanFactory.register(classes);
 	}
 
@@ -123,9 +120,9 @@ public class ApplicationContext implements LifeCycle {
 	 */
 	public void run() {
 		init();
-		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
-		if (CollectionUtil.notEmpty(applicationRunnerList)) {
-			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
- 		}
+//		List<ApplicationRunner> applicationRunnerList = this.applicationBeanFactory.getBeanList(ApplicationRunner.class);
+//		if (CollectionUtil.notEmpty(applicationRunnerList)) {
+//			applicationRunnerList.forEach(applicationRunner -> applicationRunner.run(this.environment.getMainArgs()));
+// 		}
 	}
 }

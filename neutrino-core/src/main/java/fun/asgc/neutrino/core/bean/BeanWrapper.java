@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.core.bean;
 
 import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
@@ -77,7 +78,7 @@ public class BeanWrapper implements LifeCycle {
 					try {
 						method.invoke(instance);
 					} catch (Exception e) {
-						log.error(String.format("初始化方法执行异常 class:%s method:%s", type.getName(), method.getName()), e);
+						log.error(String.format("Bean[type:%s name:%s]初始化方法执行异常 method:%s", type.getName(), name, method.getName()), e);
 					}
 				}
 			}
@@ -96,7 +97,7 @@ public class BeanWrapper implements LifeCycle {
 					try {
 						method.invoke(instance);
 					} catch (Exception e) {
-						log.error(String.format("销毁方法执行异常 class:%s method:%s", type.getName(), method.getName()), e);
+						log.error(String.format("Bean[type:%s name:%s]销毁方法执行异常 method:%s", type.getName(), name, method.getName()), e);
 					}
 				}
 			}
@@ -128,8 +129,14 @@ public class BeanWrapper implements LifeCycle {
 		return false;
 	}
 
-	public void run() {
-
+	public void run(String[] args) {
+		if (BeanStatus.INIT != status) {
+			return;
+		}
+		this.setStatus(BeanStatus.RUNNING);
+		if (this.instance instanceof ApplicationRunner) {
+			((ApplicationRunner)this.instance).run(args);
+		}
 	}
 
 	public BeanIdentity getIdentity() {

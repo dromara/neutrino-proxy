@@ -19,36 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.core.web;
 
-package fun.asgc.neutrino.core.context;
-
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.Value;
-import lombok.Data;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * web服务
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/7/9
  */
-@Data
-@Configuration(prefix = "neutrino")
-public class ApplicationConfig {
-	private Application application;
-	private Http http;
+@Slf4j
+@Component
+public class WebApplicationServer implements ApplicationRunner {
 
-	@Data
-	public static class Application {
-		/**
-		 * 应用名称
-		 */
-		private String name;
-	}
-
-	@Data
-	public static class Http {
-		private Integer port;
-		@Value("context-path")
-		private String contextPath;
+	@Override
+	public void run(String[] args) {
+		log.debug("web服务启动...");
 	}
 }
