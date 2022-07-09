@@ -34,7 +34,7 @@ import java.util.Map;
  * @date: 2022/6/16
  */
 @Data
-@Configuration(prefix = "proxy")
+@Configuration(prefix = "neutrino.proxy")
 public class ProxyConfig {
 	private Protocol protocol;
 	private Server server;

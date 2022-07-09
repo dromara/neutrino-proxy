@@ -23,18 +23,22 @@
 package fun.asgc.neutrino.core.context;
 
 import fun.asgc.neutrino.core.annotation.Configuration;
+import lombok.Data;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@Configuration(prefix = "application")
+@Configuration(prefix = "neutrino")
 public class ApplicationConfig {
+	private Application application;
 
-	/**
-	 * 应用名称
-	 */
-	private String name;
-
+	@Data
+	public static class Application {
+		/**
+		 * 应用名称
+		 */
+		private String name;
+	}
 }
