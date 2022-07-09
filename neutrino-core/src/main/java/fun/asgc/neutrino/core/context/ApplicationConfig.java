@@ -47,6 +47,8 @@ public class ApplicationConfig {
 
 	@Data
 	public static class Http {
+		private Boolean enable;
+		@Value("${port:9999}")
 		private Integer port;
 		@Value("context-path")
 		private String contextPath;

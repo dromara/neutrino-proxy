@@ -23,6 +23,9 @@ package fun.asgc.neutrino.core.util;
 
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  *
  * @author: aoshiguchen
@@ -32,7 +35,15 @@ public class ClassUtilTest {
 
 	@Test
 	public void hasNoArgsConstructor() {
-		System.out.println(ClassUtil.hasNoArgsConstructor(ClassUtilTest.class));
+//		System.out.println(ClassUtil.hasNoArgsConstructor(ClassUtilTest.class));
+		Pattern pattern = Pattern.compile("\\$\\{[\\s\\p{Zs}]*(.*):(.*)[\\s\\p{Zs}]*\\}");
+		String s = "${  a:bb11  }";
+		Matcher m = pattern.matcher(s);
+		if (m.find()) {
+			System.out.println(m.group(1));
+			System.out.println(m.group(2));
+		}
+
 	}
 
 }

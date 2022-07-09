@@ -50,7 +50,7 @@ public class ExtensionServiceLoader implements ApplicationRunner {
 			return;
 		}
 		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
-		if (null == http || null == http.getPort()) {
+		if (null == http || null == http.getEnable() || !http.getEnable()) {
 			return;
 		}
 		applicationBeanFactory.registerBean(WebApplicationServer.class);

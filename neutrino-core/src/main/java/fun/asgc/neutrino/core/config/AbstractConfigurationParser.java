@@ -37,6 +37,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -44,6 +46,7 @@ import java.util.Set;
  * @date: 2022/6/16
  */
 public abstract class AbstractConfigurationParser implements ConfigurationParser {
+	private static Pattern pattern = Pattern.compile("\\$\\{[\\s\\p{Zs}]*(.*):(.*)[\\s\\p{Zs}]*\\}");
 
 	@Override
 	public <T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException {
@@ -109,10 +112,21 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
 		for (Field field : fields) {
 			String key = field.getName();
 			Value value = field.getAnnotation(Value.class);
+			Object defaultValue = null;
 			if (null != value && StringUtil.notEmpty(value.value())) {
-				key = value.value();
+				Matcher m = pattern.matcher(value.value());
+				if (m.find()) {
+					key = m.group(1);
+					defaultValue = m.group(2);
+				} else {
+					key = value.value();
+				}
 			}
-			boolean success = ReflectUtil.setFieldValue(field, instance, config.get(key));
+			Object fieldValue = config.get(key);
+			if (null == fieldValue) {
+				fieldValue = defaultValue;
+			}
+			boolean success = ReflectUtil.setFieldValue(field, instance, fieldValue);
 			if (!success) {
 				try {
 					Object o = parseProxy((Map)config.get(key), field.getType());
