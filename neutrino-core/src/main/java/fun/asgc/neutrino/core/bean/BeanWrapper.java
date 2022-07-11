@@ -68,7 +68,7 @@ public class BeanWrapper implements LifeCycle {
 			return;
 		}
 		this.setStatus(BeanStatus.INIT);
-		log.info("Bean[type:{} name:{}]初始化...", getType().getName(), getName());
+		log.debug("Bean[type:{} name:{}]初始化...", getType().getName(), getName());
 		isInit = true;
 
 		Set<Method> methods = ReflectUtil.getMethods(type);
@@ -135,6 +135,7 @@ public class BeanWrapper implements LifeCycle {
 		}
 		this.setStatus(BeanStatus.RUNNING);
 		if (this.instance instanceof ApplicationRunner) {
+			log.debug("Bean[type:{} name:{}]运行...", getType().getName(), getName());
 			((ApplicationRunner)this.instance).run(args);
 		}
 	}
