@@ -129,7 +129,7 @@ public class BeanWrapper implements LifeCycle {
 		return false;
 	}
 
-	public void run(String[] args) {
+	public void run(String[] args) throws Exception {
 		if (BeanStatus.INIT != status) {
 			return;
 		}

@@ -29,6 +29,6 @@ package fun.asgc.neutrino.core.context;
  */
 public interface ApplicationRunner {
 
-	void run(String[] args);
+	void run(String[] args) throws Exception;
 
 }

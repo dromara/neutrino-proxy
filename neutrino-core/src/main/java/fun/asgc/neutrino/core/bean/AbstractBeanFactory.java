@@ -549,7 +549,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 				getOrNew(b);
 				b.run(getEnvironment().getMainArgs());
 			} catch (Exception e) {
-				// ignore
+				e.printStackTrace();
 			}
 		});
 	}

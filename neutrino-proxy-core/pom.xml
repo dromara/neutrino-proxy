@@ -14,10 +14,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-        <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-core</artifactId>
             <version>${revision}</version>
