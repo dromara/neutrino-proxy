@@ -25,6 +25,8 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.util.NumberUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -37,9 +39,12 @@ import lombok.extern.slf4j.Slf4j;
 public class WebApplicationServer implements ApplicationRunner {
 	@Autowired
 	private ApplicationConfig rootApplicationConfig;
-
 	@Override
 	public void run(String[] args) {
-		log.debug("web服务启动...");
+		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
+		if (StringUtil.notEmpty(http.getMaxContentLengthDesc()) && null == http.getMaxContentLength()) {
+			http.setMaxContentLength(NumberUtil.descriptionToSize(http.getMaxContentLengthDesc(), 64 * 1024));
+		}
+
 	}
 }

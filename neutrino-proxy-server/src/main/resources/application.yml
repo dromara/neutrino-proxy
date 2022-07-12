@@ -3,8 +3,13 @@ neutrino:
     name: neutrino-proxy-server
   http:
     enable: true
-    port:
+    port: 8080
     context-path: /
+    max-content-length-desc: 128K
+    static-resource:
+      locations:
+        - "classpath:/static/"
+        - "classpath:/template/"
 
   proxy:
     protocol:

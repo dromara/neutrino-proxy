@@ -26,6 +26,8 @@ import fun.asgc.neutrino.core.annotation.Configuration;
 import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;
 
+import java.util.Set;
+
 /**
  *
  * @author: aoshiguchen
@@ -48,9 +50,20 @@ public class ApplicationConfig {
 	@Data
 	public static class Http {
 		private Boolean enable;
-		@Value("${port:9999}")
+		@Value("${port:8080}")
 		private Integer port;
 		@Value("context-path")
 		private String contextPath;
+		@Value("${max-content-length-desc:64KB}")
+		private String maxContentLengthDesc;
+		@Value("max-content-length")
+		private Long maxContentLength;
+		@Value("static-resource")
+		private StaticResource staticResource;
+	}
+
+	@Data
+	public static class StaticResource{
+		private Set<String> locations;
 	}
 }

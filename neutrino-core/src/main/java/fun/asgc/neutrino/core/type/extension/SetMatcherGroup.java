@@ -25,6 +25,7 @@ import fun.asgc.neutrino.core.type.AbstractMatcherGroup;
 import fun.asgc.neutrino.core.type.TypeMatchInfo;
 import fun.asgc.neutrino.core.type.TypeMatcher;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,6 +50,17 @@ public class SetMatcherGroup extends AbstractMatcherGroup {
 				if (Set.class == targetClass && clazz.isArray()) {
 					matchInfo.setTypeDistance(getDistanceMin());
 					matchInfo.setTypeConverter(((value, targetType) -> Stream.of((Object[])value).collect(Collectors.toSet())));
+				}
+				return matchInfo;
+			}
+		});
+		add(new TypeMatcher() {
+			@Override
+			public TypeMatchInfo match(Class<?> clazz, Class<?> targetClass) {
+				TypeMatchInfo matchInfo = new TypeMatchInfo(clazz, targetClass, this);
+				if (Set.class == targetClass && Collection.class.isAssignableFrom(clazz)) {
+					matchInfo.setTypeDistance(getDistanceMin() + 1);
+					matchInfo.setTypeConverter(((value, targetType) -> ((Collection)value).stream().collect(Collectors.toSet())));
 				}
 				return matchInfo;
 			}
