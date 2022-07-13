@@ -27,16 +27,16 @@ import fun.asgc.neutrino.core.annotation.Destroy;
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.util.HttpServerUtil;
 import fun.asgc.neutrino.core.util.NumberUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,6 +71,10 @@ public class WebApplicationServer implements ApplicationRunner {
 	@Override
 	public void run(String[] args) throws Exception {
 		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
+		if (!http.getContextPath().endsWith("/")) {
+			http.setContextPath(http.getContextPath() + "/");
+		}
+
 		this.serverBootstrap.group(bossGroup, workerGroup)
 			.channel(NioServerSocketChannel.class)
 			.option(ChannelOption.SO_BACKLOG, 1024)
@@ -86,9 +90,18 @@ public class WebApplicationServer implements ApplicationRunner {
 				pipeline.addLast(new HttpObjectAggregator(http.getMaxContentLength().intValue()));
 				pipeline.addLast(new SimpleChannelInboundHandler<FullHttpRequest>() {
 					@Override
-					protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) throws Exception {
+					protected void channelRead0(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
 						String uri = request.uri();
-						log.info("request: {}", uri);
+						log.debug("http request: {}", uri);
+						if (uri.startsWith(http.getContextPath())) {
+							// TODO
+						} else if (uri.equals("/favicon.ico") && null != faviconBytes) {
+							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(faviconBytes));
+							fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, "image/x-icon");
+							context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+						} else {
+							HttpServerUtil.send404Response(context, uri);
+						}
 					}
 				});
 			}

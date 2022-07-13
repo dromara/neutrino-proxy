@@ -4,7 +4,7 @@ neutrino:
   http:
     enable: true
     port: 8080
-    context-path: /
+    context-path: /aa
     max-content-length-desc: 128K
     static-resource:
       locations:
