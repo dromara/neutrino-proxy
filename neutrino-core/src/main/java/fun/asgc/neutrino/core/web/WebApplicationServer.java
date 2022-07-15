@@ -27,9 +27,7 @@ import fun.asgc.neutrino.core.annotation.Destroy;
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
-import fun.asgc.neutrino.core.util.HttpServerUtil;
-import fun.asgc.neutrino.core.util.NumberUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.util.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -49,7 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class WebApplicationServer implements ApplicationRunner {
 	@Autowired
-	private ApplicationConfig rootApplicationConfig;
+	private ApplicationConfig applicationConfig;
+	@Autowired
+	private HttpRequestHandler httpRequestHandler;
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	private ServerBootstrap serverBootstrap;
@@ -58,7 +58,7 @@ public class WebApplicationServer implements ApplicationRunner {
 
 	@Init
 	public void init() {
-		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
+		ApplicationConfig.Http http = applicationConfig.getHttp();
 		if (StringUtil.notEmpty(http.getMaxContentLengthDesc()) && null == http.getMaxContentLength()) {
 			http.setMaxContentLength(NumberUtil.descriptionToSize(http.getMaxContentLengthDesc(), 64 * 1024));
 		}
@@ -66,14 +66,12 @@ public class WebApplicationServer implements ApplicationRunner {
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 		this.serverBootstrap = new ServerBootstrap();
+		this.initFavicon();
 	}
 
 	@Override
 	public void run(String[] args) throws Exception {
-		ApplicationConfig.Http http = rootApplicationConfig.getHttp();
-		if (!http.getContextPath().endsWith("/")) {
-			http.setContextPath(http.getContextPath() + "/");
-		}
+		ApplicationConfig.Http http = applicationConfig.getHttp();
 
 		this.serverBootstrap.group(bossGroup, workerGroup)
 			.channel(NioServerSocketChannel.class)
@@ -93,8 +91,8 @@ public class WebApplicationServer implements ApplicationRunner {
 					protected void channelRead0(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
 						String uri = request.uri();
 						log.debug("http request: {}", uri);
-						if (uri.startsWith(http.getContextPath())) {
-							// TODO
+						if (uri.startsWith(http.getContextPath() + "/") || uri.equals(http.getContextPath())) {
+							httpRequestHandler.handle(context, request);
 						} else if (uri.equals("/favicon.ico") && null != faviconBytes) {
 							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(faviconBytes));
 							fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, "image/x-icon");
@@ -108,6 +106,18 @@ public class WebApplicationServer implements ApplicationRunner {
 		});
 		channelFuture = this.serverBootstrap.bind(http.getPort()).sync();
 		log.info("HTTP服务启动，端口：{} context-path：{}", http.getPort(), http.getContextPath());
+	}
+
+	private void initFavicon() {
+		if (null == applicationConfig.getHttp().getStaticResource() || CollectionUtil.isEmpty(applicationConfig.getHttp().getStaticResource().getLocations())) {
+			return;
+		}
+		for (String location : applicationConfig.getHttp().getStaticResource().getLocations()) {
+			this.faviconBytes = FileUtil.readBytes(location.concat("favicon.ico"));
+			if (null != faviconBytes) {
+				break;
+			}
+		}
 	}
 
 	@Destroy

@@ -70,8 +70,8 @@ public class LockUtilTest {
 
 	@Data
 	public static class A {
-		public A() {
-			System.out.println("new instance.");
-		}
+//		public A() {
+//			System.out.println("new instance.");
+//		}
 	}
 }

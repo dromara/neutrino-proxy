@@ -74,9 +74,9 @@ public class ApplicationContext implements LifeCycle {
 				GlobalConfig.setIsContainerStartup(true);
 				this.rootBeanFactory = new SimpleBeanFactory("rootBeanFactory");
 				this.applicationBeanFactory = new SimpleBeanFactory(rootBeanFactory, "applicationBeanFactory");
-				this.rootBeanFactory.registerBean(environment, "rootEnvironment");
-				this.rootBeanFactory.registerBean(this, "rootApplicationContext");
-				this.rootBeanFactory.registerBean(environment.getConfig(), "rootApplicationConfig");
+				this.rootBeanFactory.registerBean(environment);
+				this.rootBeanFactory.registerBean(this);
+				this.rootBeanFactory.registerBean(environment.getConfig());
 				register();
 				List<BeanFactoryAware> beanFactoryAwareList = this.applicationBeanFactory.getBeanList(BeanFactoryAware.class);
 				if (CollectionUtil.notEmpty(beanFactoryAwareList)) {

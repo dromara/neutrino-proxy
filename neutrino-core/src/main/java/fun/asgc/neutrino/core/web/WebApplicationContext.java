@@ -19,42 +19,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.web;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.HttpRequestHandler;
-import fun.asgc.neutrino.core.web.WebApplicationContext;
-import fun.asgc.neutrino.core.web.WebApplicationServer;
+import fun.asgc.neutrino.core.context.ApplicationContext;
+import fun.asgc.neutrino.core.context.ApplicationRunner;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/7/15
  */
+@Accessors(chain = true)
+@Data
+@Slf4j
 @NonIntercept
 @Component
-public class ExtensionServiceLoader implements ApplicationRunner {
+public class WebApplicationContext implements ApplicationRunner {
 	@Autowired
-	private ApplicationConfig applicationConfig;
+	private ApplicationContext applicationContext;
 	@Autowired
 	private SimpleBeanFactory applicationBeanFactory;
+	/**
+	 * bean工厂
+	 */
+	private SimpleBeanFactory webApplicationBeanFactory;
+
+	@Init
+	public void init() {
+		this.webApplicationBeanFactory = new SimpleBeanFactory(applicationBeanFactory, "webApplicationBeanFactory");
+		this.webApplicationBeanFactory.init();
+		// TODO 初始化路由信息
+	}
+
+	@Destroy
+	public void destroy() {
+		this.webApplicationBeanFactory.destroy();
+	}
 
 	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public void run(String[] args) throws Exception {
+		this.webApplicationBeanFactory.registerBean(HttpRequestHandler.class);
+		this.webApplicationBeanFactory.registerBean(WebApplicationServer.class);
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
-	}
 }

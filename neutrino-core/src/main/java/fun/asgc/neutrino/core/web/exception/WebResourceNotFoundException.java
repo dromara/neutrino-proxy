@@ -19,42 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
-
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.HttpRequestHandler;
-import fun.asgc.neutrino.core.web.WebApplicationContext;
-import fun.asgc.neutrino.core.web.WebApplicationServer;
+package fun.asgc.neutrino.core.web.exception;
 
 /**
- *
+ * web资源找不到异常
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/7/15
  */
-@NonIntercept
-@Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
+public class WebResourceNotFoundException extends WebException {
 
-	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public WebResourceNotFoundException(String method, String path, String message) {
+		super(method, 404, path, message);
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
+	public WebResourceNotFoundException(String method, String path, String message, Throwable cause) {
+		super(method, 404, path, message, cause);
 	}
 }

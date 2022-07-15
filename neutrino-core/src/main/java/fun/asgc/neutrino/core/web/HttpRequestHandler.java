@@ -19,42 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.web;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.HttpRequestHandler;
-import fun.asgc.neutrino.core.web.WebApplicationContext;
-import fun.asgc.neutrino.core.web.WebApplicationServer;
+import fun.asgc.neutrino.core.context.ApplicationConfig;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/7/15
  */
 @NonIntercept
 @Component
-public class ExtensionServiceLoader implements ApplicationRunner {
+public class HttpRequestHandler {
 	@Autowired
 	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
 
-	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public void handle(ChannelHandlerContext context, FullHttpRequest request) {
+		// TODO
+		System.out.println("hello");
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
-	}
 }
