@@ -19,32 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web;
+package fun.asgc.neutrino.core.web.annotation;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.context.ApplicationConfig;
-import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
+import fun.asgc.neutrino.core.web.HttpMethod;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/15
+ * @date: 2022/7/16
  */
-@NonIntercept
-@Component
-public class HttpRequestHandler {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private DefaultHttpRouter defaultHttpRouter;
-
-	public void handle(ChannelHandlerContext context, FullHttpRequest request) {
-		// TODO
-		System.out.println("hello");
-	}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE,ElementType.METHOD})
+public @interface RequestMapping {
+	String[] value() default {};
+	HttpMethod[] method() default {};
 }

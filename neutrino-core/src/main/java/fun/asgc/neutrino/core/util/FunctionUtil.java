@@ -24,6 +24,8 @@ package fun.asgc.neutrino.core.util;
 import fun.asgc.neutrino.core.aop.AopCallback;
 import fun.asgc.neutrino.core.base.CodeBlock;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -81,4 +83,26 @@ public class FunctionUtil {
 		return null;
 	}
 
+	/**
+	 * 合并list
+	 * @param suppliers
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> List<T> mergeList(Supplier<List<T>> ...suppliers) {
+		List<T> list = new ArrayList<>();
+		if (null != suppliers && suppliers.length > 0) {
+			for (Supplier<List<T>> supplier : suppliers) {
+				if (null == supplier) {
+					continue;
+				}
+				List<T> tmpList = supplier.get();
+				if (CollectionUtil.isEmpty(tmpList)) {
+					continue;
+				}
+				list.addAll(tmpList);
+			}
+		}
+		return list;
+	}
 }

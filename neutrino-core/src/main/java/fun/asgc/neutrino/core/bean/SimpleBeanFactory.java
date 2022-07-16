@@ -356,4 +356,16 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 		}
 		return null;
 	}
+
+	/**
+	 * BeanWrapper集合
+	 * @return
+	 */
+	public List<BeanWrapper> beanWrapperList() {
+		return FunctionUtil.mergeList(
+			() -> null == parent ? null :
+				parent instanceof SimpleBeanFactory ? ((SimpleBeanFactory)parent).beanWrapperList() : null,
+			() -> beanCache.values().stream().collect(Collectors.toList())
+		);
+	}
 }

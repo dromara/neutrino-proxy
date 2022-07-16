@@ -87,9 +87,11 @@ public class BeanWrapper implements LifeCycle {
 
 	@Override
 	public void destroy() {
-		if (!hasInstance()) {
+		if (BeanStatus.DESTROY == status) {
 			return;
 		}
+		this.setStatus(BeanStatus.DESTROY);
+
 		Set<Method> methods = ReflectUtil.getMethods(type);
 		if (CollectionUtil.notEmpty(methods)) {
 			for (Method method : methods) {

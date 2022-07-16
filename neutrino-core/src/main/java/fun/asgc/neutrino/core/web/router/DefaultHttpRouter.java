@@ -19,61 +19,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web;
+package fun.asgc.neutrino.core.web.router;
 
-import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.bean.BeanWrapper;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.context.ApplicationContext;
-import fun.asgc.neutrino.core.context.ApplicationRunner;
-import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
- *
+ * 默认的http路由器
  * @author: aoshiguchen
- * @date: 2022/7/15
+ * @date: 2022/7/16
  */
-@Accessors(chain = true)
-@Data
 @Slf4j
 @NonIntercept
 @Component
-public class WebApplicationContext implements ApplicationRunner {
-	@Autowired
-	private ApplicationContext applicationContext;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
+public class DefaultHttpRouter implements HttpRouter {
 	/**
-	 * bean工厂
+	 * 路由缓存
 	 */
+	private Map<HttpRouteIdentity, HttpRouteInfo> routeCache = new ConcurrentHashMap<>(256);
+	@Autowired
 	private SimpleBeanFactory webApplicationBeanFactory;
 
 	@Init
 	public void init() {
-		this.webApplicationBeanFactory = new SimpleBeanFactory(applicationBeanFactory, "webApplicationBeanFactory");
-		this.webApplicationBeanFactory.init();
-		// TODO 初始化路由信息
+		log.debug("Http路由器初始化...");
+		List<BeanWrapper> beanWrapperList = webApplicationBeanFactory.beanWrapperList();
+		// TODO 路由初始化
+	}
+
+	@Override
+	public HttpRouteResult route(HttpRouteParam httpRouteParam) {
+		HttpRouteIdentity identity = new HttpRouteIdentity(httpRouteParam.getMethod(), httpRouteParam.getUrl());
+		HttpRouteInfo httpRouteInfo = routeCache.get(identity);
+		if (null == httpRouteInfo) {
+			return null;
+		}
+		if (HttpRouterType.PAGE == httpRouteInfo.getType()) {
+			return new HttpRouteResult()
+				.setType(httpRouteInfo.getType())
+				.setPageLocation(httpRouteInfo.getPageLocation());
+		}
+		return new HttpRouteResult()
+			.setType(httpRouteInfo.getType())
+			.setMethod(httpRouteInfo.getMethod())
+			.setInstance(webApplicationBeanFactory.getBean(httpRouteInfo.getBeanIdentity()));
 	}
 
 	@Destroy
 	public void destroy() {
-		this.webApplicationBeanFactory.destroy();
-	}
-
-	@Override
-	public void run(String[] args) throws Exception {
-		this.webApplicationBeanFactory.register(
-			Sets.newHashSet(
-				DefaultHttpRouter.class,
-				HttpRequestHandler.class,
-				WebApplicationServer.class
-			)
-		);
-//		this.webApplicationBeanFactory.registerBean(HttpRequestHandler.class);
-//		this.webApplicationBeanFactory.registerBean(WebApplicationServer.class);
+		log.debug("Http路由器销毁...");
 	}
 
 }

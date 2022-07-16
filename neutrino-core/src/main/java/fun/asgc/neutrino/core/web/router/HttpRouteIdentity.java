@@ -19,60 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.web.router;
 
 import fun.asgc.neutrino.core.base.Identity;
 import fun.asgc.neutrino.core.util.Assert;
+import fun.asgc.neutrino.core.web.HttpMethod;
 
 /**
- * 用于标识bean的身份
- *
- * 此处用名称+类型作为bean的唯一标识
- *
+ * http路由唯一标识
  * @author: aoshiguchen
- * @date: 2022/7/1
+ * @date: 2022/7/16
  */
-public class BeanIdentity implements Identity {
+public class HttpRouteIdentity implements Identity {
+
 	/**
-	 * 名称
+	 * http方法
 	 */
-	private String name;
+	private HttpMethod method;
 	/**
-	 * 类型
+	 * url
 	 */
-	private Class<?> type;
+	private String url;
 	/**
 	 * hashCode
 	 */
 	private int identityHashCode;
 
-	public BeanIdentity(String name, Class<?> type) {
-		Assert.notEmpty(name, "名称不能为空！");
-		Assert.notNull(type, "类型不能为空!");
-		this.name = name;
-		this.type = type;
-		this.identityHashCode = System.identityHashCode(type);
-	}
-
-	/**
-	 * 获取名称
-	 * @return
-	 */
-	public String getName() {
-		return this.name;
-	}
-
-	/**
-	 * 获取类型
-	 * @return
-	 */
-	public Class<?> getType() {
-		return this.type;
-	}
-
 	@Override
 	public boolean isOnly() {
-		return Boolean.TRUE;
+		return true;
+	}
+
+	public HttpRouteIdentity(HttpMethod method, String url) {
+		Assert.notNull(method, "http方法不能为空！");
+		Assert.notEmpty(url, "url不能为空!");
+		this.method = method;
+		this.url = url;
+		this.identityHashCode = System.identityHashCode(url);
+	}
+
+	public HttpMethod getMethod() {
+		return method;
+	}
+
+	public String getUrl() {
+		return url;
 	}
 
 	@Override
@@ -83,11 +74,11 @@ public class BeanIdentity implements Identity {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof BeanIdentity)) {
+		if (!(obj instanceof HttpRouteIdentity)) {
 			return false;
 		}
-		BeanIdentity beanIdentity = (BeanIdentity)obj;
-		return this.name.equals(beanIdentity.getName()) && this.type.equals(beanIdentity.getType());
+		HttpRouteIdentity httpRouteIdentity = (HttpRouteIdentity)obj;
+		return this.method.equals(httpRouteIdentity.getMethod()) && this.url.equals(httpRouteIdentity.getUrl());
 	}
 
 	@Override

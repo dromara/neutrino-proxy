@@ -19,32 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web;
-
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.context.ApplicationConfig;
-import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
+package fun.asgc.neutrino.core.web.router;
 
 /**
- *
+ * http路由器
  * @author: aoshiguchen
- * @date: 2022/7/15
+ * @date: 2022/7/16
  */
-@NonIntercept
-@Component
-public class HttpRequestHandler {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private DefaultHttpRouter defaultHttpRouter;
-
-	public void handle(ChannelHandlerContext context, FullHttpRequest request) {
-		// TODO
-		System.out.println("hello");
-	}
+public interface HttpRouter extends Router<HttpRouteParam, HttpRouteResult> {
 
 }

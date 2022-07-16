@@ -48,7 +48,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	/**
 	 * 父工厂
 	 */
-	private AbstractBeanFactory parent;
+	protected AbstractBeanFactory parent;
 	/**
 	 * bean缓存
 	 */

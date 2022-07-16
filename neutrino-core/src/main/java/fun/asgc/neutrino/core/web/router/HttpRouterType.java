@@ -19,25 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.web.router;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * Identity 用于标识一个身份。
- *
- * 当`isOnly()`为true时，该标识是一个唯一标识。
- *
- * 如：身份证、财富、年龄都可以作为人的身份象征，但只有身份证是唯一标识。
- * 这个唯一性取决与理论上的定义，而非实际数据。
- * 例如有三个人，年龄分别是18、19、20，此时对于这三人而言，年龄是唯一的，但年龄这个标识我们仍然认为是非唯一标识。
- * 除非在特定场景下，这些数据固定不变、或者确保以后新增的数据也不会打破这一设定。
- *
+ * http路由类型
  * @author: aoshiguchen
- * @date: 2022/7/1
+ * @date: 2022/7/16
  */
-public interface Identity {
-	/**
-	 * 是否唯一标识
-	 * @return
-	 */
-	boolean isOnly();
+@Getter
+@AllArgsConstructor
+public enum HttpRouterType {
+	METHOD(1, "方法"),
+	PAGE(2, "页面");
+
+	private Integer type;
+	private String desc;
 }
