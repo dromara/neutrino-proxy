@@ -21,19 +21,30 @@
  */
 package fun.asgc.neutrino.core.web;
 
+import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
+import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
+import fun.asgc.neutrino.core.web.router.HttpRouteParam;
+import fun.asgc.neutrino.core.web.router.HttpRouteResult;
+import fun.asgc.neutrino.core.web.router.HttpRouterType;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/15
  */
+@Slf4j
 @NonIntercept
 @Component
 public class HttpRequestHandler {
@@ -41,10 +52,66 @@ public class HttpRequestHandler {
 	private ApplicationConfig applicationConfig;
 	@Autowired
 	private DefaultHttpRouter defaultHttpRouter;
+	private static volatile String httpContextPath;
 
 	public void handle(ChannelHandlerContext context, FullHttpRequest request) {
-		// TODO
-		System.out.println("hello");
+		String routePath = getRoutePath(request.uri());
+		HttpMethod httpMethod = HttpMethod.of(request.method().name());
+		HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
+		if (null == httpRouteResult) {
+			HttpServerUtil.send404Response(context, request.uri());
+			return;
+		}
+		if (HttpRouterType.METHOD == httpRouteResult.getType()) {
+			try {
+				Object invokeResult = httpRouteResult.getMethod().invoke(httpRouteResult.getInstance());
+				String res = String.valueOf(invokeResult);
+				if (!TypeUtil.isNormalBasicType(invokeResult.getClass())) {
+					res = JSONObject.toJSONString(invokeResult);
+				}
+				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
+				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+				return;
+			} catch (Exception e) {
+				// TODO
+			}
+		} else {
+			// TODO
+			HttpServerUtil.send404Response(context, request.uri());
+			return;
+		}
 	}
 
+	private String getRoutePath(String url) {
+		String httpContextPath = getHttpContextPath();
+		if (StringUtil.isEmpty(httpContextPath)) {
+			return url;
+		}
+		String res = url.substring(httpContextPath.length());
+		if (StringUtil.isEmpty(res)) {
+			return "/";
+		}
+		return res;
+	}
+
+	private String getHttpContextPath() {
+		return LockUtil.doubleCheckProcessForNoException(
+			() -> null == httpContextPath,
+			this,
+			() -> {
+				httpContextPath = applicationConfig.getHttp().getContextPath();
+				if (StringUtil.isEmpty(httpContextPath)) {
+					httpContextPath = "/";
+				}
+				if (!httpContextPath.startsWith("/")) {
+					httpContextPath = "/" + httpContextPath;
+				}
+				if (httpContextPath.endsWith("/")) {
+					httpContextPath = httpContextPath.substring(0, httpContextPath.length() - 1);
+				}
+			},
+			() -> httpContextPath
+		);
+	}
 }

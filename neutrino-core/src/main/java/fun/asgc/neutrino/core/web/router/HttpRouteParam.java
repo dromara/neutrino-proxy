@@ -23,12 +23,14 @@ package fun.asgc.neutrino.core.web.router;
 
 import fun.asgc.neutrino.core.web.HttpMethod;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * http路由参数
  * @author: aoshiguchen
  * @date: 2022/7/16
  */
+@Accessors(chain = true)
 @Data
 public class HttpRouteParam {
 	private HttpMethod method;

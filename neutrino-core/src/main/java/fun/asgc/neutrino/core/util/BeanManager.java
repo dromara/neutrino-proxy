@@ -25,6 +25,8 @@ package fun.asgc.neutrino.core.util;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.bean.BeanFactory;
 import fun.asgc.neutrino.core.bean.BeanFactoryAware;
+import fun.asgc.neutrino.core.bean.BeanIdentity;
+import fun.asgc.neutrino.core.exception.BeanException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -56,6 +58,20 @@ public class BeanManager implements BeanFactoryAware {
 			throw new RuntimeException("BeanFactory尚未初始化");
 		}
 		return beanFactory.getBean(clazz);
+	}
+
+	/**
+	 * 尝试根据Bean身份标识获取bean
+	 * @param identity
+	 * @param <T>
+	 * @return
+	 * @throws BeanException
+	 */
+	public static <T> T getBean(BeanIdentity identity) {
+		if (null == beanFactory) {
+			throw new RuntimeException("BeanFactory尚未初始化");
+		}
+		return beanFactory.getBean(identity);
 	}
 
 	/**

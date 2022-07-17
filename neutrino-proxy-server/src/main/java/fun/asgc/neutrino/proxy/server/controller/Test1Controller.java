@@ -19,36 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
+package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.bean.BeanIdentity;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import fun.asgc.neutrino.core.web.annotation.GetMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestMapping;
+import fun.asgc.neutrino.core.web.annotation.RestController;
 
-import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
- * http路由信息
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/17
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteInfo {
-	/**
-	 * 路由类型
-	 */
-	private HttpRouterType type;
-	/**
-	 * bean唯一标识
-	 */
-	private BeanIdentity beanIdentity;
-	/**
-	 * 方法
-	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
+@RestController
+@RequestMapping("/test1")
+public class Test1Controller {
+	private static final SimpleDateFormat SDF = new SimpleDateFormat( "yyyy-MM-dd :HH:mm:ss");
+
+	@GetMapping("hello")
+	public String hello() {
+		return "hello 现在时间是：" + SDF.format(new Date());
+	}
+
 }

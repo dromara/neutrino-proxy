@@ -55,7 +55,7 @@ public class HttpRouteIdentity implements Identity {
 		Assert.notEmpty(url, "url不能为空!");
 		this.method = method;
 		this.url = url;
-		this.identityHashCode = System.identityHashCode(url);
+		this.identityHashCode = System.identityHashCode(method);
 	}
 
 	public HttpMethod getMethod() {
