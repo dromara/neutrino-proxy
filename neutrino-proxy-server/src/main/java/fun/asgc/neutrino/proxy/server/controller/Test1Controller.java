@@ -21,12 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import fun.asgc.neutrino.proxy.server.service.Test1Service;
 
 /**
  *
@@ -36,11 +35,12 @@ import java.util.Date;
 @RestController
 @RequestMapping("/test1")
 public class Test1Controller {
-	private static final SimpleDateFormat SDF = new SimpleDateFormat( "yyyy-MM-dd :HH:mm:ss");
+	@Autowired
+	private Test1Service test1Service;
 
 	@GetMapping("hello")
 	public String hello() {
-		return "hello 现在时间是：" + SDF.format(new Date());
+		return test1Service.hello();
 	}
 
 }
