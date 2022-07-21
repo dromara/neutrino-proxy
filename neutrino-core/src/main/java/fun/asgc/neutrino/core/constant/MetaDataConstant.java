@@ -76,4 +76,8 @@ public interface MetaDataConstant {
 	 * 默认的http页面路径
 	 */
 	String DEFAULT_HTTP_PAGE_PATH = CLASSPATH_RESOURCE_IDENTIFIER.concat("/webapp/");
+	/**
+	 * 服务版本
+	 */
+	String SERVER_VS = "Neutrino-1.0";
 }

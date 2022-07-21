@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
@@ -36,6 +37,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
 
 /**
  *
@@ -74,6 +77,19 @@ public class HttpRequestHandler {
 			} catch (Exception e) {
 				// TODO
 			}
+		} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
+			// 前端页面
+			String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));
+			if (mimeType.startsWith("text/")) {
+				mimeType += ";charset=utf-8";
+			}
+			FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
+			fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
+			fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
+			fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
+			fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
+			context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+			return;
 		} else {
 			// TODO
 			HttpServerUtil.send404Response(context, request.uri());

@@ -25,8 +25,10 @@ import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.BeanWrapper;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import fun.asgc.neutrino.core.web.HttpMethod;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
@@ -35,6 +37,7 @@ import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -58,9 +61,21 @@ public class DefaultHttpRouter implements HttpRouter {
 	private Map<HttpRouteIdentity, HttpRouteInfo> routeCache = new ConcurrentHashMap<>(256);
 	@Autowired
 	private SimpleBeanFactory webApplicationBeanFactory;
+	@Autowired
+	private ApplicationConfig applicationConfig;
 
 	@Init
 	public void init() {
+		// 初始化方法路由
+		initMethodRoute();
+		// 初始化页面路由
+		initPageRoute();
+	}
+
+	/**
+	 * 初始化方法路由
+	 */
+	private void initMethodRoute() {
 		log.debug("Http路由器初始化...");
 		List<BeanWrapper> beanWrapperList = webApplicationBeanFactory.beanWrapperList();
 		beanWrapperList.forEach(beanWrapper -> {
@@ -105,6 +120,20 @@ public class DefaultHttpRouter implements HttpRouter {
 				return p;
 			}).collect(Collectors.toSet());
 			methodScan(beanWrapper, methods, paths);
+		});
+	}
+
+	/**
+	 * 初始化页面路由
+	 */
+	private void initPageRoute() {
+		ApplicationConfig.StaticResource staticResource = applicationConfig.getHttp().getStaticResource();
+		if (null == staticResource || CollectionUtil.isEmpty(staticResource.getLocations())) {
+			return;
+		}
+		log.info("Page路由初始化...");
+		staticResource.getLocations().forEach(location -> {
+			// TODO
 		});
 	}
 
@@ -184,10 +213,40 @@ public class DefaultHttpRouter implements HttpRouter {
 		);
 	}
 
+	private synchronized void addRoute(String path, String pageLocation) {
+		log.info("addRoute path:{} file:{}", path, pageLocation);
+		HttpRouteIdentity identity = new HttpRouteIdentity(HttpMethod.GET, path);
+		if (routeCache.containsKey(identity)) {
+			return;
+		}
+		routeCache.put(identity, new HttpRouteInfo()
+			.setType(HttpRouterType.PAGE)
+			.setPageLocation(pageLocation)
+		);
+	}
+
 	@Override
 	public HttpRouteResult route(HttpRouteParam httpRouteParam) {
 		HttpRouteIdentity identity = new HttpRouteIdentity(httpRouteParam.getMethod(), httpRouteParam.getUrl());
 		HttpRouteInfo httpRouteInfo = routeCache.get(identity);
+		if (null == httpRouteInfo) {
+			if (HttpMethod.GET == httpRouteParam.getMethod()) {
+				ApplicationConfig.StaticResource staticResource = applicationConfig.getHttp().getStaticResource();
+				if (null != staticResource && CollectionUtil.notEmpty(staticResource.getLocations())) {
+					for (String location : staticResource.getLocations()) {
+						try (InputStream in = FileUtil.getInputStream(location + httpRouteParam.getUrl())){
+							if (null != in) {
+								addRoute(httpRouteParam.getUrl(), location + httpRouteParam.getUrl());
+								httpRouteInfo = routeCache.get(identity);
+								break;
+							}
+						} catch (Exception e) {
+							// ignore
+						}
+					}
+				}
+			}
+		}
 		if (null == httpRouteInfo) {
 			return null;
 		}
