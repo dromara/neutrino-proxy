@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.core.web.param.HttpContextHolder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -89,10 +90,12 @@ public class WebApplicationServer implements ApplicationRunner {
 				pipeline.addLast(new SimpleChannelInboundHandler<FullHttpRequest>() {
 					@Override
 					protected void channelRead0(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
+						HttpContextHolder.init(context, request);
+
 						String uri = request.uri();
 						log.debug("http request: {}", uri);
 						if (uri.startsWith(http.getContextPath() + "/") || uri.equals(http.getContextPath())) {
-							httpRequestHandler.handle(context, request);
+							httpRequestHandler.handle();
 						} else if (uri.equals("/favicon.ico") && null != faviconBytes) {
 							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(faviconBytes));
 							fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, "image/x-icon");

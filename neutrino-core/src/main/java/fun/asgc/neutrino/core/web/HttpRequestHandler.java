@@ -28,6 +28,8 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.core.web.param.HttpContextHolder;
+import fun.asgc.neutrino.core.web.param.HttpRequestParser;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import fun.asgc.neutrino.core.web.router.HttpRouteParam;
 import fun.asgc.neutrino.core.web.router.HttpRouteResult;
@@ -37,6 +39,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.Date;
 
@@ -55,12 +58,16 @@ public class HttpRequestHandler {
 	private DefaultHttpRouter defaultHttpRouter;
 	private static volatile String httpContextPath;
 
-	public void handle(ChannelHandlerContext context, FullHttpRequest request) {
-		String routePath = getRoutePath(request.uri());
-		HttpMethod httpMethod = HttpMethod.of(request.method().name());
+	public void handle() {
+		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
+		HttpRequestParser requestParser = HttpContextHolder.getHttpRequestParser();
+		log.info("HttpRequest method:{} url:{} query:{}", requestParser.getMethod().name(), requestParser.getUrl(), requestParser.getQueryParamMap());
+
+		String routePath = getRoutePath(requestParser.getUrl());
+		HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
 		HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
 		if (null == httpRouteResult) {
-			HttpServerUtil.send404Response(context, request.uri());
+			HttpServerUtil.send404Response(context, requestParser.getUrl());
 			return;
 		}
 		if (HttpRouterType.METHOD == httpRouteResult.getType()) {
@@ -92,7 +99,7 @@ public class HttpRequestHandler {
 			return;
 		} else {
 			// TODO
-			HttpServerUtil.send404Response(context, request.uri());
+			HttpServerUtil.send404Response(context, requestParser.getUrl());
 			return;
 		}
 	}
