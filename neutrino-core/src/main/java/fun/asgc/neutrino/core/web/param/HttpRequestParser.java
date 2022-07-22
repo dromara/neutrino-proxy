@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.web.param;
 
+import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import io.netty.buffer.ByteBuf;
@@ -30,6 +31,7 @@ import io.netty.util.CharsetUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Http请求解析器
@@ -105,5 +107,51 @@ public class HttpRequestParser {
 
 	public String getContentAsString() {
 		return getContent().toString(CharsetUtil.UTF_8);
+	}
+
+	public String getParameter(String key) {
+		return getQueryParamMap().get(key);
+	}
+
+	public Byte getParameterForByte(String key) {
+		return getParameterAndConvert(key, Byte::valueOf);
+	}
+
+	public Short getParameterForShort(String key) {
+		return getParameterAndConvert(key, Short::valueOf);
+	}
+
+	public Integer getParameterForInteger(String key) {
+		return getParameterAndConvert(key, Integer::valueOf);
+	}
+
+	public Long getParameterForLong(String key) {
+		return getParameterAndConvert(key, Long::valueOf);
+	}
+
+	public Float getParameterForFloat(String key) {
+		return getParameterAndConvert(key, Float::valueOf);
+	}
+
+	public Double getParameterForDouble(String key) {
+		return getParameterAndConvert(key, Double::valueOf);
+	}
+
+	public Boolean getParameterForBoolean(String key) {
+		return getParameterAndConvert(key, Boolean::valueOf);
+	}
+
+	public String getParameterForString(String key) {
+		return getParameterAndConvert(key, Function.identity());
+	}
+
+	public <T> T getParameterAndConvert(String key, Function<String,T> convert) {
+		Assert.notEmpty(key, "key不能为空！");
+		Assert.notNull(convert, "convert不能为空！");
+		String val = getParameter(key);
+		if (StringUtil.notEmpty(val)) {
+			return convert.apply(val);
+		}
+		return null;
 	}
 }
