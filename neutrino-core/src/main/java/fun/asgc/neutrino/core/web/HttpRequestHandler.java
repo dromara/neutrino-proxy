@@ -68,6 +68,7 @@ public class HttpRequestHandler {
 		HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
 		if (null == httpRouteResult) {
 			HttpServerUtil.send404Response(context, requestParser.getUrl());
+			release();
 			return;
 		}
 		if (HttpRouterType.METHOD == httpRouteResult.getType()) {
@@ -82,7 +83,9 @@ public class HttpRequestHandler {
 				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 				return;
 			} catch (Exception e) {
-				// TODO
+				log.error("Http处理异常", e);
+			} finally {
+				release();
 			}
 		} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
 			// 前端页面
@@ -96,12 +99,18 @@ public class HttpRequestHandler {
 			fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
 			fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
 			context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+			release();
 			return;
 		} else {
 			// TODO
 			HttpServerUtil.send404Response(context, requestParser.getUrl());
+			release();
 			return;
 		}
+	}
+
+	private void release() {
+		HttpContextHolder.remove();
 	}
 
 	private String getRoutePath(String url) {
