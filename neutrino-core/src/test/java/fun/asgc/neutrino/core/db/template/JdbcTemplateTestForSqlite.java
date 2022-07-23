@@ -40,7 +40,7 @@ public class JdbcTemplateTestForSqlite {
 
 	{
 		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:sqlite:sqlite.db");
+		dataSource.setUrl("jdbc:sqlite:" + JdbcTemplateTestForSqlite.class.getResource("/sqlite.db").getPath());
 		dataSource.setDriverClassName("org.sqlite.JDBC");
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}

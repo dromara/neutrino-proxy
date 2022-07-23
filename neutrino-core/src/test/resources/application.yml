@@ -1,2 +1,12 @@
-application:
-  name: neutrino-core-test
+neutrino:
+  application:
+    name: neutrino-proxy-server
+  http:
+    enable: true
+    port: 8080
+    context-path: /test
+    max-content-length-desc: 128K
+    static-resource:
+      locations:
+        - "classpath:/static/"
+        - "classpath:/template/"

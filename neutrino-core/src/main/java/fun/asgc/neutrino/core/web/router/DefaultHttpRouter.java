@@ -37,6 +37,7 @@ import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -234,9 +235,13 @@ public class DefaultHttpRouter implements HttpRouter {
 				ApplicationConfig.StaticResource staticResource = applicationConfig.getHttp().getStaticResource();
 				if (null != staticResource && CollectionUtil.notEmpty(staticResource.getLocations())) {
 					for (String location : staticResource.getLocations()) {
-						try (InputStream in = FileUtil.getInputStream(location + httpRouteParam.getUrl())){
+						String path = location + httpRouteParam.getUrl();
+						if (path.endsWith("/")) {
+							path += "index.html";
+						}
+						try (InputStream in = FileUtil.getInputStream(path)){
 							if (null != in) {
-								addRoute(httpRouteParam.getUrl(), location + httpRouteParam.getUrl());
+								addRoute(httpRouteParam.getUrl(), path);
 								httpRouteInfo = routeCache.get(identity);
 								break;
 							}
