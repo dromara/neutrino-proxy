@@ -23,6 +23,8 @@ package fun.asgc.neutrino.core.util;
 
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,29 @@ public class ClassUtilTest {
 			System.out.println(m.group(2));
 		}
 
+	}
+
+	@Test
+	public void test1() throws InvocationTargetException, IllegalAccessException {
+		Method method = ReflectUtil.getMethods(Student.class).stream().filter(m -> m.getName().equals("say")).findFirst().get();
+		Student student = new Student();
+		method.invoke(student, new Object[]{"1", "2"});
+	}
+
+	@Test
+	public void test2() throws InvocationTargetException, IllegalAccessException {
+		Method method = ReflectUtil.getMethods(Student.class).stream().filter(m -> m.getName().equals("hello")).findFirst().get();
+		Student student = new Student();
+		method.invoke(student, new Object[0]);
+	}
+
+	public static class Student {
+		public void say(String msg1, String msg2) {
+			System.out.println("msg1:" + msg1 + " msg2:" + msg2);
+		}
+		public void hello() {
+			System.out.println("hello");
+		}
 	}
 
 }

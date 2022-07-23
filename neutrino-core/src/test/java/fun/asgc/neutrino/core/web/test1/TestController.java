@@ -24,14 +24,21 @@ package fun.asgc.neutrino.core.web.test1;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/23
  */
+@Slf4j
 @RestController
 @RequestMapping("/test1")
 public class TestController {
@@ -42,5 +49,18 @@ public class TestController {
 	public String hello() {
 		System.out.println("拿到参数 a = " + HttpContextHolder.getHttpRequestParser().getParameterForInteger("a"));
 		return testService.hello();
+	}
+
+	@GetMapping("add")
+	public Integer add(@RequestParam("x") int x, @RequestParam("y") int y) {
+		log.info("另一种取参方式 msg:{}", HttpContextHolder.getHttpRequestParser().getParameterForString("msg"));
+		return x + y;
+	}
+
+	@GetMapping("hello2")
+	public void hello2(ChannelHandlerContext context) {
+		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer("aoshiguchen".getBytes()));
+		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 	}
 }

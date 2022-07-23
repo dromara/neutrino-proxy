@@ -28,6 +28,8 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
 import fun.asgc.neutrino.core.web.param.HttpRequestParser;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
@@ -41,6 +43,9 @@ import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.C;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Date;
 
 /**
@@ -73,9 +78,9 @@ public class HttpRequestHandler {
 		}
 		if (HttpRouterType.METHOD == httpRouteResult.getType()) {
 			try {
-				Object invokeResult = httpRouteResult.getMethod().invoke(httpRouteResult.getInstance());
+				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
 				String res = String.valueOf(invokeResult);
-				if (!TypeUtil.isNormalBasicType(invokeResult.getClass())) {
+				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
 					res = JSONObject.toJSONString(invokeResult);
 				}
 				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
@@ -107,6 +112,44 @@ public class HttpRequestHandler {
 			release();
 			return;
 		}
+	}
+
+	private Object invoke(Object instance, Method method) throws InvocationTargetException, IllegalAccessException {
+		Object[] params = new Object[method.getParameterCount()];
+		if (method.getParameterCount() > 0) {
+			for (int i = 0; i < method.getParameters().length; i++) {
+				Parameter parameter = method.getParameters()[i];
+				if (FullHttpRequest.class.isAssignableFrom(parameter.getType())) {
+					params[i] = HttpContextHolder.getFullHttpRequest();
+				} else if (HttpRequestParser.class.isAssignableFrom(parameter.getType())) {
+					params[i] = HttpContextHolder.getHttpRequestParser();
+				} else if (ChannelHandlerContext.class.isAssignableFrom(parameter.getType())) {
+					params[i] = HttpContextHolder.getChannelHandlerContext();
+				} else if (parameter.isAnnotationPresent(RequestBody.class)) {
+					String bodyString = HttpContextHolder.getHttpRequestParser().getContentAsString();
+					if (TypeUtil.isNormalBasicType(parameter.getType())) {
+						params[i] = TypeUtil.conversion(bodyString, parameter.getType());
+					}
+					// TODO 实体转换
+				} else if (parameter.isAnnotationPresent(RequestParam.class)) {
+					RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+					if (StringUtil.isEmpty(requestParam.value())) {
+						throw new RuntimeException(String.format("类:%s 方法:%s @RequestParam必须指定参数名称" ));
+					}
+					String val = HttpContextHolder.getHttpRequestParser().getParameter(requestParam.value());
+					if (StringUtil.isEmpty(val)) {
+						if (requestParam.required()) {
+							throw new RuntimeException(String.format("类:%s 方法:%s 参数:%s 未指定" ));
+						}
+						params[i] = null;
+					} else {
+						params[i] = TypeUtil.conversion(val, parameter.getType());
+					}
+				}
+			}
+		}
+		Object invokeResult = method.invoke(instance, params);
+		return invokeResult;
 	}
 
 	private void release() {
