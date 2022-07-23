@@ -94,7 +94,7 @@ public class WebApplicationServer implements ApplicationRunner {
 
 						String uri = request.uri();
 						log.debug("http request: {}", uri);
-						if (uri.startsWith(http.getContextPath() + "/") || uri.equals(http.getContextPath())) {
+						if (http.getContextPath().equals("/") || uri.startsWith(http.getContextPath() + "/") || uri.equals(http.getContextPath())) {
 							httpRequestHandler.handle();
 						} else if (uri.equals("/favicon.ico") && null != faviconBytes) {
 							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(faviconBytes));

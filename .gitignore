@@ -26,3 +26,19 @@ hs_err_pid*
 **/*.iml
 **/.flattened-pom.xml
 .idea
+
+# 前端
+**/package-lock.json
+**/yarn.lock
+
+**/tests/**/coverage/
+**/tests/e2e/reports
+**/selenium-debug.log
+
+**/node_modules/
+**/dist/
+**/npm-debug.log*
+**/yarn-debug.log*
+**yarn-error.log*
+**/*.log
+**/gifs/

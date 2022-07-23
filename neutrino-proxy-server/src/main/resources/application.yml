@@ -4,12 +4,11 @@ neutrino:
   http:
     enable: true
     port: 8080
-    context-path: /aa
+    context-path: /
     max-content-length-desc: 128K
     static-resource:
       locations:
-        - "classpath:/static/"
-        - "classpath:/template/"
+        - "neutrino-proxy-admin/dist/"
 
   proxy:
     protocol:
