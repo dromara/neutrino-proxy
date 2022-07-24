@@ -39,8 +39,7 @@ export const constantRouterMap = [
       name: 'dashboard',
       meta: { title: 'dashboard', icon: 'dashboard', noCache: true }
     }]
-  },
-  {
+  }, {
     path: '/documentation',
     component: Layout,
     redirect: '/documentation/index',
@@ -238,5 +237,16 @@ export const asyncRouterMap = [
     children: [{ path: 'index', component: _import('i18n-demo/index'), name: 'i18n', meta: { title: 'i18n', icon: 'international' }}]
   },
 
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true },
+
+  {
+    path: '/user',
+    component: Layout,
+    children: [{
+      path: 'index',
+      component: _import('user/index'),
+      name: 'user',
+      meta: { title: 'user', icon: 'user', noCache: true }
+    }]
+  }
 ]

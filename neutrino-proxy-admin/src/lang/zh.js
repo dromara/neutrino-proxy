@@ -43,7 +43,8 @@ export default {
     exportZip: 'zip',
     theme: '换肤',
     clipboardDemo: 'clipboard',
-    i18n: '国际化'
+    i18n: '国际化',
+    user: '用户管理'
   },
   navbar: {
     logOut: '退出登录',
@@ -102,7 +103,14 @@ export default {
     draft: '草稿',
     delete: '删除',
     cancel: '取 消',
-    confirm: '确 定'
+    confirm: '确 定',
+    userId: '用户ID',
+    userName: '用户名',
+    license: 'License',
+    createTime: '创建时间',
+    updateTime: '更新时间',
+    disable: '禁用',
+    enable: '启用'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
