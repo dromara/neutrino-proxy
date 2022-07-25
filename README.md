@@ -7,7 +7,7 @@
     - neutrino-proxy-core       与代理相关的公共常量、编解码器
     - neutrino-proxy-client     代理客户端项目
     - neutrino-proxy-server     代理服务端项目
-    - neutrino-proxy-admin      代理监控项目（暂时空缺）
+    - neutrino-proxy-admin      代理监控项目（基于vue-element-admin开发）
 
 # 3、运行
 ## 3.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
@@ -114,3 +114,5 @@ proxy:
 
 # 6、联系我们
 微信: yuyunshize
+Gitee(主更): https://gitee.com/asgc/neutrino-proxy
+Github: https://github.com/aoshiguchen/neutrino-proxy
