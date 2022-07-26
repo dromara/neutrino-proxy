@@ -63,4 +63,9 @@ public class TestController {
 		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 	}
+
+	@GetMapping("hello3")
+	public void hello3(@RequestParam("a") String a, @RequestParam("b") String b, @RequestParam(value = "c", required = false) String c) {
+		log.info("a:{} b:{} c:{}", a, b, c);
+	}
 }

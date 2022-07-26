@@ -75,22 +75,9 @@ public class HttpRequestParser {
 			() -> null == queryParamMap,
 			this,
 			() -> {
-				queryParamMap = new HashMap<>();
-				if (StringUtil.isEmpty(queryString)) {
-					return;
-				}
-				String[] params = queryString.split("&");
-				for (String param : params) {
-					int index2 = param.indexOf("=");
-					String key = "";
-					String val = "";
-					if (index2 > 0) {
-						key = param.substring(0, index2);
-						if (index2 < param.length() - 1) {
-							val = param.substring(index2 + 1);
-						}
-						queryParamMap.put(key, val);
-					}
+				queryParamMap = queryStringToMap(queryString);
+				if ("application/x-www-form-urlencoded".equals(getContentType())) {
+					queryParamMap.putAll(queryStringToMap(getContentAsString()));
 				}
 			},
 			() -> queryParamMap
@@ -153,5 +140,34 @@ public class HttpRequestParser {
 			return convert.apply(val);
 		}
 		return null;
+	}
+
+	public String getHeaderValue(String name) {
+		return request.headers().get(name);
+	}
+
+	public String getContentType() {
+		return request.headers().get("Content-Type");
+	}
+
+	private Map<String, String> queryStringToMap(String queryString) {
+		Map<String, String> result = new HashMap<>();
+		if (StringUtil.isEmpty(queryString)) {
+			return result;
+		}
+		String[] params = queryString.split("&");
+		for (String param : params) {
+			int index2 = param.indexOf("=");
+			String key = "";
+			String val = "";
+			if (index2 > 0) {
+				key = param.substring(0, index2);
+				if (index2 < param.length() - 1) {
+					val = param.substring(index2 + 1);
+				}
+				result.put(key, val);
+			}
+		}
+		return result;
 	}
 }
