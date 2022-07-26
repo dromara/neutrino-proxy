@@ -29,6 +29,7 @@ import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
+import fun.asgc.neutrino.core.web.param.WebContextHolder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -55,25 +56,17 @@ public class WebApplicationServer implements ApplicationRunner {
 	private EventLoopGroup workerGroup;
 	private ServerBootstrap serverBootstrap;
 	private ChannelFuture channelFuture;
-	private byte[] faviconBytes;
 
 	@Init
 	public void init() {
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (StringUtil.notEmpty(http.getMaxContentLengthDesc()) && null == http.getMaxContentLength()) {
-			http.setMaxContentLength(NumberUtil.descriptionToSize(http.getMaxContentLengthDesc(), 64 * 1024));
-		}
-
+		WebContextHolder.init(applicationConfig.getHttp());
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 		this.serverBootstrap = new ServerBootstrap();
-		this.initFavicon();
 	}
 
 	@Override
 	public void run(String[] args) throws Exception {
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-
 		this.serverBootstrap.group(bossGroup, workerGroup)
 			.channel(NioServerSocketChannel.class)
 			.option(ChannelOption.SO_BACKLOG, 1024)
@@ -86,7 +79,7 @@ public class WebApplicationServer implements ApplicationRunner {
 				ChannelPipeline pipeline = ch.pipeline();
 				pipeline.addLast(new HttpServerCodec());
 				pipeline.addLast(new ChunkedWriteHandler());
-				pipeline.addLast(new HttpObjectAggregator(http.getMaxContentLength().intValue()));
+				pipeline.addLast(new HttpObjectAggregator(WebContextHolder.getMaxContentLength().intValue()));
 				pipeline.addLast(new SimpleChannelInboundHandler<FullHttpRequest>() {
 					@Override
 					protected void channelRead0(ChannelHandlerContext context, FullHttpRequest request) throws Exception {
@@ -94,10 +87,10 @@ public class WebApplicationServer implements ApplicationRunner {
 
 						String uri = request.uri();
 						log.debug("http request: {}", uri);
-						if (http.getContextPath().equals("/") || uri.startsWith(http.getContextPath() + "/") || uri.equals(http.getContextPath())) {
+						if (WebContextHolder.getHttpContextPath().equals("/") || uri.startsWith(WebContextHolder.getHttpContextPath() + "/") || uri.equals(WebContextHolder.getHttpContextPath())) {
 							httpRequestHandler.handle();
-						} else if (uri.equals("/favicon.ico") && null != faviconBytes) {
-							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(faviconBytes));
+						} else if (uri.equals("/favicon.ico") && null != WebContextHolder.getFaviconBytes()) {
+							FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(WebContextHolder.getFaviconBytes()));
 							fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, "image/x-icon");
 							context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 						} else {
@@ -107,20 +100,8 @@ public class WebApplicationServer implements ApplicationRunner {
 				});
 			}
 		});
-		channelFuture = this.serverBootstrap.bind(http.getPort()).sync();
-		log.info("HTTP服务启动，端口：{} context-path：{}", http.getPort(), http.getContextPath());
-	}
-
-	private void initFavicon() {
-		if (null == applicationConfig.getHttp().getStaticResource() || CollectionUtil.isEmpty(applicationConfig.getHttp().getStaticResource().getLocations())) {
-			return;
-		}
-		for (String location : applicationConfig.getHttp().getStaticResource().getLocations()) {
-			this.faviconBytes = FileUtil.readBytes(location.concat("favicon.ico"));
-			if (null != faviconBytes) {
-				break;
-			}
-		}
+		channelFuture = this.serverBootstrap.bind(WebContextHolder.getPort()).sync();
+		log.info("HTTP服务启动，端口：{} context-path：{}", WebContextHolder.getPort(), WebContextHolder.getHttpContextPath());
 	}
 
 	@Destroy

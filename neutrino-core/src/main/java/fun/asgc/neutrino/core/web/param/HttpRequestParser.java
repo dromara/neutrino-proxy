@@ -43,6 +43,7 @@ public class HttpRequestParser {
 	private String url;
 	private String queryString;
 	private Map<String, String> queryParamMap = null;
+	private String routePath;
 
 	private HttpRequestParser(FullHttpRequest request) {
 		this.request = request;
@@ -56,6 +57,7 @@ public class HttpRequestParser {
 			}
 			url = getUrl().substring(0, index);
 		}
+		this.routePath = getRoutePath(url);
 	}
 
 	public static HttpRequestParser create(FullHttpRequest request) {
@@ -64,6 +66,10 @@ public class HttpRequestParser {
 
 	public String getUrl() {
 		return url;
+	}
+
+	public String getRoutePath() {
+		return routePath;
 	}
 
 	public String getQueryString() {
@@ -169,5 +175,17 @@ public class HttpRequestParser {
 			}
 		}
 		return result;
+	}
+
+	private String getRoutePath(String url) {
+		String httpContextPath = WebContextHolder.getHttpContextPath();
+		if (StringUtil.isEmpty(httpContextPath)) {
+			return url;
+		}
+		String res = url.substring(httpContextPath.length());
+		if (StringUtil.isEmpty(res)) {
+			return "/";
+		}
+		return res;
 	}
 }

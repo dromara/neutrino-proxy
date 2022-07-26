@@ -32,6 +32,7 @@ import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
 import fun.asgc.neutrino.core.web.param.HttpRequestParser;
+import fun.asgc.neutrino.core.web.param.WebContextHolder;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import fun.asgc.neutrino.core.web.router.HttpRouteParam;
 import fun.asgc.neutrino.core.web.router.HttpRouteResult;
@@ -61,57 +62,58 @@ public class HttpRequestHandler {
 	private ApplicationConfig applicationConfig;
 	@Autowired
 	private DefaultHttpRouter defaultHttpRouter;
-	private static volatile String httpContextPath;
 
 	public void handle() {
 		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
 		HttpRequestParser requestParser = HttpContextHolder.getHttpRequestParser();
 		log.info("HttpRequest method:{} url:{} query:{}", requestParser.getMethod().name(), requestParser.getUrl(), requestParser.getQueryParamMap());
 
-		String routePath = getRoutePath(requestParser.getUrl());
-		HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
-		HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
-		if (null == httpRouteResult) {
-			HttpServerUtil.send404Response(context, requestParser.getUrl());
-			release();
-			return;
-		}
-		if (HttpRouterType.METHOD == httpRouteResult.getType()) {
-			try {
-				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
-				String res = String.valueOf(invokeResult);
-				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
-					res = JSONObject.toJSONString(invokeResult);
+		try {
+			String routePath = requestParser.getRoutePath();
+			HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
+			HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
+			if (null == httpRouteResult) {
+				HttpServerUtil.send404Response(context, requestParser.getUrl());
+				return;
+			}
+			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
+
+					Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
+					String res = String.valueOf(invokeResult);
+					if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
+						res = JSONObject.toJSONString(invokeResult);
+					}
+					FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
+					fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+					context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+					return;
+			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
+				// 前端页面
+				String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));
+				if (mimeType.startsWith("text/")) {
+					mimeType += ";charset=utf-8";
 				}
-				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
-				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
+				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
+				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
+				fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
+				fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
 				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 				return;
-			} catch (Exception e) {
-				log.error("Http处理异常", e);
-			} finally {
-				release();
+			} else {
+				HttpServerUtil.send404Response(context, requestParser.getUrl());
+				return;
 			}
-		} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
-			// 前端页面
-			String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));
-			if (mimeType.startsWith("text/")) {
-				mimeType += ";charset=utf-8";
-			}
-			FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
-			fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
-			fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
-			fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
-			fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
-			context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+		} catch (Throwable e) {
+			exceptionHandler(e);
+		} finally {
 			release();
-			return;
-		} else {
-			// TODO
-			HttpServerUtil.send404Response(context, requestParser.getUrl());
-			release();
-			return;
 		}
+	}
+
+	private void exceptionHandler(Throwable e) {
+		log.error("Http处理异常", e);
+		HttpServerUtil.send500Response(HttpContextHolder.getChannelHandlerContext(), e);
 	}
 
 	private Object invoke(Object instance, Method method) throws InvocationTargetException, IllegalAccessException {
@@ -154,37 +156,5 @@ public class HttpRequestHandler {
 
 	private void release() {
 		HttpContextHolder.remove();
-	}
-
-	private String getRoutePath(String url) {
-		String httpContextPath = getHttpContextPath();
-		if (StringUtil.isEmpty(httpContextPath)) {
-			return url;
-		}
-		String res = url.substring(httpContextPath.length());
-		if (StringUtil.isEmpty(res)) {
-			return "/";
-		}
-		return res;
-	}
-
-	private String getHttpContextPath() {
-		return LockUtil.doubleCheckProcessForNoException(
-			() -> null == httpContextPath,
-			this,
-			() -> {
-				httpContextPath = applicationConfig.getHttp().getContextPath();
-				if (StringUtil.isEmpty(httpContextPath)) {
-					httpContextPath = "/";
-				}
-				if (!httpContextPath.startsWith("/")) {
-					httpContextPath = "/" + httpContextPath;
-				}
-				if (httpContextPath.endsWith("/")) {
-					httpContextPath = httpContextPath.substring(0, httpContextPath.length() - 1);
-				}
-			},
-			() -> httpContextPath
-		);
 	}
 }
