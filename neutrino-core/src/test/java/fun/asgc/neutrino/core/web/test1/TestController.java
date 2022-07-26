@@ -21,11 +21,9 @@
  */
 package fun.asgc.neutrino.core.web.test1;
 
+import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.web.annotation.GetMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestParam;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -52,8 +50,9 @@ public class TestController {
 	}
 
 	@GetMapping("add")
-	public Integer add(@RequestParam("x") int x, @RequestParam("y") int y) {
+	public Integer add(@RequestParam("x") int x, @RequestParam("y") int y, Param1 p) {
 		log.info("另一种取参方式 msg:{}", HttpContextHolder.getHttpRequestParser().getParameterForString("msg"));
+		log.info("p : {}", JSONObject.toJSONString(p));
 		return x + y;
 	}
 
@@ -67,5 +66,11 @@ public class TestController {
 	@GetMapping("hello3")
 	public void hello3(@RequestParam("a") String a, @RequestParam("b") String b, @RequestParam(value = "c", required = false) String c) {
 		log.info("a:{} b:{} c:{}", a, b, c);
+	}
+
+	@PostMapping("hello4")
+	public String hello4(@RequestParam("a") String a, Param1 p, @RequestBody String body, @RequestBody Param2 p2) {
+		log.info("a: {} p:{} body:{} p2:{}", a, JSONObject.toJSONString(p), body, JSONObject.toJSONString(p2));
+		return "hello4";
 	}
 }

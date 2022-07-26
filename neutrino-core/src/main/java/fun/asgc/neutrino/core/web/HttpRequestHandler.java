@@ -44,10 +44,12 @@ import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.C;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Date;
+import java.util.Set;
 
 /**
  *
@@ -131,8 +133,9 @@ public class HttpRequestHandler {
 					String bodyString = HttpContextHolder.getHttpRequestParser().getContentAsString();
 					if (TypeUtil.isNormalBasicType(parameter.getType())) {
 						params[i] = TypeUtil.conversion(bodyString, parameter.getType());
+					} else {
+						params[i] = JSONObject.parseObject(bodyString, parameter.getType());
 					}
-					// TODO 实体转换
 				} else if (parameter.isAnnotationPresent(RequestParam.class)) {
 					RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
 					if (StringUtil.isEmpty(requestParam.value())) {
@@ -147,7 +150,22 @@ public class HttpRequestHandler {
 					} else {
 						params[i] = TypeUtil.conversion(val, parameter.getType());
 					}
-				}
+				} else if (!TypeUtil.isNormalBasicType(parameter.getType())) {
+					Set<Field> fields = ReflectUtil.getDeclaredFields(parameter.getType());
+					if (CollectionUtil.notEmpty(fields)) {
+						try {
+							Object obj = parameter.getType().newInstance();
+							for (Field field : fields) {
+								String name = field.getName();
+								Object value = TypeUtil.conversion(HttpContextHolder.getHttpRequestParser().getParameter(name), field.getType());
+								ReflectUtil.setFieldValue(field, obj, value);
+							}
+							params[i] = obj;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+ 				}
 			}
 		}
 		Object invokeResult = method.invoke(instance, params);
