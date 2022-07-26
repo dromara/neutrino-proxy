@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.web.param;
 
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
@@ -82,8 +83,31 @@ public class HttpRequestParser {
 			this,
 			() -> {
 				queryParamMap = queryStringToMap(queryString);
-				if ("application/x-www-form-urlencoded".equals(getContentType())) {
+				String contentType = getContentType();
+				if (StringUtil.isEmpty(contentType)) {
+					return;
+				}
+				if (contentType.equals("application/x-www-form-urlencoded")) {
 					queryParamMap.putAll(queryStringToMap(getContentAsString()));
+				} else if(contentType.startsWith("multipart/form-data;")) {
+					// TODO 暂时简单处理，只处理纯文本情况
+					String boundary = contentType.split(";")[1].split("=")[1];
+					String separator = "--" + boundary;
+					String[] arr = getContentAsString().split(separator);
+					if (ArrayUtil.notEmpty(arr)) {
+						for (String item : arr) {
+							if (StringUtil.isEmpty(item)) {
+								continue;
+							}
+							String[] lines = item.split("\r\n");
+							if (lines.length < 4) {
+								continue;
+							}
+							String name = lines[1].split(";")[1].split("=")[1].replaceAll("\\\"", "");
+							String value = lines[3];
+							queryParamMap.put(name, value);
+						}
+					}
 				}
 			},
 			() -> queryParamMap
