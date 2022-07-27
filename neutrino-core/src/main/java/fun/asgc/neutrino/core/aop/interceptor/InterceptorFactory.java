@@ -252,8 +252,8 @@ public class InterceptorFactory {
 			if (classInterceptorListMap.containsKey(targetMethod.getDeclaringClass())) {
 				interceptors.addAll(classInterceptorListMap.get(targetMethod.getDeclaringClass()));
 			}
-			addInterceptorByAnnotation(interceptors, targetMethod.getDeclaringClass().getAnnotation(Intercept.class));
-			addInterceptorByAnnotation(interceptors, targetMethod.getAnnotation(Intercept.class));
+			addInterceptorByAnnotation(interceptors, ClassUtil.getAnnotation(targetMethod.getDeclaringClass(), Intercept.class));
+			addInterceptorByAnnotation(interceptors, ClassUtil.getAnnotation(targetMethod, Intercept.class));
 			if (CollectionUtil.notEmpty(methodInterceptorListMap.get(targetMethod))) {
 				interceptors.addAll(methodInterceptorListMap.get(targetMethod));
 			}
@@ -262,7 +262,7 @@ public class InterceptorFactory {
 				List<Class<?>> interfaceList = ReflectUtil.getInterfaceAll(targetMethod.getDeclaringClass());
 				if (CollectionUtil.notEmpty(interfaceList)) {
 					for (Class<?> clazz : interfaceList) {
-						addInterceptorByAnnotation(interceptors, clazz.getAnnotation(Intercept.class));
+						addInterceptorByAnnotation(interceptors, ClassUtil.getAnnotation(clazz, Intercept.class));
 					}
 				}
 			}

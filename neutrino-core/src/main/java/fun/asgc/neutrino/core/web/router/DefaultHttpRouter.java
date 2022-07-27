@@ -24,20 +24,15 @@ package fun.asgc.neutrino.core.web.router;
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.BeanWrapper;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
-import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.core.util.ReflectUtil;
+import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.HttpMethod;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.PostMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.param.WebContextHolder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -61,8 +56,6 @@ public class DefaultHttpRouter implements HttpRouter {
 	 */
 	private Map<HttpRouteIdentity, HttpRouteInfo> routeCache = new ConcurrentHashMap<>(256);
 	@Autowired
-	private SimpleBeanFactory webApplicationBeanFactory;
-	@Autowired
 	private ApplicationConfig applicationConfig;
 
 	@Init
@@ -78,12 +71,8 @@ public class DefaultHttpRouter implements HttpRouter {
 	 */
 	private void initMethodRoute() {
 		log.debug("Http路由器初始化...");
-		List<BeanWrapper> beanWrapperList = webApplicationBeanFactory.beanWrapperList();
+		List<BeanWrapper> beanWrapperList = WebContextHolder.getControllerBeanWrapperList();
 		beanWrapperList.forEach(beanWrapper -> {
-			RestController restController = beanWrapper.getType().getAnnotation(RestController.class);
-			if (null == restController) {
-				return;
-			}
 			Set<HttpMethod> methods = null;
 			Set<String> paths = null;
 			if (beanWrapper.getType().isAnnotationPresent(GetMapping.class)) {
@@ -263,7 +252,7 @@ public class DefaultHttpRouter implements HttpRouter {
 		return new HttpRouteResult()
 			.setType(httpRouteInfo.getType())
 			.setMethod(httpRouteInfo.getMethod())
-			.setInstance(webApplicationBeanFactory.getBean(httpRouteInfo.getBeanIdentity()));
+			.setInstance(BeanManager.getBean(httpRouteInfo.getBeanIdentity()));
 	}
 
 	@Destroy

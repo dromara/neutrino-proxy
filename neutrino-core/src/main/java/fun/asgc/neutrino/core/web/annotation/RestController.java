@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.web.annotation;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.aop.Intercept;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,7 +37,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Component
-@NonIntercept
+@Intercept(ignoreGlobal = true)
+//@NonIntercept
 public @interface RestController {
 
 }

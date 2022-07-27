@@ -61,6 +61,6 @@ public class ProxyCache {
 		if (CollectionUtil.isEmpty(exceptionTypes)) {
 			return false;
 		}
-		return exceptionTypes.contains(e.getClass());
+		return exceptionTypes.contains(e.getClass()) || e instanceof RuntimeException;
 	}
 }

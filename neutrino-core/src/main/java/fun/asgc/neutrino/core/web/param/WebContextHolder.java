@@ -21,27 +21,46 @@
  */
 package fun.asgc.neutrino.core.web.param;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Init;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.bean.BeanWrapper;
+import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.core.web.annotation.RestController;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/26
  */
-public abstract class WebContextHolder {
+@NonIntercept
+@Component
+public class WebContextHolder {
 	private static ApplicationConfig.Http http;
 	private static volatile String httpContextPath;
 	private static volatile byte[] faviconBytes;
 	private static volatile Long maxContentLength;
 	private static volatile Integer port;
+	private static List<BeanWrapper> controllerBeanWrapperList;
+	@Autowired
+	private ApplicationConfig applicationConfig;
+	@Autowired
+	private SimpleBeanFactory applicationBeanFactory;
 
-	public static void init(ApplicationConfig.Http http) {
-		Assert.notNull(http, "http配置不能为空!");
-		WebContextHolder.http = http;
+	@Init
+	public void init() {
+		WebContextHolder.http = applicationConfig.getHttp();
 		initHttpContextPath();
 		initFavicon();
 		initMaxContentLength();
+		initControllerBeanWrapperList();
 		port = http.getPort();
 	}
 
@@ -91,5 +110,18 @@ public abstract class WebContextHolder {
 		if (StringUtil.notEmpty(http.getMaxContentLengthDesc()) && null == http.getMaxContentLength()) {
 			maxContentLength = NumberUtil.descriptionToSize(http.getMaxContentLengthDesc(), 64 * 1024);
 		}
+	}
+
+	private void initControllerBeanWrapperList() {
+		List<BeanWrapper> beanWrapperList = applicationBeanFactory.beanWrapperList();
+		if (CollectionUtil.isEmpty(beanWrapperList)) {
+			return;
+		}
+		controllerBeanWrapperList = beanWrapperList.stream()
+			.filter(beanWrapper -> beanWrapper.getType().isAnnotationPresent(RestController.class)).collect(Collectors.toList());
+	}
+
+	public static List<BeanWrapper> getControllerBeanWrapperList() {
+		return controllerBeanWrapperList;
 	}
 }

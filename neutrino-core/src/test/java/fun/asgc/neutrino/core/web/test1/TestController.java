@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.web.test1;
 
 import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.core.web.param.HttpContextHolder;
 import io.netty.buffer.Unpooled;

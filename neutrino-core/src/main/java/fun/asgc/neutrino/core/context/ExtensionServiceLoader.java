@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.web.HttpRequestHandler;
 import fun.asgc.neutrino.core.web.WebApplicationContext;
 import fun.asgc.neutrino.core.web.WebApplicationServer;
+import fun.asgc.neutrino.core.web.param.WebContextHolder;
 
 /**
  *
@@ -55,6 +56,7 @@ public class ExtensionServiceLoader implements ApplicationRunner {
 		if (null == http || null == http.getEnable() || !http.getEnable()) {
 			return;
 		}
+		applicationBeanFactory.registerBean(WebContextHolder.class);
 		applicationBeanFactory.registerBean(WebApplicationContext.class);
 	}
 }

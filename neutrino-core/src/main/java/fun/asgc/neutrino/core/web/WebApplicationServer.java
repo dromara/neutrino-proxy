@@ -59,7 +59,6 @@ public class WebApplicationServer implements ApplicationRunner {
 
 	@Init
 	public void init() {
-		WebContextHolder.init(applicationConfig.getHttp());
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 		this.serverBootstrap = new ServerBootstrap();

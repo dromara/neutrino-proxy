@@ -26,6 +26,8 @@ import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationContext;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.web.interceptor.ControllerGlobalInterceptor;
+import fun.asgc.neutrino.core.web.param.WebContextHolder;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -69,11 +71,10 @@ public class WebApplicationContext implements ApplicationRunner {
 			Sets.newHashSet(
 				DefaultHttpRouter.class,
 				HttpRequestHandler.class,
+				ControllerGlobalInterceptor.class,
 				WebApplicationServer.class
 			)
 		);
-//		this.webApplicationBeanFactory.registerBean(HttpRequestHandler.class);
-//		this.webApplicationBeanFactory.registerBean(WebApplicationServer.class);
 	}
 
 }

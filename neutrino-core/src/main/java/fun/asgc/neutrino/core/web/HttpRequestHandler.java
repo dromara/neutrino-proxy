@@ -79,16 +79,15 @@ public class HttpRequestHandler {
 				return;
 			}
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
-
-					Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
-					String res = String.valueOf(invokeResult);
-					if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
-						res = JSONObject.toJSONString(invokeResult);
-					}
-					FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
-					fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-					context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
-					return;
+				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
+				String res = String.valueOf(invokeResult);
+				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
+					res = JSONObject.toJSONString(invokeResult);
+				}
+				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
+				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
 				// 前端页面
 				String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));
