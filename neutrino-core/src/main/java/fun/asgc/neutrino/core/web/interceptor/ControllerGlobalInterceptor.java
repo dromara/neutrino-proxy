@@ -24,16 +24,27 @@ package fun.asgc.neutrino.core.web.interceptor;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.aop.Aop;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.*;
+import fun.asgc.neutrino.core.bean.BeanWrapper;
+import fun.asgc.neutrino.core.util.ReflectUtil;
+import fun.asgc.neutrino.core.web.annotation.GetMapping;
+import fun.asgc.neutrino.core.web.annotation.PostMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestMapping;
+import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controller全局拦截器
  * @author: aoshiguchen
  * @date: 2022/7/27
  */
+@Slf4j
 @NonIntercept
 @Component
 public class ControllerGlobalInterceptor implements Interceptor {
@@ -48,7 +59,15 @@ public class ControllerGlobalInterceptor implements Interceptor {
 
 	@Init
 	public void init() {
-		// TODO
+		List<BeanWrapper> beanWrapperList = WebContextHolder.getControllerBeanWrapperList();
+		beanWrapperList.forEach(beanWrapper -> {
+			Set<Method> methods = ReflectUtil.getDeclaredMethods(beanWrapper.getType());
+			methods.forEach(method -> {
+				if (method.isAnnotationPresent(GetMapping.class) || method.isAnnotationPresent(PostMapping.class) || method.isAnnotationPresent(RequestMapping.class)) {
+					Aop.intercept(method, this.getClass());
+				}
+			});
+		});
 	}
 
 	@Override

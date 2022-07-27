@@ -30,7 +30,7 @@ import fun.asgc.neutrino.core.web.HttpMethod;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.PostMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.param.WebContextHolder;
+import fun.asgc.neutrino.core.web.context.WebContextHolder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;

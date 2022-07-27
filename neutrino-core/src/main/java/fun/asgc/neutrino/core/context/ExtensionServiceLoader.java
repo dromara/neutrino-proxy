@@ -25,10 +25,8 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.HttpRequestHandler;
-import fun.asgc.neutrino.core.web.WebApplicationContext;
-import fun.asgc.neutrino.core.web.WebApplicationServer;
-import fun.asgc.neutrino.core.web.param.WebContextHolder;
+import fun.asgc.neutrino.core.web.context.WebApplicationContext;
+import fun.asgc.neutrino.core.web.context.WebContextHolder;
 
 /**
  *

@@ -25,7 +25,7 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
-import fun.asgc.neutrino.core.web.param.HttpContextHolder;
+import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.proxy.server.service.Test1Service;
 
 /**

@@ -19,15 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web;
+package fun.asgc.neutrino.core.web.context;
 
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationContext;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.web.HttpRequestHandler;
+import fun.asgc.neutrino.core.web.WebApplicationServer;
 import fun.asgc.neutrino.core.web.interceptor.ControllerGlobalInterceptor;
-import fun.asgc.neutrino.core.web.param.WebContextHolder;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -57,7 +58,6 @@ public class WebApplicationContext implements ApplicationRunner {
 	public void init() {
 		this.webApplicationBeanFactory = new SimpleBeanFactory(applicationBeanFactory, "webApplicationBeanFactory");
 		this.webApplicationBeanFactory.init();
-		// TODO 初始化路由信息
 	}
 
 	@Destroy
