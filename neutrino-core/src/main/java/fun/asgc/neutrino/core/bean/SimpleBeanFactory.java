@@ -187,7 +187,15 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 								}
 							}
 						} else if(bean.getType().isAnnotationPresent(Configuration.class)) {
-							bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
+							if (CollectionUtil.isEmpty(ReflectUtil.getDeclaredFields(bean.getType()))) {
+								if (bean.isNonIntercept()) {
+									bean.setInstance(bean.getType().newInstance());
+								} else {
+									bean.setInstance(Aop.get(bean.getType()));
+								}
+							} else {
+								bean.setInstance(ConfigUtil.getYmlConfig(bean.getType()));
+							}
 						} else {
 							if (ClassUtil.hasNoArgsConstructor(bean.getType())) {
 								if (bean.isNonIntercept()) {
