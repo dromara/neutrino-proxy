@@ -212,16 +212,13 @@ public class ProxyCompiler {
 					diagnostic.getColumnNumber(),
 					diagnostic.getMessage(null)));
 			}
-			System.out.println("编译失败，原因：" + rs.toString());
 			log.error("编译失败，原因：{}", rs.toString());
 		} else {
-			System.out.println("编译成功");
 			StringBuilder sb = new StringBuilder();
 			Arrays.stream(files).forEach(file -> {
 				sb.append(file.getName());
 				sb.append(";");
 			});
-			log.info("编译成功:{}", sb.toString());
 		}
 	}
 

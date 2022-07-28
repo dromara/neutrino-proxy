@@ -36,7 +36,6 @@ import fun.asgc.neutrino.core.util.SystemUtil;
 public class ProxyServer {
 
 	public static void main(String[] args) {
-		GlobalConfig.setIsSaveGeneratorCode(true);
 		NeutrinoLauncher.run(ProxyServer.class, args).sync();
 	}
 
