@@ -67,7 +67,7 @@ public class InterceptorFactory {
 			() -> {
 				try {
 					Object obj = null;
-					if (GlobalConfig.isIsContainerStartup()) {
+					if (GlobalConfig.isContainerStartup()) {
 						obj = BeanManager.getBean(clazz);
 					}
 					if (null == obj) {

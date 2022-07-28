@@ -35,8 +35,19 @@ public class GlobalConfig {
 	 * 是否是容器启动
 	 */
 	private static volatile boolean isContainerStartup = false;
+	/**
+	 * 是否保存生成的代码
+	 * 只是一个建议。
+	 * 当程序是普通运行时，采纳建议。
+	 * 当程序是以jar方式运行时，强制保存生成的代码
+	 */
+	private static volatile boolean isSaveGeneratorCode = false;
+	/**
+	 * 自动生成代码保存路径
+	 */
+	private static volatile String generatorCodeSavePath = "./lib/";
 
-	public static boolean isIsPrintGeneratorCode() {
+	public static boolean isPrintGeneratorCode() {
 		return isPrintGeneratorCode;
 	}
 
@@ -44,11 +55,27 @@ public class GlobalConfig {
 		GlobalConfig.isPrintGeneratorCode = isPrintGeneratorCode;
 	}
 
-	public static boolean isIsContainerStartup() {
+	public static boolean isContainerStartup() {
 		return isContainerStartup;
 	}
 
 	public static void setIsContainerStartup(boolean isContainerStartup) {
 		GlobalConfig.isContainerStartup = isContainerStartup;
+	}
+
+	public static boolean isSaveGeneratorCode() {
+		return isSaveGeneratorCode;
+	}
+
+	public static void setIsSaveGeneratorCode(boolean isSaveGeneratorCode) {
+		GlobalConfig.isSaveGeneratorCode = isSaveGeneratorCode;
+	}
+
+	public static String getGeneratorCodeSavePath() {
+		return generatorCodeSavePath;
+	}
+
+	public static void setGeneratorCodeSavePath(String generatorCodeSavePath) {
+		GlobalConfig.generatorCodeSavePath = generatorCodeSavePath;
 	}
 }

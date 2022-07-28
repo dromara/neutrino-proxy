@@ -28,6 +28,13 @@ import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +57,6 @@ public class FileUtil {
 			String subPath = path.substring(MetaDataConstant.CLASSPATH_RESOURCE_IDENTIFIER.length());
 			return FileUtil.class.getResourceAsStream(subPath);
 		}
-
 		return new FileInputStream(path);
 	}
 
@@ -103,6 +109,11 @@ public class FileUtil {
 	}
 
 	public static void write(String path, String content) {
+//		try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path), StandardCharsets.UTF_8)){
+//			writer.write(content);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(getOutputStream(path)))){
 			bw.write(content);
 		} catch (IOException e) {
@@ -147,4 +158,39 @@ public class FileUtil {
 		return true;
 	}
 
+	public static File save(String path, String fileName, String content) {
+		if (!path.endsWith("/")) {
+			path += "/";
+		}
+		makeDirs(path);
+		write(path + fileName, content);
+		return new File(path + "/" + fileName);
+	}
+
+	public static void unzipJar(String destinationDir, String jarPath) throws IOException {
+		File file = new File(jarPath);
+		JarFile jar = new JarFile(file);
+		for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+			JarEntry entry = (JarEntry) enums.nextElement();
+			String fileName = destinationDir + File.separator + entry.getName();
+			File f = new File(fileName);
+			if (fileName.endsWith("/")) {
+				f.mkdirs();
+			}
+		}
+		for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+			JarEntry entry = (JarEntry) enums.nextElement();
+			String fileName = destinationDir + File.separator + entry.getName();
+			File f = new File(fileName);
+			if (!fileName.endsWith("/")) {
+				InputStream is = jar.getInputStream(entry);
+				FileOutputStream fos = new FileOutputStream(f);
+				while (is.available() > 0) {
+					fos.write(is.read());
+				}
+				fos.close();
+				is.close();
+			}
+		}
+	}
 }

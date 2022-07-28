@@ -21,6 +21,9 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.base.GlobalConfig;
+import fun.asgc.neutrino.core.util.FileUtil;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,8 +50,10 @@ public class ProxyClassLoader extends ClassLoader {
 	}
 
 	public Class<?> loadProxyClass(ProxyClass proxyClass) {
-		for (Map.Entry<String, byte[]> e : proxyClass.getByteCode().entrySet()) {
-			byteCodeMap.putIfAbsent(e.getKey(), e.getValue());
+		if (null != proxyClass.getByteCode()) {
+			for (Map.Entry<String, byte[]> e : proxyClass.getByteCode().entrySet()) {
+				byteCodeMap.putIfAbsent(e.getKey(), e.getValue());
+			}
 		}
 
 		try {
@@ -61,6 +66,9 @@ public class ProxyClassLoader extends ClassLoader {
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		byte[] bytes = byteCodeMap.get(name);
+		if (null == bytes) {
+			bytes = FileUtil.readBytes( GlobalConfig.getGeneratorCodeSavePath() + name.replaceAll("\\.", "/") + ".class");
+		}
 		if (bytes != null) {
 			Class<?> ret = defineClass(name, bytes, 0, bytes.length);
 			byteCodeMap.remove(name);

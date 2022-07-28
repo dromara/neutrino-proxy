@@ -21,25 +21,39 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.base.GlobalConfig;
+import fun.asgc.neutrino.core.util.FileUtil;
+import fun.asgc.neutrino.core.util.SystemUtil;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.tools.*;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/24
  */
+@Slf4j
 public class ProxyCompiler {
+	/**
+	 * 收集编译过程信息
+	 */
+	private static DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+
 	protected volatile List<String> options = null;
+	protected volatile boolean isUnpack = false;
+
 
 	protected List<String> getOptions() {
+
+
 		if (options != null) {
 			return options;
 		}
@@ -57,6 +71,8 @@ public class ProxyCompiler {
 			if (cp != null && cp.trim().length() != 0) {
 				ret.add("-classpath");
 				ret.add(cp);
+
+				System.out.println("classpath:" + cp);
 			}
 
 			options = ret;
@@ -68,35 +84,46 @@ public class ProxyCompiler {
 	 * 兼容 tomcat 丢失 class path，否则无法编译
 	 */
 	protected String getClassPath() {
-		URLClassLoader classLoader = getURLClassLoader();
-		if (classLoader == null) {
-			return null;
+		if (!SystemUtil.isStartupFromJar()) {
+			URLClassLoader classLoader = getURLClassLoader();
+			if (classLoader == null) {
+				return null;
+			}
+
+			int index = 0;
+			boolean isWindows = isWindows();
+			StringBuilder ret = new StringBuilder();
+			for (URL url : classLoader.getURLs()) {
+				if (index++ > 0) {
+					ret.append(File.pathSeparator);
+				}
+
+				String path = url.getFile();
+
+				// 如果是 windows 系统，去除前缀字符 '/'
+				if (isWindows && path.startsWith("/")) {
+					path = path.substring(1);
+				}
+
+				// 去除后缀字符 '/'
+				if (path.length() > 1 && (path.endsWith("/") || path.endsWith(File.separator))) {
+					path = path.substring(0, path.length() - 1);
+				}
+				ret.append(path);
+			}
+
+			return ret.toString();
 		}
-
-		int index = 0;
-		boolean isWindows = isWindows();
-		StringBuilder ret = new StringBuilder();
-		for (URL url : classLoader.getURLs()) {
-			if (index++ > 0) {
-				ret.append(File.pathSeparator);
+		List<String> list = new ArrayList<>();
+		File file = new File(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/lib/");
+		if (file.exists()) {
+			File[] files = file.listFiles();
+			for (File f : files) {
+				list.add(f.getAbsolutePath());
 			}
-
-			String path = url.getFile();
-
-			// 如果是 windows 系统，去除前缀字符 '/'
-			if (isWindows && path.startsWith("/")) {
-				path = path.substring(1);
-			}
-
-			// 去除后缀字符 '/'
-			if (path.length() > 1 && (path.endsWith("/") || path.endsWith(File.separator))) {
-				path = path.substring(0, path.length() - 1);
-			}
-
-			ret.append(path);
 		}
-
-		return ret.toString();
+		list.add(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/classes/");
+		return list.stream().collect(Collectors.joining(File.pathSeparator));
 	}
 
 	protected boolean isWindows() {
@@ -134,6 +161,67 @@ public class ProxyCompiler {
 			proxyClass.setByteCode(ret);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public void compileToFile(ProxyClass proxyClass) {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			throw new RuntimeException("Can not get javax.tools.JavaCompiler, check whether \"tools.jar\" is in the environment variable CLASSPATH \n" +
+				"Visit https://jfinal.com/doc/4-8 for details \n");
+		}
+		unpack();
+
+		File file = FileUtil.save(GlobalConfig.getGeneratorCodeSavePath() + proxyClass.getPkg().replaceAll("\\.", "/"), proxyClass.getName() + ".java", proxyClass.getSourceCode());
+		StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
+		Iterable<? extends JavaFileObject> iterable = standardFileManager.getJavaFileObjects(file);
+		// 创建一个编译任务
+		JavaCompiler.CompilationTask task = compiler.getTask(null, standardFileManager, diagnostics, getOptions(), null, iterable);
+		//JavaCompiler.CompilationTask 实现了 Callable 接口
+		Boolean result = task.call();
+		printLog(result, file);
+	}
+
+	private synchronized void unpack() {
+		if (!SystemUtil.isStartupFromJar()) {
+			return;
+		}
+		if (isUnpack) {
+			return;
+		}
+		isUnpack = true;
+		try {
+			File file1 = new File(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/lib/");
+			File file2 = new File(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/classes/");
+			if (file1.exists() && file2.exists()) {
+				return;
+			}
+			log.info("解压jar:{} 到:{}", SystemUtil.getCurrentJarFilePath(), GlobalConfig.getGeneratorCodeSavePath());
+			FileUtil.unzipJar(GlobalConfig.getGeneratorCodeSavePath(), SystemUtil.getCurrentJarFilePath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void printLog(Boolean result, File ...files){
+		if (!result) {
+			StringJoiner rs = new StringJoiner(System.getProperty("line.separator"));
+			for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
+				rs.add(String.format("%s:%s[line %d column %d]-->%s%n", diagnostic.getKind(), diagnostic.getSource(), diagnostic.getLineNumber(),
+					diagnostic.getColumnNumber(),
+					diagnostic.getMessage(null)));
+			}
+			System.out.println("编译失败，原因：" + rs.toString());
+			log.error("编译失败，原因：{}", rs.toString());
+		} else {
+			System.out.println("编译成功");
+			StringBuilder sb = new StringBuilder();
+			Arrays.stream(files).forEach(file -> {
+				sb.append(file.getName());
+				sb.append(";");
+			});
+			log.info("编译成功:{}", sb.toString());
 		}
 	}
 

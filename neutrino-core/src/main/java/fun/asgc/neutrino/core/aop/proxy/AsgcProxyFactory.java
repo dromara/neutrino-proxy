@@ -82,14 +82,21 @@ public class AsgcProxyFactory implements ProxyFactory {
 		proxyClass.setName(generateClassName(targetType));
 		String sourceCode = AsgcProxyGenerator.getInstance().generator(proxyClass.getName(), targetType, proxyType);
 		proxyClass.setSourceCode(sourceCode);
-		if (GlobalConfig.isIsPrintGeneratorCode()) {
+		if (GlobalConfig.isPrintGeneratorCode()) {
 			log.debug("类:{} 的代理类源码:\n{}", targetType.getName(), sourceCode);
 		}
-
-		compiler.compile(proxyClass);
-		Class<P> retClass = (Class<P>)classLoader.loadProxyClass(proxyClass);
+		Class<P> retClass = compile(proxyClass);
 		P obj = retClass.newInstance();
 		return obj;
+	}
+
+	private <T> Class<T> compile(ProxyClass proxyClass) throws ClassNotFoundException {
+		if (SystemUtil.isStartupFromJar() || GlobalConfig.isSaveGeneratorCode()) {
+			compiler.compileToFile(proxyClass);
+			return (Class<T>)classLoader.loadProxyClass(proxyClass);
+		}
+		compiler.compile(proxyClass);
+		return (Class<T>)classLoader.loadProxyClass(proxyClass);
 	}
 
 	private String generateClassName(Class<?> clazz) {

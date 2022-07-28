@@ -24,6 +24,8 @@ package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.base.CodeBlock;
 
+import java.util.Objects;
+
 /**
  *
  * @author: aoshiguchen
@@ -85,6 +87,24 @@ public class SystemUtil {
 		private void stop() {
 			this.running = false;
 		}
+	}
 
+	public static boolean isStartupFromJar() {
+		String protocol = SystemUtil.class.getResource("").getProtocol();
+		return Objects.equals(protocol, "jar");
+	}
+
+	public static String getCurrentJarFilePath() {
+		if (!isStartupFromJar()) {
+			return null;
+		}
+		String url = SystemUtil.class.getResource("").getPath();
+		if (url.startsWith("file:")) {
+			url = url.substring(5);
+		}
+		if (url.contains("!")) {
+			url = url.substring(0, url.indexOf("!"));
+		}
+		return url;
 	}
 }
