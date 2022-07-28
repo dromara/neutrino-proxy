@@ -19,28 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.config;
+package fun.asgc.neutrino.core.web.test1;
 
-import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
-import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/27
+ * @date: 2022/7/29
  */
-public interface WebMvcConfigurer {
-
-	default void addInterceptors(InterceptorRegistry registry) {
-
-	}
-
-	default void addExceptionHandler(ExceptionHandlerRegistry registry) {
-
-	}
-
-	default RestControllerAdviceHandler adviceHandler() {
-		return null;
-	}
+@Accessors(chain = true)
+@Data
+public class JsonResult<T> {
+	private Integer code;
+	private String msg;
+	private T data;
+	private String stack;
 }

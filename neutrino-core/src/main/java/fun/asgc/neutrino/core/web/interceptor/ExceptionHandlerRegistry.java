@@ -19,28 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.config;
+package fun.asgc.neutrino.core.web.interceptor;
 
-import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
-import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/27
+ * @date: 2022/7/29
  */
-public interface WebMvcConfigurer {
+public class ExceptionHandlerRegistry {
+	private final List<RestControllerExceptionHandler> exceptionHandlerList = new ArrayList<>();
 
-	default void addInterceptors(InterceptorRegistry registry) {
-
+	public void addExceptionHandler(RestControllerExceptionHandler exceptionHandler) {
+		exceptionHandlerList.add(exceptionHandler);
 	}
 
-	default void addExceptionHandler(ExceptionHandlerRegistry registry) {
-
-	}
-
-	default RestControllerAdviceHandler adviceHandler() {
-		return null;
+	public List<RestControllerExceptionHandler> getExceptionHandlerList() {
+		return exceptionHandlerList;
 	}
 }

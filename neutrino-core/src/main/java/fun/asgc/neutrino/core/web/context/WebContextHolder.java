@@ -31,7 +31,9 @@ import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
+import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
 import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
+import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +53,8 @@ public class WebContextHolder {
 	private static volatile Integer port;
 	private static List<BeanWrapper> controllerBeanWrapperList;
 	private static volatile InterceptorRegistry interceptorRegistry;
+	private static volatile ExceptionHandlerRegistry exceptionHandlerRegistry;
+	private static volatile RestControllerAdviceHandler adviceHandler;
 	@Autowired
 	private ApplicationConfig applicationConfig;
 	@Autowired
@@ -126,6 +130,7 @@ public class WebContextHolder {
 
 	private void initInterceptorRegistry() {
 		interceptorRegistry = new InterceptorRegistry();
+		exceptionHandlerRegistry = new ExceptionHandlerRegistry();
 		List<BeanWrapper> beanWrapperList = applicationBeanFactory.beanWrapperList();
 		if (CollectionUtil.isEmpty(beanWrapperList)) {
 			return;
@@ -134,7 +139,11 @@ public class WebContextHolder {
 		if (CollectionUtil.isEmpty(webMvcConfigurerList)) {
 			return;
 		}
-		webMvcConfigurerList.forEach(webMvcConfigurer -> webMvcConfigurer.addInterceptors(interceptorRegistry));
+		webMvcConfigurerList.forEach(webMvcConfigurer -> {
+			webMvcConfigurer.addInterceptors(interceptorRegistry);
+			webMvcConfigurer.addExceptionHandler(exceptionHandlerRegistry);
+			adviceHandler = webMvcConfigurer.adviceHandler();
+		});
 	}
 
 	public static List<BeanWrapper> getControllerBeanWrapperList() {
@@ -143,5 +152,13 @@ public class WebContextHolder {
 
 	public static InterceptorRegistry getInterceptorRegistry() {
 		return interceptorRegistry;
+	}
+
+	public static ExceptionHandlerRegistry getExceptionHandlerRegistry() {
+		return exceptionHandlerRegistry;
+	}
+
+	public static RestControllerAdviceHandler getAdviceHandler() {
+		return adviceHandler;
 	}
 }

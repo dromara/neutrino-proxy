@@ -33,10 +33,7 @@ import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.core.web.context.HttpRequestParser;
 import fun.asgc.neutrino.core.web.context.WebContextHolder;
-import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistration;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
-import fun.asgc.neutrino.core.web.interceptor.MappedInterceptor;
+import fun.asgc.neutrino.core.web.interceptor.*;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import fun.asgc.neutrino.core.web.router.HttpRouteParam;
 import fun.asgc.neutrino.core.web.router.HttpRouteResult;
@@ -92,6 +89,11 @@ public class HttpRequestHandler {
 				}
 
 				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
+
+				if (null != WebContextHolder.getAdviceHandler()) {
+					invokeResult = WebContextHolder.getAdviceHandler().advice(context, requestParser, routePath, httpRouteResult.getMethod(), invokeResult);
+				}
+
 				String res = String.valueOf(invokeResult);
 				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
 					res = JSONObject.toJSONString(invokeResult);
@@ -126,7 +128,10 @@ public class HttpRequestHandler {
 				return;
 			}
 		} catch (Throwable e) {
-			exceptionHandler(e);
+			Object res = exceptionHandler(e);
+			if (null != res) {
+				HttpServerUtil.send200Response(context, res);
+			}
 		} finally {
 			release();
 		}
@@ -170,9 +175,21 @@ public class HttpRequestHandler {
 		return result;
 	}
 
-	private void exceptionHandler(Throwable e) {
+	private Object exceptionHandler(Throwable e) {
+		ExceptionHandlerRegistry exceptionHandlerRegistry = WebContextHolder.getExceptionHandlerRegistry();
+		if (CollectionUtil.isEmpty(exceptionHandlerRegistry.getExceptionHandlerList())) {
+			log.error("Http处理异常", e);
+			HttpServerUtil.send500Response(HttpContextHolder.getChannelHandlerContext(), e);
+			return null;
+		}
+		for (RestControllerExceptionHandler exceptionHandler : exceptionHandlerRegistry.getExceptionHandlerList()) {
+			if (exceptionHandler.support(e)) {
+				return exceptionHandler.handle(HttpContextHolder.getChannelHandlerContext(), HttpContextHolder.getHttpRequestParser(), e);
+			}
+		}
 		log.error("Http处理异常", e);
 		HttpServerUtil.send500Response(HttpContextHolder.getChannelHandlerContext(), e);
+		return null;
 	}
 
 	private Object invoke(Object instance, Method method) throws InvocationTargetException, IllegalAccessException {

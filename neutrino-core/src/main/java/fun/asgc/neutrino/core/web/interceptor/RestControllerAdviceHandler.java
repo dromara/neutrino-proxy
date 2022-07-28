@@ -19,28 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.config;
+package fun.asgc.neutrino.core.web.interceptor;
 
-import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
-import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
+import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.lang.reflect.Method;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/27
+ * @date: 2022/7/29
  */
-public interface WebMvcConfigurer {
-
-	default void addInterceptors(InterceptorRegistry registry) {
-
-	}
-
-	default void addExceptionHandler(ExceptionHandlerRegistry registry) {
-
-	}
-
-	default RestControllerAdviceHandler adviceHandler() {
-		return null;
-	}
+public interface RestControllerAdviceHandler {
+	/**
+	 * 返回结果处理
+	 * @param context
+	 * @param requestParser
+	 * @param route
+	 * @param targetMethod
+	 * @param res
+	 * @return
+	 */
+	Object advice(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Object res);
 }

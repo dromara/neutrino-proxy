@@ -13,6 +13,7 @@
 package fun.asgc.neutrino.core.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.web.HttpResponseEntry;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -28,17 +29,25 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class HttpServerUtil {
 
 	public static void send404Response(ChannelHandlerContext context, String url) {
-		HttpResponseEntry responseEntry = new HttpResponseEntry(HttpResponseStatus.NOT_FOUND.code(), HttpResponseStatus.NOT_FOUND.reasonPhrase(), String.format("未找到指定资源: %s", url));
-		String res = JSON.toJSONString(responseEntry);
+		String res = String.format("404 未找到指定资源: %s", url);
 		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(res.getBytes()));
 		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 	}
 
 	public static void send500Response(ChannelHandlerContext context, Throwable throwable) {
-		HttpResponseEntry responseEntry = new HttpResponseEntry(HttpResponseStatus.INTERNAL_SERVER_ERROR.code(), HttpResponseStatus.INTERNAL_SERVER_ERROR.reasonPhrase(), String.format("服务异常: %s", ExceptionUtils.getStackTrace(throwable)));
-		String res = JSON.toJSONString(responseEntry);
+		String res = String.format("500 服务异常: %s", ExceptionUtils.getStackTrace(throwable));
 		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer(res.getBytes()));
+		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+	}
+
+	public static void send200Response(ChannelHandlerContext context, Object o) {
+		String res = String.valueOf(o);
+		if (null != o && !TypeUtil.isNormalBasicType(o.getClass())) {
+			res = JSONObject.toJSONString(o);
+		}
+		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
 		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 	}

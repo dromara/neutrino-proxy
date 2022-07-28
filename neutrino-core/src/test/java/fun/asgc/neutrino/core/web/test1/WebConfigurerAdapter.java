@@ -23,7 +23,9 @@ package fun.asgc.neutrino.core.web.test1;
 
 import fun.asgc.neutrino.core.annotation.Configuration;
 import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
+import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
 import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
+import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
 
 /**
  *
@@ -37,5 +39,15 @@ public class WebConfigurerAdapter implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new BaseAuthInterceptor())
 			.addPathPatterns("/**").excludePathPatterns("/**/*.html", "/**/*.js", "/**/*.ico");
+	}
+
+	@Override
+	public void addExceptionHandler(ExceptionHandlerRegistry registry) {
+		registry.addExceptionHandler(new GlobalExceptionHandler());
+	}
+
+	@Override
+	public RestControllerAdviceHandler adviceHandler() {
+		return new GlobalAdviceHandler();
 	}
 }

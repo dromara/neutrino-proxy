@@ -19,28 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.config;
+package fun.asgc.neutrino.core.web.test1;
 
-import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
-import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
+import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.interceptor.RestControllerExceptionHandler;
+import io.netty.channel.ChannelHandlerContext;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/27
+ * @date: 2022/7/29
  */
-public interface WebMvcConfigurer {
+public class GlobalExceptionHandler implements RestControllerExceptionHandler {
 
-	default void addInterceptors(InterceptorRegistry registry) {
-
+	@Override
+	public Object handle(ChannelHandlerContext context, HttpRequestParser requestParser, Throwable e) {
+		if (e instanceof UserNotLoginException) {
+			return new JsonResult<>()
+				.setCode(101)
+				.setMsg("账号未登录")
+				.setStack(ExceptionUtils.getStackTrace(e));
+		}
+		return new JsonResult<>()
+			.setCode(1)
+			.setMsg("系统异常")
+			.setStack(ExceptionUtils.getStackTrace(e));
 	}
 
-	default void addExceptionHandler(ExceptionHandlerRegistry registry) {
-
-	}
-
-	default RestControllerAdviceHandler adviceHandler() {
-		return null;
-	}
 }
