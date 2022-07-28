@@ -19,39 +19,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
+package fun.asgc.neutrino.core.web.test1;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 
 /**
- * http路由结果
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/28
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteResult {
+@Slf4j
+public class BaseAuthInterceptor implements HandlerInterceptor {
+
 	/**
-	 * 路由类型
+	 * 登录验证
+	 * @param context
+	 * @param requestParser
+	 * @param route
+	 * @param targetMethod
+	 * @return
+	 * @throws Exception
 	 */
-	private HttpRouterType type;
-	/**
-	 * 实例
-	 */
-	private Object instance;
-	/**
-	 * 方法
-	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
-	/**
-	 * 页面路由
-	 */
-	private String pageRoute;
+	@Override
+	public boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+		// 登录验证
+		String authorize = requestParser.getHeaderValue("Authorize");
+		if (!"123abc".equals(authorize)) {
+			throw new UserNotLoginException();
+		}
+		return Boolean.TRUE;
+	}
+
+	@Override
+	public void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+
+	}
+
+	@Override
+	public void afterCompletion(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Throwable e) throws Exception {
+
+	}
 }

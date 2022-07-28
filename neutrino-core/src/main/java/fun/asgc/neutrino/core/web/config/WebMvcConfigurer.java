@@ -19,39 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
+package fun.asgc.neutrino.core.web.config;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-import java.lang.reflect.Method;
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
 
 /**
- * http路由结果
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/27
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteResult {
-	/**
-	 * 路由类型
-	 */
-	private HttpRouterType type;
-	/**
-	 * 实例
-	 */
-	private Object instance;
-	/**
-	 * 方法
-	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
-	/**
-	 * 页面路由
-	 */
-	private String pageRoute;
+public interface WebMvcConfigurer {
+
+	default void addInterceptors(InterceptorRegistry registry) {
+
+	}
 }

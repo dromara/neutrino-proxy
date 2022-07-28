@@ -19,39 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
-
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-import java.lang.reflect.Method;
+package fun.asgc.neutrino.core.web.test1;
 
 /**
- * http路由结果
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/28
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteResult {
-	/**
-	 * 路由类型
-	 */
-	private HttpRouterType type;
-	/**
-	 * 实例
-	 */
-	private Object instance;
-	/**
-	 * 方法
-	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
-	/**
-	 * 页面路由
-	 */
-	private String pageRoute;
+public class UserNotLoginException extends Exception {
 }

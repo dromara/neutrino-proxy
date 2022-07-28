@@ -51,4 +51,8 @@ public class HttpRouteInfo {
 	 * 页面位置
 	 */
 	private String pageLocation;
+	/**
+	 * 页面路由
+	 */
+	private String pageRoute;
 }

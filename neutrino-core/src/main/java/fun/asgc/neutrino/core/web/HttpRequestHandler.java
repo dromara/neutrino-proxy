@@ -32,6 +32,11 @@ import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistration;
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
+import fun.asgc.neutrino.core.web.interceptor.MappedInterceptor;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
 import fun.asgc.neutrino.core.web.router.HttpRouteParam;
 import fun.asgc.neutrino.core.web.router.HttpRouteResult;
@@ -46,7 +51,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -62,6 +69,7 @@ public class HttpRequestHandler {
 	private ApplicationConfig applicationConfig;
 	@Autowired
 	private DefaultHttpRouter defaultHttpRouter;
+	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	public void handle() {
 		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
@@ -77,6 +85,10 @@ public class HttpRequestHandler {
 				return;
 			}
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
+				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
+					return;
+				}
+
 				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
 				String res = String.valueOf(invokeResult);
 				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
@@ -87,6 +99,10 @@ public class HttpRequestHandler {
 				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
+				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), null)) {
+					return;
+				}
+
 				// 前端页面
 				String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));
 				if (mimeType.startsWith("text/")) {
@@ -108,6 +124,37 @@ public class HttpRequestHandler {
 		} finally {
 			release();
 		}
+	}
+
+	private boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+		List<HandlerInterceptor> list = getInterceptorsForPath(route);
+		if (!CollectionUtil.isEmpty(list)) {
+			for (HandlerInterceptor handlerInterceptor : list) {
+				if (!handlerInterceptor.preHandle(context, requestParser, route, targetMethod)) {
+					return Boolean.FALSE;
+				}
+			}
+		}
+		return Boolean.TRUE;
+	}
+
+	private List<HandlerInterceptor> getInterceptorsForPath(String lookupPath) {
+		List<HandlerInterceptor> result = new ArrayList<HandlerInterceptor>();
+		InterceptorRegistry interceptorRegistry = WebContextHolder.getInterceptorRegistry();
+		if (CollectionUtil.isEmpty(interceptorRegistry.getInterceptors())) {
+			return result;
+		}
+		for (Object interceptor : interceptorRegistry.getInterceptors()) {
+			if (interceptor instanceof HandlerInterceptor) {
+				result.add((HandlerInterceptor) interceptor);
+			} else if(interceptor instanceof MappedInterceptor) {
+				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
+				if (mappedInterceptor.matches(lookupPath, pathMatcher)) {
+					result.add(mappedInterceptor.getInterceptor());
+				}
+			}
+		}
+		return result;
 	}
 
 	private void exceptionHandler(Throwable e) {

@@ -19,39 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
+package fun.asgc.neutrino.core.web.interceptor;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.lang.reflect.Method;
 
 /**
- * http路由结果
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/27
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteResult {
-	/**
-	 * 路由类型
-	 */
-	private HttpRouterType type;
-	/**
-	 * 实例
-	 */
-	private Object instance;
-	/**
-	 * 方法
-	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
-	/**
-	 * 页面路由
-	 */
-	private String pageRoute;
+public interface HandlerInterceptor {
+	default boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+		return true;
+	}
+
+	default void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	}
+
+	default void afterCompletion(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Throwable e) throws Exception {
+	}
+
 }

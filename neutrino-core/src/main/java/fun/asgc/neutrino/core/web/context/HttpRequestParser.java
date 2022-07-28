@@ -172,6 +172,10 @@ public class HttpRequestParser {
 		return null;
 	}
 
+	public FullHttpRequest getRequest() {
+		return request;
+	}
+
 	public String getHeaderValue(String name) {
 		return request.headers().get(name);
 	}
@@ -203,6 +207,9 @@ public class HttpRequestParser {
 
 	private String getRoutePath(String url) {
 		String httpContextPath = WebContextHolder.getHttpContextPath();
+		if (null == url || url.length() < httpContextPath.length()) {
+			return url;
+		}
 		if (StringUtil.isEmpty(httpContextPath)) {
 			return url;
 		}

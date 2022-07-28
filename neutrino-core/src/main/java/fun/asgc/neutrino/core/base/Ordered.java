@@ -19,39 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.router;
-
-import lombok.Data;
-import lombok.experimental.Accessors;
-
-import java.lang.reflect.Method;
+package fun.asgc.neutrino.core.base;
 
 /**
- * http路由结果
+ *
  * @author: aoshiguchen
- * @date: 2022/7/16
+ * @date: 2022/7/27
  */
-@Accessors(chain = true)
-@Data
-public class HttpRouteResult {
+public interface Ordered {
 	/**
-	 * 路由类型
+	 * Useful constant for the highest precedence value.
+	 * @see java.lang.Integer#MIN_VALUE
 	 */
-	private HttpRouterType type;
+	int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
+
 	/**
-	 * 实例
+	 * Useful constant for the lowest precedence value.
+	 * @see java.lang.Integer#MAX_VALUE
 	 */
-	private Object instance;
+	int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
+
+
 	/**
-	 * 方法
+	 * Get the order value of this object.
+	 * <p>Higher values are interpreted as lower priority. As a consequence,
+	 * the object with the lowest value has the highest priority (somewhat
+	 * analogous to Servlet {@code load-on-startup} values).
+	 * <p>Same order values will result in arbitrary sort positions for the
+	 * affected objects.
+	 * @return the order value
+	 * @see #HIGHEST_PRECEDENCE
+	 * @see #LOWEST_PRECEDENCE
 	 */
-	private Method method;
-	/**
-	 * 页面位置
-	 */
-	private String pageLocation;
-	/**
-	 * 页面路由
-	 */
-	private String pageRoute;
+	int getOrder();
 }

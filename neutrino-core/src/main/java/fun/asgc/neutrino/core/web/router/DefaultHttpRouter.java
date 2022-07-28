@@ -200,18 +200,24 @@ public class DefaultHttpRouter implements HttpRouter {
 			.setType(HttpRouterType.METHOD)
 			.setMethod(method)
 			.setBeanIdentity(beanWrapper.getIdentity())
+			.setPageRoute(path)
 		);
 	}
 
-	private synchronized void addRoute(String path, String pageLocation) {
+	private synchronized void addRoute(String path, String pageLocation, String pageRoute) {
 		log.info("addRoute path:{} file:{}", path, pageLocation);
 		HttpRouteIdentity identity = new HttpRouteIdentity(HttpMethod.GET, path);
 		if (routeCache.containsKey(identity)) {
 			return;
 		}
+		pageRoute = pageRoute.replaceAll("\\\\\\\\", "\\\\");
+		if (pageRoute.equals("/")) {
+			pageRoute += "index.html";
+		}
 		routeCache.put(identity, new HttpRouteInfo()
 			.setType(HttpRouterType.PAGE)
 			.setPageLocation(pageLocation)
+			.setPageRoute(pageRoute)
 		);
 	}
 
@@ -230,7 +236,7 @@ public class DefaultHttpRouter implements HttpRouter {
 						}
 						try (InputStream in = FileUtil.getInputStream(path)){
 							if (null != in) {
-								addRoute(httpRouteParam.getUrl(), path);
+								addRoute(httpRouteParam.getUrl(), path, httpRouteParam.getUrl());
 								httpRouteInfo = routeCache.get(identity);
 								break;
 							}
@@ -247,11 +253,13 @@ public class DefaultHttpRouter implements HttpRouter {
 		if (HttpRouterType.PAGE == httpRouteInfo.getType()) {
 			return new HttpRouteResult()
 				.setType(httpRouteInfo.getType())
-				.setPageLocation(httpRouteInfo.getPageLocation());
+				.setPageLocation(httpRouteInfo.getPageLocation())
+				.setPageRoute(httpRouteInfo.getPageRoute());
 		}
 		return new HttpRouteResult()
 			.setType(httpRouteInfo.getType())
 			.setMethod(httpRouteInfo.getMethod())
+			.setPageRoute(httpRouteInfo.getPageRoute())
 			.setInstance(BeanManager.getBean(httpRouteInfo.getBeanIdentity()));
 	}
 

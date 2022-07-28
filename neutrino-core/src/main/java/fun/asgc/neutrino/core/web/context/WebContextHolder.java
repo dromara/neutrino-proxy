@@ -30,6 +30,8 @@ import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,6 +50,7 @@ public class WebContextHolder {
 	private static volatile Long maxContentLength;
 	private static volatile Integer port;
 	private static List<BeanWrapper> controllerBeanWrapperList;
+	private static volatile InterceptorRegistry interceptorRegistry;
 	@Autowired
 	private ApplicationConfig applicationConfig;
 	@Autowired
@@ -60,6 +63,7 @@ public class WebContextHolder {
 		initFavicon();
 		initMaxContentLength();
 		initControllerBeanWrapperList();
+		initInterceptorRegistry();
 		port = http.getPort();
 	}
 
@@ -120,7 +124,24 @@ public class WebContextHolder {
 			.filter(beanWrapper -> beanWrapper.getType().isAnnotationPresent(RestController.class)).collect(Collectors.toList());
 	}
 
+	private void initInterceptorRegistry() {
+		interceptorRegistry = new InterceptorRegistry();
+		List<BeanWrapper> beanWrapperList = applicationBeanFactory.beanWrapperList();
+		if (CollectionUtil.isEmpty(beanWrapperList)) {
+			return;
+		}
+		List<WebMvcConfigurer> webMvcConfigurerList = applicationBeanFactory.getBeanList(WebMvcConfigurer.class);
+		if (CollectionUtil.isEmpty(webMvcConfigurerList)) {
+			return;
+		}
+		webMvcConfigurerList.forEach(webMvcConfigurer -> webMvcConfigurer.addInterceptors(interceptorRegistry));
+	}
+
 	public static List<BeanWrapper> getControllerBeanWrapperList() {
 		return controllerBeanWrapperList;
+	}
+
+	public static InterceptorRegistry getInterceptorRegistry() {
+		return interceptorRegistry;
 	}
 }

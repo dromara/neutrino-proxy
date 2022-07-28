@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.web.context;
 
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 
