@@ -107,8 +107,4 @@ public class MappedInterceptor {
 	public void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
 		this.interceptor.postHandle(context, requestParser, route, targetMethod);
 	}
-
-	public void afterCompletion(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Throwable e) throws Exception {
-		this.interceptor.afterCompletion(context, requestParser, route, targetMethod, e);
-	}
 }

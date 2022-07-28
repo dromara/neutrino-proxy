@@ -59,9 +59,4 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 	public void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
 
 	}
-
-	@Override
-	public void afterCompletion(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Throwable e) throws Exception {
-
-	}
 }

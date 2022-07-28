@@ -84,6 +84,8 @@ public class HttpRequestHandler {
 				HttpServerUtil.send404Response(context, requestParser.getUrl());
 				return;
 			}
+			HttpContextHolder.setInterceptorList(getInterceptorsForPath(httpRouteResult.getPageRoute()));
+
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
 				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
 					return;
@@ -97,6 +99,8 @@ public class HttpRequestHandler {
 				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
 				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+
+				postHandle(context, requestParser, httpRouteResult.getPageRoute(), httpRouteResult.getMethod());
 				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
 				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), null)) {
@@ -114,6 +118,8 @@ public class HttpRequestHandler {
 				fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
 				fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
 				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+
+				postHandle(context, requestParser, httpRouteResult.getPageRoute(), null);
 				return;
 			} else {
 				HttpServerUtil.send404Response(context, requestParser.getUrl());
@@ -127,15 +133,22 @@ public class HttpRequestHandler {
 	}
 
 	private boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
-		List<HandlerInterceptor> list = getInterceptorsForPath(route);
-		if (!CollectionUtil.isEmpty(list)) {
-			for (HandlerInterceptor handlerInterceptor : list) {
+		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
+			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
 				if (!handlerInterceptor.preHandle(context, requestParser, route, targetMethod)) {
 					return Boolean.FALSE;
 				}
 			}
 		}
 		return Boolean.TRUE;
+	}
+
+	private void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
+			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
+				handlerInterceptor.postHandle(context, requestParser, route, targetMethod);
+			}
+		}
 	}
 
 	private List<HandlerInterceptor> getInterceptorsForPath(String lookupPath) {

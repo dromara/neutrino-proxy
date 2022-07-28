@@ -21,9 +21,11 @@
  */
 package fun.asgc.neutrino.core.web.context;
 
-import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
+import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+
+import java.util.List;
 
 /**
  *
@@ -34,11 +36,13 @@ public abstract class HttpContextHolder {
 	private static final ThreadLocal<HttpRequestParser> httpRequestParserHolder = new ThreadLocal<>();
 	private static ThreadLocal<FullHttpRequest> fullHttpRequestHolder = new ThreadLocal<>();
 	private static ThreadLocal<ChannelHandlerContext> channelHandlerContextHolder = new ThreadLocal<>();
+	private static ThreadLocal<List<HandlerInterceptor>> interceptorListHolder = new ThreadLocal<>();
 
 	public static void remove() {
 		httpRequestParserHolder.remove();
 		fullHttpRequestHolder.remove();
 		channelHandlerContextHolder.remove();
+		interceptorListHolder.remove();
 	}
 
 	public static void setFullHttpRequest(FullHttpRequest request) {
@@ -48,6 +52,14 @@ public abstract class HttpContextHolder {
 
 	public static void setChannelHandlerContext(ChannelHandlerContext context) {
 		channelHandlerContextHolder.set(context);
+	}
+
+	public static void setInterceptorList(List<HandlerInterceptor> interceptorList) {
+		interceptorListHolder.set(interceptorList);
+	}
+
+	public static List<HandlerInterceptor> getInterceptorList() {
+		return interceptorListHolder.get();
 	}
 
 	public static HttpRequestParser getHttpRequestParser() {
