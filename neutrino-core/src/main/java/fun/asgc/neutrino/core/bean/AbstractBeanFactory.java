@@ -182,7 +182,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	@Override
 	public void registerBean(Object obj, String name) throws BeanException {
 		Assert.notNull(obj, "被注册的bean实例不能为空!");
-		Assert.notNull(obj, "被注册的bean名称不能为空!");
+		Assert.notEmpty(name, "被注册的bean名称不能为空!");
 		synchronized (mutex) {
 			if (hasBean(obj.getClass(), name)) {
 				throw new BeanException(String.format("Bean[type:%s name:%s] 已存在，不能重复注册!", obj.getClass().getName(), name));
