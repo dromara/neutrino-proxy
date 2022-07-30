@@ -93,7 +93,7 @@ public class WebApplicationServer implements ApplicationRunner {
 							fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, "image/x-icon");
 							context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 						} else {
-							HttpServerUtil.send404Response(context, uri);
+							HttpServerUtil.send404Response(uri);
 						}
 					}
 				});

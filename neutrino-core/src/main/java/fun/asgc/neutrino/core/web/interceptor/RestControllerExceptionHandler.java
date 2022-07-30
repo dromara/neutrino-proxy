@@ -21,7 +21,8 @@
  */
 package fun.asgc.neutrino.core.web.interceptor;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -44,5 +45,5 @@ public interface RestControllerExceptionHandler {
 	 * @param e
 	 * @return
 	 */
-	Object handle(ChannelHandlerContext context, HttpRequestParser requestParser, Throwable e);
+	Object handle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, Throwable e);
 }

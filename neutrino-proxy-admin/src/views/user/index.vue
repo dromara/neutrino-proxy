@@ -85,7 +85,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser } from '@/api/user'
+  import { fetchList, createUser, updateUser, hello } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
 
@@ -175,6 +175,7 @@
     methods: {
       getList() {
         this.listLoading = true
+        hello()
         fetchList(this.listQuery).then(response => {
           this.list = response.data.items
           this.total = response.data.total

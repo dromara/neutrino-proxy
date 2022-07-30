@@ -22,8 +22,9 @@
 package fun.asgc.neutrino.core.web.context;
 
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.*;
 
 import java.util.List;
 
@@ -33,13 +34,14 @@ import java.util.List;
  * @date: 2022/7/22
  */
 public abstract class HttpContextHolder {
-	private static final ThreadLocal<HttpRequestParser> httpRequestParserHolder = new ThreadLocal<>();
+	private static final ThreadLocal<HttpRequestWrapper> httpRequestWrapperHolder = new ThreadLocal<>();
+	private static final ThreadLocal<HttpResponseWrapper> httpResponseWrapperHolder = new ThreadLocal<>();
 	private static ThreadLocal<FullHttpRequest> fullHttpRequestHolder = new ThreadLocal<>();
 	private static ThreadLocal<ChannelHandlerContext> channelHandlerContextHolder = new ThreadLocal<>();
 	private static ThreadLocal<List<HandlerInterceptor>> interceptorListHolder = new ThreadLocal<>();
 
 	public static void remove() {
-		httpRequestParserHolder.remove();
+		httpRequestWrapperHolder.remove();
 		fullHttpRequestHolder.remove();
 		channelHandlerContextHolder.remove();
 		interceptorListHolder.remove();
@@ -47,7 +49,11 @@ public abstract class HttpContextHolder {
 
 	public static void setFullHttpRequest(FullHttpRequest request) {
 		fullHttpRequestHolder.set(request);
-		httpRequestParserHolder.set(HttpRequestParser.create(request));
+		httpRequestWrapperHolder.set(HttpRequestWrapper.create(request));
+	}
+
+	public static void setFullHttpResponseWrapper() {
+		httpResponseWrapperHolder.set(HttpResponseWrapper.create());
 	}
 
 	public static void setChannelHandlerContext(ChannelHandlerContext context) {
@@ -62,8 +68,12 @@ public abstract class HttpContextHolder {
 		return interceptorListHolder.get();
 	}
 
-	public static HttpRequestParser getHttpRequestParser() {
-		return httpRequestParserHolder.get();
+	public static HttpRequestWrapper getHttpRequestWrapper() {
+		return httpRequestWrapperHolder.get();
+	}
+
+	public static HttpResponseWrapper getHttpResponseWrapper() {
+		return httpResponseWrapperHolder.get();
 	}
 
 	public static FullHttpRequest getFullHttpRequest() {
@@ -77,5 +87,6 @@ public abstract class HttpContextHolder {
 	public static void init(ChannelHandlerContext context, FullHttpRequest request) {
 		setChannelHandlerContext(context);
 		setFullHttpRequest(request);
+		setFullHttpResponseWrapper();
 	}
 }

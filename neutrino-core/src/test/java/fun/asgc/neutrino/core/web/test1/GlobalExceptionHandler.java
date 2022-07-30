@@ -21,7 +21,8 @@
  */
 package fun.asgc.neutrino.core.web.test1;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.RestControllerExceptionHandler;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -34,7 +35,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class GlobalExceptionHandler implements RestControllerExceptionHandler {
 
 	@Override
-	public Object handle(ChannelHandlerContext context, HttpRequestParser requestParser, Throwable e) {
+	public Object handle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, Throwable e) {
 		if (e instanceof UserNotLoginException) {
 			return new JsonResult<>()
 				.setCode(101)

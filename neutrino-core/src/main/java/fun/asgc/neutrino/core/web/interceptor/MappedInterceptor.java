@@ -22,7 +22,8 @@
 package fun.asgc.neutrino.core.web.interceptor;
 
 import fun.asgc.neutrino.core.web.PathMatcher;
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -100,11 +101,11 @@ public class MappedInterceptor {
 		}
 	}
 
-	public boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
-		return this.interceptor.preHandle(context, requestParser, route, targetMethod);
+	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		return this.interceptor.preHandle(requestParser, responseWrapper, route, targetMethod);
 	}
 
-	public void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
-		this.interceptor.postHandle(context, requestParser, route, targetMethod);
+	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		this.interceptor.postHandle(requestParser, responseWrapper, route, targetMethod);
 	}
 }

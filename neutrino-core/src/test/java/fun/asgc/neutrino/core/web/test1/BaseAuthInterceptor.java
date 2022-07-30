@@ -21,7 +21,8 @@
  */
 package fun.asgc.neutrino.core.web.test1;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +39,15 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 
 	/**
 	 * 登录验证
-	 * @param context
 	 * @param requestParser
+	 * @param responseWrapper
 	 * @param route
 	 * @param targetMethod
 	 * @return
 	 * @throws Exception
 	 */
 	@Override
-	public boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
 		// 登录验证
 		String authorize = requestParser.getHeaderValue("Authorize");
 		if (!"123abc".equals(authorize)) {
@@ -56,7 +57,7 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 	}
 
 	@Override
-	public void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
 
 	}
 }

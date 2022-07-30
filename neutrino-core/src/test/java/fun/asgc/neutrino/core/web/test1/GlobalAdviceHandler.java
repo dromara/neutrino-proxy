@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.core.web.test1;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 public class GlobalAdviceHandler implements RestControllerAdviceHandler {
 
 	@Override
-	public Object advice(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod, Object res) {
+	public Object advice(ChannelHandlerContext context, HttpRequestWrapper requestParser, String route, Method targetMethod, Object res) {
 		if (res instanceof JsonResult) {
 			return res;
 		}

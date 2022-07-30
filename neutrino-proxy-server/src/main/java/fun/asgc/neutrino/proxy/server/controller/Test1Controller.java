@@ -41,8 +41,8 @@ public class Test1Controller {
 
 	@GetMapping("hello")
 	public String hello() {
-		System.out.println("拿到参数 a = " + HttpContextHolder.getHttpRequestParser().getParameter("a"));
-		if ("aaa".equals(HttpContextHolder.getHttpRequestParser().getParameter("a"))) {
+		System.out.println("拿到参数 a = " + HttpContextHolder.getHttpRequestWrapper().getParameter("a"));
+		if ("aaa".equals(HttpContextHolder.getHttpRequestWrapper().getParameter("a"))) {
 			throw new RuntimeException("hhhh 异常了!");
 		}
 		return test1Service.hello();

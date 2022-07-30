@@ -31,7 +31,8 @@ import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.core.web.context.HttpContextHolder;
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.context.WebContextHolder;
 import fun.asgc.neutrino.core.web.interceptor.*;
 import fun.asgc.neutrino.core.web.router.DefaultHttpRouter;
@@ -70,21 +71,26 @@ public class HttpRequestHandler {
 
 	public void handle() {
 		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
-		HttpRequestParser requestParser = HttpContextHolder.getHttpRequestParser();
+		HttpRequestWrapper requestParser = HttpContextHolder.getHttpRequestWrapper();
 		log.info("HttpRequest method:{} url:{} query:{}", requestParser.getMethod().name(), requestParser.getUrl(), requestParser.getQueryParamMap());
 
 		try {
 			String routePath = requestParser.getRoutePath();
 			HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
+			if (httpMethod == HttpMethod.OPTIONS) {
+				HttpServerUtil.sendResponse(HttpResponseStatus.OK);
+				return;
+			}
 			HttpRouteResult httpRouteResult = defaultHttpRouter.route(new HttpRouteParam().setMethod(httpMethod).setUrl(routePath));
 			if (null == httpRouteResult) {
-				HttpServerUtil.send404Response(context, requestParser.getUrl());
+				HttpServerUtil.send404Response(requestParser.getUrl());
 				return;
 			}
 			HttpContextHolder.setInterceptorList(getInterceptorsForPath(httpRouteResult.getPageRoute()));
 
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
-				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
+				if (!preHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
+					HttpServerUtil.sendResponse(HttpResponseStatus.UNAUTHORIZED);
 					return;
 				}
 
@@ -98,14 +104,16 @@ public class HttpRequestHandler {
 				if (null != invokeResult && !TypeUtil.isNormalBasicType(invokeResult.getClass())) {
 					res = JSONObject.toJSONString(invokeResult);
 				}
-				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
-				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 
-				postHandle(context, requestParser, httpRouteResult.getPageRoute(), httpRouteResult.getMethod());
+				postHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod());
+
+				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
+				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(res.getBytes()));
+				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				httpResponseWrapper.writeAndFlush();
 				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
-				if (!preHandle(context, requestParser, httpRouteResult.getPageRoute(), null)) {
+				if (!preHandle(httpRouteResult.getPageRoute(), null)) {
 					return;
 				}
 
@@ -114,33 +122,35 @@ public class HttpRequestHandler {
 				if (mimeType.startsWith("text/")) {
 					mimeType += ";charset=utf-8";
 				}
-				FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
-				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
-				fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
-				fullHttpResponse.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
-				fullHttpResponse.headers().add(HttpHeaderNames.DATE, new Date());
-				context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
 
-				postHandle(context, requestParser, httpRouteResult.getPageRoute(), null);
+				postHandle(httpRouteResult.getPageRoute(), null);
+
+				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
+				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
+				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
+				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
+				httpResponseWrapper.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
+				httpResponseWrapper.headers().add(HttpHeaderNames.DATE, new Date());
+				httpResponseWrapper.writeAndFlush();
 				return;
 			} else {
-				HttpServerUtil.send404Response(context, requestParser.getUrl());
+				HttpServerUtil.send404Response(requestParser.getUrl());
 				return;
 			}
 		} catch (Throwable e) {
 			Object res = exceptionHandler(e);
 			if (null != res) {
-				HttpServerUtil.send200Response(context, res);
+				HttpServerUtil.send200Response(res);
 			}
 		} finally {
 			release();
 		}
 	}
 
-	private boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	private boolean preHandle(String route, Method targetMethod) throws Exception {
 		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
 			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
-				if (!handlerInterceptor.preHandle(context, requestParser, route, targetMethod)) {
+				if (!handlerInterceptor.preHandle(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), route, targetMethod)) {
 					return Boolean.FALSE;
 				}
 			}
@@ -148,10 +158,18 @@ public class HttpRequestHandler {
 		return Boolean.TRUE;
 	}
 
-	private void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	private void postHandle(String route, Method targetMethod) throws Exception {
 		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
 			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
-				handlerInterceptor.postHandle(context, requestParser, route, targetMethod);
+				handlerInterceptor.postHandle(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), route, targetMethod);
+			}
+		}
+	}
+
+	private void afterCompletion(String route, Method targetMethod) {
+		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
+			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
+				handlerInterceptor.afterCompletion(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), route, targetMethod);
 			}
 		}
 	}
@@ -179,16 +197,16 @@ public class HttpRequestHandler {
 		ExceptionHandlerRegistry exceptionHandlerRegistry = WebContextHolder.getExceptionHandlerRegistry();
 		if (CollectionUtil.isEmpty(exceptionHandlerRegistry.getExceptionHandlerList())) {
 			log.error("Http处理异常", e);
-			HttpServerUtil.send500Response(HttpContextHolder.getChannelHandlerContext(), e);
+			HttpServerUtil.send500Response(e);
 			return null;
 		}
 		for (RestControllerExceptionHandler exceptionHandler : exceptionHandlerRegistry.getExceptionHandlerList()) {
 			if (exceptionHandler.support(e)) {
-				return exceptionHandler.handle(HttpContextHolder.getChannelHandlerContext(), HttpContextHolder.getHttpRequestParser(), e);
+				return exceptionHandler.handle(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), e);
 			}
 		}
 		log.error("Http处理异常", e);
-		HttpServerUtil.send500Response(HttpContextHolder.getChannelHandlerContext(), e);
+		HttpServerUtil.send500Response(e);
 		return null;
 	}
 
@@ -199,12 +217,12 @@ public class HttpRequestHandler {
 				Parameter parameter = method.getParameters()[i];
 				if (FullHttpRequest.class.isAssignableFrom(parameter.getType())) {
 					params[i] = HttpContextHolder.getFullHttpRequest();
-				} else if (HttpRequestParser.class.isAssignableFrom(parameter.getType())) {
-					params[i] = HttpContextHolder.getHttpRequestParser();
+				} else if (HttpRequestWrapper.class.isAssignableFrom(parameter.getType())) {
+					params[i] = HttpContextHolder.getHttpRequestWrapper();
 				} else if (ChannelHandlerContext.class.isAssignableFrom(parameter.getType())) {
 					params[i] = HttpContextHolder.getChannelHandlerContext();
 				} else if (parameter.isAnnotationPresent(RequestBody.class)) {
-					String bodyString = HttpContextHolder.getHttpRequestParser().getContentAsString();
+					String bodyString = HttpContextHolder.getHttpRequestWrapper().getContentAsString();
 					if (TypeUtil.isNormalBasicType(parameter.getType())) {
 						params[i] = TypeUtil.conversion(bodyString, parameter.getType());
 					} else {
@@ -215,7 +233,7 @@ public class HttpRequestHandler {
 					if (StringUtil.isEmpty(requestParam.value())) {
 						throw new RuntimeException(String.format("类:%s 方法:%s @RequestParam必须指定参数名称" ));
 					}
-					String val = HttpContextHolder.getHttpRequestParser().getParameter(requestParam.value());
+					String val = HttpContextHolder.getHttpRequestWrapper().getParameter(requestParam.value());
 					if (StringUtil.isEmpty(val)) {
 						if (requestParam.required()) {
 							throw new RuntimeException(String.format("类:%s 方法:%s 参数:%s 未指定" ));
@@ -231,7 +249,7 @@ public class HttpRequestHandler {
 							Object obj = parameter.getType().newInstance();
 							for (Field field : fields) {
 								String name = field.getName();
-								Object value = TypeUtil.conversion(HttpContextHolder.getHttpRequestParser().getParameter(name), field.getType());
+								Object value = TypeUtil.conversion(HttpContextHolder.getHttpRequestWrapper().getParameter(name), field.getType());
 								ReflectUtil.setFieldValue(field, obj, value);
 							}
 							params[i] = obj;

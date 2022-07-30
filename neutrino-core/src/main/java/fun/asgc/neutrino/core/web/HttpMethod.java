@@ -29,7 +29,7 @@ import fun.asgc.neutrino.core.util.StringUtil;
  * @date: 2022/7/15
  */
 public enum HttpMethod {
-	GET,POST;
+	GET,POST,OPTIONS;
 
 	public static HttpMethod of(String method) {
 		if (StringUtil.isEmpty(method)) {

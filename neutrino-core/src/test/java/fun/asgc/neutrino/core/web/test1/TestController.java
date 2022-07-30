@@ -45,13 +45,13 @@ public class TestController {
 
 	@GetMapping("hello")
 	public String hello() {
-		System.out.println("拿到参数 a = " + HttpContextHolder.getHttpRequestParser().getParameterForInteger("a"));
+		System.out.println("拿到参数 a = " + HttpContextHolder.getHttpRequestWrapper().getParameterForInteger("a"));
 		return testService.hello();
 	}
 
 	@GetMapping("add")
 	public Integer add(@RequestParam("x") int x, @RequestParam("y") int y, Param1 p) {
-		log.info("另一种取参方式 msg:{}", HttpContextHolder.getHttpRequestParser().getParameterForString("msg"));
+		log.info("另一种取参方式 msg:{}", HttpContextHolder.getHttpRequestWrapper().getParameterForString("msg"));
 		log.info("p : {}", JSONObject.toJSONString(p));
 		return x + y;
 	}

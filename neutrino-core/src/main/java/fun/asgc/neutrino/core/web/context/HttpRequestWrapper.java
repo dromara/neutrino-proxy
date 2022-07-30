@@ -39,14 +39,14 @@ import java.util.function.Function;
  * @author: aoshiguchen
  * @date: 2022/7/22
  */
-public class HttpRequestParser {
+public class HttpRequestWrapper {
 	private FullHttpRequest request;
 	private String url;
 	private String queryString;
 	private Map<String, String> queryParamMap = null;
 	private String routePath;
 
-	private HttpRequestParser(FullHttpRequest request) {
+	private HttpRequestWrapper(FullHttpRequest request) {
 		this.request = request;
 		this.url = request.uri();
 		this.queryString = "";
@@ -61,8 +61,8 @@ public class HttpRequestParser {
 		this.routePath = getRoutePath(url);
 	}
 
-	public static HttpRequestParser create(FullHttpRequest request) {
-		return new HttpRequestParser(request);
+	public static HttpRequestWrapper create(FullHttpRequest request) {
+		return new HttpRequestWrapper(request);
 	}
 
 	public String getUrl() {

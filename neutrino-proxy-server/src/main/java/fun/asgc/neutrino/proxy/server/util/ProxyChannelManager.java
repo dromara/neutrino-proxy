@@ -23,7 +23,7 @@
 package fun.asgc.neutrino.proxy.server.util;
 
 import fun.asgc.neutrino.proxy.core.Constants;
-import fun.asgc.neutrino.proxy.server.config.ProxyServerConfig;
+import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 

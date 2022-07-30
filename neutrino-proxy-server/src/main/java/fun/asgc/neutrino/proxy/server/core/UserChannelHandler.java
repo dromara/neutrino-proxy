@@ -24,7 +24,7 @@ package fun.asgc.neutrino.proxy.server.core;
 
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
-import fun.asgc.neutrino.proxy.server.config.ProxyServerConfig;
+import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
 import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;

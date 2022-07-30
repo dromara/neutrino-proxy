@@ -30,3 +30,10 @@ export function updateUser(data) {
     data
   })
 }
+
+export function hello() {
+  return request({
+    url: '/test1/hello',
+    method: 'GET'
+  })
+}

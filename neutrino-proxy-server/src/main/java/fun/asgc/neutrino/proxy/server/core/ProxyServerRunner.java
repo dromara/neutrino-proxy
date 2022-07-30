@@ -31,7 +31,7 @@ import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.proxy.core.IdleCheckHandler;
 import fun.asgc.neutrino.proxy.core.ProxyMessageDecoder;
 import fun.asgc.neutrino.proxy.core.ProxyMessageEncoder;
-import fun.asgc.neutrino.proxy.server.config.ProxyConfig;
+import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;

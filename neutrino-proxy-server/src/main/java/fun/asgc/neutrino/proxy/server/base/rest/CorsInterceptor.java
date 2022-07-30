@@ -19,27 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.interceptor;
+package fun.asgc.neutrino.proxy.server.base.rest;
 
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import io.netty.channel.ChannelHandlerContext;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
+import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
 
 import java.lang.reflect.Method;
 
 /**
- *
+ * 处理跨域问题
  * @author: aoshiguchen
- * @date: 2022/7/29
+ * @date: 2022/7/30
  */
-public interface RestControllerAdviceHandler {
-	/**
-	 * 返回结果处理
-	 * @param context
-	 * @param requestParser
-	 * @param route
-	 * @param targetMethod
-	 * @param res
-	 * @return
-	 */
-	Object advice(ChannelHandlerContext context, HttpRequestWrapper requestParser, String route, Method targetMethod, Object res);
+public class CorsInterceptor implements HandlerInterceptor {
+
+	@Override
+	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
+		responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+		responseWrapper.headers().add("Access-Control-Max-Age", "86400");
+		responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
+		responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
+		responseWrapper.headers().add("XDomainRequestAllowed", "1");
+	}
+
 }

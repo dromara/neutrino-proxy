@@ -21,7 +21,8 @@
  */
 package fun.asgc.neutrino.core.web.interceptor;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestParser;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.lang.reflect.Method;
@@ -32,10 +33,13 @@ import java.lang.reflect.Method;
  * @date: 2022/7/27
  */
 public interface HandlerInterceptor {
-	default boolean preHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	default boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
 		return true;
 	}
 
-	default void postHandle(ChannelHandlerContext context, HttpRequestParser requestParser, String route, Method targetMethod) throws Exception {
+	default void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+	}
+
+	default void afterCompletion(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) {
 	}
 }

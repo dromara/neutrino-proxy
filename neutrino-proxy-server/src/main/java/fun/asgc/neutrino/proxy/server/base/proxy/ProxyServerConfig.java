@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.config;
+package fun.asgc.neutrino.proxy.server.base.proxy;
 
 import fun.asgc.neutrino.proxy.core.ProxyClientConfig;
 import lombok.Data;

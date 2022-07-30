@@ -12,12 +12,11 @@
  */
 package fun.asgc.neutrino.core.util;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import fun.asgc.neutrino.core.web.HttpResponseEntry;
+import fun.asgc.neutrino.core.web.context.HttpContextHolder;
+import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -28,28 +27,38 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class HttpServerUtil {
 
-	public static void send404Response(ChannelHandlerContext context, String url) {
+	public static void sendResponse(HttpResponseStatus status) {
+		sendResponse(status, null);
+	}
+
+	public static void sendResponse(HttpResponseStatus status, ByteBuf content) {
+		HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
+		httpResponseWrapper.setStatus(status);
+		if (null != content) {
+			httpResponseWrapper.setContent(content);
+		}
+		httpResponseWrapper.writeAndFlush();
+	}
+
+	public static void send404Response(String url) {
 		String res = String.format("404 未找到指定资源: %s", url);
-		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(res.getBytes()));
-		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+		sendResponse(HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(res.getBytes()));
 	}
 
-	public static void send500Response(ChannelHandlerContext context, Throwable throwable) {
+	public static void send500Response(Throwable throwable) {
 		String res = String.format("500 服务异常: %s", ExceptionUtils.getStackTrace(throwable));
-		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer(res.getBytes()));
-		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+		sendResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer(res.getBytes()));
 	}
 
-	public static void send200Response(ChannelHandlerContext context, Object o) {
+	public static void send200Response(Object o) {
 		String res = String.valueOf(o);
 		if (null != o && !TypeUtil.isNormalBasicType(o.getClass())) {
 			res = JSONObject.toJSONString(o);
 		}
-		FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(res.getBytes()));
-		fullHttpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
-		context.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
+		HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
+		httpResponseWrapper.setContent(Unpooled.wrappedBuffer(res.getBytes()));
+		httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+		httpResponseWrapper.writeAndFlush();
 	}
 
 }
