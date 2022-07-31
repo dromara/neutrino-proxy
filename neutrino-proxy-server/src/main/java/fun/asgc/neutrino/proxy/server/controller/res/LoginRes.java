@@ -19,29 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.controller.res;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
-
-import java.lang.reflect.Method;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
- * 处理跨域问题
+ * 登录响应参数
  * @author: aoshiguchen
- * @date: 2022/7/30
+ * @date: 2022/7/31
  */
-public class CorsInterceptor implements HandlerInterceptor {
-
-	@Override
-	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
-		responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
-		responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-		responseWrapper.headers().add("Access-Control-Max-Age", "86400");
-		responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
-		responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
-		responseWrapper.headers().add("XDomainRequestAllowed", "1");
-	}
-
+@Accessors(chain = true)
+@Data
+public class LoginRes {
+	/**
+	 * token
+	 */
+	private String token;
+	/**
+	 * 用户ID
+	 */
+	private Integer userId;
+	/**
+	 * 用户名
+	 */
+	private String userName;
 }

@@ -19,30 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.test1;
+package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
+import fun.asgc.neutrino.core.annotation.Configuration;
+import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
+import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
+import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
 import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.lang.reflect.Method;
+import fun.asgc.neutrino.proxy.server.base.rest.interceptor.BaseAuthInterceptor;
+import fun.asgc.neutrino.proxy.server.base.rest.interceptor.CorsInterceptor;
+import fun.asgc.neutrino.proxy.server.base.rest.interceptor.GlobalAdviceHandler;
+import fun.asgc.neutrino.proxy.server.base.rest.interceptor.GlobalExceptionHandler;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/29
+ * @date: 2022/7/30
  */
-public class GlobalAdviceHandler implements RestControllerAdviceHandler {
+@Configuration
+public class WebConfigurerAdapter implements WebMvcConfigurer {
 
 	@Override
-	public Object advice(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object res) {
-		if (res instanceof JsonResult) {
-			return res;
-		}
-		return new JsonResult<>()
-			.setCode(0)
-			.setData(res);
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new BaseAuthInterceptor())
+			.addPathPatterns("/**").excludePathPatterns("/**/*.html", "/**/*.js", "/**/*.ico");
+		registry.addInterceptor(new CorsInterceptor());
 	}
 
+	@Override
+	public RestControllerAdviceHandler adviceHandler() {
+		return new GlobalAdviceHandler();
+	}
+
+	@Override
+	public void addExceptionHandler(ExceptionHandlerRegistry registry) {
+		registry.addExceptionHandler(new GlobalExceptionHandler());
+	}
 }

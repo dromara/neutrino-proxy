@@ -38,7 +38,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Component
 @Intercept(ignoreGlobal = true)
-//@NonIntercept
 public @interface RestController {
 
 }

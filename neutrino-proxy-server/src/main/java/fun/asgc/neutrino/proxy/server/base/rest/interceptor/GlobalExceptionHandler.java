@@ -19,24 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
-
-import java.lang.reflect.Method;
+import fun.asgc.neutrino.core.web.interceptor.RestControllerExceptionHandler;
+import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.ResponseBody;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
- * 鉴权拦截器
+ *
  * @author: aoshiguchen
- * @date: 2022/7/30
+ * @date: 2022/7/31
  */
-public class BaseAuthInterceptor implements HandlerInterceptor {
+public class GlobalExceptionHandler implements RestControllerExceptionHandler {
 
 	@Override
-	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
-		return true;
+	public Object handle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, Throwable e) {
+		if (e instanceof ServiceException) {
+			ServiceException serviceException = (ServiceException)e;
+			return new ResponseBody<>()
+				.setCode(serviceException.getCode())
+				.setMsg(serviceException.getMsg());
+		}
+		return new ResponseBody<>()
+			.setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
+			.setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())
+			.setStack(ExceptionUtils.getStackTrace(e));
 	}
 
 }

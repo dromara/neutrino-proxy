@@ -19,28 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.interceptor;
+package fun.asgc.neutrino.proxy.server.controller.req;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.lang.reflect.Method;
+import lombok.Data;
 
 /**
- *
+ * 登录请求参数
  * @author: aoshiguchen
- * @date: 2022/7/29
+ * @date: 2022/7/31
  */
-public interface RestControllerAdviceHandler {
+@Data
+public class LoginReq {
 	/**
-	 * 返回结果处理
-	 * @param requestParser
-	 * @param responseWrapper
-	 * @param route
-	 * @param targetMethod
-	 * @param res
-	 * @return
+	 * 登录名
 	 */
-	Object advice(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object res);
+	private String loginName;
+	/**
+	 * 登录密码
+	 */
+	private String loginPassword;
 }

@@ -97,7 +97,7 @@ public class HttpRequestHandler {
 				Object invokeResult = invoke(httpRouteResult.getInstance(), httpRouteResult.getMethod());
 
 				if (null != WebContextHolder.getAdviceHandler()) {
-					invokeResult = WebContextHolder.getAdviceHandler().advice(context, requestParser, routePath, httpRouteResult.getMethod(), invokeResult);
+					invokeResult = WebContextHolder.getAdviceHandler().advice(requestParser, HttpContextHolder.getHttpResponseWrapper(), routePath, httpRouteResult.getMethod(), invokeResult);
 				}
 
 				String res = String.valueOf(invokeResult);

@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.PreLoad;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.proxy.server.base.rest.config.SqliteConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.DriverManager;
@@ -97,6 +98,7 @@ public class DBInitialize {
 				}
 				sql += "\r\n" + line.trim();
 				if (sql.endsWith(";")) {
+					log.debug("初始化数据[table={}] sql:{}", tableName, sql);
 					jdbcTemplate.update(sql);
 					sql = "";
 				}

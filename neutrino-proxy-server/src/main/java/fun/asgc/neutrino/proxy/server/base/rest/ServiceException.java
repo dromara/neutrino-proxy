@@ -19,28 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.interceptor;
+package fun.asgc.neutrino.proxy.server.base.rest;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.lang.reflect.Method;
+import lombok.Getter;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/29
+ * @date: 2022/7/31
  */
-public interface RestControllerAdviceHandler {
+@Getter
+public class ServiceException extends RuntimeException {
 	/**
-	 * 返回结果处理
-	 * @param requestParser
-	 * @param responseWrapper
-	 * @param route
-	 * @param targetMethod
-	 * @param res
-	 * @return
+	 * 错误码
 	 */
-	Object advice(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object res);
+	private int code;
+	/**
+	 * 异常消息
+	 */
+	private String msg;
+
+	public ServiceException(int code, String msg) {
+		this.code = code;
+	}
+
+	public static ServiceException create(ExceptionConstant constant) {
+		return new ServiceException(constant.getCode(), constant.getMsg());
+	}
 }

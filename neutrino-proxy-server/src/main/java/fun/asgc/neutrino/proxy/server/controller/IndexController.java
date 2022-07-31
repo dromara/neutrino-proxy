@@ -19,28 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.web.interceptor;
+package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.lang.reflect.Method;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.web.annotation.PostMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestMapping;
+import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/29
+ * @date: 2022/7/31
  */
-public interface RestControllerAdviceHandler {
-	/**
-	 * 返回结果处理
-	 * @param requestParser
-	 * @param responseWrapper
-	 * @param route
-	 * @param targetMethod
-	 * @param res
-	 * @return
-	 */
-	Object advice(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object res);
+@NonIntercept
+@RequestMapping
+@RestController
+public class IndexController {
+
+	@PostMapping("login")
+	public LoginRes login(@RequestBody LoginReq req) {
+		if (null == req) {
+			throw ServiceException.create(ExceptionConstant.PARAMS_INVALID);
+		}
+		return new LoginRes()
+			.setToken("1111")
+			.setUserId(1)
+			.setUserName("张三");
+	}
+
 }
