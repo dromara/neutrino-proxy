@@ -21,15 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.PreLoad;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.core.util.LockUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import fun.asgc.neutrino.core.util.*;
+import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -37,21 +36,25 @@ import java.util.List;
  * @author: 初始化数据库
  * @date: 2022/7/31
  */
+@Slf4j
 @PreLoad("init")
 public class DBInitialize {
-
-	private static Connection conn;
+	private static List<String> initDataTableNameList = Lists.newArrayList("user");
+	private static SqliteConfig sqliteConfig;
+	private static JdbcTemplate jdbcTemplate;
 
 	public static void init() throws Exception {
+		sqliteConfig = ConfigUtil.getYmlConfig(SqliteConfig.class);
+		jdbcTemplate = getJdbcTemplate();
 		initDBStructure();
+		initDBData();
 	}
 
 	/**
 	 * 初始化数据库结构
 	 */
 	private static void initDBStructure() throws Exception {
-		Statement stat = getOrNewConnection().createStatement();
-		List<String> lines = FileUtil.readContentAsStringList("classpath:/init-structure.sql");
+		List<String> lines = FileUtil.readContentAsStringList("classpath:/sql/init-structure.sql");
 		if (CollectionUtil.isEmpty(lines)) {
 			return;
 		}
@@ -62,27 +65,66 @@ public class DBInitialize {
 			}
 			sql += "\r\n" + line.trim();
 			if (sql.endsWith(";")) {
-				stat.executeUpdate(sql);
+				log.debug("初始化数据库表 sql:{}", sql);
+				jdbcTemplate.update(sql);
 				sql = "";
 			}
 		}
 	}
 
 	/**
-	 * 获取一个数据库连接，如果数据库不存在，则会创建一个空数据库
+	 * 初始化数据
+	 * @throws Exception
+	 */
+	private static void initDBData() throws Exception {
+		if (CollectionUtil.isEmpty(initDataTableNameList)) {
+			return;
+		}
+		for (String tableName : initDataTableNameList) {
+			// 表里没有数据的时候，才进行初始化操作
+			int count = jdbcTemplate.queryForInt(String.format("select count(1) from `%s`", tableName));
+			if (count > 0) {
+				continue;
+			}
+			List<String> lines = FileUtil.readContentAsStringList(String.format("classpath:/sql/%s.data.sql", tableName));
+			if (CollectionUtil.isEmpty(lines)) {
+				return;
+			}
+			String sql = "";
+			for (String line : lines) {
+				if (StringUtil.isEmpty(line) || StringUtil.isEmpty(line.trim()) || line.trim().startsWith("#")) {
+					continue;
+				}
+				sql += "\r\n" + line.trim();
+				if (sql.endsWith(";")) {
+					jdbcTemplate.update(sql);
+					sql = "";
+				}
+			}
+		}
+	}
+
+	/**
+	 * 获取jdbcTemplate实例
 	 * @return
 	 * @throws Exception
 	 */
-	public static Connection getOrNewConnection() throws Exception {
+	private static JdbcTemplate getJdbcTemplate() throws Exception {
 		return LockUtil.doubleCheckProcess(
-			() -> null == conn,
+			() -> null == jdbcTemplate,
 			DBInitialize.class,
 			() -> {
-				Class.forName("org.sqlite.JDBC");
+				Class.forName(sqliteConfig.getDriverClass());
 				//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
-				DBInitialize.conn = DriverManager.getConnection("jdbc:sqlite:data.db");
+				DriverManager.getConnection(sqliteConfig.getUrl());
+				// 创建数据源
+				DruidDataSource dataSource = new DruidDataSource();
+				dataSource.setUrl(sqliteConfig.getUrl());
+				dataSource.setDriverClassName(sqliteConfig.getDriverClass());
+				// 创建jdbcTemplate
+				jdbcTemplate = new JdbcTemplate(dataSource);
 			},
-			() -> conn
+			() -> jdbcTemplate
 		);
 	}
 }
