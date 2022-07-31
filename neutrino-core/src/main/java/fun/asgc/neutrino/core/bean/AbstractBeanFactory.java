@@ -29,6 +29,7 @@ import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -544,7 +545,8 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * 运行
 	 */
 	private void run() {
-		beanCache.values().stream().filter(b -> b.getStatus().getStatus() < BeanStatus.RUNNING.getStatus()).forEach(b -> {
+		beanCache.values().stream().filter(b -> b.getStatus().getStatus() < BeanStatus.RUNNING.getStatus())
+			.sorted(Comparator.comparing(BeanWrapper::getOrder)).forEach(b -> {
 			try {
 				getOrNew(b);
 				b.run(getEnvironment().getMainArgs());

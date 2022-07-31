@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -84,6 +85,20 @@ public class FileUtil {
 	public static String readContentAsString(String path) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path)))){
 			return br.lines().collect(Collectors.joining("\n"));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * 读取文件内容
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> readContentAsStringList(String path) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path)))){
+			return br.lines().collect(Collectors.toList());
 		} catch (Exception e) {
 			return null;
 		}

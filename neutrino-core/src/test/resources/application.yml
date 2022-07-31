@@ -2,7 +2,7 @@ neutrino:
   application:
     name: neutrino-proxy-server
   http:
-    enable: true
+    enable: false
     port: 8080
     context-path: /test
     max-content-length-desc: 128K
