@@ -21,9 +21,7 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
@@ -36,7 +34,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -50,11 +47,6 @@ import java.util.Map;
 public class SqlMapperInterceptor implements Interceptor {
 
 	private static final Cache<Method, Params> paramsCache = new MemoryCache<>();
-
-	@Init
-	public void a() {
-		System.out.println("11");
-	}
 
 	@Override
 	public void intercept(Invocation inv) throws Exception {
