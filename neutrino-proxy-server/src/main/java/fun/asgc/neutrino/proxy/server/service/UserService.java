@@ -23,10 +23,17 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserTokenMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
+import fun.asgc.neutrino.proxy.server.util.Md5Util;
+
+import java.util.Date;
+import java.util.UUID;
 
 /**
  *
@@ -40,13 +47,29 @@ public class UserService {
 	@Autowired
 	private UserTokenMapper userTokenMapper;
 
+	public LoginRes login(LoginReq req) {
+		UserDO userDO = userMapper.findByLoginName(req.getLoginName());
+		if (null == userDO || !Md5Util.encode(req.getLoginPassword()).equals(userDO.getLoginPassword())) {
+			// TODO 抛出异常
+		}
+		String token = UUID.randomUUID().toString().replaceAll("-", "");
 
-	public UserDO findByLoginName(String loginName) {
-		return userMapper.findByLoginName(loginName);
-	}
+		Date now = new Date();
+		// TODO 计算过期时间
+		userTokenMapper.add(new UserTokenDO()
+			.setToken(token)
+			.setUserId(userDO.getId())
+			.setExpirationTime(now)
+			.setCreateTime(now)
+			.setUpdateTime(now)
+		);
 
-	public void addUserToken(UserTokenDO userTokenDO) {
-		userTokenMapper.add(userTokenDO);
+		// TODO 新增登录日志
+
+		return new LoginRes()
+			.setToken(token)
+			.setUserId(userDO.getId())
+			.setUserName(userDO.getName());
 	}
 
 }

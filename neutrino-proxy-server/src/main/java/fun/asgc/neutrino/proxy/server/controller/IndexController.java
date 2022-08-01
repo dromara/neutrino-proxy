@@ -27,16 +27,13 @@ import fun.asgc.neutrino.core.web.annotation.PostMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
+import fun.asgc.neutrino.proxy.server.controller.req.LogoutReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
+import fun.asgc.neutrino.proxy.server.controller.res.LogoutRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
-import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-
-import java.util.Date;
-import java.util.UUID;
 
 /**
  *
@@ -50,31 +47,19 @@ public class IndexController {
 	@Autowired
 	private UserService userService;
 
+	@Authorization(login = false)
 	@PostMapping("login")
 	public LoginRes login(@RequestBody LoginReq req) {
 		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
 
-		UserDO userDO = userService.findByLoginName(req.getLoginName());
-		if (null == userDO || !Md5Util.encode(req.getLoginPassword()).equals(userDO.getLoginPassword())) {
-			// TODO 抛出异常
-		}
-		String token = UUID.randomUUID().toString().replaceAll("-", "");
+		return userService.login(req);
+	}
 
-		Date now = new Date();
-		// TODO 计算过期时间
-		userService.addUserToken(new UserTokenDO()
-			.setToken(token)
-			.setUserId(userDO.getId())
-			.setExpirationTime(now)
-			.setCreateTime(now)
-			.setUpdateTime(now)
-		);
-
-		return new LoginRes()
-			.setToken(token)
-			.setUserId(userDO.getId())
-			.setUserName(userDO.getName());
+	@PostMapping("logout")
+	public LogoutRes logout(@RequestBody LogoutReq req) {
+		// TODO
+		return null;
 	}
 
 }
