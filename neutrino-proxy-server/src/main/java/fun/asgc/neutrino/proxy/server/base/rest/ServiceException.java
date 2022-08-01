@@ -41,9 +41,16 @@ public class ServiceException extends RuntimeException {
 
 	public ServiceException(int code, String msg) {
 		this.code = code;
+		this.msg = msg;
 	}
 
 	public static ServiceException create(ExceptionConstant constant) {
 		return new ServiceException(constant.getCode(), constant.getMsg());
+	}
+
+	public static ServiceException create(ExceptionConstant constant, Object... params) {
+		int code = constant.getCode();
+		String msg = String.format(constant.getMsg(), params);
+		return new ServiceException(code, msg);
 	}
 }

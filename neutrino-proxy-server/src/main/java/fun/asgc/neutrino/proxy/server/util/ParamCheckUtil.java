@@ -19,36 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.controller;
+package fun.asgc.neutrino.proxy.server.util;
 
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.web.annotation.PostMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
-import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
-import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/8/1
  */
-@NonIntercept
-@RequestMapping
-@RestController
-public class IndexController {
+public class ParamCheckUtil {
 
-	@PostMapping("login")
-	public LoginRes login(@RequestBody LoginReq req) {
-		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
-		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
-
-		return new LoginRes()
-			.setToken("1111")
-			.setUserId(1)
-			.setUserName("张三");
+	public static void checkNotEmpty(Object obj, String name) {
+		if (obj == null) {
+			throw ServiceException.create(ExceptionConstant.PARAMS_NOT_NULL, name);
+		}
+		if (obj instanceof String && StringUtil.isEmpty((String) obj)) {
+			throw ServiceException.create(ExceptionConstant.PARAMS_NOT_NULL, name);
+		}
 	}
-
 }

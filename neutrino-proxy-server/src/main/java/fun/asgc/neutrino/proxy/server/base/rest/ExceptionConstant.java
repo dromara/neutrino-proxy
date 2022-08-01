@@ -33,8 +33,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ExceptionConstant {
 	SUCCESS(0, "成功"),
-	PARAMS_INVALID(1, "参数不正确"),
-	USER_NOT_LOGIN(2, "用户未登录"),
+	USER_NOT_LOGIN(1, "用户未登录"),
+	PARAMS_INVALID(2, "参数不正确"),
+	PARAMS_NOT_NULL(3, "参数[%s]不能为空"),
 	SYSTEM_ERROR(500, "系统异常");
 
 	private int code;

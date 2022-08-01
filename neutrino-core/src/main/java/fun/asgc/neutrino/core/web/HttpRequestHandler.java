@@ -194,6 +194,9 @@ public class HttpRequestHandler {
 	}
 
 	private Object exceptionHandler(Throwable e) {
+		if (e instanceof InvocationTargetException) {
+			e = ((InvocationTargetException)e).getTargetException();
+		}
 		ExceptionHandlerRegistry exceptionHandlerRegistry = WebContextHolder.getExceptionHandlerRegistry();
 		if (CollectionUtil.isEmpty(exceptionHandlerRegistry.getExceptionHandlerList())) {
 			log.error("Http处理异常", e);
@@ -210,7 +213,7 @@ public class HttpRequestHandler {
 		return null;
 	}
 
-	private Object invoke(Object instance, Method method) throws InvocationTargetException, IllegalAccessException {
+	private Object invoke(Object instance, Method method) throws InvocationTargetException, IllegalAccessException, InstantiationException {
 		Object[] params = new Object[method.getParameterCount()];
 		if (method.getParameterCount() > 0) {
 			for (int i = 0; i < method.getParameters().length; i++) {
@@ -226,7 +229,11 @@ public class HttpRequestHandler {
 					if (TypeUtil.isNormalBasicType(parameter.getType())) {
 						params[i] = TypeUtil.conversion(bodyString, parameter.getType());
 					} else {
-						params[i] = JSONObject.parseObject(bodyString, parameter.getType());
+						if (StringUtil.isEmpty(bodyString)) {
+							params[i] = parameter.getType().newInstance();
+						} else {
+							params[i] = JSONObject.parseObject(bodyString, parameter.getType());
+						}
 					}
 				} else if (parameter.isAnnotationPresent(RequestParam.class)) {
 					RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
@@ -243,16 +250,16 @@ public class HttpRequestHandler {
 						params[i] = TypeUtil.conversion(val, parameter.getType());
 					}
 				} else if (!TypeUtil.isNormalBasicType(parameter.getType())) {
+					Object obj = parameter.getType().newInstance();
+					params[i] = obj;
 					Set<Field> fields = ReflectUtil.getDeclaredFields(parameter.getType());
 					if (CollectionUtil.notEmpty(fields)) {
 						try {
-							Object obj = parameter.getType().newInstance();
 							for (Field field : fields) {
 								String name = field.getName();
 								Object value = TypeUtil.conversion(HttpContextHolder.getHttpRequestWrapper().getParameter(name), field.getType());
 								ReflectUtil.setFieldValue(field, obj, value);
 							}
-							params[i] = obj;
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
