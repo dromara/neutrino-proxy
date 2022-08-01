@@ -36,10 +36,6 @@ public class Test1 implements ApplicationRunner {
 	@Autowired
 	private TestGlobalExceptionHandler testGlobalExceptionHandler;
 
-	public Test1() {
-		System.out.println("aaa");
-	}
-
 	@Init
 	public void init() {
 		log.info("初始化，注册全局异常拦截器{}...", testGlobalExceptionHandler.hashCode());

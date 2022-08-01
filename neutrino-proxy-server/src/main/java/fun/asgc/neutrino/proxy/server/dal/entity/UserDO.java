@@ -19,52 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.dal.entity;
 
-package fun.asgc.neutrino.core.config;
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.core.db.annotation.Table;
+import lombok.Data;
+import lombok.ToString;
 
-import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-
-import java.io.InputStream;
-import java.util.Map;
+import java.util.Date;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/8/1
  */
-public interface ConfigurationParser {
-
+@ToString
+@Data
+@Table("user")
+public class UserDO {
+	@Id
+	private Integer id;
 	/**
-	 * 解析
-	 * @param in
-	 * @param clazz
-	 * @param <T>
-	 * @return
+	 * 用户名
 	 */
-	<T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException;
-
+	private String name;
 	/**
-	 * 解析
-	 * @param clazz
-	 * @param <T>
-	 * @return
+	 * 登录名
 	 */
-	<T> T parse(Class<T> clazz) throws ConfigurationParserException;
-
+	private String loginName;
 	/**
-	 * 解析
-	 * @param obj
-	 * @throws ConfigurationParserException
+	 * 登录密码
 	 */
-	void parse(Object obj) throws ConfigurationParserException;
-
+	private String loginPassword;
 	/**
-	 * 解析
-	 * @param config
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 * @throws ConfigurationParserException
+	 * 创建时间
 	 */
-	<T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException;
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

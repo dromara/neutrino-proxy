@@ -38,4 +38,8 @@ public class ConfigUtil {
 		return ymlParser.parse(clazz);
 	}
 
+	public static <T> T getYmlConfig(Object obj) {
+		ymlParser.parse(obj);
+		return (T)obj;
+	}
 }

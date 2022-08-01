@@ -21,7 +21,12 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.proxy.server.dal.UserMapper;
+import fun.asgc.neutrino.proxy.server.dal.UserTokenMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 
 /**
  *
@@ -30,5 +35,18 @@ import fun.asgc.neutrino.core.annotation.Component;
  */
 @Component
 public class UserService {
+	@Autowired
+	private UserMapper userMapper;
+	@Autowired
+	private UserTokenMapper userTokenMapper;
+
+
+	public UserDO findByLoginName(String loginName) {
+		return userMapper.findByLoginName(loginName);
+	}
+
+	public void addUserToken(UserTokenDO userTokenDO) {
+		userTokenMapper.add(userTokenDO);
+	}
 
 }

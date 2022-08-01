@@ -19,52 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.dal;
 
-package fun.asgc.neutrino.core.config;
-
-import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-
-import java.io.InputStream;
-import java.util.Map;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/8/1
  */
-public interface ConfigurationParser {
+@Component
+public interface UserMapper extends SqlMapper {
 
 	/**
-	 * 解析
-	 * @param in
-	 * @param clazz
-	 * @param <T>
+	 * 根据登录名查询用户记录
+	 * @param loginName
 	 * @return
 	 */
-	<T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException;
+	@Select("select * from user where login_name = ?")
+	UserDO findByLoginName(String loginName);
 
-	/**
-	 * 解析
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T parse(Class<T> clazz) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param obj
-	 * @throws ConfigurationParserException
-	 */
-	void parse(Object obj) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param config
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 * @throws ConfigurationParserException
-	 */
-	<T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException;
 }

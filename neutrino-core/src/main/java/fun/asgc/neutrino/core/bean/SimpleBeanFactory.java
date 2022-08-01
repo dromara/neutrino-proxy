@@ -213,6 +213,7 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 						BeanWrapper factoryBean = bean.getFactoryBean();
 						if (!factoryBean.hasInstance()) {
 							newInstance(factoryBean);
+							inject(factoryBean);
 						}
 						if (bean.getInstantiationMethod().getParameters().length == 0) {
 							bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance()));

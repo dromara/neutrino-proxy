@@ -19,52 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.util;
 
-package fun.asgc.neutrino.core.config;
-
-import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-
-import java.io.InputStream;
-import java.util.Map;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/8/1
  */
-public interface ConfigurationParser {
+public class Md5Util {
 
 	/**
-	 * 解析
-	 * @param in
-	 * @param clazz
-	 * @param <T>
+	 * md5加密
+	 * @param data
 	 * @return
 	 */
-	<T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T parse(Class<T> clazz) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param obj
-	 * @throws ConfigurationParserException
-	 */
-	void parse(Object obj) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param config
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 * @throws ConfigurationParserException
-	 */
-	<T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException;
+	public static String encode(String data) {
+		byte[] digest = null;
+		try {
+			MessageDigest md5 = MessageDigest.getInstance("md5");
+			digest  = md5.digest(data.getBytes("utf-8"));
+			return new BigInteger(1, digest).toString(16);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

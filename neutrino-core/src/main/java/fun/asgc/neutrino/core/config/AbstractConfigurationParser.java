@@ -26,10 +26,7 @@ import fun.asgc.neutrino.core.annotation.Configuration;
 import fun.asgc.neutrino.core.annotation.Value;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.core.util.ReflectUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.util.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
@@ -50,12 +47,20 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
 
 	@Override
 	public <T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException {
+		return parse(in, clazz, null);
+	}
+
+	public <T> T parse(InputStream in, Class<T> clazz, Object obj) throws ConfigurationParserException {
 		Map<String, Object> config = parse2Map(in);
-		return parse(config, clazz);
+		return parse(config, clazz, obj);
 	}
 
 	@Override
 	public <T> T parse(Class<T> clazz) throws ConfigurationParserException {
+		return parse(clazz, null);
+	}
+
+	public <T> T parse(Class<T> clazz, Object obj) throws ConfigurationParserException {
 		String fileName = defaultFileName();
 		Configuration configuration = clazz.getAnnotation(Configuration.class);
 		if (null != configuration && StringUtils.isNotEmpty(configuration.file())) {
@@ -64,21 +69,31 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
 
 		try {
 			InputStream in = FileUtil.getInputStream(MetaDataConstant.CLASSPATH_RESOURCE_IDENTIFIER.concat("/").concat(fileName));
-			return parse(in, clazz);
+			return parse(in, clazz, obj);
 		} catch (FileNotFoundException e) {
 			throw new ConfigurationParserException(String.format("配置文件[%s]不存在", fileName));
 		}
 	}
 
 	@Override
-	public <T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException {
-		return parseProxy(config, clazz);
+	public void parse(Object obj) throws ConfigurationParserException {
+		Assert.notNull(obj, "对象不能为空");
+		parse(obj.getClass(), obj);
 	}
 
-	private  <T> T parseProxy(Map<String, Object> config, Class<?> clazz) throws ConfigurationParserException {
+	@Override
+	public <T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException {
+		return parse(config, clazz, null);
+	}
+
+	public <T> T parse(Map<String, Object> config, Class<T> clazz, Object obj) throws ConfigurationParserException {
+		return parseProxy(config, clazz, obj);
+	}
+
+	private  <T> T parseProxy(Map<String, Object> config, Class<?> clazz, Object obj) throws ConfigurationParserException {
 		T instance = null;
 		try {
-			instance = (T)clazz.newInstance();
+			instance = (null != obj) ? (T)obj : (T)clazz.newInstance();
 		} catch (InstantiationException e) {
 			throw new ConfigurationParserException(String.format("无法实例化类：%s", clazz.getName()));
 		} catch (IllegalAccessException e) {
@@ -129,7 +144,7 @@ public abstract class AbstractConfigurationParser implements ConfigurationParser
 			boolean success = ReflectUtil.setFieldValue(field, instance, fieldValue);
 			if (!success) {
 				try {
-					Object o = parseProxy((Map)config.get(key), field.getType());
+					Object o = parseProxy((Map)config.get(key), field.getType(), null);
 					if (null != o) {
 						ReflectUtil.setFieldValue(field, instance, o);
 					}

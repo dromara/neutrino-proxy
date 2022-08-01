@@ -19,52 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.dal;
 
-package fun.asgc.neutrino.core.config;
-
-import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-
-import java.io.InputStream;
-import java.util.Map;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/8/1
  */
-public interface ConfigurationParser {
-
+@Component
+public interface UserTokenMapper extends SqlMapper {
 	/**
-	 * 解析
-	 * @param in
-	 * @param clazz
-	 * @param <T>
+	 * 新增用户token
+	 * @param userToken
 	 * @return
 	 */
-	<T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T parse(Class<T> clazz) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param obj
-	 * @throws ConfigurationParserException
-	 */
-	void parse(Object obj) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param config
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 * @throws ConfigurationParserException
-	 */
-	<T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException;
+	@Insert("insert into `user_token`(`token`,`user_id`,`expiration_time`,`create_time`,`update_time`) values (:token,:userId,:expirationTime,:createTime,:updateTime)")
+	int  add(UserTokenDO userToken);
 }

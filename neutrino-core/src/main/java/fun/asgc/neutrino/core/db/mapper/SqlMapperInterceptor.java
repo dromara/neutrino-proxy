@@ -49,8 +49,6 @@ import java.util.Map;
 @Component
 public class SqlMapperInterceptor implements Interceptor {
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
 	private static final Cache<Method, Params> paramsCache = new MemoryCache<>();
 
 	@Init
@@ -60,6 +58,7 @@ public class SqlMapperInterceptor implements Interceptor {
 
 	@Override
 	public void intercept(Invocation inv) throws Exception {
+		JdbcTemplate jdbcTemplate = BeanManager.getBean(JdbcTemplate.class);
 		Assert.notNull(jdbcTemplate, "JdbcTemplate未注入，调用失败!");
 		Params params = getParams(inv.getTargetMethod());
 		if (null == params) {

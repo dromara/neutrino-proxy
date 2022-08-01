@@ -19,52 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-package fun.asgc.neutrino.core.config;
+import com.alibaba.druid.pool.DruidDataSource;
+import fun.asgc.neutrino.core.annotation.*;
+import fun.asgc.neutrino.core.base.Ordered;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 
-import fun.asgc.neutrino.core.exception.ConfigurationParserException;
-
-import java.io.InputStream;
-import java.util.Map;
+import javax.sql.DataSource;
 
 /**
- *
- * @author: aoshiguchen
- * @date: 2022/6/16
+ * 系统配置
+ *author: aoshiguchen
+ * @date: 2022/8/1
  */
-public interface ConfigurationParser {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
+public class SystemConfiguration {
+	@Autowired
+	private SqliteConfig sqliteConfig;
 
-	/**
-	 * 解析
-	 * @param in
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T parse(InputStream in, Class<T> clazz) throws ConfigurationParserException;
+	@Bean
+	public DataSource dataSource() {
+		DruidDataSource dataSource = new DruidDataSource();
+		dataSource.setUrl(sqliteConfig.getUrl());
+		dataSource.setDriverClassName(sqliteConfig.getDriverClass());
+		return dataSource;
+	}
 
-	/**
-	 * 解析
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 */
-	<T> T parse(Class<T> clazz) throws ConfigurationParserException;
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource());
+	}
 
-	/**
-	 * 解析
-	 * @param obj
-	 * @throws ConfigurationParserException
-	 */
-	void parse(Object obj) throws ConfigurationParserException;
-
-	/**
-	 * 解析
-	 * @param config
-	 * @param clazz
-	 * @param <T>
-	 * @return
-	 * @throws ConfigurationParserException
-	 */
-	<T> T parse(Map<String, Object> config, Class<T> clazz) throws ConfigurationParserException;
 }
