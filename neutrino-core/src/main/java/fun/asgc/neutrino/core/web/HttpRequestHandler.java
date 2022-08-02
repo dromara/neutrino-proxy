@@ -72,12 +72,19 @@ public class HttpRequestHandler {
 	public void handle() {
 		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
 		HttpRequestWrapper requestParser = HttpContextHolder.getHttpRequestWrapper();
+		HttpResponseWrapper responseWrapper = HttpContextHolder.getHttpResponseWrapper();
 		log.info("HttpRequest method:{} url:{} query:{}", requestParser.getMethod().name(), requestParser.getUrl(), requestParser.getQueryParamMap());
 
 		try {
 			String routePath = requestParser.getRoutePath();
 			HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
 			if (httpMethod == HttpMethod.OPTIONS) {
+				responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
+				responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+				responseWrapper.headers().add("Access-Control-Max-Age", "86400");
+				responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
+				responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
+				responseWrapper.headers().add("XDomainRequestAllowed", "1");
 				HttpServerUtil.sendResponse(HttpResponseStatus.OK);
 				return;
 			}

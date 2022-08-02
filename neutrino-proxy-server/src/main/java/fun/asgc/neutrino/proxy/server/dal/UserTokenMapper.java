@@ -48,6 +48,7 @@ public interface UserTokenMapper extends SqlMapper {
 	/**
 	 * 根据token查询单条记录
 	 * @param token
+	 * @param time
 	 * @return
 	 */
 	@Select("select * from user_token where token = ? and expiration_time > ?")

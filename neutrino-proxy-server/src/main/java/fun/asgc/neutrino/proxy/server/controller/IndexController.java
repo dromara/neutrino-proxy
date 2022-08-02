@@ -29,9 +29,7 @@ import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LogoutReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LogoutRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
