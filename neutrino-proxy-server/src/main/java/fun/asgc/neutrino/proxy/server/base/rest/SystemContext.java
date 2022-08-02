@@ -22,32 +22,27 @@
 package fun.asgc.neutrino.proxy.server.base.rest;
 
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/8/2
  */
-public class SystemContextHolder {
-	private static final ThreadLocal<SystemContext> systemContextHolder = new ThreadLocal<>();
-
-	public static void remove() {
-		systemContextHolder.remove();
-	}
-
-	public static void set(SystemContext systemContext) {
-		systemContextHolder.set(systemContext);
-	}
-
-	public static UserDO getUser() {
-		return systemContextHolder.get().getUser();
-	}
-
-	public static String getToken() {
-		return systemContextHolder.get().getToken();
-	}
-
-	public static String getIp() {
-		return systemContextHolder.get().getIp();
-	}
+@Accessors(chain = true)
+@Data
+public class SystemContext {
+	/**
+	 * 当前用户
+	 */
+	private UserDO user;
+	/**
+	 * 鉴权token
+	 */
+	private String token;
+	/**
+	 * 客户端ip
+	 */
+	private String ip;
 }

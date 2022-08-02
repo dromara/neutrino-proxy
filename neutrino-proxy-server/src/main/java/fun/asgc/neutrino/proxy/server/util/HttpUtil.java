@@ -19,35 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.util;
 
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/8/2
  */
-public class SystemContextHolder {
-	private static final ThreadLocal<SystemContext> systemContextHolder = new ThreadLocal<>();
+public class HttpUtil {
 
-	public static void remove() {
-		systemContextHolder.remove();
+	/**
+	 * 获取客户端IP
+	 */
+	public static String getIP(ChannelHandlerContext context, HttpRequestWrapper request) {
+		String ip = request.getHeaderValue("clientip"); // for UC browser
+		if (ip == null) {
+			ip = request.getHeaderValue("X-Real-IP");
+			if (ip == null) {
+				ip = request.getHeaderValue("X-Forwarded-For");
+				if (ip == null) {
+					ip = context.channel().remoteAddress().toString();
+					if (ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1")) {
+						//根据网卡取本机配置的IP
+						InetAddress inet = null;
+						try {
+							inet = InetAddress.getLocalHost();
+						} catch (UnknownHostException e) {
+							e.printStackTrace();
+						}
+						ip = inet.getHostAddress();
+					}
+				}
+			}
+		}
+		return ip;
 	}
 
-	public static void set(SystemContext systemContext) {
-		systemContextHolder.set(systemContext);
-	}
-
-	public static UserDO getUser() {
-		return systemContextHolder.get().getUser();
-	}
-
-	public static String getToken() {
-		return systemContextHolder.get().getToken();
-	}
-
-	public static String getIp() {
-		return systemContextHolder.get().getIp();
-	}
 }

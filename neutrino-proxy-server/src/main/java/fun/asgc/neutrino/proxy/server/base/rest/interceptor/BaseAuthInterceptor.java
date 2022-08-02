@@ -23,15 +23,14 @@ package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
-import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
-import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
-import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import fun.asgc.neutrino.proxy.server.base.rest.*;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import fun.asgc.neutrino.proxy.server.util.HttpUtil;
 
 import java.lang.reflect.Method;
 
@@ -44,6 +43,10 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		SystemContext systemContext = new SystemContext();
+		SystemContextHolder.set(systemContext);
+		systemContext.setIp(HttpUtil.getIP(HttpContextHolder.getChannelHandlerContext(), requestParser));
+
 		Authorization authorization = targetMethod.getAnnotation(Authorization.class);
 		if (null == authorization || authorization.login()) {
 			String authorize = requestParser.getHeaderValue("Authorize");
@@ -54,8 +57,8 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 			if (null == userDO) {
 				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
 			}
-			SystemContextHolder.setUser(userDO);
-			SystemContextHolder.setToken(authorize);
+			systemContext.setToken(authorize);
+			systemContext.setUser(userDO);
 		}
 
 		return true;

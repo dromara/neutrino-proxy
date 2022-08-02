@@ -77,7 +77,7 @@ public class UserService {
 		// 新增用户登录日志
 		userLoginRecordMapper.add(new UserLoginRecordDO()
 			.setUserId(userDO.getId())
-			.setIp("111")
+			.setIp(SystemContextHolder.getIp())
 			.setToken(token)
 			.setType(UserLoginRecordDO.TYPE_LOGIN)
 			.setCreateTime(now)
@@ -91,6 +91,15 @@ public class UserService {
 
 	public void logout() {
 		userTokenMapper.deleteByToken(SystemContextHolder.getToken());
+
+		// 新增用户登录日志
+		userLoginRecordMapper.add(new UserLoginRecordDO()
+			.setUserId(SystemContextHolder.getUser().getId())
+			.setIp(SystemContextHolder.getIp())
+			.setToken(SystemContextHolder.getToken())
+			.setType(UserLoginRecordDO.TYPE_LOGOUT)
+			.setCreateTime(new Date())
+		);
 	}
 
 	public UserDO findByToken(String token) {
