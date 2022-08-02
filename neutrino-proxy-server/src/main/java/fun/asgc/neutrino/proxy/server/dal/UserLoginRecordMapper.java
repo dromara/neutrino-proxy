@@ -19,27 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.dal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/8/2
  */
-@Getter
-@AllArgsConstructor
-public enum ExceptionConstant {
-	SUCCESS(0, "成功"),
-	USER_NOT_LOGIN(1, "用户未登录"),
-	PARAMS_INVALID(2, "参数不正确"),
-	PARAMS_NOT_NULL(3, "参数[%s]不能为空"),
-	USER_NAME_OR_PASSWORD_ERROR(4, "用户名或密码错误"),
-	SYSTEM_ERROR(500, "系统异常"),
-	;
-
-	private int code;
-	private String msg;
+@Component
+public interface UserLoginRecordMapper extends SqlMapper {
+	/**
+	 * 新增用户登录日志
+	 * @param userLoginRecord
+	 * @return
+	 */
+	@Insert("insert into `user_login_record`(`user_id`,`ip`,`token`,`type`,`create_time`) values(:userId,:ip,:token,:type,:createTime)")
+	int add(UserLoginRecordDO userLoginRecord);
 }

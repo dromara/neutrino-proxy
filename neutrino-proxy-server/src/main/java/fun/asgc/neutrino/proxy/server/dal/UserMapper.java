@@ -42,4 +42,12 @@ public interface UserMapper extends SqlMapper {
 	@Select("select * from user where login_name = ?")
 	UserDO findByLoginName(String loginName);
 
+	/**
+	 * 根据id查询单条记录
+	 * @param id
+	 * @return
+	 */
+	@Select("select * from user where id = ?")
+	UserDO findById(Integer id);
+
 }

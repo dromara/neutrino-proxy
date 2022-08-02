@@ -23,15 +23,21 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
+import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserTokenMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -46,30 +52,56 @@ public class UserService {
 	private UserMapper userMapper;
 	@Autowired
 	private UserTokenMapper userTokenMapper;
+	@Autowired
+	private UserLoginRecordMapper userLoginRecordMapper;
 
 	public LoginRes login(LoginReq req) {
 		UserDO userDO = userMapper.findByLoginName(req.getLoginName());
 		if (null == userDO || !Md5Util.encode(req.getLoginPassword()).equals(userDO.getLoginPassword())) {
-			// TODO 抛出异常
+			throw ServiceException.create(ExceptionConstant.USER_NAME_OR_PASSWORD_ERROR);
 		}
 		String token = UUID.randomUUID().toString().replaceAll("-", "");
 
 		Date now = new Date();
-		// TODO 计算过期时间
+		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);
+
+		// 缓存token
 		userTokenMapper.add(new UserTokenDO()
 			.setToken(token)
 			.setUserId(userDO.getId())
-			.setExpirationTime(now)
+			.setExpirationTime(expirationTime)
 			.setCreateTime(now)
 			.setUpdateTime(now)
 		);
 
-		// TODO 新增登录日志
+		// 新增用户登录日志
+		userLoginRecordMapper.add(new UserLoginRecordDO()
+			.setUserId(userDO.getId())
+			.setIp("111")
+			.setToken(token)
+			.setType(UserLoginRecordDO.TYPE_LOGIN)
+			.setCreateTime(now)
+		);
 
 		return new LoginRes()
 			.setToken(token)
 			.setUserId(userDO.getId())
 			.setUserName(userDO.getName());
+	}
+
+	public void logout() {
+		userTokenMapper.deleteByToken(SystemContextHolder.getToken());
+	}
+
+	public UserDO findByToken(String token) {
+		Date now = new Date();
+		UserTokenDO userTokenDO = userTokenMapper.findByAvailableToken(token, now.getTime());
+		if (null == userTokenDO) {
+			return null;
+		}
+		UserDO userDO = userMapper.findById(userTokenDO.getUserId());
+		// TODO 校验用户是否已被禁用
+		return userDO;
 	}
 
 }

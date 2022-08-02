@@ -57,9 +57,8 @@ public class IndexController {
 	}
 
 	@PostMapping("logout")
-	public LogoutRes logout(@RequestBody LogoutReq req) {
-		// TODO
-		return null;
+	public void logout() {
+		userService.logout();
 	}
 
 }

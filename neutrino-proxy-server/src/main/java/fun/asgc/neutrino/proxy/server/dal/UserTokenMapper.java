@@ -22,9 +22,13 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
+
+import java.util.Date;
 
 /**
  *
@@ -40,4 +44,19 @@ public interface UserTokenMapper extends SqlMapper {
 	 */
 	@Insert("insert into `user_token`(`token`,`user_id`,`expiration_time`,`create_time`,`update_time`) values (:token,:userId,:expirationTime,:createTime,:updateTime)")
 	int  add(UserTokenDO userToken);
+
+	/**
+	 * 根据token查询单条记录
+	 * @param token
+	 * @return
+	 */
+	@Select("select * from user_token where token = ? and expiration_time > ?")
+	UserTokenDO findByAvailableToken(String token, Long time);
+
+	/**
+	 * 根据token删除记录
+	 * @param token
+	 */
+	@Delete("delete from user_token where token = ?")
+	void deleteByToken(String token);
 }

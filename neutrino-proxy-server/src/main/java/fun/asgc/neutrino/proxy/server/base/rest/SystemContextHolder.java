@@ -21,25 +21,35 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/8/2
  */
-@Getter
-@AllArgsConstructor
-public enum ExceptionConstant {
-	SUCCESS(0, "成功"),
-	USER_NOT_LOGIN(1, "用户未登录"),
-	PARAMS_INVALID(2, "参数不正确"),
-	PARAMS_NOT_NULL(3, "参数[%s]不能为空"),
-	USER_NAME_OR_PASSWORD_ERROR(4, "用户名或密码错误"),
-	SYSTEM_ERROR(500, "系统异常"),
-	;
+public class SystemContextHolder {
+	private static final ThreadLocal<UserDO> userHolder = new ThreadLocal<>();
+	private static final ThreadLocal<String> tokenHolder = new ThreadLocal<>();
 
-	private int code;
-	private String msg;
+	public static void remove() {
+		userHolder.remove();
+		tokenHolder.remove();
+	}
+
+	public static void setUser(UserDO user) {
+		userHolder.set(user);
+	}
+
+	public static UserDO getUser() {
+		return userHolder.get();
+	}
+
+	public static void setToken(String token) {
+		tokenHolder.set(token);
+	}
+
+	public static String getToken() {
+		return tokenHolder.get();
+	}
 }

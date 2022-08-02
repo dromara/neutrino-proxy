@@ -85,9 +85,10 @@ public class SqlAndParams {
 		if (null == paramMap) {
 			paramMap = new HashMap<>();
 		}
+		 String originSql = sql;
 		List<Orderly> orderlyList = new ArrayList<>();
 		for(String key : paramMap.keySet()){
-			int index = sql.indexOf(":" + key);
+			int index = originSql.indexOf(":" + key);
 			if(-1 != index){
 				orderlyList.add(new Orderly(paramMap.get(key), index));
 				sql = sql.replaceFirst(":" + key, "?");

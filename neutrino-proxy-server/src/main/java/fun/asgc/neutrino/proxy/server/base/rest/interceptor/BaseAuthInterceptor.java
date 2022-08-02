@@ -21,9 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
+import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
+import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.service.UserService;
 
 import java.lang.reflect.Method;
 
@@ -36,8 +44,25 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
-		// TODO
+		Authorization authorization = targetMethod.getAnnotation(Authorization.class);
+		if (null == authorization || authorization.login()) {
+			String authorize = requestParser.getHeaderValue("Authorize");
+			if (StringUtil.isEmpty(authorize)) {
+				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
+			}
+			UserDO userDO = BeanManager.getBean(UserService.class).findByToken(authorize);
+			if (null == userDO) {
+				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
+			}
+			SystemContextHolder.setUser(userDO);
+			SystemContextHolder.setToken(authorize);
+		}
+
 		return true;
 	}
 
+	@Override
+	public void afterCompletion(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) {
+		SystemContextHolder.remove();
+	}
 }
