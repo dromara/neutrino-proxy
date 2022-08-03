@@ -1,6 +1,7 @@
 **/target/
 # Compiled class file
 *.class
+data.db
 
 # Log file
 *.log
