@@ -339,7 +339,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	 * @param name
 	 * @return
 	 */
-	private BeanWrapper findBean(Class<?> type, String name) {
+	protected BeanWrapper findBean(Class<?> type, String name) {
 		Assert.notNull(type, "bean的类型不能为空!");
 		Assert.notNull(name, "bean的名称不能为空！");
 		return beanCache.get(new BeanIdentity(name, type));

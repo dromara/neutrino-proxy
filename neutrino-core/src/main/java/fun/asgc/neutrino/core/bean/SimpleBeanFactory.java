@@ -211,12 +211,21 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 					} else if (BeanInstantiationMode.METHOD == bean.getInstantiationMode()) {
 						// 通过bean方法实例化
 						BeanWrapper factoryBean = bean.getFactoryBean();
+						factoryBean.getInnerDeanIdentitySet().add(bean.getIdentity());
 						if (!factoryBean.hasInstance()) {
 							newInstance(factoryBean);
+						}
+						// 工厂bean，实例化方法执行前，工厂bean需要完成注入。但此时如果存在循环引用，这个注入只能完成一部分。实例化完成后，继续注入
+						if (factoryBean.getStatus() == BeanStatus.INSTANCE) {
 							inject(factoryBean);
 						}
 						if (bean.getInstantiationMethod().getParameters().length == 0) {
 							bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance()));
+							// 实例化完成后继续注入
+							if (null != bean.getInstance()) {
+								bean.setStatus(BeanStatus.INSTANCE);
+							}
+							inject(factoryBean);
 						} else {
 							// 暂时只处理一个参数的情况
 							Autowired autowired = bean.getInstantiationMethod().getParameters()[0].getAnnotation(Autowired.class);
@@ -231,6 +240,11 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 								arg = getBeanByTypeAndName(beanType, beanName);
 							}
 							bean.setInstance(bean.getInstantiationMethod().invoke(factoryBean.getInstance(), arg));
+							// 实例化完成后继续注入
+							if (null != bean.getInstance()) {
+								bean.setStatus(BeanStatus.INSTANCE);
+							}
+							inject(factoryBean);
 						}
 
 					} else if (BeanInstantiationMode.FACTORY == bean.getInstantiationMode()) {
@@ -267,16 +281,35 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 						bean.setStatus(BeanStatus.INJECT);
 						return;
 					}
+					boolean flag = true;
 					for (Field field : fieldSet) {
 						Autowired autowired = field.getAnnotation(Autowired.class);
 						if (null == autowired) {
 							continue;
 						}
+						// 已完成注入，无需重复注入
+						field.setAccessible(true);
+						Object oldObj = field.get(bean.getInstance());
+						if (null != oldObj) {
+							continue;
+						}
+
 						String beanName = autowired.value();
 						if (StringUtil.isEmpty(beanName)) {
 							beanName = field.getName();
 						}
 						Class<?> parameterType = autowired.parameterTypes().length == 0 ? Object.class : autowired.parameterTypes()[0];
+
+						// 临时解决自引用导致堆栈溢出的问题
+						BeanIdentity innerBeanIdentity = new BeanIdentity(beanName, field.getType());
+						if (bean.getInnerDeanIdentitySet().contains(innerBeanIdentity)) {
+							BeanWrapper beanWrapper = findBean(field.getType(), beanName);
+							if (null == beanWrapper || !beanWrapper.hasInstance()) {
+								flag = false;
+								continue;
+							}
+						}
+
 						BeanMatchMode matchMode = autowired.matchMode();
 						Object obj = null;
 						if (matchMode == BeanMatchMode.ByType) {
@@ -302,9 +335,12 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 						if (null == obj) {
 							throw new BeanException(String.format("Bean[type:%s name:%s field:%s] 注入异常", bean.getType().getName(), bean.getName(), field.getName()));
 						}
+
 						ReflectUtil.setFieldValue(field, bean.getInstance(), obj);
 					}
-					bean.setStatus(BeanStatus.INJECT);
+					if (flag) {
+						bean.setStatus(BeanStatus.INJECT);
+					}
 				}
 			);
 		} catch (BeanException e){

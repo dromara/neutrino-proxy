@@ -21,16 +21,26 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
+import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.cache.Cache;
 import fun.asgc.neutrino.core.cache.MemoryCache;
+import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.db.annotation.*;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * sql解析器
@@ -79,6 +89,9 @@ public class SqlParser {
 		this.targetMethodSign = String.format("%s#%s", targetMethod.getDeclaringClass().getName(), targetMethod.getName());
 		this.initByAnnotation();
 		this.initByXml();
+		if (StringUtil.isEmpty(sql)) {
+			throw new RuntimeException(String.format("%s sql不能为空!", targetMethodSign));
+		}
 	}
 
 	/**
@@ -98,7 +111,7 @@ public class SqlParser {
 			Select select = targetMethod.getAnnotation(Select.class);
 			this.sql = select.value();
 			if (StringUtil.isEmpty(sql)) {
-				throw new RuntimeException(String.format("%s sql不能为空!", targetMethod));
+				throw new RuntimeException(String.format("%s sql不能为空!", targetMethodSign));
 			}
 			this.isReturnCollection = Collection.class.isAssignableFrom(targetMethod.getReturnType());
 			if (isReturnCollection && null == resultClass) {
@@ -135,10 +148,45 @@ public class SqlParser {
 	 * 根据xml文件进行初始化
 	 */
 	private void initByXml() {
-		if (!StringUtil.isEmpty(this.sql)) {
+//		if (!StringUtil.isEmpty(this.sql)) {
+//			return;
+//		}
+		String xmlPath = String.format("%s/%s.xml", GlobalConfig.getMapperXmlFileBasePath(), this.targetMethod.getDeclaringClass().getSimpleName());
+		String xmlStr = FileUtil.readContentAsString(xmlPath);
+		if (StringUtil.isEmpty(xmlStr)) {
 			return;
 		}
-		// TODO
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(new StringReader(xmlStr));
+			Element rootElement = document.getRootElement();
+			if (CollectionUtil.isEmpty(rootElement.elements())) {
+				return;
+			}
+			Optional<Element> optionalElement = rootElement.elements().stream().filter(e -> e.attributeValue("id").equals(targetMethod.getName())).findFirst();
+			if (!optionalElement.isPresent()) {
+				return;
+			}
+			Element element = optionalElement.get();
+			this.sql = element.getText().replaceAll("\n", "").replaceAll( "  ", " ");
+			if (element.getName().equals("select")) {
+				this.operatorType = SqlOperatorType.SELECT;
+			} else if (element.getName().equals("update")) {
+				this.operatorType = SqlOperatorType.UPDATE;
+			} else if (element.getName().equals("delete")) {
+				this.operatorType = SqlOperatorType.DELETE;
+			} else if (element.getName().equals("insert")) {
+				this.operatorType = SqlOperatorType.INSERT;
+			}
+			if (!StringUtil.isEmpty(element.attributeValue("resultType"))) {
+				this.resultComponentType = Class.forName(element.attributeValue("resultType"));
+			}
+			if (StringUtil.isEmpty(sql)) {
+				throw new RuntimeException(String.format("%s sql不能为空!", targetMethodSign));
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(String.format("Mapper文件[%s]异常! %s", xmlPath, e.getMessage()));
+		}
 	}
 
 	public static SqlParser getInstance(Method targetMethod) throws Exception {

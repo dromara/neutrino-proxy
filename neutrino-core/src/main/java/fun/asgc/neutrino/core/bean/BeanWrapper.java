@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -57,6 +58,7 @@ public class BeanWrapper implements LifeCycle {
 	private BeanInstantiationMode instantiationMode;
 	private Method instantiationMethod;
 	private boolean isNonIntercept;
+	private Set<BeanIdentity> innerDeanIdentitySet = new HashSet<>();
 
 	public boolean hasInstance() {
 		return null != instance;
@@ -149,5 +151,9 @@ public class BeanWrapper implements LifeCycle {
 			() -> beanIdentity = new BeanIdentity(this.name, this.type),
 			() -> beanIdentity
 		);
+	}
+
+	public Set<BeanIdentity> getInnerDeanIdentitySet() {
+		return innerDeanIdentitySet;
 	}
 }

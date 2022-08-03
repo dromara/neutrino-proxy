@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
 import fun.asgc.neutrino.core.annotation.Configuration;
+import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;

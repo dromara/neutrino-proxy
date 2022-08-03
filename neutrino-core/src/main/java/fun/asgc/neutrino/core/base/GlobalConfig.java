@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.base;
 
+import fun.asgc.neutrino.core.constant.MetaDataConstant;
+
 /**
  * 全局配置
  * @author: aoshiguchen
@@ -46,6 +48,10 @@ public class GlobalConfig {
 	 * 自动生成代码保存路径
 	 */
 	private static volatile String generatorCodeSavePath = "./lib/";
+	/**
+	 * mapper文件存放基础路径
+	 */
+	private static volatile String mapperXmlFileBasePath = MetaDataConstant.CLASSPATH_RESOURCE_IDENTIFIER.concat("/mapper");
 
 	public static boolean isPrintGeneratorCode() {
 		return isPrintGeneratorCode;
@@ -77,5 +83,9 @@ public class GlobalConfig {
 
 	public static void setGeneratorCodeSavePath(String generatorCodeSavePath) {
 		GlobalConfig.generatorCodeSavePath = generatorCodeSavePath;
+	}
+
+	public static String getMapperXmlFileBasePath() {
+		return mapperXmlFileBasePath;
 	}
 }
