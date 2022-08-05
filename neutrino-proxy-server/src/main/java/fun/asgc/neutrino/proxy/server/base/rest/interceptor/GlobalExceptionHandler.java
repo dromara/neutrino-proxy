@@ -24,7 +24,7 @@ package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.RestControllerExceptionHandler;
-import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ResponseBody;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import org.apache.commons.lang3.exception.ExceptionUtils;

@@ -24,7 +24,7 @@ package fun.asgc.neutrino.proxy.server.service;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.util.DateUtil;
-import fun.asgc.neutrino.proxy.server.base.rest.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;

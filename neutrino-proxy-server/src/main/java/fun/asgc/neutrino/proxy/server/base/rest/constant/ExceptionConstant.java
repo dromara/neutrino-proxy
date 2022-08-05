@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.base.rest.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

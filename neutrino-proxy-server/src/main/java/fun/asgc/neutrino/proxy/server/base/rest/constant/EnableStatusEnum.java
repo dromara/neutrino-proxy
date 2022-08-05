@@ -19,25 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.util;
+package fun.asgc.neutrino.proxy.server.base.rest.constant;
 
-import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- *
+ * 启用状态枚举
  * @author: aoshiguchen
- * @date: 2022/8/1
+ * @date: 2022/8/5
  */
-public class ParamCheckUtil {
+@Getter
+@AllArgsConstructor
+public enum EnableStatusEnum {
+	ENABLE(1, "启用"),
+	DISABLE(2, "禁用");
 
-	public static void checkNotEmpty(Object obj, String name) {
-		if (obj == null) {
-			throw ServiceException.create(ExceptionConstant.PARAMS_NOT_NULL, name);
-		}
-		if (obj instanceof String && StringUtil.isEmpty((String) obj)) {
-			throw ServiceException.create(ExceptionConstant.PARAMS_NOT_NULL, name);
-		}
-	}
+	private Integer status;
+	private String desc;
 }

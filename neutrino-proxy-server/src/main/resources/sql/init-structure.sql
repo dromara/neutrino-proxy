@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `name` varchar(50) NOT NULL,
   `login_name` varchar(50) NOT NULL,
   `login_password` varchar(255) NOT NULL,
+  `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `license` (
   `key` varchar(100) NOT NULL,
   `user_id` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
+  `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
@@ -46,6 +48,8 @@ CREATE TABLE IF NOT EXISTS `user_login_record` (
   `ip` varchar(50) NOT NULL,
   `token` varchar(50) NOT NULL,
   `type` INTEGER(2) NOT NULL,
+  `enable` INTEGER(2) NOT NULL,
+  `update_time` INTEGER(20) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );
 
@@ -57,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `client_ip` varchar(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
-  `enable` INTEGER NOT NULL,
+  `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
