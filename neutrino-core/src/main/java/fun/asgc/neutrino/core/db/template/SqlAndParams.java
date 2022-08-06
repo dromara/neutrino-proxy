@@ -92,8 +92,34 @@ public class SqlAndParams {
 		for(String key : paramMap.keySet()){
 			int index = originSql.indexOf(":" + key);
 			if(-1 != index){
-				orderlyList.add(new Orderly(paramMap.get(key), index));
-				sql = sql.replaceFirst(":" + key, "?");
+				List<Orderly> currentList = new ArrayList<>();
+
+				// 解决数组、集合参数问题
+				int count = 1;
+				Object tmp = paramMap.get(key);
+				if (null != tmp) {
+					if (tmp.getClass().isArray()) {
+						count = ((Object[])tmp).length;
+						currentList.addAll(Stream.of((Object[])tmp).map(e -> new Orderly(e, index)).collect(Collectors.toList()));
+					} else if (Collection.class.isAssignableFrom(tmp.getClass())) {
+						count = ((Collection)tmp).size();
+						Object[] arr = ((Collection)tmp).toArray();
+						paramMap.put(key, arr);
+						currentList.addAll((List)((Collection)tmp).stream().map(e -> new Orderly(e, index)).collect(Collectors.toList()));
+					}
+				}
+				List<String> s = new ArrayList<>();
+				for (int i = 0; i < count; i++) {
+					s.add("?");
+				}
+				sql = sql.replaceFirst(":" + key, s.stream().collect(Collectors.joining(",")));
+
+				if (currentList.isEmpty()) {
+					currentList.add(new Orderly(paramMap.get(key), index));
+				}
+
+				orderlyList.addAll(currentList);
+//				orderlyList.add(new Orderly(paramMap.get(key), index));
 			}
 		}
 

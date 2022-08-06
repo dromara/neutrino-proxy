@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
@@ -55,6 +56,6 @@ public interface UserMapper extends SqlMapper {
 	UserDO findById(Integer id);
 
 	@ResultType(UserDO.class)
-	@Select("select * from user where id in (?)")
-	List<UserDO> findByIds(Set<Integer> ids);
+	@Select("select * from user where id in (:ids)")
+	List<UserDO> findByIds(@Param("ids") Set<Integer> ids);
 }

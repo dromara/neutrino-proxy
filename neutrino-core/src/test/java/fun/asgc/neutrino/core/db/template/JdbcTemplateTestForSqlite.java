@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.db.template;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.db.annotation.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -29,6 +30,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -40,7 +42,8 @@ public class JdbcTemplateTestForSqlite {
 
 	{
 		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:sqlite:" + JdbcTemplateTestForSqlite.class.getResource("/sqlite.db").getPath());
+//		dataSource.setUrl("jdbc:sqlite:" + JdbcTemplateTestForSqlite.class.getResource("/sqlite.db").getPath());
+		dataSource.setUrl("jdbc:sqlite:../data.db");
 		dataSource.setDriverClassName("org.sqlite.JDBC");
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
@@ -54,6 +57,13 @@ public class JdbcTemplateTestForSqlite {
 	public void 查询单个行记录2() throws SQLException {
 		User user = jdbcTemplate.query(User.class, "select * from user where id = 1");
 		System.out.println(user);
+	}
+
+	@Test
+	public void 查询列表() throws SQLException {
+		// 此处只能传数组，不能传集合
+		List<User> userList = jdbcTemplate.queryForList(User.class, "select * from user where id in (?,?,?,?)", new Object[]{1,2,3,4});
+		System.out.println(userList);
 	}
 
 	@Accessors(chain = true)

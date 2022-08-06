@@ -58,7 +58,12 @@ public class SqlMapperInterceptor implements Interceptor {
 		Object res = null;
 		if (sqlParser.isSelect()) {
 			if (sqlParser.isReturnCollection()) {
-				res = jdbcTemplate.queryForList(resultComponentType, sql, inv.getArgs());
+				Object params = getParams(inv);
+				if (null == params || params.getClass().isArray()) {
+					res = jdbcTemplate.queryForList(resultComponentType, sql, inv.getArgs());
+				} else {
+					res = jdbcTemplate.queryForListByMap(resultComponentType, sql, (Map)params);
+				}
 			} else {
 				if (Page.class.isAssignableFrom(inv.getTargetMethod().getParameters()[0].getType())) {
 					// 分页查询 TODO 此处暂时临时处理，假设后面的参数是一个DO对象
