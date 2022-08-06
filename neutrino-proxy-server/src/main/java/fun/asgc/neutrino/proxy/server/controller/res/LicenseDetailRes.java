@@ -19,15 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.controller.res;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -36,27 +32,42 @@ import java.util.Date;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@Component
-public interface LicenseMapper extends SqlMapper {
-
+@Accessors(chain = true)
+@Data
+public class LicenseDetailRes {
+	private Integer id;
 	/**
-	 * 新增license
-	 * @param license
+	 * 名称
 	 */
-	int add(LicenseDO license);
-
-	@Update("update `license` set enable = :enable where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
-
-	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
-	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
-
-	@Delete("delete from `license` where id = ?")
-	void delete(Integer id);
-
-	@Select("select * from `license` where id = ?")
-	LicenseDO findById(Integer id);
-
-	@Update("update `license` set name = :name where id = :id")
-	void update(@Param("id") Integer id, @Param("name") String name);
+	private String name;
+	/**
+	 * licenseKey
+	 */
+	private String key;
+	/**
+	 * 用户ID
+	 */
+	private Integer userId;
+	/**
+	 * 用户名
+	 */
+	private String userName;
+	/**
+	 * 是否在线
+	 * {@link OnlineStatusEnum}
+	 */
+	private Integer isOnline;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 */
+	private Integer enable;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

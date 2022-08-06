@@ -32,8 +32,11 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseCreateRes;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseDetailRes;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateRes;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 
 @NonIntercept
@@ -49,6 +52,18 @@ public class LicenseController {
 		// TODO 参数校验
 
 		return licenseService.create(req);
+	}
+
+	@PostMapping("update")
+	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
+		// TODO 参数校验
+		return licenseService.update(req);
+	}
+
+	@GetMapping("detail")
+	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
+		// TODO 参数校验
+		return licenseService.detail(id);
 	}
 
 	@PostMapping("update/enable-status")

@@ -27,10 +27,15 @@ import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseCreateRes;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseDetailRes;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateRes;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 import java.util.Date;
 import java.util.UUID;
@@ -45,6 +50,8 @@ public class LicenseService {
 
 	@Autowired
 	private LicenseMapper licenseMapper;
+	@Autowired
+	private UserMapper userMapper;
 
 	/**
 	 * 创建license
@@ -65,6 +72,34 @@ public class LicenseService {
 			.setUpdateTime(now)
 		);
 		return new LicenseCreateRes();
+	}
+
+	public LicenseUpdateRes update(LicenseUpdateReq req) {
+		licenseMapper.update(req.getId(), req.getName());
+		return new LicenseUpdateRes();
+	}
+
+	public LicenseDetailRes detail(Integer id) {
+		LicenseDO licenseDO = licenseMapper.findById(id);
+		if (null == licenseDO) {
+			return null;
+		}
+		UserDO userDO = userMapper.findById(licenseDO.getUserId());
+		String userName = "";
+		if (null != userDO) {
+			userName = userDO.getName();
+		}
+		return new LicenseDetailRes()
+			.setId(licenseDO.getId())
+			.setName(licenseDO.getName())
+			.setKey(licenseDO.getKey())
+			.setUserId(licenseDO.getUserId())
+			.setUserName(userName)
+			.setIsOnline(licenseDO.getIsOnline())
+			.setEnable(licenseDO.getEnable())
+			.setCreateTime(licenseDO.getCreateTime())
+			.setUpdateTime(licenseDO.getUpdateTime())
+		;
 	}
 
 	/**
