@@ -108,9 +108,12 @@ public class UserService {
 		if (null == userTokenDO) {
 			return null;
 		}
-		UserDO userDO = userMapper.findById(userTokenDO.getUserId());
-		// TODO 校验用户是否已被禁用
-		return userDO;
+		return userMapper.findById(userTokenDO.getUserId());
 	}
 
+	public void updateTokenExpirationTime(String token) {
+		Date now = new Date();
+		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);
+		userTokenMapper.updateTokenExpirationTime(token, expirationTime);
+	}
 }

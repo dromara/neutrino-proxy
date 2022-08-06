@@ -52,6 +52,10 @@ public class UserDO {
 	 */
 	private String loginPassword;
 	/**
+	 * 是否禁用
+	 */
+	private Integer enable;
+	/**
 	 * 创建时间
 	 */
 	private Date createTime;

@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
 import fun.asgc.neutrino.proxy.server.base.rest.*;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
@@ -58,8 +59,14 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 			if (null == userDO) {
 				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
 			}
+			if (EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
+				throw ServiceException.create(ExceptionConstant.USER_DISBLE);
+			}
 			systemContext.setToken(authorize);
 			systemContext.setUser(userDO);
+
+			// token续期
+			BeanManager.getBean(UserService.class).updateTokenExpirationTime(authorize);
 		}
 
 		return true;

@@ -37,6 +37,7 @@ public enum ExceptionConstant {
 	PARAMS_INVALID(2, "参数不正确"),
 	PARAMS_NOT_NULL(3, "参数[%s]不能为空"),
 	USER_NAME_OR_PASSWORD_ERROR(4, "用户名或密码错误"),
+	USER_DISBLE(5, "当前用户已被禁止登录"),
 	SYSTEM_ERROR(500, "系统异常"),
 	;
 
