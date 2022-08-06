@@ -19,42 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.controller.res;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/1
+ * @date: 2022/8/6
  */
-@Component
-public interface UserMapper extends SqlMapper {
-
+@Accessors(chain = true)
+@Data
+public class LicenseListRes {
+	@Id
+	private Integer id;
 	/**
-	 * 根据登录名查询用户记录
-	 * @param loginName
-	 * @return
+	 * 名称
 	 */
-	@Select("select * from user where login_name = ?")
-	UserDO findByLoginName(String loginName);
-
+	private String name;
 	/**
-	 * 根据id查询单条记录
-	 * @param id
-	 * @return
+	 * licenseKey
 	 */
-	@Select("select * from user where id = ?")
-	UserDO findById(Integer id);
-
-	@ResultType(UserDO.class)
-	@Select("select * from user where id in (?)")
-	List<UserDO> findByIds(Set<Integer> ids);
+	private String key;
+	/**
+	 * 用户ID
+	 */
+	private Integer userId;
+	/**
+	 * 用户名
+	 */
+	private String userName;
+	/**
+	 * 是否在线
+	 * {@link OnlineStatusEnum}
+	 */
+	private Integer isOnline;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 */
+	private Integer enable;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

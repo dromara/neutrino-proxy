@@ -29,14 +29,14 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseCreateRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseDetailRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateEnableStatusRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateRes;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 
 @NonIntercept
@@ -46,6 +46,12 @@ public class LicenseController {
 
 	@Autowired
 	private LicenseService licenseService;
+
+	@GetMapping("page")
+	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+		// TODO 参数校验
+		return licenseService.page(pageQuery, req);
+	}
 
 	@PostMapping("create")
 	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {

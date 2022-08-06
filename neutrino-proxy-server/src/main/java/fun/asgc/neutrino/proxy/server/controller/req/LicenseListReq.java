@@ -19,42 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.controller.req;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
-
-import java.util.List;
-import java.util.Set;
+import lombok.Data;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/1
+ * @date: 2022/8/6
  */
-@Component
-public interface UserMapper extends SqlMapper {
+@Data
+public class LicenseListReq {
 
-	/**
-	 * 根据登录名查询用户记录
-	 * @param loginName
-	 * @return
-	 */
-	@Select("select * from user where login_name = ?")
-	UserDO findByLoginName(String loginName);
-
-	/**
-	 * 根据id查询单条记录
-	 * @param id
-	 * @return
-	 */
-	@Select("select * from user where id = ?")
-	UserDO findById(Integer id);
-
-	@ResultType(UserDO.class)
-	@Select("select * from user where id in (?)")
-	List<UserDO> findByIds(Set<Integer> ids);
 }

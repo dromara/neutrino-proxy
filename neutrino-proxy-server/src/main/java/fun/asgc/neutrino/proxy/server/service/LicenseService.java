@@ -23,22 +23,24 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseCreateRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseDetailRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateEnableStatusRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseUpdateRes;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * license服务
@@ -52,6 +54,23 @@ public class LicenseService {
 	private LicenseMapper licenseMapper;
 	@Autowired
 	private UserMapper userMapper;
+
+	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+		Page<LicenseListRes> page = Page.create(pageQuery);
+		licenseMapper.page(page, req);
+		if (!CollectionUtil.isEmpty(page.getRecords())) {
+			Set<Integer> userIds = page.getRecords().stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
+			List<UserDO> userList = userMapper.findByIds(userIds);
+			Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+			for (LicenseListRes item : page.getRecords()) {
+				UserDO userDO = userMap.get(item.getUserId());
+				if (null != userDO) {
+					item.setUserName(userDO.getName());
+				}
+			}
+		}
+		return page;
+	}
 
 	/**
 	 * 创建license

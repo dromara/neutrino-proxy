@@ -26,12 +26,13 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
-import fun.asgc.neutrino.core.cache.MemoryCache;
+import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
-import java.lang.reflect.Method;
+
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,7 +60,26 @@ public class SqlMapperInterceptor implements Interceptor {
 			if (sqlParser.isReturnCollection()) {
 				res = jdbcTemplate.queryForList(resultComponentType, sql, inv.getArgs());
 			} else {
-				res = jdbcTemplate.query(resultType, sql, inv.getArgs());
+				if (Page.class.isAssignableFrom(inv.getTargetMethod().getParameters()[0].getType())) {
+					// 分页查询 TODO 此处暂时临时处理，假设后面的参数是一个DO对象
+					Page page = (Page) inv.getArgs()[0];
+//					Map<String, Object> params = new HashMap<>();
+//					for (int i = 1; i < inv.getTargetMethod().getParameterCount(); i++) {
+//						Parameter parameter = inv.getTargetMethod().getParameters()[i];
+//						Param param = parameter.getAnnotation(Param.class);
+//						if (null == param || StringUtil.isEmpty(param.value())) {
+//							continue;
+//						}
+//						params.put(param.value(), inv.getArgs()[i]);
+//					}
+					int offset = (page.getCurrentPage() - 1) * page.getPageSize();
+					long total = jdbcTemplate.queryForLongByModel(String.format("select count(1) from (%s) T", sql), inv.getArgs()[1]);
+					List resultList = jdbcTemplate.queryForListByModel(resultComponentType, String.format("%s limit %s,%s", sql, offset, page.getPageSize()), inv.getArgs()[1]);
+					page.setTotal(total);
+					page.setRecords(resultList);
+				} else {
+					res = jdbcTemplate.query(resultType, sql, inv.getArgs());
+				}
 			}
 		} else if (sqlParser.isInsert() || sqlParser.isDelete() || sqlParser.isUpdate()) {
 			int argsCount = ArrayUtil.isEmpty(inv.getArgs()) ? 0 : inv.getArgs().length;

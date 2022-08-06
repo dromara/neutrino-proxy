@@ -22,11 +22,13 @@
 package fun.asgc.neutrino.core.db.template;
 
 import fun.asgc.neutrino.core.base.Orderly;
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * sql语句+sql参数的封装，用于支持以下3种用法

@@ -126,8 +126,8 @@ public class TypeUtil {
 	 * 基本类型列表（用于计算类型提升距离）
 	 */
 	public static final List<Class<?>> basicTypeList = Lists.newArrayList(
-		boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class,
-		Boolean.class, Byte.class, Short.class, Character.class, Integer.class, Long.class, Float.class, Double.class
+		boolean.class, Boolean.class, byte.class, Byte.class, short.class, Short.class, char.class, Character.class,
+		int.class, Integer.class, long.class, Long.class, float.class, Float.class, double.class, Double.class
 	);
 
 	/**

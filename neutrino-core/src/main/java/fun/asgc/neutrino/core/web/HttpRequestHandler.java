@@ -265,7 +265,10 @@ public class HttpRequestHandler {
 							for (Field field : fields) {
 								String name = field.getName();
 								Object value = TypeUtil.conversion(HttpContextHolder.getHttpRequestWrapper().getParameter(name), field.getType());
-								ReflectUtil.setFieldValue(field, obj, value);
+								// 临时处理默认值被覆盖的问题
+								if (!(null != value && TypeUtil.isStrictBasicType(field) && value.equals(TypeUtil.getDefaultValue(field.getType())))) {
+									ReflectUtil.setFieldValue(field, obj, value);
+								}
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

@@ -19,42 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.core.db.page;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/1
+ * @date: 2022/8/6
  */
-@Component
-public interface UserMapper extends SqlMapper {
-
+@Data
+public class Page<T> extends PageQuery {
 	/**
-	 * 根据登录名查询用户记录
-	 * @param loginName
-	 * @return
+	 * 数据总数
 	 */
-	@Select("select * from user where login_name = ?")
-	UserDO findByLoginName(String loginName);
-
+	private Long total;
 	/**
-	 * 根据id查询单条记录
-	 * @param id
-	 * @return
+	 * 结果数据
 	 */
-	@Select("select * from user where id = ?")
-	UserDO findById(Integer id);
+	private List<T> records;
 
-	@ResultType(UserDO.class)
-	@Select("select * from user where id in (?)")
-	List<UserDO> findByIds(Set<Integer> ids);
+	public static <T> Page<T> create(PageQuery pageQuery) {
+		Page page = new Page();
+		page.setPageSize(pageQuery.getPageSize());
+		page.setCurrentPage(pageQuery.getCurrentPage());
+		return page;
+	}
 }

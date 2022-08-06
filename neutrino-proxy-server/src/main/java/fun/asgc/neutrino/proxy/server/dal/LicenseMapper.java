@@ -27,6 +27,9 @@ import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 
 import java.util.Date;
@@ -38,6 +41,13 @@ import java.util.Date;
  */
 @Component
 public interface LicenseMapper extends SqlMapper {
+
+	/**
+	 * 查询license分页
+	 * @param page
+	 * @param req
+	 */
+	void page(Page page, LicenseListReq req);
 
 	/**
 	 * 新增license

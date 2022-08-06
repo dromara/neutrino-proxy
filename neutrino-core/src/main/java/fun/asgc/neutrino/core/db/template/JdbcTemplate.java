@@ -21,12 +21,16 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
+import fun.asgc.neutrino.core.util.ArrayUtil;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -257,6 +261,19 @@ public class JdbcTemplate {
 		Connection conn = null;
 
 		try {
+			// TODO 临时处理集合参数
+			if (ArrayUtil.notEmpty(params)) {
+				for (int i = 0; i < params.length; i++) {
+					Object item = params[i];
+					if (null != item && Collection.class.isAssignableFrom(item.getClass()) && !((Collection)item).isEmpty()) {
+						Object first = ((Collection)item).stream().findFirst().get();
+						if (Integer.class.isAssignableFrom(first.getClass())) {
+							params[i] =  ((Collection)item).stream().map(String::valueOf).collect(Collectors.joining(","));
+						}
+					}
+				}
+			}
+
 			conn = dataSourceHolder.getConnection();
 			res = jdbcOperations.executeQueryForList(conn, clazz, sql, params);
 		} finally {

@@ -19,42 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.core.db.page;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
-
-import java.util.List;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/1
+ * @date: 2022/8/6
  */
-@Component
-public interface UserMapper extends SqlMapper {
-
+public class PageQuery {
 	/**
-	 * 根据登录名查询用户记录
-	 * @param loginName
-	 * @return
+	 * 当前页
 	 */
-	@Select("select * from user where login_name = ?")
-	UserDO findByLoginName(String loginName);
-
+	private int currentPage = 1;
 	/**
-	 * 根据id查询单条记录
-	 * @param id
-	 * @return
+	 * 分页大小
 	 */
-	@Select("select * from user where id = ?")
-	UserDO findById(Integer id);
+	private int pageSize = 10;
 
-	@ResultType(UserDO.class)
-	@Select("select * from user where id in (?)")
-	List<UserDO> findByIds(Set<Integer> ids);
+	public int getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(int currentPage) {
+		this.currentPage = currentPage;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
 }
