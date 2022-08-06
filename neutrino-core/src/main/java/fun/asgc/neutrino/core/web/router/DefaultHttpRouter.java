@@ -191,6 +191,9 @@ public class DefaultHttpRouter implements HttpRouter {
 	}
 
 	private synchronized void addRoute(BeanWrapper beanWrapper, Method method, HttpMethod httpMethod, String path) {
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
 		log.info("addRoute[{}#{}] httpMethod:{} path:{}", beanWrapper.getType().getName(), method.getName(), httpMethod.name(), path);
 		HttpRouteIdentity identity = new HttpRouteIdentity(httpMethod, path);
 		if (routeCache.containsKey(identity)) {

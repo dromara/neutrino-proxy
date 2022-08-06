@@ -1,0 +1,8 @@
+<mapper namespace = "fun.asgc.neutrino.proxy.server.dal.LicenseMapper">
+
+    <insert id="add">
+        insert into `license`(`name`,`key`,`user_id`,`is_online`,`enable`,`create_time`,`update_time`)
+        values (:name, :key, :userId, :isOnline, :enable, :createTime, :updateTime)
+    </insert>
+
+</mapper>

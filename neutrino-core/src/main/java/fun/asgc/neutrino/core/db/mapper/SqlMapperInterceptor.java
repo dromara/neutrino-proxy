@@ -23,12 +23,15 @@ package fun.asgc.neutrino.core.db.mapper;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.cache.MemoryCache;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -65,9 +68,45 @@ public class SqlMapperInterceptor implements Interceptor {
 			} else if (argsCount == 1 && !TypeUtil.isNormalBasicType(inv.getArgs()[0].getClass())) {
 				res = jdbcTemplate.updateByModel(sql, inv.getArgs()[0]);
 			} else {
-				res = jdbcTemplate.update(sql, inv.getArgs());
+				Object params = getParams(inv);
+				if (null == params) {
+					res = jdbcTemplate.update(sql);
+				} else if (params.getClass().isArray()){
+					res = jdbcTemplate.update(sql, params);
+				} else if (params instanceof Map) {
+					res = jdbcTemplate.updateByMap(sql, (Map)params);
+				}
 			}
 		}
 		inv.setReturnValue(TypeUtil.conversion(res, resultType));
+	}
+
+	/**
+	 * 获取请求参数
+	 * @param inv
+	 * @return
+	 */
+	private Object getParams(Invocation inv) {
+		if (inv.getTargetMethod().getParameterCount() == 0) {
+			return null;
+		}
+		if (!inv.getTargetMethod().getParameters()[0].isAnnotationPresent(Param.class)) {
+			return inv.getArgs();
+		}
+		Map<String, Object> params = new HashMap<>();
+		for (int i = 0; i < inv.getTargetMethod().getParameterCount(); i++) {
+			Parameter parameter = inv.getTargetMethod().getParameters()[i];
+			Param param = parameter.getAnnotation(Param.class);
+			if (null == param) {
+				continue;
+			}
+			String key = param.value();
+			Object val = inv.getArgs()[i];
+			if (!StringUtil.isEmpty(key)) {
+				params.put(key, val);
+			}
+
+		}
+		return params;
 	}
 }
