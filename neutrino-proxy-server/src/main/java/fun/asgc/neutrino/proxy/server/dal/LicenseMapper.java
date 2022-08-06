@@ -23,9 +23,12 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
+import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+
+import java.util.Date;
 
 /**
  *
@@ -43,4 +46,10 @@ public interface LicenseMapper extends SqlMapper {
 
 	@Update("update `license` set enable = :enable where id = :id")
 	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+
+	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
+	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
+
+	@Delete("delete from `license` where id = ?")
+	void delete(Integer id);
 }

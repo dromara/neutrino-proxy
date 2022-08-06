@@ -72,7 +72,7 @@ public class SqlMapperInterceptor implements Interceptor {
 				if (null == params) {
 					res = jdbcTemplate.update(sql);
 				} else if (params.getClass().isArray()){
-					res = jdbcTemplate.update(sql, params);
+					res = jdbcTemplate.update(sql, (Object[])params);
 				} else if (params instanceof Map) {
 					res = jdbcTemplate.updateByMap(sql, (Map)params);
 				}

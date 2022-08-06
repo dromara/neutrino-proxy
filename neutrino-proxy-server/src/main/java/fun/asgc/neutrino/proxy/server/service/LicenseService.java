@@ -23,7 +23,6 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
@@ -68,10 +67,34 @@ public class LicenseService {
 		return new LicenseCreateRes();
 	}
 
+	/**
+	 * 更新license启用状态
+	 * @param req
+	 * @return
+	 */
 	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		licenseMapper.updateEnableStatus(req.getId(), req.getEnable());
 
 		return new LicenseUpdateEnableStatusRes();
+	}
+
+	/**
+	 * 删除license
+	 * @param id
+	 */
+	public void delete(Integer id) {
+		licenseMapper.delete(id);
+	}
+
+	/**
+	 * 重置license
+	 * @param id
+	 */
+	public void reset(Integer id) {
+		String key = UUID.randomUUID().toString().replaceAll("-", "");
+		Date now = new Date();
+
+		licenseMapper.reset(id, key, now);
 	}
 
 }

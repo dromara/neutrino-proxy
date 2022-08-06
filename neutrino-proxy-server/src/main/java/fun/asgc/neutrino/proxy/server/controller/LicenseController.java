@@ -29,10 +29,7 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.web.annotation.PostMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseCreateRes;
@@ -59,6 +56,18 @@ public class LicenseController {
 		// TODO 参数校验
 
 		return licenseService.updateEnableStatus(req);
+	}
+
+	@PostMapping("delete")
+	public void delete(@RequestParam("id") Integer id) {
+		// TODO 参数校验
+		licenseService.delete(id);
+	}
+
+	@PostMapping("reset")
+	public void reset(@RequestParam("id") Integer id) {
+		// TODO 参数校验
+		licenseService.reset(id);
 	}
 
 }
