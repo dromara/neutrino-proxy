@@ -41,13 +41,10 @@ CREATE TABLE IF NOT EXISTS `user_login_record` (
   `create_time` INTEGER(20) NOT NULL
 );
 
-#可用端口配置表
-CREATE TABLE IF NOT EXISTS `user_login_record` (
+#端口池
+CREATE TABLE IF NOT EXISTS `port_pool` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  `user_id` INTEGER NOT NULL,
-  `ip` varchar(50) NOT NULL,
-  `token` varchar(50) NOT NULL,
-  `type` INTEGER(2) NOT NULL,
+  `port` INTEGER NOT NULL,
   `enable` INTEGER(2) NOT NULL,
   `update_time` INTEGER(20) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
