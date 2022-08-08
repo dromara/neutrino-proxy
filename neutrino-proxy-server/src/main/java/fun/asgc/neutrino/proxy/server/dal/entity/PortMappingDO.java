@@ -23,6 +23,7 @@ package fun.asgc.neutrino.proxy.server.dal.entity;
 
 import fun.asgc.neutrino.core.db.annotation.Id;
 import fun.asgc.neutrino.core.db.annotation.Table;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -30,23 +31,41 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * 端口池
+ * 端口映射
  * @author: aoshiguchen
- * @date: 2022/8/7
+ * @date: 2022/8/8
  */
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("port_pool")
-public class PortPoolDO {
+@Table("port_mapping")
+public class PortMappingDO {
 	@Id
 	private Integer id;
 	/**
-	 * 端口
+	 * licenseId
+	 */
+	private Integer licenseId;
+	/**
+	 * 服务端端口
+	 */
+	private Integer serverPort;
+	/**
+	 * 客户端ip
+	 */
+	private String clientIp;
+	/**
+	 * 客户端端口
 	 */
 	private Integer port;
 	/**
-	 * 是否禁用
+	 * 是否在线
+	 * {@link OnlineStatusEnum}
+	 */
+	private Integer isOnline;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
 	 */
 	private Integer enable;
 	/**

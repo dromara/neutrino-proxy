@@ -19,42 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
+package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
-import lombok.Data;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 
 /**
- * 端口池
+ *
  * @author: aoshiguchen
- * @date: 2022/8/7
+ * @date: 2022/8/8
  */
-@ToString
-@Accessors(chain = true)
-@Data
-@Table("port_pool")
-public class PortPoolDO {
-	@Id
-	private Integer id;
-	/**
-	 * 端口
-	 */
-	private Integer port;
-	/**
-	 * 是否禁用
-	 */
-	private Integer enable;
-	/**
-	 * 创建时间
-	 */
-	private Date createTime;
-	/**
-	 * 更新时间
-	 */
-	private Date updateTime;
+@Component
+public class PortMappingService {
+
+	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
+		return null;
+	}
+
+	public PortMappingCreateRes create(PortMappingCreateReq req) {
+		return null;
+	}
+
+	public PortMappingUpdateRes update(PortMappingUpdateRes req) {
+		return null;
+	}
+
+	public PortMappingDetailRes detail(Integer id) {
+		return null;
+	}
+
+	public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
+		return null;
+	}
+
+	public void delete(Integer id) {
+
+	}
+
 }

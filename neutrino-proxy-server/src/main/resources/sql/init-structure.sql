@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `port_pool` (
 CREATE TABLE IF NOT EXISTS `port_mapping` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `license_id` INTEGER(20) NOT NULL,
-  `service_port` INTEGER NOT NULL,
+  `server_port` INTEGER NOT NULL,
   `client_ip` varchar(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,

@@ -26,68 +26,57 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
-import fun.asgc.neutrino.proxy.server.service.LicenseService;
+import fun.asgc.neutrino.proxy.server.service.PortMappingService;
 
 /**
- *
+ * 端口映射
  * @author: aoshiguchen
- * @date: 2022/8/6
+ * @date: 2022/8/8
  */
 @NonIntercept
 @RequestMapping("license")
 @RestController
-public class LicenseController {
-
+public class PortMappingController {
 	@Autowired
-	private LicenseService licenseService;
+	private PortMappingService portMappingService;
 
 	@GetMapping("page")
-	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		// TODO 参数校验
-		return licenseService.page(pageQuery, req);
+		return portMappingService.page(pageQuery, req);
 	}
 
 	@PostMapping("create")
-	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
+	public PortMappingCreateRes create(@RequestBody PortMappingCreateReq req) {
 		// TODO 参数校验
-
-		return licenseService.create(req);
+		return portMappingService.create(req);
 	}
 
 	@PostMapping("update")
-	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
+	public PortMappingUpdateRes update(@RequestBody PortMappingUpdateRes req) {
 		// TODO 参数校验
-		return licenseService.update(req);
+		return portMappingService.update(req);
 	}
 
 	@GetMapping("detail")
-	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
+	public PortMappingDetailRes detail(@RequestParam("id") Integer id) {
 		// TODO 参数校验
-		return licenseService.detail(id);
+		return portMappingService.detail(id);
 	}
 
 	@PostMapping("update/enable-status")
-	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
+	public PortMappingUpdateEnableStatusRes updateEnableStatus(@RequestBody PortMappingUpdateEnableStatusReq req) {
 		// TODO 参数校验
-
-		return licenseService.updateEnableStatus(req);
+		return portMappingService.updateEnableStatus(req);
 	}
 
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
 		// TODO 参数校验
-		licenseService.delete(id);
+		portMappingService.delete(id);
 	}
-
-	@PostMapping("reset")
-	public void reset(@RequestParam("id") Integer id) {
-		// TODO 参数校验
-		licenseService.reset(id);
-	}
-
 }
