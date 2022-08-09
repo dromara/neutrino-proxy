@@ -22,7 +22,13 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
+import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 
 /**
  *
@@ -32,4 +38,11 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 @Component
 public interface PortMappingMapper extends SqlMapper {
 
+	@ResultType(PortMappingListRes.class)
+	@Select("select * from port_mapping")
+	void page(Page page, PortMappingListReq req);
+
+	void add(PortMappingDO portMappingDO);
+
+	void update(PortMappingDO portMappingDO);
 }

@@ -21,7 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller.res;
 
+import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * 端口映射列表响应
@@ -30,5 +33,51 @@ import lombok.Data;
  */
 @Data
 public class PortMappingListRes {
-
+	private Integer id;
+	/**
+	 * licenseId
+	 */
+	private Integer licenseId;
+	/**
+	 * license名称
+	 */
+	private String licenseName;
+	/**
+	 * 用户ID
+	 */
+	private Integer userId;
+	/**
+	 * 用户姓名
+	 */
+	private String userName;
+	/**
+	 * 服务端端口
+	 */
+	private Integer serverPort;
+	/**
+	 * 客户端ip
+	 */
+	private String clientIp;
+	/**
+	 * 客户端端口
+	 */
+	private Integer port;
+	/**
+	 * 是否在线
+	 * {@link OnlineStatusEnum}
+	 */
+	private Integer isOnline;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 */
+	private Integer enable;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

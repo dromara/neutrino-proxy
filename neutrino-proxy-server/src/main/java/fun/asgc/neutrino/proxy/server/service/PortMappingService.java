@@ -21,13 +21,31 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
+import fun.asgc.neutrino.proxy.server.dal.UserMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,13 +54,53 @@ import fun.asgc.neutrino.proxy.server.controller.res.*;
  */
 @Component
 public class PortMappingService {
+	@Autowired
+	private PortMappingMapper portMappingMapper;
+	@Autowired
+	private LicenseMapper licenseMapper;
+	@Autowired
+	private UserMapper userMapper;
 
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
-		return null;
+		Page<PortMappingListRes> page = Page.create(pageQuery);
+		portMappingMapper.page(page, req);
+		if (!CollectionUtil.isEmpty(page.getRecords())) {
+			Set<Integer> licenseIds = page.getRecords().stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
+			List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
+			Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
+			List<UserDO> userList = userMapper.findByIds(userIds);
+			Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
+			Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+			page.getRecords().forEach(item -> {
+				LicenseDO license = licenseMap.get(item.getLicenseId());
+				if (null == license) {
+					return;
+				}
+				item.setLicenseName(license.getName());
+				item.setUserId(license.getUserId());
+				UserDO user = userMap.get(license.getUserId());
+				if (null == user) {
+					return;
+				}
+				item.setUserName(user.getName());
+			});
+		}
+		return page;
 	}
 
 	public PortMappingCreateRes create(PortMappingCreateReq req) {
-		return null;
+		Date now = new Date();
+		PortMappingDO portMappingDO = new PortMappingDO();
+		portMappingDO.setLicenseId(req.getLicenseId());
+		portMappingDO.setServerPort(req.getServerPort());
+		portMappingDO.setClientIp(req.getClientIp());
+		portMappingDO.setClientPort(req.getClientPort());
+		portMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
+		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+		portMappingDO.setCreateTime(now);
+		portMappingDO.setUpdateTime(now);
+		portMappingMapper.add(portMappingDO);
+		return new PortMappingCreateRes();
 	}
 
 	public PortMappingUpdateRes update(PortMappingUpdateRes req) {

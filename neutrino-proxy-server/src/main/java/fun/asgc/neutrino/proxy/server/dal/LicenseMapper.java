@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.server.dal;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.Delete;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
@@ -33,6 +34,8 @@ import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -69,4 +72,8 @@ public interface LicenseMapper extends SqlMapper {
 
 	@Update("update `license` set name = :name where id = :id")
 	void update(@Param("id") Integer id, @Param("name") String name);
+
+	@ResultType(LicenseDO.class)
+	@Select("select * from `license` where in in (:ids)")
+	List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids);
 }
