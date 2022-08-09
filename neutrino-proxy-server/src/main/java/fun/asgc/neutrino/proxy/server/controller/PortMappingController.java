@@ -38,7 +38,7 @@ import fun.asgc.neutrino.proxy.server.service.PortMappingService;
  * @date: 2022/8/8
  */
 @NonIntercept
-@RequestMapping("license")
+@RequestMapping("port-mapping")
 @RestController
 public class PortMappingController {
 	@Autowired
