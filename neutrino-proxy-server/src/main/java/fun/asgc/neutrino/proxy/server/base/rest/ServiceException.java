@@ -23,6 +23,7 @@ package fun.asgc.neutrino.proxy.server.base.rest;
 
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -50,8 +51,27 @@ public class ServiceException extends RuntimeException {
 	}
 
 	public static ServiceException create(ExceptionConstant constant, Object... params) {
-		int code = constant.getCode();
-		String msg = String.format(constant.getMsg(), params);
-		return new ServiceException(code, msg);
+		return new ServiceException(constant.getCode(), format(constant.getMsg(), params));
+	}
+
+	/**
+	 * 字符串格式化
+	 * @param template
+	 * @param params
+	 * @return
+	 */
+	public static String format(String template, Object[] params) {
+		if (StringUtils.isEmpty(template) || null == params || params.length == 0) {
+			return template;
+		}
+		String result = template;
+		for (Object param : params) {
+			int index = result.indexOf("{}");
+			if (index == -1) {
+				return result;
+			}
+			result = result.substring(0, index) + param + result.substring(index + 2);
+		}
+		return result;
 	}
 }
