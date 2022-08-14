@@ -105,7 +105,7 @@ public class MappedInterceptor {
 		return this.interceptor.preHandle(requestParser, responseWrapper, route, targetMethod);
 	}
 
-	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
-		this.interceptor.postHandle(requestParser, responseWrapper, route, targetMethod);
+	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object result) throws Exception {
+		this.interceptor.postHandle(requestParser, responseWrapper, route, targetMethod, result);
 	}
 }

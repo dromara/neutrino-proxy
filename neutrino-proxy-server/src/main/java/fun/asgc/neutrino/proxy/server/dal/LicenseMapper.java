@@ -31,6 +31,7 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 
 import java.util.Date;
@@ -51,6 +52,10 @@ public interface LicenseMapper extends SqlMapper {
 	 * @param req
 	 */
 	void page(Page page, LicenseListReq req);
+
+	@ResultType(LicenseListRes.class)
+	@Select("select * from license where enable = 1")
+	List<LicenseListRes> list();
 
 	/**
 	 * 新增license
@@ -76,4 +81,12 @@ public interface LicenseMapper extends SqlMapper {
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where in in (:ids)")
 	List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids);
+
+	@ResultType(LicenseDO.class)
+	@Select("select * from `license` where user_id = :userId and name =:name limit 0,1")
+	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name);
+
+	@ResultType(LicenseDO.class)
+	@Select("select * from `license` where user_id = :userId and name =:name and id not in (:excludeIds) limit 0,1")
+	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name, @Param("excludeIds") Set<Integer> excludeIds);
 }

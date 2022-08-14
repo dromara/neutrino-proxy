@@ -71,8 +71,6 @@ public class ProxyCompiler {
 			if (cp != null && cp.trim().length() != 0) {
 				ret.add("-classpath");
 				ret.add(cp);
-
-				System.out.println("classpath:" + cp);
 			}
 
 			options = ret;
@@ -224,8 +222,7 @@ public class ProxyCompiler {
 
 	protected void outputCompileError(Boolean result, DiagnosticCollector<JavaFileObject> collector) {
 		if (! result) {
-			// collector.getDiagnostics().forEach(item -> log.error(item.toString()));
-			collector.getDiagnostics().forEach(item -> System.out.println(item.toString()));
+			 collector.getDiagnostics().forEach(item -> log.error(item.toString()));
 		}
 	}
 

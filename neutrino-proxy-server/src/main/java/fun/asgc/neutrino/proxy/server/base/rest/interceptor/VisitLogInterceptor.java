@@ -21,27 +21,53 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
+import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
 /**
- * 处理跨域问题
+ * 访问日志拦截器
  * @author: aoshiguchen
- * @date: 2022/7/30
+ * @date: 2022/8/14
  */
-public class CorsInterceptor implements HandlerInterceptor {
+@Slf4j
+public class VisitLogInterceptor implements HandlerInterceptor {
+
+	@Override
+	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		SystemContextHolder.getContext().setReceiveTime(new Date());
+		return true;
+	}
 
 	@Override
 	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object result) throws Exception {
-		responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
-		responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-		responseWrapper.headers().add("Access-Control-Max-Age", "86400");
-		responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
-		responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
-		responseWrapper.headers().add("XDomainRequestAllowed", "1");
+		Date receiveTime = SystemContextHolder.getContext().getReceiveTime();
+		Date now = new Date();
+		long elapsedTime = now.getTime() - receiveTime.getTime();
+		log.info("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\nURL参数:{}\n请求体参数:{}\n响应结果:{}",
+			requestParser.getMethod().name(), requestParser.getUrl(), getElapsedTimeStr(elapsedTime),
+			requestParser.getQueryString(),
+			requestParser.getContentAsString(),
+			JSONObject.toJSONString(result));
 	}
 
+	/**
+	 * 获取耗时描述
+	 * @param elapsedTime
+	 * @return
+	 */
+	private static String getElapsedTimeStr(long elapsedTime) {
+		if (elapsedTime < 1000) {
+			return String.format("%s毫秒", elapsedTime);
+		} else if (elapsedTime < 60000) {
+			return String.format("%.2f秒", (elapsedTime * 1.0) / 1000);
+		}
+		return String.format("%.2f分钟", (elapsedTime * 1.0) / 1000 / 60);
+	}
 }

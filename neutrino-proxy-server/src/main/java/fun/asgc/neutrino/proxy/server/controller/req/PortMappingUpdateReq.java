@@ -30,5 +30,24 @@ import lombok.Data;
  */
 @Data
 public class PortMappingUpdateReq {
-
+	/**
+	 * id
+	 */
+	private Integer id;
+	/**
+	 * licenseId
+	 */
+	private Integer licenseId;
+	/**
+	 * 服务端端口
+	 */
+	private Integer serverPort;
+	/**
+	 * 客户端ip
+	 */
+	private String clientIp;
+	/**
+	 * 客户端端口
+	 */
+	private Integer clientPort;
 }

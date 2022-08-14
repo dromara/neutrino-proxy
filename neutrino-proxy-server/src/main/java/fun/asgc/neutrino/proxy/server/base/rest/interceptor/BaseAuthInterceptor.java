@@ -60,7 +60,7 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
 			}
 			if (EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
-				throw ServiceException.create(ExceptionConstant.USER_DISBLE);
+				throw ServiceException.create(ExceptionConstant.USER_DISABLE);
 			}
 			systemContext.setToken(authorize);
 			systemContext.setUser(userDO);

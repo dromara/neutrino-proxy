@@ -50,4 +50,8 @@ public class SystemContextHolder {
 	public static String getIp() {
 		return systemContextHolder.get().getIp();
 	}
+
+	public static SystemContext getContext() {
+		return systemContextHolder.get();
+	}
 }

@@ -26,6 +26,7 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
@@ -35,8 +36,10 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -55,7 +58,14 @@ public class PortPoolService {
 		return page;
 	}
 
+	public List<PortPoolListRes> list(PortPoolListReq req) {
+		return portPoolMapper.list();
+	}
+
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
+		PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
+		ParamCheckUtil.checkExpression(null == oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
+
 		Date now = new Date();
 
 		portPoolMapper.add(new PortPoolDO()

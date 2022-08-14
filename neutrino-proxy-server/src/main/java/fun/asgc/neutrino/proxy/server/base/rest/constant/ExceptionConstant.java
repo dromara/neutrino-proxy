@@ -35,9 +35,18 @@ public enum ExceptionConstant {
 	SUCCESS(0, "成功"),
 	USER_NOT_LOGIN(1, "用户未登录"),
 	PARAMS_INVALID(2, "参数不正确"),
-	PARAMS_NOT_NULL(3, "参数[%s]不能为空"),
-	USER_NAME_OR_PASSWORD_ERROR(4, "用户名或密码错误"),
-	USER_DISBLE(5, "当前用户已被禁止登录"),
+	USER_NAME_OR_PASSWORD_ERROR(3, "用户名或密码错误"),
+	USER_DISABLE(4, "当前用户已被禁止登录"),
+	PARAMS_NOT_NULL(10, "参数[{}]不能为空"),
+	PARAMS_NOT_EMPTY(11, "参数[{}]不能为空"),
+
+	// 用户管理(11000)
+	// license管理(12000)
+	LICENSE_NAME_CANNOT_REPEAT(12000, "license名称不能重复"),
+	LICENSE_NOT_EXIST(12001, "license数据不存在"),
+	// 端口池管理(13000)
+	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
+	// 端口映射管理(14000)
 	SYSTEM_ERROR(500, "系统异常"),
 	;
 

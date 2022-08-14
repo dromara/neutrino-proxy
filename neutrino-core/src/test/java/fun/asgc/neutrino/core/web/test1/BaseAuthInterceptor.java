@@ -55,9 +55,4 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 		}
 		return Boolean.TRUE;
 	}
-
-	@Override
-	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
-
-	}
 }

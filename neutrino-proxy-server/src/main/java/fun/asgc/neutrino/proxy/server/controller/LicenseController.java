@@ -32,6 +32,9 @@ import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusRe
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+
+import java.util.List;
 
 /**
  *
@@ -48,45 +51,61 @@ public class LicenseController {
 
 	@GetMapping("page")
 	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
 		return licenseService.page(pageQuery, req);
+	}
+
+	@GetMapping("list")
+	public List<LicenseListRes> list(LicenseListReq req) {
+		return licenseService.list(req);
 	}
 
 	@PostMapping("create")
 	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
+		ParamCheckUtil.checkNotNull(req.getUserId(), "userId");
 
 		return licenseService.create(req);
 	}
 
 	@PostMapping("update")
 	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
+
 		return licenseService.update(req);
 	}
 
 	@GetMapping("detail")
 	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		return licenseService.detail(id);
 	}
 
 	@PostMapping("update/enable-status")
 	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
 
 		return licenseService.updateEnableStatus(req);
 	}
 
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		licenseService.delete(id);
 	}
 
 	@PostMapping("reset")
 	public void reset(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		licenseService.reset(id);
 	}
 

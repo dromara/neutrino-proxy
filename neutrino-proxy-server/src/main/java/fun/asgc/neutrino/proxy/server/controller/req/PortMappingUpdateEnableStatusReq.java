@@ -31,4 +31,13 @@ import lombok.Data;
 @Data
 public class PortMappingUpdateEnableStatusReq {
 
+	/**
+	 * id
+	 */
+	private Integer id;
+	/**
+	 * 启用状态
+	 */
+	private Integer enable;
+
 }

@@ -29,8 +29,10 @@ import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 /**
  * 端口映射
@@ -46,37 +48,49 @@ public class PortMappingController {
 
 	@GetMapping("page")
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
 		return portMappingService.page(pageQuery, req);
 	}
 
 	@PostMapping("create")
 	public PortMappingCreateRes create(@RequestBody PortMappingCreateReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
+		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
+		ParamCheckUtil.checkNotEmpty(req.getClientIp(), "clientIp");
+		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
+
 		return portMappingService.create(req);
 	}
 
 	@PostMapping("update")
-	public PortMappingUpdateRes update(@RequestBody PortMappingUpdateRes req) {
-		// TODO 参数校验
+	public PortMappingUpdateRes update(@RequestBody PortMappingUpdateReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+
 		return portMappingService.update(req);
 	}
 
 	@GetMapping("detail")
 	public PortMappingDetailRes detail(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		return portMappingService.detail(id);
 	}
 
 	@PostMapping("update/enable-status")
 	public PortMappingUpdateEnableStatusRes updateEnableStatus(@RequestBody PortMappingUpdateEnableStatusReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
+
 		return portMappingService.updateEnableStatus(req);
 	}
 
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		portMappingService.delete(id);
 	}
 }

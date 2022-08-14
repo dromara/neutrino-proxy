@@ -7,7 +7,7 @@
 
     <update id="update">
         update `port_mapping`
-        set license_id = :licenseId,server_port = :serverPort,client_ip=:clientIp,client_port=:clientPort,is_online=:isOnline,update_time=:updateTime
+        set license_id = :licenseId,server_port = :serverPort,client_ip=:clientIp,client_port=:clientPort,update_time=:updateTime
         where id =:id
     </update>
 </mapper>

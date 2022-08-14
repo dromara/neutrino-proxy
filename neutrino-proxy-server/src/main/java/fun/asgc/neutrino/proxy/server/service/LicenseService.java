@@ -21,12 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
@@ -37,6 +39,7 @@ import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.*;
 import java.util.function.Function;
@@ -72,12 +75,31 @@ public class LicenseService {
 		return page;
 	}
 
+	public List<LicenseListRes> list(LicenseListReq req) {
+		List<LicenseListRes> licenseList = licenseMapper.list();
+		if (!CollectionUtil.isEmpty(licenseList)) {
+			Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
+			List<UserDO> userList = userMapper.findByIds(userIds);
+			Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+			for (LicenseListRes item : licenseList) {
+				UserDO userDO = userMap.get(item.getUserId());
+				if (null != userDO) {
+					item.setUserName(userDO.getName());
+				}
+			}
+		}
+		return licenseList;
+	}
+
 	/**
 	 * 创建license
 	 * @param req
 	 * @return
 	 */
 	public LicenseCreateRes create(LicenseCreateReq req) {
+		LicenseDO licenseDO = licenseMapper.checkRepeat(req.getUserId(), req.getName());
+		ParamCheckUtil.checkExpression(null == licenseDO, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+
 		String key = UUID.randomUUID().toString().replaceAll("-", "");
 		Date now = new Date();
 
@@ -94,6 +116,12 @@ public class LicenseService {
 	}
 
 	public LicenseUpdateRes update(LicenseUpdateReq req) {
+		LicenseDO oldLicenseDO = licenseMapper.findById(req.getId());
+		ParamCheckUtil.checkExpression(null != oldLicenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+
+		LicenseDO licenseCheck = licenseMapper.checkRepeat(oldLicenseDO.getUserId(), req.getName(), Sets.newHashSet(oldLicenseDO.getId()));
+		ParamCheckUtil.checkExpression(null == licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+
 		licenseMapper.update(req.getId(), req.getName());
 		return new LicenseUpdateRes();
 	}

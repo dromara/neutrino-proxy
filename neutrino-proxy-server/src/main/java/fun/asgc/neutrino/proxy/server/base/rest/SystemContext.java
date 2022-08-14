@@ -25,6 +25,8 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  *
  * @author: aoshiguchen
@@ -45,4 +47,8 @@ public class SystemContext {
 	 * 客户端ip
 	 */
 	private String ip;
+	/**
+	 * 接收请求时间
+	 */
+	private Date receiveTime;
 }

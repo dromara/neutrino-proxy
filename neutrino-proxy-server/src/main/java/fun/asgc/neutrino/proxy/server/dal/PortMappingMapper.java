@@ -22,8 +22,11 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Param;
+import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
@@ -45,4 +48,13 @@ public interface PortMappingMapper extends SqlMapper {
 	void add(PortMappingDO portMappingDO);
 
 	void update(PortMappingDO portMappingDO);
+
+	@Select("select * from port_mapping where id = ?")
+	PortMappingDO findById(Integer id);
+
+	@Update("update `port_mapping` set enable = :enable where id = :id")
+	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+
+	@Delete("delete from `port_mapping` where id = ?")
+	void delete(Integer id);
 }

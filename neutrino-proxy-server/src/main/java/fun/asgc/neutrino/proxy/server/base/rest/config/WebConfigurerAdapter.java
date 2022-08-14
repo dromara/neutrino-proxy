@@ -26,10 +26,7 @@ import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
 import fun.asgc.neutrino.core.web.interceptor.ExceptionHandlerRegistry;
 import fun.asgc.neutrino.core.web.interceptor.InterceptorRegistry;
 import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
-import fun.asgc.neutrino.proxy.server.base.rest.interceptor.BaseAuthInterceptor;
-import fun.asgc.neutrino.proxy.server.base.rest.interceptor.CorsInterceptor;
-import fun.asgc.neutrino.proxy.server.base.rest.interceptor.GlobalAdviceHandler;
-import fun.asgc.neutrino.proxy.server.base.rest.interceptor.GlobalExceptionHandler;
+import fun.asgc.neutrino.proxy.server.base.rest.interceptor.*;
 
 /**
  *
@@ -44,6 +41,7 @@ public class WebConfigurerAdapter implements WebMvcConfigurer {
 		registry.addInterceptor(new BaseAuthInterceptor())
 			.addPathPatterns("/**").excludePathPatterns("/**/*.html", "/**/*.js", "/**/*.ico");
 		registry.addInterceptor(new CorsInterceptor());
+		registry.addInterceptor(new VisitLogInterceptor());
 	}
 
 	@Override

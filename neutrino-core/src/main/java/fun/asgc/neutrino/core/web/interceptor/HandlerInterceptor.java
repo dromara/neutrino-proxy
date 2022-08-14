@@ -37,7 +37,7 @@ public interface HandlerInterceptor {
 		return true;
 	}
 
-	default void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+	default void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object result) throws Exception {
 	}
 
 	default void afterCompletion(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) {

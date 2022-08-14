@@ -26,12 +26,12 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.DateUtil;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
@@ -103,20 +103,55 @@ public class PortMappingService {
 		return new PortMappingCreateRes();
 	}
 
-	public PortMappingUpdateRes update(PortMappingUpdateRes req) {
-		return null;
+	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
+		PortMappingDO portMappingDO = new PortMappingDO();
+		portMappingDO.setId(req.getId());
+		portMappingDO.setLicenseId(req.getLicenseId());
+		portMappingDO.setServerPort(req.getServerPort());
+		portMappingDO.setClientIp(req.getClientIp());
+		portMappingDO.setClientPort(req.getClientPort());
+		portMappingDO.setUpdateTime(new Date());
+		portMappingMapper.update(portMappingDO);
+		return new PortMappingUpdateRes();
 	}
 
 	public PortMappingDetailRes detail(Integer id) {
-		return null;
+		PortMappingDO portMappingDO = portMappingMapper.findById(id);
+		if (null == portMappingDO) {
+			return null;
+		}
+		PortMappingDetailRes res = new PortMappingDetailRes()
+			.setId(portMappingDO.getId())
+			.setLicenseId(portMappingDO.getLicenseId())
+			.setServerPort(portMappingDO.getServerPort())
+			.setClientIp(portMappingDO.getClientIp())
+			.setClientPort(portMappingDO.getClientPort())
+			.setIsOnline(portMappingDO.getIsOnline())
+			.setEnable(portMappingDO.getEnable())
+			.setCreateTime(portMappingDO.getCreateTime())
+			.setUpdateTime(portMappingDO.getUpdateTime());
+
+		LicenseDO license = licenseMapper.findById(portMappingDO.getLicenseId());
+		if (null != license) {
+			res.setLicenseName(license.getName());
+			res.setUserId(license.getUserId());
+			UserDO user = userMapper.findById(license.getUserId());
+			if (null != user) {
+				res.setUserName(user.getName());
+			}
+		}
+
+		return res;
 	}
 
 	public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
-		return null;
+		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable());
+
+		return new PortMappingUpdateEnableStatusRes();
 	}
 
 	public void delete(Integer id) {
-
+		portMappingMapper.delete(id);
 	}
 
 }

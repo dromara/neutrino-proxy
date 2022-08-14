@@ -30,6 +30,8 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 
+import java.util.List;
+
 /**
  *
  * @author: aoshiguchen
@@ -42,6 +44,10 @@ public interface PortPoolMapper extends SqlMapper {
 	@Select("select * from port_pool")
 	void page(Page<PortPoolListRes> page, PortPoolListReq req);
 
+	@ResultType(PortPoolListRes.class)
+	@Select("select * from port_pool where enable = 1")
+	List<PortPoolListRes> list();
+
 	@Insert("insert into port_pool(`port`,`enable`,`create_time`,`update_time`) values(:port,:enable,:createTime,:updateTime)")
 	void add(PortPoolDO portPool);
 
@@ -50,4 +56,7 @@ public interface PortPoolMapper extends SqlMapper {
 
 	@Delete("delete from `port_pool` where id = ?")
 	void delete(Integer id);
+
+	@Select("select * from port_pool where port = ? limit 0,1")
+	PortPoolDO findByPort(Integer port);
 }

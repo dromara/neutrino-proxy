@@ -185,7 +185,6 @@ public class JdbcOperations {
 								map.put(DbCache.fromColumnName(name), value);
 							}
 						}else{
-							System.out.println(clazz);
 							obj = clazz.newInstance();
 
 							for(int i = 1;i <= columnCount;i++){

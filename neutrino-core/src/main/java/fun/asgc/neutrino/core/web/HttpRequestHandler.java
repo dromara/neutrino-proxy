@@ -112,7 +112,7 @@ public class HttpRequestHandler {
 					res = JSONObject.toJSONString(invokeResult);
 				}
 
-				postHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod());
+				postHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod(), invokeResult);
 
 				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
 				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(res.getBytes()));
@@ -130,7 +130,7 @@ public class HttpRequestHandler {
 					mimeType += ";charset=utf-8";
 				}
 
-				postHandle(httpRouteResult.getPageRoute(), null);
+				postHandle(httpRouteResult.getPageRoute(), null, null);
 
 				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
 				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
@@ -165,10 +165,10 @@ public class HttpRequestHandler {
 		return Boolean.TRUE;
 	}
 
-	private void postHandle(String route, Method targetMethod) throws Exception {
+	private void postHandle(String route, Method targetMethod, Object result) throws Exception {
 		if (!CollectionUtil.isEmpty(HttpContextHolder.getInterceptorList())) {
 			for (HandlerInterceptor handlerInterceptor : HttpContextHolder.getInterceptorList()) {
-				handlerInterceptor.postHandle(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), route, targetMethod);
+				handlerInterceptor.postHandle(HttpContextHolder.getHttpRequestWrapper(), HttpContextHolder.getHttpResponseWrapper(), route, targetMethod, result);
 			}
 		}
 	}

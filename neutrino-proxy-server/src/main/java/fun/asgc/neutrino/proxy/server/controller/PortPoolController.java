@@ -33,6 +33,9 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolCreateRes;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.service.PortPoolService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+
+import java.util.List;
 
 /**
  * 端口池
@@ -48,25 +51,37 @@ public class PortPoolController {
 
 	@GetMapping("page")
 	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
 		return portPoolService.page(pageQuery, req);
+	}
+
+	@GetMapping("list")
+	public List<PortPoolListRes> list(PortPoolListReq req) {
+		return portPoolService.list(req);
 	}
 
 	@PostMapping("create")
 	public PortPoolCreateRes create(@RequestBody PortPoolCreateReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getPort(), "port");
+
 		return portPoolService.create(req);
 	}
 
 	@PostMapping("update/enable-status")
 	public PortPoolUpdateEnableStatusRes updateEnableStatus(@RequestBody PortPoolUpdateEnableStatusReq req) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
+
 		return portPoolService.updateEnableStatus(req);
 	}
 
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
-		// TODO 参数校验
+		ParamCheckUtil.checkNotNull(id, "id");
+
 		portPoolService.delete(id);
 	}
 }
