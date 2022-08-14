@@ -21,12 +21,15 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
@@ -35,10 +38,13 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -60,6 +66,8 @@ public class PortMappingService {
 	private LicenseMapper licenseMapper;
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private PortPoolMapper portPoolMapper;
 
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> page = Page.create(pageQuery);
@@ -89,6 +97,17 @@ public class PortMappingService {
 	}
 
 	public PortMappingCreateRes create(PortMappingCreateReq req) {
+		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
+		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		if (!SystemContextHolder.isAdmin()) {
+			// 临时处理，如果当前用户不是管理院，则操作userId不能为1
+			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+		}
+		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
+		ParamCheckUtil.checkExpression(null != portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort()), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+
+
 		Date now = new Date();
 		PortMappingDO portMappingDO = new PortMappingDO();
 		portMappingDO.setLicenseId(req.getLicenseId());
@@ -104,6 +123,16 @@ public class PortMappingService {
 	}
 
 	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
+		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
+		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		if (!SystemContextHolder.isAdmin()) {
+			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
+			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+		}
+		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
+		ParamCheckUtil.checkExpression(null != portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+
 		PortMappingDO portMappingDO = new PortMappingDO();
 		portMappingDO.setId(req.getId());
 		portMappingDO.setLicenseId(req.getLicenseId());
@@ -145,12 +174,32 @@ public class PortMappingService {
 	}
 
 	public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
+		PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
+		ParamCheckUtil.checkExpression(null != portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+
+		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		if (!SystemContextHolder.isAdmin()) {
+			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
+			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+		}
+
 		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable());
 
 		return new PortMappingUpdateEnableStatusRes();
 	}
 
 	public void delete(Integer id) {
+		PortMappingDO portMappingDO = portMappingMapper.findById(id);
+		ParamCheckUtil.checkExpression(null != portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+
+		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		if (!SystemContextHolder.isAdmin()) {
+			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
+			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+		}
+
 		portMappingMapper.delete(id);
 	}
 

@@ -37,6 +37,7 @@ public enum ExceptionConstant {
 	PARAMS_INVALID(2, "参数不正确"),
 	USER_NAME_OR_PASSWORD_ERROR(3, "用户名或密码错误"),
 	USER_DISABLE(4, "当前用户已被禁止登录"),
+	NO_PERMISSION_VISIT(5, "当前用户无权访问该资源"),
 	PARAMS_NOT_NULL(10, "参数[{}]不能为空"),
 	PARAMS_NOT_EMPTY(11, "参数[{}]不能为空"),
 
@@ -46,7 +47,10 @@ public enum ExceptionConstant {
 	LICENSE_NOT_EXIST(12001, "license数据不存在"),
 	// 端口池管理(13000)
 	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
+	PORT_NOT_EXIST(13001, "该端口在端口池中不存在，不允许映射"),
 	// 端口映射管理(14000)
+	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
+	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),
 	SYSTEM_ERROR(500, "系统异常"),
 	;
 

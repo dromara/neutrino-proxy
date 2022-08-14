@@ -26,6 +26,7 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
@@ -61,6 +62,7 @@ public class LicenseController {
 		return licenseService.list(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("create")
 	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
@@ -70,6 +72,7 @@ public class LicenseController {
 		return licenseService.create(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("update")
 	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
@@ -86,6 +89,7 @@ public class LicenseController {
 		return licenseService.detail(id);
 	}
 
+	@OnlyAdmin
 	@PostMapping("update/enable-status")
 	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
@@ -95,6 +99,7 @@ public class LicenseController {
 		return licenseService.updateEnableStatus(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
@@ -102,6 +107,7 @@ public class LicenseController {
 		licenseService.delete(id);
 	}
 
+	@OnlyAdmin
 	@PostMapping("reset")
 	public void reset(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");

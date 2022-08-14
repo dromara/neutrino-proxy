@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
 import fun.asgc.neutrino.proxy.server.base.rest.*;
+import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
@@ -62,6 +63,10 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 			if (EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 				throw ServiceException.create(ExceptionConstant.USER_DISABLE);
 			}
+			if (targetMethod.isAnnotationPresent(OnlyAdmin.class) && !userDO.getLoginName().equals("admin")) {
+				throw ServiceException.create(ExceptionConstant.NO_PERMISSION_VISIT);
+			}
+
 			systemContext.setToken(authorize);
 			systemContext.setUser(userDO);
 

@@ -26,6 +26,7 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
@@ -61,6 +62,7 @@ public class PortPoolController {
 		return portPoolService.list(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("create")
 	public PortPoolCreateRes create(@RequestBody PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
@@ -69,6 +71,7 @@ public class PortPoolController {
 		return portPoolService.create(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("update/enable-status")
 	public PortPoolUpdateEnableStatusRes updateEnableStatus(@RequestBody PortPoolUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
@@ -78,6 +81,7 @@ public class PortPoolController {
 		return portPoolService.updateEnableStatus(req);
 	}
 
+	@OnlyAdmin
 	@PostMapping("delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");

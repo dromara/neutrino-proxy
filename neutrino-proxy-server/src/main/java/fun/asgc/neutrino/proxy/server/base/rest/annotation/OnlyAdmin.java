@@ -19,47 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest;
+package fun.asgc.neutrino.proxy.server.base.rest.annotation;
 
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- *
+ * 暂不做复杂权限控制，仅用该注解标注，部分接口禁止游客身份调用
  * @author: aoshiguchen
- * @date: 2022/8/2
+ * @date: 2022/8/14
  */
-public class SystemContextHolder {
-	private static final ThreadLocal<SystemContext> systemContextHolder = new ThreadLocal<>();
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OnlyAdmin {
 
-	public static void remove() {
-		systemContextHolder.remove();
-	}
-
-	public static void set(SystemContext systemContext) {
-		systemContextHolder.set(systemContext);
-	}
-
-	public static UserDO getUser() {
-		return systemContextHolder.get().getUser();
-	}
-
-	public static String getToken() {
-		return systemContextHolder.get().getToken();
-	}
-
-	public static String getIp() {
-		return systemContextHolder.get().getIp();
-	}
-
-	public static SystemContext getContext() {
-		return systemContextHolder.get();
-	}
-
-	public static boolean isAdmin() {
-		UserDO userDO = getUser();
-		if (null != userDO && userDO.getLoginName().equals("admin")) {
-			return true;
-		}
-		return false;
-	}
 }
