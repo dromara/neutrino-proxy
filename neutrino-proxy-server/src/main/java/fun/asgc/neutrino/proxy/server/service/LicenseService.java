@@ -27,6 +27,7 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
@@ -70,6 +71,7 @@ public class LicenseService {
 				if (null != userDO) {
 					item.setUserName(userDO.getName());
 				}
+				item.setKey(desensitization(item.getUserId(), item.getKey()));
 			}
 		}
 		return page;
@@ -86,6 +88,7 @@ public class LicenseService {
 				if (null != userDO) {
 					item.setUserName(userDO.getName());
 				}
+				item.setKey(desensitization(item.getUserId(), item.getKey()));
 			}
 		}
 		return licenseList;
@@ -139,7 +142,7 @@ public class LicenseService {
 		return new LicenseDetailRes()
 			.setId(licenseDO.getId())
 			.setName(licenseDO.getName())
-			.setKey(licenseDO.getKey())
+			.setKey(desensitization(licenseDO.getUserId(), licenseDO.getKey()))
 			.setUserId(licenseDO.getUserId())
 			.setUserName(userName)
 			.setIsOnline(licenseDO.getIsOnline())
@@ -179,4 +182,18 @@ public class LicenseService {
 		licenseMapper.reset(id, key, now);
 	}
 
+	/**
+	 * 脱敏处理
+	 * 非当前登录人的license，一律脱敏
+	 * @param userId
+	 * @param licenseKey
+	 * @return
+	 */
+	private String desensitization(Integer userId, String licenseKey) {
+		Integer currentUserId = SystemContextHolder.getUser().getId();
+		if (currentUserId.equals(userId)) {
+			return licenseKey;
+		}
+		return licenseKey.substring(0, 10) + "****" + licenseKey.substring(licenseKey.length() - 10);
+	}
 }

@@ -40,7 +40,7 @@ import java.util.List;
 @Slf4j
 @PreLoad("init")
 public class DBInitialize {
-	private static List<String> initDataTableNameList = Lists.newArrayList("user");
+	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping");
 	private static SqliteConfig sqliteConfig;
 	private static JdbcTemplate jdbcTemplate;
 
