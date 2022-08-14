@@ -23,9 +23,17 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+
+import java.util.List;
 
 /**
  * 用户管理
@@ -38,4 +46,17 @@ import fun.asgc.neutrino.proxy.server.service.UserService;
 public class UserController {
 	@Autowired
 	private UserService userService;
+
+	@GetMapping("page")
+	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
+		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+		return userService.page(pageQuery, req);
+	}
+
+	@GetMapping("list")
+	public List<UserListRes> list(UserListReq req) {
+
+		return userService.list(req);
+	}
 }

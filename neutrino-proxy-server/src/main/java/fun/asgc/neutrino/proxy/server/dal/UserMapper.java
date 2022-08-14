@@ -26,6 +26,9 @@ import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 import java.util.List;
@@ -58,4 +61,12 @@ public interface UserMapper extends SqlMapper {
 	@ResultType(UserDO.class)
 	@Select("select * from user where id in (:ids)")
 	List<UserDO> findByIds(@Param("ids") Set<Integer> ids);
+
+	@ResultType(UserListRes.class)
+	@Select("select * from user")
+	void page(Page page, UserListReq req);
+
+	@ResultType(UserListRes.class)
+	@Select("select * from user where enable = 1")
+	List<UserListRes> list();
 }

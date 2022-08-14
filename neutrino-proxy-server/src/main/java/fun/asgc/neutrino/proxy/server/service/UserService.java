@@ -23,12 +23,19 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
+import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
+import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserTokenMapper;
@@ -36,9 +43,11 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -115,5 +124,16 @@ public class UserService {
 		Date now = new Date();
 		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);
 		userTokenMapper.updateTokenExpirationTime(token, expirationTime);
+	}
+
+	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
+		Page<UserListRes> page = Page.create(pageQuery);
+		userMapper.page(page, req);
+		return page;
+	}
+
+	public List<UserListRes> list(UserListReq req) {
+		List<UserListRes> list = userMapper.list();
+		return list;
 	}
 }
