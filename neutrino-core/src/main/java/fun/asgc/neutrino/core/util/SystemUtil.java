@@ -107,4 +107,9 @@ public class SystemUtil {
 		}
 		return url;
 	}
+
+	public static boolean isWindows() {
+		String osName = System.getProperty("os.name", "unknown");
+		return osName.toLowerCase().indexOf("windows") != -1;
+	}
 }

@@ -19,50 +19,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.aop.proxy;
+package fun.asgc.neutrino.core.aop.compiler;
 
-import lombok.Data;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * @author: 代理类
- * @date: 2022/6/24
+ * @author: aoshiguchen
+ * @date: 2022/8/17
  */
-@Data
-public class ProxyClass {
-	/**
-	 * 被代理的目标
-	 */
-	private Class<?> target;
-	/**
-	 * 包名
-	 */
-	private String pkg;
-	/**
-	 * 类名
- 	 */
-	private String name;
-	/**
-	 * 源代码
-	 */
-	private String sourceCode;
-	/**
-	 * 字节码
-	 */
-	private Map<String, byte[]> byteCode;
-	/**
-	 * 字节码被加载后的代理类
-	 */
-	private Class<?> clazz;
-
-	public ProxyClass(Class<?> target) {
-		this.target = target;
-		this.pkg = target.getPackage().getName();
+public class ByteCodeClassLoader extends ClassLoader {
+	private Map<String, byte[]> byteCodeMap = new ConcurrentHashMap<>();
+	static {
+		registerAsParallelCapable();
 	}
 
-	public ProxyClass() {
+	public ByteCodeClassLoader() {
+		super(getParentClassLoader());
+	}
 
+	protected static ClassLoader getParentClassLoader() {
+		ClassLoader ret = Thread.currentThread().getContextClassLoader();
+		return ret != null ? ret : ByteCodeClassLoader.class.getClassLoader();
+	}
+
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		byte[] bytes = byteCodeMap.get(name);
+		if (null != bytes) {
+			Class<?> ret = defineClass(name, bytes, 0, bytes.length);
+			byteCodeMap.remove(name);
+			return ret;
+		}
+		return super.findClass(name);
+	}
+
+	public void addByteCode(Map<String, byte[]> byteCodeMap) {
+		if (!CollectionUtil.isEmpty(byteCodeMap)) {
+			for (Map.Entry<String, byte[]> e : byteCodeMap.entrySet()) {
+				this.byteCodeMap.putIfAbsent(e.getKey(), e.getValue());
+			}
+		}
 	}
 }

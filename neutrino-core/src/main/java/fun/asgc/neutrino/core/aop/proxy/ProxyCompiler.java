@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.tools.*;
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -89,7 +88,7 @@ public class ProxyCompiler {
 			}
 
 			int index = 0;
-			boolean isWindows = isWindows();
+			boolean isWindows = SystemUtil.isWindows();
 			StringBuilder ret = new StringBuilder();
 			for (URL url : classLoader.getURLs()) {
 				if (index++ > 0) {
@@ -122,11 +121,6 @@ public class ProxyCompiler {
 		}
 		list.add(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/classes/");
 		return list.stream().collect(Collectors.joining(File.pathSeparator));
-	}
-
-	protected boolean isWindows() {
-		String osName = System.getProperty("os.name", "unknown");
-		return osName.toLowerCase().indexOf("windows") != -1;
 	}
 
 	protected URLClassLoader getURLClassLoader() {
