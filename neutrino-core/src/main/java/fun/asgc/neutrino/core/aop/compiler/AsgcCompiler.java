@@ -79,6 +79,8 @@ public class AsgcCompiler {
 
 	private List<String> getOptions() {
 		List<String> options = Lists.newArrayList();
+		options.add("-source");
+		options.add("1.8");
 		options.add("-target");
 		options.add("1.8");
 		if (!CollectionUtil.isEmpty(classpathList)) {

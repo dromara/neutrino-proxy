@@ -21,9 +21,6 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import fun.asgc.neutrino.core.aop.proxy.ProxyClass;
-import fun.asgc.neutrino.core.aop.proxy.ProxyClassLoader;
-import fun.asgc.neutrino.core.aop.proxy.ProxyCompiler;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
 
@@ -38,30 +35,7 @@ import java.lang.reflect.Method;
 public class AsgcCompilerTest {
 
 	@Test
-	public void test1() throws IllegalAccessException, InstantiationException, InvocationTargetException {
-		AsgcCompiler compiler = new AsgcCompiler();
-		String code = "package a.b;\n" +
-			"public class Hello {\n" +
-			"\tpublic void hello() {\n" +
-			"\t\tSystem.out.println(\"hello\");\n" +
-			"\t}\n" +
-			"}\n";
-
-		ProxyClass proxyClass = new ProxyClass();
-		proxyClass.setPkg("a.b");
-		proxyClass.setName("Hello");
-		proxyClass.setSourceCode(code);
-		ProxyCompiler proxyCompiler = new ProxyCompiler();
-		proxyCompiler.compile(proxyClass);
-		ProxyClassLoader proxyClassLoader = new ProxyClassLoader();
-		Class clazz = proxyClassLoader.loadProxyClass(proxyClass);
-		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("hello")).findFirst().get();
-		Object instance = clazz.newInstance();
-		method.invoke(instance);
-	}
-
-	@Test
-	public void test2() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+	public void compileAndLoadClass1() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 		AsgcCompiler compiler = new AsgcCompiler();
 		String code = "package a.b;\n" +
 			"public class Hello {\n" +
@@ -75,4 +49,60 @@ public class AsgcCompilerTest {
 		method.invoke(instance);
 	}
 
+	@Test
+	public void compileAndLoadClass2() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		AsgcCompiler compiler = new AsgcCompiler();
+		String code = "package a.b;\n" +
+			"import fun.asgc.neutrino.core.aop.compiler.Animal;\n" +
+			"public class Panda implements Animal {\n" +
+			"\tpublic void eat(String food) {\n" +
+			"\t\tSystem.out.println(\"熊猫正在吃\" + food);\n" +
+			"\t}\n" +
+			"}\n";
+		Class clazz = compiler.compileAndLoadClass("a.b","Panda", code);
+		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("eat")).findFirst().get();
+		Object instance = clazz.newInstance();
+		method.invoke(instance, "竹子");
+	}
+
+	@Test
+	public void compileAndLoadClass3() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		AsgcCompiler compiler = new AsgcCompiler();
+		compiler.addClasspath("/Users/yangwen/my/tmp/java");
+		String code = "package a.b;\n" +
+			"import fun.asgc.Player;\n" +
+			"public class RadioPlayer implements Player {\n" +
+			"\tpublic void play() {\n" +
+			"\t\tSystem.out.println(\"收音机播放\");\n" +
+			"\t}\n" +
+			"}\n";
+		Class clazz = compiler.compileAndLoadClass("a.b","RadioPlayer", code);
+		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
+		Object instance = clazz.newInstance();
+		method.invoke(instance);
+	}
+
+	private Object eval(String expression) {
+		String code = "package fun.asgc.test;\n" +
+			"import static java.lang.Math.*;\n" +
+			"public class Calc {\n" +
+			"\tpublic Object invoke(){\n" +
+			"\t\treturn " + expression + ";\n" +
+			"\t}\n" +
+			"}\n";
+		AsgcCompiler compiler = new AsgcCompiler();
+		try {
+			Class clazz = compiler.compileAndLoadClass("fun.asgc.test", "Calc", code);
+			Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("invoke")).findFirst().get();
+			return method.invoke(clazz.newInstance());
+		} catch (ClassNotFoundException|IllegalAccessException|InstantiationException|InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Test
+	public void evalTest() {
+		System.out.println(eval("1 + max(2*3, pow(2,5)) + 100 - 5 * 40 / (2 * 4)"));
+	}
 }
