@@ -82,11 +82,32 @@ public class AsgcCompilerTest {
 		method.invoke(instance);
 	}
 
+	@Test
+	public void compileAndLoadClass4() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		AsgcCompiler compiler = new AsgcCompiler();
+		compiler.addClasspath("/Users/yangwen/my/tmp/java");
+		compiler.addClasspath("/Users/yangwen/my/tmp/java/asgc-package-lab1-1.0-SNAPSHOT.jar");
+		String code = "package a.b;\n" +
+			"import fun.asgc.lab.pkg.lab1.Dog1;\n" +
+			"import fun.asgc.Player;\n" +
+			"public class RadioPlayer implements Player {\n" +
+			"\tpublic void play() {\n" +
+//			"\t\tSystem.out.println(Dog.class);\n" +
+//			"\t\tSystem.out.println(new Dog(\"大黄\").eat(\"骨头\"));\n" +
+			"\t\tSystem.out.println(\"收音机播放\");\n" +
+			"\t}\n" +
+			"}\n";
+		Class clazz = compiler.compileAndLoadClass("a.b","RadioPlayer", code);
+		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
+		Object instance = clazz.newInstance();
+		method.invoke(instance);
+	}
+
 	private Object eval(String expression) {
 		String code = "package fun.asgc.test;\n" +
 			"import static java.lang.Math.*;\n" +
 			"public class Calc {\n" +
-			"\tpublic Object invoke(){\n" +
+			"\tpublic static Object invoke(){\n" +
 			"\t\treturn " + expression + ";\n" +
 			"\t}\n" +
 			"}\n";
@@ -94,8 +115,8 @@ public class AsgcCompilerTest {
 		try {
 			Class clazz = compiler.compileAndLoadClass("fun.asgc.test", "Calc", code);
 			Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("invoke")).findFirst().get();
-			return method.invoke(clazz.newInstance());
-		} catch (ClassNotFoundException|IllegalAccessException|InstantiationException|InvocationTargetException e) {
+			return method.invoke(null);
+		} catch (ClassNotFoundException|IllegalAccessException|InvocationTargetException e) {
 			e.printStackTrace();
 		}
 		return null;
