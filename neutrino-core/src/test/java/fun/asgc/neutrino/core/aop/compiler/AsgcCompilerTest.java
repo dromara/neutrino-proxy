@@ -43,7 +43,7 @@ public class AsgcCompilerTest {
 			"\t\tSystem.out.println(\"hello\");\n" +
 			"\t}\n" +
 			"}\n";
-		Class clazz = compiler.compileAndLoadClass("a.b","Hello", code);
+		Class clazz = compiler.compile("Hello", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("hello")).findFirst().get();
 		Object instance = clazz.newInstance();
 		method.invoke(instance);
@@ -59,7 +59,7 @@ public class AsgcCompilerTest {
 			"\t\tSystem.out.println(\"熊猫正在吃\" + food);\n" +
 			"\t}\n" +
 			"}\n";
-		Class clazz = compiler.compileAndLoadClass("a.b","Panda", code);
+		Class clazz = compiler.compile("Panda", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("eat")).findFirst().get();
 		Object instance = clazz.newInstance();
 		method.invoke(instance, "竹子");
@@ -76,7 +76,7 @@ public class AsgcCompilerTest {
 			"\t\tSystem.out.println(\"收音机播放\");\n" +
 			"\t}\n" +
 			"}\n";
-		Class clazz = compiler.compileAndLoadClass("a.b","RadioPlayer", code);
+		Class clazz = compiler.compile("RadioPlayer", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
 		Object instance = clazz.newInstance();
 		method.invoke(instance);
@@ -97,7 +97,7 @@ public class AsgcCompilerTest {
 			"\t\tSystem.out.println(\"收音机播放\");\n" +
 			"\t}\n" +
 			"}\n";
-		Class clazz = compiler.compileAndLoadClass("a.b","RadioPlayer", code);
+		Class clazz = compiler.compile("RadioPlayer", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
 		Object instance = clazz.newInstance();
 		method.invoke(instance);
@@ -113,7 +113,7 @@ public class AsgcCompilerTest {
 			"}\n";
 		AsgcCompiler compiler = new AsgcCompiler();
 		try {
-			Class clazz = compiler.compileAndLoadClass("fun.asgc.test", "Calc", code);
+			Class clazz = compiler.compile( "Calc", code);
 			Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("invoke")).findFirst().get();
 			return method.invoke(null);
 		} catch (ClassNotFoundException|IllegalAccessException|InvocationTargetException e) {

@@ -22,16 +22,14 @@
 package fun.asgc.neutrino.core.aop.compiler;
 
 import com.google.common.collect.Lists;
+import com.sun.tools.javac.resources.compiler;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.tools.*;
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,23 +40,34 @@ import java.util.stream.Collectors;
 @Slf4j
 @SuppressWarnings("all")
 public class AsgcCompiler {
-	private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-	private DiagnosticCollector<JavaFileObject> collector;
-	private List<String> classpathList;
+	private final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
+	private final DiagnosticCollector<JavaFileObject> collector;
+	private final StandardJavaFileManager standardJavaFileManager;
+	private final List<String> options = new ArrayList<>();
+	private final List<String> classpathList = new ArrayList<>();
+	private final Collection<JavaFileObject> compilationUnits = new ArrayList<JavaFileObject>();
 	private boolean isSaveSourceCodeFile;
 	private boolean isSaveClassFile;
 	private String generatorCodeSavePath;
-	private ByteCodeClassLoader classLoader;
+	private DynamicClassLoader dynamicClassLoader;
 
 	public AsgcCompiler() {
-		if (null == compiler) {
-			throw new RuntimeException("Can not get javax.tools.JavaCompiler, check whether \"tools.jar\" is in the environment variable CLASSPATH \nVisit https://jfinal.com/doc/4-8 for details \n");
+		this(ClassLoader.getSystemClassLoader());
+	}
+
+	public AsgcCompiler(ClassLoader classLoader) {
+		if (null == javaCompiler) {
+			throw new RuntimeException("Can not load JavaCompiler from javax.tools.ToolProvider#getSystemJavaCompiler(),\n please confirm the application running in JDK not JRE.");
 		}
 		this.collector = new DiagnosticCollector<>();
-		this.classpathList = Lists.newArrayList();
+		this.standardJavaFileManager = javaCompiler.getStandardFileManager(collector, null, null);
 		this.isSaveClassFile = false;
 		this.generatorCodeSavePath = GlobalConfig.getGeneratorCodeSavePath();
-		this.classLoader = new ByteCodeClassLoader();
+		this.dynamicClassLoader = new DynamicClassLoader(classLoader);
+
+		addOption("-Xlint:unchecked");
+		addOption("-source", "1.8");
+		addOption("-target", "1.8");
 	}
 
 	public void addClasspath(String classpath) {
@@ -78,16 +87,29 @@ public class AsgcCompiler {
 	}
 
 	private List<String> getOptions() {
-		List<String> options = Lists.newArrayList();
-		options.add("-source");
-		options.add("1.8");
-		options.add("-target");
-		options.add("1.8");
+		List<String> list = Lists.newArrayList(options);
 		if (!CollectionUtil.isEmpty(classpathList)) {
-			options.add("-classpath");
-			options.add(classpathList.stream().collect(Collectors.joining(File.pathSeparator)));
+			list.add("-classpath");
+			list.add(classpathList.stream().collect(Collectors.joining(File.pathSeparator)));
 		}
-		return options;
+		return list;
+	}
+
+	private void addOption(String option) {
+		this.options.add(option);
+	}
+
+	private void addOption(String key, String val) {
+		this.options.add(key);
+		this.options.add(val);
+	}
+
+	private void addSource(String className, String source) {
+		addSource(new StringSource(className, source));
+	}
+
+	private void addSource(JavaFileObject javaFileObject) {
+		compilationUnits.add(javaFileObject);
 	}
 
 	/**
@@ -95,32 +117,17 @@ public class AsgcCompiler {
 	 * @param className 类名
 	 * @param sourceCode 源代码
 	 */
-	public Map<String,byte[]> compile(String className, String sourceCode) {
-		DynamicJavaFileManager javaFileManager = new DynamicJavaFileManager(compiler.getStandardFileManager(collector, null, null));
-		CharSequenceJavaFileObject javaFileObject = new CharSequenceJavaFileObject(className, sourceCode);
-		Boolean result = compiler.getTask(null, javaFileManager, collector, getOptions(), null, Arrays.asList(javaFileObject)).call();
+	public Class<?> compile(String className, String sourceCode) throws ClassNotFoundException {
+		JavaFileManager javaFileManager = new DynamicJavaFileManager(standardJavaFileManager, dynamicClassLoader);
+		Boolean result = javaCompiler.getTask(null, javaFileManager, collector, getOptions(), null, Lists.newArrayList(new StringSource(className, sourceCode))).call();
 		if (!result) {
 			collector.getDiagnostics().forEach(item -> log.error(item.toString()));
 		}
 
-		Map<String, byte[]> ret = new HashMap<>();
-		for (Map.Entry<String, CharSequenceJavaFileObject> e : javaFileManager.fileObjects.entrySet()) {
-			ret.put(e.getKey(), e.getValue().getByteCode());
+		Map<String, Class<?>>  map = dynamicClassLoader.getClasses();
+		if (CollectionUtil.isEmpty(map)) {
+			return null;
 		}
-		return ret;
-	}
-
-	/**
-	 * 编译并加载类
-	 * @param pkg
-	 * @param className
-	 * @param sourceCode
-	 * @param <T>
-	 * @return
-	 */
-	public <T> Class<T> compileAndLoadClass(String pkg, String className, String sourceCode) throws ClassNotFoundException {
-		Map<String,byte[]> byteCodeMap = compile(className, sourceCode);
-		classLoader.addByteCode(byteCodeMap);
-		return (Class<T>)classLoader.loadClass(pkg + "." + className);
+		return map.values().stream().filter(c -> c.getSimpleName().equals(className)).findFirst().orElseGet(null);
 	}
 }

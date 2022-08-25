@@ -21,57 +21,53 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/17
+ * @date: 2022/8/25
  */
-class CharSequenceJavaFileObject extends SimpleJavaFileObject {
-	private final CharSequence sourceCode;
-	private ByteArrayOutputStream out;
+public class MemoryByteCode extends SimpleJavaFileObject {
+	private static final char PKG_SEPARATOR = '.';
+	private static final char DIR_SEPARATOR = '/';
+	private static final String CLASS_FILE_SUFFIX = ".class";
 
-	public CharSequenceJavaFileObject(URI uri, Kind kind) {
-		super(uri, kind);
-		this.sourceCode = null;
+	private ByteArrayOutputStream byteArrayOutputStream;
+
+	public MemoryByteCode(String className) {
+		super(URI.create("byte:///" + className.replace(PKG_SEPARATOR, DIR_SEPARATOR)
+			+ Kind.CLASS.extension), Kind.CLASS);
 	}
 
-	public CharSequenceJavaFileObject(String name, String source) {
-		super(URI.create(name + JavaFileObject.Kind.SOURCE.extension), JavaFileObject.Kind.SOURCE);
-		this.sourceCode = source;
-	}
-
-	public CharSequenceJavaFileObject(String name, JavaFileObject.Kind kind) {
-		super(URI.create(name + kind.extension), kind);
-		this.sourceCode = null;
-	}
-
-	@Override
-	public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-		if (this.sourceCode == null) {
-			throw new IllegalStateException("源代码不能为空!");
-		}
-		return sourceCode;
+	public MemoryByteCode(String className, ByteArrayOutputStream byteArrayOutputStream)
+		throws URISyntaxException {
+		this(className);
+		this.byteArrayOutputStream = byteArrayOutputStream;
 	}
 
 	@Override
 	public OutputStream openOutputStream() throws IOException {
-		if (null == out) {
-			this.out = new ByteArrayOutputStream();
+		if (byteArrayOutputStream == null) {
+			byteArrayOutputStream = new ByteArrayOutputStream();
 		}
-		return out;
+		return byteArrayOutputStream;
 	}
 
 	public byte[] getByteCode() {
-		if (null == out) {
-			return null;
-		}
-		return out.toByteArray();
+		return byteArrayOutputStream.toByteArray();
 	}
+
+	public String getClassName() {
+		String className = getName();
+		className = className.replace(DIR_SEPARATOR, PKG_SEPARATOR);
+		className = className.substring(1, className.indexOf(CLASS_FILE_SUFFIX));
+		return className;
+	}
+
 }

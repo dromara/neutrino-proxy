@@ -21,47 +21,48 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import fun.asgc.neutrino.core.util.CollectionUtil;
-
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * @author: aoshiguchen
- * @date: 2022/8/17
+ * @author: wen.y
+ * @date: 2022/8/25
  */
-public class ByteCodeClassLoader extends ClassLoader {
-	private Map<String, byte[]> byteCodeMap = new ConcurrentHashMap<>();
-	static {
-		registerAsParallelCapable();
+public class DynamicClassLoader extends ClassLoader {
+	private final Map<String, MemoryByteCode> byteCodes = new HashMap<>();
+
+	public DynamicClassLoader(ClassLoader classLoader) {
+		super(classLoader);
 	}
 
-	public ByteCodeClassLoader() {
-		super(getParentClassLoader());
-	}
-
-	protected static ClassLoader getParentClassLoader() {
-		ClassLoader ret = Thread.currentThread().getContextClassLoader();
-		return ret != null ? ret : ByteCodeClassLoader.class.getClassLoader();
+	public void registerCompiledSource(MemoryByteCode byteCode) {
+		byteCodes.put(byteCode.getClassName(), byteCode);
 	}
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		byte[] bytes = byteCodeMap.get(name);
-		if (null != bytes) {
-			Class<?> ret = defineClass(name, bytes, 0, bytes.length);
-			byteCodeMap.remove(name);
-			return ret;
+		MemoryByteCode byteCode = byteCodes.get(name);
+		if (byteCode == null) {
+			return super.findClass(name);
 		}
-		return super.findClass(name);
+
+		return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
 	}
 
-	public void addByteCode(Map<String, byte[]> byteCodeMap) {
-		if (!CollectionUtil.isEmpty(byteCodeMap)) {
-			for (Map.Entry<String, byte[]> e : byteCodeMap.entrySet()) {
-				this.byteCodeMap.putIfAbsent(e.getKey(), e.getValue());
-			}
+	public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
+		Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+		for (MemoryByteCode byteCode : byteCodes.values()) {
+			classes.put(byteCode.getClassName(), findClass(byteCode.getClassName()));
 		}
+		return classes;
+	}
+
+	public Map<String, byte[]> getByteCodes() {
+		Map<String, byte[]> result = new HashMap<String, byte[]>(byteCodes.size());
+		for (Map.Entry<String, MemoryByteCode> entry : byteCodes.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().getByteCode());
+		}
+		return result;
 	}
 }

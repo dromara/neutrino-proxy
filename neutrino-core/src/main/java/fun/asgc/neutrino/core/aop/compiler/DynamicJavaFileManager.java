@@ -21,13 +21,9 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
+import javax.tools.*;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -35,25 +31,112 @@ import java.util.Map;
  * @date: 2022/8/17
  */
 public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-	public Map<String, CharSequenceJavaFileObject> fileObjects = new HashMap<>();
+	private static final String[] superLocationNames = { StandardLocation.PLATFORM_CLASS_PATH.name(),
+		/** JPMS StandardLocation.SYSTEM_MODULES **/
+		"SYSTEM_MODULES" };
+	private final PackageInternalsFinder finder;
+	private final DynamicClassLoader classLoader;
+	private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
-	public DynamicJavaFileManager(JavaFileManager fileManager) {
+	public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
 		super(fileManager);
+		this.classLoader = classLoader;
+		this.finder = new PackageInternalsFinder(classLoader);
 	}
 
 	@Override
-	public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String qualifiedClassName, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
-		CharSequenceJavaFileObject javaFileObject = new CharSequenceJavaFileObject(qualifiedClassName, kind);
-		this.fileObjects.put(qualifiedClassName, javaFileObject);
-		return javaFileObject;
-	}
+	public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className,
+											   JavaFileObject.Kind kind, FileObject sibling) throws IOException {
 
-	@Override
-	public JavaFileObject getJavaFileForInput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) throws IOException {
-		JavaFileObject javaFileObject = fileObjects.get(className);
-		if (javaFileObject == null) {
-			javaFileObject = super.getJavaFileForInput(location, className, kind);
+		for (MemoryByteCode byteCode : byteCodes) {
+			if (byteCode.getClassName().equals(className)) {
+				return byteCode;
+			}
 		}
-		return javaFileObject;
+
+		MemoryByteCode innerClass = new MemoryByteCode(className);
+		byteCodes.add(innerClass);
+		classLoader.registerCompiledSource(innerClass);
+		return innerClass;
+
+	}
+	@Override
+	public ClassLoader getClassLoader(JavaFileManager.Location location) {
+		return classLoader;
+	}
+
+	@Override
+	public String inferBinaryName(Location location, JavaFileObject file) {
+		if (file instanceof CustomJavaFileObject) {
+			return ((CustomJavaFileObject) file).binaryName();
+		} else {
+			/**
+			 * if it's not CustomJavaFileObject, then it's coming from standard file manager
+			 * - let it handle the file
+			 */
+			return super.inferBinaryName(location, file);
+		}
+	}
+
+	@Override
+	public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds,
+										 boolean recurse) throws IOException {
+		if (location instanceof StandardLocation) {
+			String locationName = ((StandardLocation) location).name();
+			for (String name : superLocationNames) {
+				if (name.equals(locationName)) {
+					return super.list(location, packageName, kinds, recurse);
+				}
+			}
+		}
+
+		// merge JavaFileObjects from specified ClassLoader
+		if (location == StandardLocation.CLASS_PATH && kinds.contains(JavaFileObject.Kind.CLASS)) {
+			return new IterableJoin<JavaFileObject>(super.list(location, packageName, kinds, recurse),
+				finder.find(packageName));
+		}
+
+		return super.list(location, packageName, kinds, recurse);
+	}
+
+	static class IterableJoin<T> implements Iterable<T> {
+		private final Iterable<T> first, next;
+
+		public IterableJoin(Iterable<T> first, Iterable<T> next) {
+			this.first = first;
+			this.next = next;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return new IteratorJoin<T>(first.iterator(), next.iterator());
+		}
+	}
+
+	static class IteratorJoin<T> implements Iterator<T> {
+		private final Iterator<T> first, next;
+
+		public IteratorJoin(Iterator<T> first, Iterator<T> next) {
+			this.first = first;
+			this.next = next;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return first.hasNext() || next.hasNext();
+		}
+
+		@Override
+		public T next() {
+			if (first.hasNext()) {
+				return first.next();
+			}
+			return next.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove");
+		}
 	}
 }
