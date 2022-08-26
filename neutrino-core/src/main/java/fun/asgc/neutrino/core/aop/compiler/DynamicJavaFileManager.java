@@ -92,7 +92,7 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
 
 		// merge JavaFileObjects from specified ClassLoader
 		if (location == StandardLocation.CLASS_PATH && kinds.contains(JavaFileObject.Kind.CLASS)) {
-			return new IterableJoin<JavaFileObject>(super.list(location, packageName, kinds, recurse),
+			return new IterableJoin<>(super.list(location, packageName, kinds, recurse),
 				finder.find(packageName));
 		}
 

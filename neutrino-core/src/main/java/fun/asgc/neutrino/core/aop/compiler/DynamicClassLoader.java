@@ -43,7 +43,7 @@ public class DynamicClassLoader extends ClassLoader {
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		MemoryByteCode byteCode = byteCodes.get(name);
-		if (byteCode == null) {
+		if (null == byteCode) {
 			return super.findClass(name);
 		}
 
@@ -51,7 +51,7 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
-		Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
+		Map<String, Class<?>> classes = new HashMap<>();
 		for (MemoryByteCode byteCode : byteCodes.values()) {
 			classes.put(byteCode.getClassName(), findClass(byteCode.getClassName()));
 		}
@@ -59,7 +59,7 @@ public class DynamicClassLoader extends ClassLoader {
 	}
 
 	public Map<String, byte[]> getByteCodes() {
-		Map<String, byte[]> result = new HashMap<String, byte[]>(byteCodes.size());
+		Map<String, byte[]> result = new HashMap<>(byteCodes.size());
 		for (Map.Entry<String, MemoryByteCode> entry : byteCodes.entrySet()) {
 			result.put(entry.getKey(), entry.getValue().getByteCode());
 		}

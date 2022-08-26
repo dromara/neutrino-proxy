@@ -22,7 +22,6 @@
 package fun.asgc.neutrino.core.aop.compiler;
 
 import com.google.common.collect.Lists;
-import com.sun.tools.javac.resources.compiler;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +49,9 @@ public class AsgcCompiler {
 	private boolean isSaveClassFile;
 	private String generatorCodeSavePath;
 	private DynamicClassLoader dynamicClassLoader;
+
+	private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<Diagnostic<? extends JavaFileObject>>();
+	private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<Diagnostic<? extends JavaFileObject>>();
 
 	public AsgcCompiler() {
 		this(ClassLoader.getSystemClassLoader());
@@ -117,17 +119,54 @@ public class AsgcCompiler {
 	 * @param className 类名
 	 * @param sourceCode 源代码
 	 */
-	public Class<?> compile(String className, String sourceCode) throws ClassNotFoundException {
+	public Class<?> compile(String pkg, String className, String sourceCode) throws ClassNotFoundException {
+		log.info("options:" + getOptions());
 		JavaFileManager javaFileManager = new DynamicJavaFileManager(standardJavaFileManager, dynamicClassLoader);
 		Boolean result = javaCompiler.getTask(null, javaFileManager, collector, getOptions(), null, Lists.newArrayList(new StringSource(className, sourceCode))).call();
-		if (!result) {
-			collector.getDiagnostics().forEach(item -> log.error(item.toString()));
+		if (!result || collector.getDiagnostics().size() > 0) {
+//			collector.getDiagnostics().forEach(item -> log.error(item.toString()));
+			if (!result || collector.getDiagnostics().size() > 0) {
+				for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {
+					switch (diagnostic.getKind()) {
+						case NOTE:
+						case MANDATORY_WARNING:
+						case WARNING:
+							warnings.add(diagnostic);
+							break;
+						case OTHER:
+						case ERROR:
+						default:
+							errors.add(diagnostic);
+							break;
+					}
+				}
+
+				log.error("warring: {}", getWarnings());
+				log.error("error: {}", getErrors());
+			}
 		}
 
-		Map<String, Class<?>>  map = dynamicClassLoader.getClasses();
-		if (CollectionUtil.isEmpty(map)) {
-			return null;
+		return dynamicClassLoader.findClass(pkg + "." + className);
+	}
+
+	private List<String> diagnosticToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+
+		List<String> diagnosticMessages = new ArrayList<String>();
+
+		for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
+			diagnosticMessages.add(
+				"line: " + diagnostic.getLineNumber() + ", message: " + diagnostic.getMessage(Locale.US));
 		}
-		return map.values().stream().filter(c -> c.getSimpleName().equals(className)).findFirst().orElseGet(null);
+
+		return diagnosticMessages;
+
+	}
+
+	public List<String> getErrors() {
+		return diagnosticToString(errors);
+	}
+
+	public List<String> getWarnings() {
+		return diagnosticToString(warnings);
 	}
 }
