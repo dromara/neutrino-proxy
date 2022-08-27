@@ -31,9 +31,17 @@ export function updateUser(data) {
   })
 }
 
+export function currentUserInfo() {
+  return request({
+    url: '/user/info',
+    method: 'get'
+  })
+}
+
 export function hello() {
   return request({
     url: '/test1/hello',
     method: 'GET'
   })
 }
+

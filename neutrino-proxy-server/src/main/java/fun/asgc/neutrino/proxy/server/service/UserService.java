@@ -35,6 +35,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
+import fun.asgc.neutrino.proxy.server.controller.res.UserInfoRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
@@ -135,5 +136,18 @@ public class UserService {
 	public List<UserListRes> list(UserListReq req) {
 		List<UserListRes> list = userMapper.list();
 		return list;
+	}
+
+	public UserInfoRes info() {
+		UserDO userDO = userMapper.findById(SystemContextHolder.getUser().getId());
+		if (null == userDO) {
+			return null;
+		}
+		return new UserInfoRes()
+			.setId(userDO.getId())
+			.setName(userDO.getName())
+			.setLoginName(userDO.getLoginName())
+			.setCreateTime(userDO.getCreateTime())
+			.setUpdateTime(userDO.getUpdateTime());
 	}
 }
