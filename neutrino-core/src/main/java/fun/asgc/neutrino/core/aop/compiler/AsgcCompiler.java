@@ -68,6 +68,7 @@ public class AsgcCompiler {
 		this.dynamicClassLoader = new DynamicClassLoader(classLoader);
 
 		addOption("-Xlint:unchecked");
+		addOption("-implicit:class");
 		addOption("-source", "1.8");
 		addOption("-target", "1.8");
 	}
@@ -124,7 +125,6 @@ public class AsgcCompiler {
 		JavaFileManager javaFileManager = new DynamicJavaFileManager(standardJavaFileManager, dynamicClassLoader);
 		Boolean result = javaCompiler.getTask(null, javaFileManager, collector, getOptions(), null, Lists.newArrayList(new StringSource(className, sourceCode))).call();
 		if (!result || collector.getDiagnostics().size() > 0) {
-//			collector.getDiagnostics().forEach(item -> log.error(item.toString()));
 			if (!result || collector.getDiagnostics().size() > 0) {
 				for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {
 					switch (diagnostic.getKind()) {
@@ -141,8 +141,7 @@ public class AsgcCompiler {
 					}
 				}
 
-				log.error("warring: {}", getWarnings());
-				log.error("error: {}", getErrors());
+				log();
 			}
 		}
 
@@ -168,5 +167,16 @@ public class AsgcCompiler {
 
 	public List<String> getWarnings() {
 		return diagnosticToString(warnings);
+	}
+
+	private void log() {
+		List<String> warnings = getWarnings();
+		List<String> errors = getErrors();
+		if (!CollectionUtil.isEmpty(warnings)) {
+			log.warn(warnings.stream().collect(Collectors.joining()));
+		}
+		if (!CollectionUtil.isEmpty(errors)) {
+			log.warn(errors.stream().collect(Collectors.joining()));
+		}
 	}
 }
