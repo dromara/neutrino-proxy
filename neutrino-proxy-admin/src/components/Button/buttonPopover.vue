@@ -3,7 +3,7 @@
     placement="top"
     :width="width"
     v-model="visible">
-    <p class="popper-p-css">{{title}}</p>
+    <p class="popper-p-css"><i class="el-icon-warning" style="color: #e6a23c"/>{{title}}</p>
     <div style="text-align: center; margin: 0">
       <el-button size="mini" @click="handleCancelClick">{{cancelText}}</el-button>
       <el-button type="primary" size="mini" @click="handleCommitClick">{{okText}}</el-button>
