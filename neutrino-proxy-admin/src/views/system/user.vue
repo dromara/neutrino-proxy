@@ -41,7 +41,9 @@
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>
+<!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
+          <ButtonPopover @handleCommitClick="handleDelete2(scope.row)"/>
+
         </template>
       </el-table-column>
     </el-table>
@@ -85,6 +87,7 @@
   import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
+  import ButtonPopover from '../../components/Button/buttonPopover'
 
   const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
@@ -103,6 +106,9 @@
     name: 'complexTable',
     directives: {
       waves
+    },
+    components: {
+      ButtonPopover
     },
     data() {
       return {
@@ -288,6 +294,9 @@
             }
           })
         }).catch(() => {})
+      },
+      handleDelete2(row) {
+        console.log(row)
       },
       handleDownload() {
         this.downloadLoading = true
