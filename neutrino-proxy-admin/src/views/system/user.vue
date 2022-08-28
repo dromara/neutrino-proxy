@@ -296,7 +296,17 @@
         }).catch(() => {})
       },
       handleDelete2(row) {
-        console.log(row)
+        deleteUser(row.id).then(response => {
+          if (response.data.code === 0) {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
+          }
+        })
       },
       handleDownload() {
         this.downloadLoading = true

@@ -68,7 +68,7 @@ export default {
   .popper-p-css{
     margin-top: 0px !important;
     margin-bottom: 5px !important;
-    /deep/i{
+    .el-icon-warning{
       margin-right: 5px;
     }
   }
