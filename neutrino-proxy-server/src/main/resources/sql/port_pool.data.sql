@@ -19,3 +19,23 @@ insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) valu
 (9, 9109, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
 insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
 (10, 9110, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(11, 9111, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(12, 9112, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(13, 9113, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(14, 9114, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(15, 9115, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(16, 9116, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(17, 9117, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(18, 9118, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(19, 9119, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
+insert into port_pool(`id`, `port`, `enable`, `create_time`, `update_time`) values
+(20, 9120, 1, STRFTIME('%s000', 'NOW'), STRFTIME('%s000', 'NOW'));
