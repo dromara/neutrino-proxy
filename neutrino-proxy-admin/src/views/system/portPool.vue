@@ -35,8 +35,8 @@
         <template slot-scope="scope">
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}
-          </el-button>
+<!--          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
+            <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px"/>
         </template>
       </el-table-column>
     </el-table>
@@ -76,6 +76,7 @@
   import { fetchList, updateEnableStatus, createPortPool, deletePortPool } from '@/api/portPool'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
+  import ButtonPopover from '../../components/Button/buttonPopover'
 
   const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
@@ -94,6 +95,9 @@
     name: 'complexTable',
     directives: {
       waves
+    },
+    components: {
+      ButtonPopover
     },
     data() {
       return {
@@ -238,23 +242,17 @@
         })
       },
       handleDelete(row) {
-        this.$confirm('确定要删除吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deletePortPool(row.id).then(response => {
-            if (response.data.code === 0) {
-              this.$notify({
-                title: '成功',
-                message: '删除成功',
-                type: 'success',
-                duration: 2000
-              })
-              this.getList()
-            }
-          })
-        }).catch(() => {})
+        deletePortPool(row.id).then(response => {
+          if (response.data.code === 0) {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
+          }
+        })
       },
       handleDownload() {
         this.downloadLoading = true
