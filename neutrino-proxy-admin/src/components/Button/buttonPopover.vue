@@ -3,12 +3,12 @@
     placement="top"
     :width="width"
     v-model="visible">
-    <p>{{title}}</p>
-    <div style="text-align: right; margin: 0">
-      <el-button size="mini" type="text" @click="handleCancelClick">{{cancelText}}</el-button>
+    <p class="popper-p-css">{{title}}</p>
+    <div style="text-align: center; margin: 0">
+      <el-button size="mini" @click="handleCancelClick">{{cancelText}}</el-button>
       <el-button type="primary" size="mini" @click="handleCommitClick">{{okText}}</el-button>
     </div>
-    <el-button slot="reference">{{buttonText}}</el-button>
+    <el-button slot="reference" :type="type" :size="size">{{buttonText}}</el-button>
   </el-popover>
 </template>
 
@@ -21,13 +21,17 @@ export default {
       type: Number,
       default: 160
     },
-    visible: {
-      type: Boolean,
-      default: false
-    },
     buttonText: {
       type: String,
       default: '删除'
+    },
+    type: {
+      type: String,
+      default: 'danger'
+    },
+    size: {
+      type: String,
+      default: 'mini'
     },
     title: {
       type: String,
@@ -44,7 +48,7 @@ export default {
   },
   data() {
     return {
-
+      visible: false
     }
   },
   methods: {
@@ -59,3 +63,10 @@ export default {
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .popper-p-css{
+    margin-top: 0px !important;
+    margin-bottom: 5px !important;
+  }
+</style>
