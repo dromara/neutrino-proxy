@@ -25,17 +25,12 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.DateUtil;
-import fun.asgc.neutrino.core.web.annotation.GetMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
-import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
@@ -44,7 +39,6 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
-import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -58,6 +52,7 @@ import java.util.UUID;
  */
 @Component
 public class UserService {
+	private static final String DEFAULT_PASSWORD = "123456";
 	@Autowired
 	private UserMapper userMapper;
 	@Autowired
@@ -141,8 +136,12 @@ public class UserService {
 		return list;
 	}
 
-	public UserInfoRes info() {
-		UserDO userDO = userMapper.findById(SystemContextHolder.getUser().getId());
+	public UserInfoRes info(UserInfoReq req) {
+		Integer userId = req.getId();
+		if (null == userId) {
+			userId = SystemContextHolder.getUser().getId();
+		}
+		UserDO userDO = userMapper.findById(userId);
 		if (null == userDO) {
 			return null;
 		}
@@ -158,5 +157,41 @@ public class UserService {
 		userMapper.updateEnableStatus(req.getId(), req.getEnable());
 
 		return new UserUpdateEnableStatusRes();
+	}
+
+	public UserCreateRes create(UserCreateReq req) {
+
+
+		Date now = new Date();
+		UserDO userDO = new UserDO();
+		userDO.setName(req.getName());
+		userDO.setLoginName(req.getLoginName());
+		userDO.setLoginPassword(Md5Util.encode(DEFAULT_PASSWORD));
+		userDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+		userDO.setCreateTime(now);
+		userDO.setUpdateTime(now);
+		userMapper.add(userDO);
+
+		return new UserCreateRes();
+	}
+
+	public UserUpdateRes update(UserUpdateReq req) {
+		UserDO userDO = new UserDO();
+		userDO.setId(req.getId());
+		userDO.setName(req.getName());
+		userDO.setLoginName(req.getLoginName());
+		userDO.setUpdateTime(new Date());
+		userMapper.update(userDO);
+		return new UserUpdateRes();
+	}
+
+	public UserUpdatePasswordRes updatePassword(UserUpdatePasswordReq req) {
+		String loginPassword = Md5Util.encode(req.getLoginPassword());
+		userMapper.updateLoginPassword(req.getId(), loginPassword);
+		return new UserUpdatePasswordRes();
+	}
+
+	public void delete(Integer id) {
+		userMapper.delete(id);
 	}
 }

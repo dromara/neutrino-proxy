@@ -27,14 +27,8 @@ import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserInfoReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserInfoRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
@@ -66,8 +60,8 @@ public class UserController {
 	}
 
 	@GetMapping("info")
-	public UserInfoRes info() {
-		return userService.info();
+	public UserInfoRes info(UserInfoReq req) {
+		return userService.info(req);
 	}
 
 	@OnlyAdmin
@@ -78,5 +72,44 @@ public class UserController {
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
 
 		return userService.updateEnableStatus(req);
+	}
+
+	@OnlyAdmin
+	@PostMapping("create")
+	public UserCreateRes create(@RequestBody UserCreateReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
+		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
+
+		return userService.create(req);
+	}
+
+	@OnlyAdmin
+	@PostMapping("update")
+	public UserUpdateRes update(@RequestBody UserUpdateReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
+		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
+
+		return userService.update(req);
+	}
+
+	@OnlyAdmin
+	@PostMapping("update/password")
+	public UserUpdatePasswordRes updatePassword(@RequestBody UserUpdatePasswordReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
+
+		return userService.updatePassword(req);
+	}
+
+	@OnlyAdmin
+	@PostMapping("delete")
+	public void delete(@RequestParam("id") Integer id) {
+		ParamCheckUtil.checkNotNull(id, "id");
+
+		userService.delete(id);
 	}
 }

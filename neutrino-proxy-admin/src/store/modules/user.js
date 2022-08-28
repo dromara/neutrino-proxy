@@ -9,6 +9,7 @@ const user = {
     code: '',
     token: getToken(),
     name: '',
+    loginName: '',
     avatar: '',
     introduction: '',
     roles: [],
@@ -35,6 +36,9 @@ const user = {
     },
     SET_NAME: (state, name) => {
       state.name = name
+    },
+    SET_LOGIN_NAME: (state, loginName) => {
+      state.loginName = loginName
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -68,6 +72,7 @@ const user = {
           }
           commit('SET_ROLES', [response.data.data.loginName])
           commit('SET_NAME', response.data.data.name)
+          commit('SET_LOGIN_NAME', response.data.data.loginName)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -119,8 +124,10 @@ const user = {
         setToken(role)
         getUserInfo(role).then(response => {
           const data = response.data
+          console.log('111222', data)
           commit('SET_ROLES', data.roles)
           commit('SET_NAME', data.name)
+          commit('SET_LOGIN_NAME', data.loginName)
           commit('SET_AVATAR', data.avatar)
           commit('SET_INTRODUCTION', data.introduction)
           resolve()

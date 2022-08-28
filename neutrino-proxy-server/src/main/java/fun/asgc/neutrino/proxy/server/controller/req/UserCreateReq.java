@@ -24,11 +24,12 @@ package fun.asgc.neutrino.proxy.server.controller.req;
 import lombok.Data;
 
 /**
- * 用户信息请求
+ *
  * @author: aoshiguchen
- * @date: 2022/8/27
+ * @date: 2022/8/28
  */
 @Data
-public class UserInfoReq {
-	private Integer id;
+public class UserCreateReq {
+	private String name;
+	private String loginName;
 }

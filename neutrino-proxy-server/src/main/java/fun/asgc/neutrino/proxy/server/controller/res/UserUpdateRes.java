@@ -19,16 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.controller.req;
-
-import lombok.Data;
+package fun.asgc.neutrino.proxy.server.controller.res;
 
 /**
- * 用户信息请求
+ *
  * @author: aoshiguchen
- * @date: 2022/8/27
+ * @date: 2022/8/28
  */
-@Data
-public class UserInfoReq {
-	private Integer id;
+public class UserUpdateRes {
+
 }

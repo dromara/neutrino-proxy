@@ -23,13 +23,12 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.annotation.Update;
+import fun.asgc.neutrino.core.db.annotation.*;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 import java.util.List;
@@ -73,4 +72,16 @@ public interface UserMapper extends SqlMapper {
 
 	@Update("update `user` set enable = :enable where id = :id")
 	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+
+	@Delete("delete from `user` where id = ?")
+	void delete(Integer id);
+
+	@Update("update `user` set name = :name,login_name = :loginName where id = :id")
+	void update(UserDO userDO);
+
+	@Update("update `user` set login_password = :loginPassword where id = :id")
+	void updateLoginPassword(@Param("id") Integer id, @Param("loginPassword") String loginPassword);
+
+	@Insert("insert into user(`name`,`login_name`,`login_password`,`enable`,`create_time`,`update_time`) values(:name,:loginName,:loginPassword,:enable,:createTime,:updateTime)")
+	void add(UserDO user);
 }
