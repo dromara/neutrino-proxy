@@ -68,5 +68,8 @@ export default {
   .popper-p-css{
     margin-top: 0px !important;
     margin-bottom: 5px !important;
+    /deep/i{
+      margin-right: 5px;
+    }
   }
 </style>
