@@ -78,13 +78,16 @@ public class HttpRequestHandler {
 		try {
 			String routePath = requestParser.getRoutePath();
 			HttpMethod httpMethod = HttpMethod.of(requestParser.getMethod().name());
+			HttpContextHolder.setInterceptorList(getInterceptorsForPath(routePath));
+
 			if (httpMethod == HttpMethod.OPTIONS) {
-				responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
-				responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-				responseWrapper.headers().add("Access-Control-Max-Age", "86400");
-				responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
-				responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
-				responseWrapper.headers().add("XDomainRequestAllowed", "1");
+//				responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
+//				responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+//				responseWrapper.headers().add("Access-Control-Max-Age", "86400");
+//				responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
+//				responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
+//				responseWrapper.headers().add("XDomainRequestAllowed", "1");
+				postHandle(requestParser.getRoutePath(), null, null);
 				HttpServerUtil.sendResponse(HttpResponseStatus.OK);
 				return;
 			}
@@ -93,10 +96,11 @@ public class HttpRequestHandler {
 				HttpServerUtil.send404Response(requestParser.getUrl());
 				return;
 			}
-			HttpContextHolder.setInterceptorList(getInterceptorsForPath(httpRouteResult.getPageRoute()));
+//			HttpContextHolder.setInterceptorList(getInterceptorsForPath(httpRouteResult.getPageRoute()));
 
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
 				if (!preHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
+					postHandle(requestParser.getRoutePath(), httpRouteResult.getMethod(), null);
 					HttpServerUtil.sendResponse(HttpResponseStatus.UNAUTHORIZED);
 					return;
 				}
@@ -145,9 +149,14 @@ public class HttpRequestHandler {
 				return;
 			}
 		} catch (Throwable e) {
-			Object res = exceptionHandler(e);
-			if (null != res) {
-				HttpServerUtil.send200Response(res);
+			try {
+				postHandle(requestParser.getRoutePath(), null, null);
+				Object res = exceptionHandler(e);
+				if (null != res) {
+					HttpServerUtil.send200Response(res);
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		} finally {
 			release();

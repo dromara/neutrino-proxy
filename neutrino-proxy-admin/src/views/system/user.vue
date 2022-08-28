@@ -1,27 +1,24 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.userName')" v-model="listQuery.userName">
-      </el-input>
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
-      <el-table-column align="center" :label="$t('table.userId')" width="100">
+      <el-table-column align="center" :label="$t('table.id')" width="100">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.userName')" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.userName}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.license')" width="300">
+      <el-table-column align="center" :label="$t('table.loginName')" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.license}}</span>
+          <span>{{scope.row.loginName}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
@@ -36,22 +33,20 @@
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.status')" width="100">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status | statusName}}</el-tag>
+          <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button v-if="scope.row.status =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
-          <el-button v-if="scope.row.status =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
+          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
+          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
-                     :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.currentPage"
+                     :page-sizes="[10,20,30, 50]" :page-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -85,7 +80,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser, hello } from '@/api/user'
+  import { fetchList, createUser, updateUser, updateEnableStatus } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
 
@@ -114,12 +109,11 @@
         total: null,
         listLoading: true,
         listQuery: {
-          page: 1,
-          limit: 20,
+          currentPage: 1,
+          pageSize: 20,
           importance: undefined,
           title: undefined,
-          type: undefined,
-          sort: '+id'
+          type: undefined
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
@@ -175,31 +169,35 @@
     methods: {
       getList() {
         this.listLoading = true
-        hello()
         fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+          this.list = response.data.data.records
+          this.total = response.data.data.total
           this.listLoading = false
         })
       },
       handleFilter() {
-        this.listQuery.page = 1
+        this.listQuery.currentPage = 1
         this.getList()
       },
       handleSizeChange(val) {
-        this.listQuery.limit = val
+        this.listQuery.pageSize = val
         this.getList()
       },
       handleCurrentChange(val) {
-        this.listQuery.page = val
+        this.listQuery.currentPage = val
         this.getList()
       },
-      handleModifyStatus(row, status) {
-        this.$message({
-          message: '操作成功',
-          type: 'success'
+      handleModifyStatus(row, enable) {
+        console.log('route', this.$route)
+        updateEnableStatus(row.id, enable).then(response => {
+          if (response.data.data.code === 0) {
+            this.$message({
+              message: '操作成功',
+              type: 'success'
+            })
+          }
+          this.getList()
         })
-        row.status = status
       },
       resetTemp() {
         this.temp = {

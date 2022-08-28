@@ -44,7 +44,9 @@ export default {
     theme: '换肤',
     clipboardDemo: 'clipboard',
     i18n: '国际化',
-    user: '用户管理'
+    user: '用户管理',
+    system: '系统管理',
+    portPool: '端口池管理'
   },
   navbar: {
     logOut: '退出登录',
@@ -110,7 +112,9 @@ export default {
     createTime: '创建时间',
     updateTime: '更新时间',
     disable: '禁用',
-    enable: '启用'
+    enable: '启用',
+    loginName: '登录名',
+    port: '端口'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

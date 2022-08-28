@@ -25,13 +25,16 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.GetMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserInfoReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.UserUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserInfoRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.UserUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
@@ -65,5 +68,15 @@ public class UserController {
 	@GetMapping("info")
 	public UserInfoRes info() {
 		return userService.info();
+	}
+
+	@OnlyAdmin
+	@PostMapping("update/enable-status")
+	public UserUpdateEnableStatusRes updateEnableStatus(@RequestBody UserUpdateEnableStatusReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
+
+		return userService.updateEnableStatus(req);
 	}
 }

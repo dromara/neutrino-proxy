@@ -28,15 +28,15 @@ import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.DateUtil;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserInfoRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.UserUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserTokenMapper;
@@ -69,6 +69,9 @@ public class UserService {
 		UserDO userDO = userMapper.findByLoginName(req.getLoginName());
 		if (null == userDO || !Md5Util.encode(req.getLoginPassword()).equals(userDO.getLoginPassword())) {
 			throw ServiceException.create(ExceptionConstant.USER_NAME_OR_PASSWORD_ERROR);
+		}
+		if (EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
+			throw ServiceException.create(ExceptionConstant.USER_DISABLE);
 		}
 		String token = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -149,5 +152,11 @@ public class UserService {
 			.setLoginName(userDO.getLoginName())
 			.setCreateTime(userDO.getCreateTime())
 			.setUpdateTime(userDO.getUpdateTime());
+	}
+
+	public UserUpdateEnableStatusRes updateEnableStatus(UserUpdateEnableStatusReq req) {
+		userMapper.updateEnableStatus(req.getId(), req.getEnable());
+
+		return new UserUpdateEnableStatusRes();
 	}
 }

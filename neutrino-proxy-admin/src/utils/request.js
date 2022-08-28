@@ -26,9 +26,19 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(
   response => {
     console.log('response', response)
+    console.log('router', this.router)
     const res = response.data
     if (res.code !== 0) {
-      console.log('请求异常', response)
+      Message({
+        message: `[${res.code}]${res.msg}`,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      if (res.code === 4 && !window.location.href.endsWith('#/login')) {
+        store.dispatch('FedLogOut').then(() => {
+          location.reload() // 为了重新实例化vue-router对象 避免bug
+        })
+      }
     }
     return response
   },

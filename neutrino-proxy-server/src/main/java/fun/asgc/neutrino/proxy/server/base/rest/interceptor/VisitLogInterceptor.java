@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContext;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +48,9 @@ public class VisitLogInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void postHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod, Object result) throws Exception {
+		if (null == SystemContextHolder.getContext() || null == SystemContextHolder.getContext().getReceiveTime()) {
+			return;
+		}
 		Date receiveTime = SystemContextHolder.getContext().getReceiveTime();
 		Date now = new Date();
 		long elapsedTime = now.getTime() - receiveTime.getTime();

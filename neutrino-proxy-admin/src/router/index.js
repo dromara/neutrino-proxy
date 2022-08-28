@@ -240,13 +240,17 @@ export const asyncRouterMap = [
   { path: '*', redirect: '/404', hidden: true },
 
   {
-    path: '/user',
+    path: '/system',
     component: Layout,
-    children: [{
-      path: 'index',
-      component: _import('user/index'),
-      name: 'user',
-      meta: { title: 'user', icon: 'user', noCache: true }
-    }]
+    redirect: 'noredirect',
+    name: 'system',
+    meta: {
+      title: 'system',
+      icon: 'component'
+    },
+    children: [
+      { path: 'user', component: _import('system/user'), name: 'user', meta: { title: 'user' }},
+      { path: 'portPool', component: _import('system/portPool'), name: 'portPool', meta: { title: 'portPool' }}
+    ]
   }
 ]

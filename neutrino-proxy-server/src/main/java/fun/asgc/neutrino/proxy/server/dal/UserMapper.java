@@ -25,6 +25,7 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
@@ -69,4 +70,7 @@ public interface UserMapper extends SqlMapper {
 	@ResultType(UserListRes.class)
 	@Select("select * from user where enable = 1")
 	List<UserListRes> list();
+
+	@Update("update `user` set enable = :enable where id = :id")
+	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
 }
