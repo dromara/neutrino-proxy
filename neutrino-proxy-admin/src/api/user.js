@@ -31,6 +31,16 @@ export function updateUser(data) {
   })
 }
 
+export function deleteUser(id) {
+  return request({
+    url: '/user/delete',
+    method: 'post',
+    params: {
+      id: id
+    }
+  })
+}
+
 export function currentUserInfo() {
   return request({
     url: '/user/info',

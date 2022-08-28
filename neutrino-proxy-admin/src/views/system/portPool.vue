@@ -238,17 +238,23 @@
         })
       },
       handleDelete(row) {
-        deletePortPool(row.id).then(response => {
-          if (response.data.code === 0) {
-            this.$notify({
-              title: '成功',
-              message: '删除成功',
-              type: 'success',
-              duration: 2000
-            })
-            this.getList()
-          }
-        })
+        this.$confirm('确定要删除吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deletePortPool(row.id).then(response => {
+            if (response.data.code === 0) {
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.getList()
+            }
+          })
+        }).catch(() => {})
       },
       handleDownload() {
         this.downloadLoading = true

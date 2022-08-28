@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-
+      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
@@ -38,8 +38,10 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -52,11 +54,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('table.userName')" prop="userName">
-          <el-input v-model="temp.userName"></el-input>
+        <el-form-item :label="$t('用户名')" prop="name">
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.license')" prop="license">
-          <el-input v-model="temp.license"></el-input>
+        <el-form-item :label="$t('登录名')" prop="loginName">
+          <el-input v-model="temp.loginName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -80,7 +82,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser, updateEnableStatus } from '@/api/user'
+  import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
 
@@ -138,8 +140,8 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          userName: [{ required: true, message: '用户名必填', trigger: 'blur' }],
-          license: [{ required: true, message: 'license必填', trigger: 'blur' }]
+          name: [{ required: true, message: '用户名必填', trigger: 'blur' }],
+          loginName: [{ required: true, message: '登录名必填', trigger: 'blur' }]
         },
         downloadLoading: false
       }
@@ -221,20 +223,17 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            const now = new Date().getTime()
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            this.temp.createTime = now
-            this.temp.updateTime = now
-            this.temp.status = 1
-            createUser(this.temp).then(() => {
-              this.list.unshift(this.temp)
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '创建成功',
-                type: 'success',
-                duration: 2000
-              })
+            createUser(this.temp).then(response => {
+              if (response.data.code === 0) {
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+                this.getList()
+              }
             })
           }
         })
@@ -252,35 +251,43 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateUser(tempData).then(() => {
-              for (const v of this.list) {
-                if (v.id === this.temp.id) {
-                  const index = this.list.indexOf(v)
-                  this.list.splice(index, 1, this.temp)
-                  break
-                }
+            updateUser(tempData).then(response => {
+              if (response.data.code === 0) {
+                // this.$message({
+                //   message: '操作成功',
+                //   type: 'success'
+                // })
+                this.$notify({
+                  title: '成功',
+                  message: '更新成功',
+                  type: 'success',
+                  duration: 2000
+                })
+                this.dialogFormVisible = false
+                this.getList()
               }
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 2000
-              })
             })
           }
         })
       },
       handleDelete(row) {
-        this.$notify({
-          title: '成功',
-          message: '删除成功',
-          type: 'success',
-          duration: 2000
-        })
-        const index = this.list.indexOf(row)
-        this.list.splice(index, 1)
+        this.$confirm('确定要删除吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteUser(row.id).then(response => {
+            if (response.data.code === 0) {
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.getList()
+            }
+          })
+        }).catch(() => {})
       },
       handleDownload() {
         this.downloadLoading = true

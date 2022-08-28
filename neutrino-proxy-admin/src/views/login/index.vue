@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
 import SocialSign from './socialsignin'
 
@@ -42,7 +41,7 @@ export default {
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
+      if (!value) {
         callback(new Error('请输入用户名'))
       } else {
         callback()
