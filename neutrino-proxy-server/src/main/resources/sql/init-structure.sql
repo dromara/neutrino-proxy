@@ -1,9 +1,9 @@
 #用户表
 CREATE TABLE IF NOT EXISTS `user` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  `name` varchar(50) NOT NULL,
-  `login_name` varchar(50) NOT NULL,
-  `login_password` varchar(255) NOT NULL,
+  `name` VARCHAR(50) NOT NULL,
+  `login_name` VARCHAR(50) NOT NULL,
+  `login_password` VARCHAR(255) NOT NULL,
   `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `license` (
 #用户token表
 CREATE TABLE IF NOT EXISTS `user_token` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  `token` varchar(50) NOT NULL,
+  `token` VARCHAR(50) NOT NULL,
   `user_id` INTEGER NOT NULL,
   `expiration_time` INTEGER NOT NULL,
   `create_time` INTEGER NOT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS `user_token` (
 CREATE TABLE IF NOT EXISTS `user_login_record` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `user_id` INTEGER NOT NULL,
-  `ip` varchar(50) NOT NULL,
-  `token` varchar(100) NOT NULL,
+  `ip` VARCHAR(50) NOT NULL,
+  `token` VARCHAR(100) NOT NULL,
   `type` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );
@@ -61,4 +61,17 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
+);
+
+#客户端链接记录表
+CREATE TABLE IF NOT EXISTS `client_connect_record` (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `user_id` INTEGER NOT NULL,
+  `ip` varchar(50) NOT NULL,
+  `license_id` INTEGER(20) NOT NULL,
+  `license_key` VARCHAR(100) NOT NULL,
+  `write_bytes` INTEGER(20) NOT NULL,
+  `read_bytes` INTEGER(20) NOT NULL,
+  `type` INTEGER(2) NOT NULL,
+  `create_time` INTEGER(20) NOT NULL
 );
