@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.proxy.server.base.proxy;
 
 import fun.asgc.neutrino.proxy.core.ProxyClientConfig;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -52,12 +53,12 @@ public class ProxyServerConfig implements Serializable {
      */
     private volatile Map<Integer, String> inetPortLanInfoMapping = new HashMap<Integer, String>();
 
-    public void addClientConfig(ProxyClientConfig clientConfig) {
-        String clientKey = clientConfig.getClientKey();
+    public void addClientConfig(String licenseKey, List<PortMappingDO> portMappingList) {
+        String clientKey = licenseKey;
         List<Integer> ports = new ArrayList<>();
-        for (ProxyClientConfig.Proxy proxy : clientConfig.getProxy()) {
-            ports.add(proxy.getServerPort());
-            inetPortLanInfoMapping.put(proxy.getServerPort(), proxy.getClientInfo());
+        for (PortMappingDO portMapping : portMappingList) {
+            ports.add(portMapping.getServerPort());
+            inetPortLanInfoMapping.put(portMapping.getServerPort(), portMapping.getClientIp() + ":" + portMapping.getClientPort());
         }
         clientInetPortMapping.put(clientKey, ports);
     }

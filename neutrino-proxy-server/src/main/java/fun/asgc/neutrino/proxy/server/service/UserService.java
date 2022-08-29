@@ -119,6 +119,10 @@ public class UserService {
 		return userMapper.findById(userTokenDO.getUserId());
 	}
 
+	public UserDO findById(Integer id) {
+		return userMapper.findById(id);
+	}
+
 	public void updateTokenExpirationTime(String token) {
 		Date now = new Date();
 		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);

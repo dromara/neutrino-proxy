@@ -89,4 +89,7 @@ public interface LicenseMapper extends SqlMapper {
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where user_id = :userId and name =:name and id not in (:excludeIds) limit 0,1")
 	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name, @Param("excludeIds") Set<Integer> excludeIds);
+
+	@Select("select * from `license` where key = ?")
+	LicenseDO findByKey(String licenseKey);
 }

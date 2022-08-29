@@ -43,7 +43,8 @@ public enum ProxyDataTypeEnum {
 	CONNECT(0x03, Constants.ProxyDataTypeName.CONNECT,"连接"),
 	DISCONNECT(0x04, Constants.ProxyDataTypeName.DISCONNECT,"断开连接"),
 	TRANSFER(0x05, Constants.ProxyDataTypeName.TRANSFER,"数据传输"),
-	ERROR(0x06, Constants.ProxyDataTypeName.ERROR,"异常");
+	ERROR(0x06, Constants.ProxyDataTypeName.ERROR,"异常"),
+	PORT_MAPPING_SYNC(0x07, Constants.ProxyDataTypeName.PORT_MAPPING_SYNC, "端口映射同步");
 	private static Map<Integer,ProxyDataTypeEnum> cache = Stream.of(values()).collect(Collectors.toMap(ProxyDataTypeEnum::getType, Function.identity()));
 
 	private int type;

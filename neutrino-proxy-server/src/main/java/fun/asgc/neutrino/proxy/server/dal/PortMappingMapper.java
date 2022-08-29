@@ -33,6 +33,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -65,4 +66,8 @@ public interface PortMappingMapper extends SqlMapper {
 
 	@Select("select * from port_mapping where server_port = :port and id not in (:excludeIds)")
 	PortMappingDO findByPort(@Param("port") Integer port, @Param("excludeIds") Set<Integer> excludeIds);
+
+	@ResultType(PortMappingDO.class)
+	@Select("select * from port_mapping where license_id = ? and enable = 1")
+	List<PortMappingDO> findEnableListByLicenseId(Integer licenseId);
 }

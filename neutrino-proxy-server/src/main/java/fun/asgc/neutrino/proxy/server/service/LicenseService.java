@@ -182,6 +182,10 @@ public class LicenseService {
 		licenseMapper.reset(id, key, now);
 	}
 
+	public LicenseDO findByKey(String license) {
+		return licenseMapper.findByKey(license);
+	}
+
 	/**
 	 * 脱敏处理
 	 * 非当前登录人的license，一律脱敏

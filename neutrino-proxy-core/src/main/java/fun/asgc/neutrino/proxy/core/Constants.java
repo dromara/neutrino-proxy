@@ -50,5 +50,6 @@ public interface Constants {
         String DISCONNECT = "DISCONNECT";
         String TRANSFER = "TRANSFER";
         String ERROR = "ERROR";
+        String PORT_MAPPING_SYNC = "PORT_MAPPING_SYNC";
     }
 }

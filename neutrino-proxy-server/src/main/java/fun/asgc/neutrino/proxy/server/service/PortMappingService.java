@@ -203,4 +203,13 @@ public class PortMappingService {
 		portMappingMapper.delete(id);
 	}
 
+	/**
+	 * 根据license查询可用的端口映射列表
+	 * @param licenseId
+	 * @return
+	 */
+	public List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
+		return portMappingMapper.findEnableListByLicenseId(licenseId);
+	}
+
 }

@@ -73,7 +73,7 @@ public class ProxyChannelManager {
 
         channel.attr(CHANNEL_PORT).set(ports);
         channel.attr(CHANNEL_CLIENT_KEY).set(clientKey);
-        channel.attr(USER_CHANNELS).set(new ConcurrentHashMap<String, Channel>());
+        channel.attr(USER_CHANNELS).set(new ConcurrentHashMap<>());
         cmdChannels.put(clientKey, channel);
     }
 

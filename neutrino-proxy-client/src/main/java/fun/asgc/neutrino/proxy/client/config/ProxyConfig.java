@@ -39,7 +39,7 @@ public class ProxyConfig {
 	public static ProxyConfig instance;
 	private Protocol protocol;
 	private Client client;
-	private ProxyClientConfig clientConfig;
+	private String licenseKey;
 
 	@Data
 	public static class Protocol {

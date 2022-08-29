@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
@@ -71,8 +72,7 @@ public class ProxyClientRunner implements ApplicationRunner {
 
 	@Override
 	public void run(String[] args) {
-		ProxyClientConfig clientConfig = getClientConfig(args.length >= 1 ? args[args.length - 1] : null);
-		proxyConfig.setClientConfig(clientConfig);
+		proxyConfig.setLicenseKey(getLicenseKey(args));
 		connectProxyServer();
 	}
 
@@ -115,13 +115,13 @@ public class ProxyClientRunner implements ApplicationRunner {
 				@Override
 				public void operationComplete(ChannelFuture future) throws Exception {
 					if (future.isSuccess()) {
-
 						// 连接成功，向服务器发送客户端认证信息（clientKey）
 						ClientChannelMannager.setCmdChannel(future.channel());
-						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(JSONObject.toJSONString(proxyConfig.getClientConfig())));
+						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
 						log.info("连接代理服务成功.");
 					} else {
 						log.info("连接代理服务失败!");
+						System.exit(-1);
 					}
 				}
 			});
@@ -182,5 +182,26 @@ public class ProxyClientRunner implements ApplicationRunner {
 			log.error("解析配置文件异常!", e);
 		}
 		return null;
+	}
+
+	private String getLicenseKey(String[] args) {
+		String license = "";
+		if (null != args && ArrayUtil.notEmpty(args)) {
+			for (String s : args) {
+				if (s.startsWith("license=") && s.length() > 8) {
+					license = s.substring(8).trim();
+				}
+			}
+		}
+		if (StringUtil.isEmpty(license)) {
+			license = FileUtil.readContentAsString("./.neutrino-proxy.license");
+		}
+		if (StringUtil.isEmpty(license)) {
+			log.error("未配置license，执行结束.");
+			System.exit(-1);
+		}
+		FileUtil.write("./.neutrino-proxy.license", license);
+
+		return license;
 	}
 }

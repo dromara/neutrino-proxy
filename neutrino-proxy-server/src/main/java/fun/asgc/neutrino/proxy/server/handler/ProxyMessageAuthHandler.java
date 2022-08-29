@@ -22,16 +22,24 @@
 
 package fun.asgc.neutrino.proxy.server.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
+import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.core.BytesMetricsHandler;
 import fun.asgc.neutrino.proxy.server.core.UserChannelHandler;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.service.LicenseService;
+import fun.asgc.neutrino.proxy.server.service.PortMappingService;
+import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -61,37 +69,59 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private NioEventLoopGroup serverWorkerGroup;
 	@Autowired
 	private ProxyConfig proxyConfig;
+	@Autowired
+	private LicenseService licenseService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private PortMappingService portMappingService;
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-		ProxyClientConfig clientConfig = JSONObject.parseObject(proxyMessage.getInfo(), ProxyClientConfig.class);
-		String clientKey = clientConfig.getClientKey();
-		if (!proxyConfig.getLicenseMap().containsKey(clientKey)) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "无效的clientKey"));
+		String licenseKey = proxyMessage.getInfo();
+		if (StringUtil.isEmpty(licenseKey)) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "license不能为空!"));
+			ctx.channel().close();
+			return;
+		}
+		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
+		if (null == licenseDO) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "license不存在!"));
+			ctx.channel().close();
+			return;
+		}
+		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license已被禁用!"));
+			ctx.channel().close();
+			return;
+		}
+		UserDO userDO = userService.findById(licenseDO.getId());
+		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license无效!"));
+			ctx.channel().close();
+			return;
+		}
+		List<PortMappingDO> portMappingList = portMappingService.findEnableListByLicenseId(licenseDO.getId());
+		if (CollectionUtil.isEmpty(portMappingList)) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license没有可用的端口映射!"));
 			ctx.channel().close();
 			return;
 		}
 
-		if (proxyConfig.getLicenseMap().get(clientKey) != -1 && clientConfig.getProxy().size() > proxyConfig.getLicenseMap().get(clientKey)) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "代理端口数超过license限制"));
-			ctx.channel().close();
-			return;
-		}
-
-		ProxyServerConfig.getInstance().addClientConfig(clientConfig);
-		List<Integer> ports = ProxyServerConfig.getInstance().getClientInetPorts(clientKey);
+		ProxyServerConfig.getInstance().addClientConfig(licenseKey, portMappingList);
+		List<Integer> ports = ProxyServerConfig.getInstance().getClientInetPorts(licenseKey);
 		if (ports == null) {
 			ctx.channel().close();
 			return;
 		}
 
-		Channel channel = ProxyChannelManager.getCmdChannel(clientKey);
+		Channel channel = ProxyChannelManager.getCmdChannel(licenseKey);
 		if (channel != null) {
 			ctx.channel().close();
 			return;
 		}
 
-		ProxyChannelManager.addCmdChannel(ports, clientKey, ctx.channel());
+		ProxyChannelManager.addCmdChannel(ports, licenseKey, ctx.channel());
 
 		startUserPortServer(ports);
 	}
