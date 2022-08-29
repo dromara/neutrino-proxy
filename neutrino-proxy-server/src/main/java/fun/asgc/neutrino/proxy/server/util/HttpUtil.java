@@ -25,6 +25,7 @@ import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 /**
@@ -44,7 +45,7 @@ public class HttpUtil {
 			if (ip == null) {
 				ip = request.getHeaderValue("X-Forwarded-For");
 				if (ip == null) {
-					ip = context.channel().remoteAddress().toString();
+					ip = ((InetSocketAddress)context.channel().remoteAddress()).getAddress().getHostAddress();
 					if (ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1")) {
 						//根据网卡取本机配置的IP
 						InetAddress inet = null;
