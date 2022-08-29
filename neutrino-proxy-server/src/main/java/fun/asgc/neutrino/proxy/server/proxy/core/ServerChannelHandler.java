@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.core;
+package fun.asgc.neutrino.proxy.server.proxy.core;
 
 import fun.asgc.neutrino.core.base.DefaultDispatcher;
 import fun.asgc.neutrino.core.base.Dispatcher;

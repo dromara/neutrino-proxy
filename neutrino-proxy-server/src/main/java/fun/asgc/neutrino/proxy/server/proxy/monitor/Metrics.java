@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.monitor;
+package fun.asgc.neutrino.proxy.server.proxy.monitor;
 
 import lombok.Data;
 

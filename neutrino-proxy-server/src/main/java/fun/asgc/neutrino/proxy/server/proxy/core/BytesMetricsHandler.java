@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.core;
+package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.proxy.server.monitor.MetricsCollector;
+import fun.asgc.neutrino.proxy.server.proxy.monitor.MetricsCollector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -43,6 +43,7 @@ public class BytesMetricsHandler extends ChannelDuplexHandler {
         MetricsCollector metricsCollector = MetricsCollector.getCollector(sa.getPort());
         metricsCollector.incrementReadBytes(((ByteBuf) msg).readableBytes());
         metricsCollector.incrementReadMsgs(1);
+        System.out.println("字节数:" + metricsCollector.getMetrics().getReadBytes());
         ctx.fireChannelRead(msg);
     }
 
