@@ -27,7 +27,7 @@ import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.proxy.core.*;
-import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
+import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 
@@ -74,16 +74,20 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
         if (userChannel != null && userChannel.isActive()) {
             String clientKey = ctx.channel().attr(Constants.CLIENT_KEY).get();
             String userId = ctx.channel().attr(Constants.USER_ID).get();
-            Channel cmdChannel = ProxyChannelManager.getCmdChannel(clientKey);
+//            Channel cmdChannel = ProxyChannelManager.getCmdChannel(clientKey);
+            Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(clientKey);
+
             if (cmdChannel != null) {
-                ProxyChannelManager.removeUserChannelFromCmdChannel(cmdChannel, userId);
+//                ProxyChannelManager.removeUserChannelFromCmdChannel(cmdChannel, userId);
+                ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
             }
 
             // 数据发送完成后再关闭连接，解决http1.0数据传输问题
             userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             userChannel.close();
         } else {
-            ProxyChannelManager.removeCmdChannel(ctx.channel());
+//            ProxyChannelManager.removeCmdChannel(ctx.channel());
+            ProxyUtil.removeCmdChannel(ctx.channel());
         }
 
         super.channelInactive(ctx);

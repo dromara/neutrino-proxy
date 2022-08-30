@@ -29,7 +29,7 @@ import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.core.ProxyMessageHandler;
-import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
+import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
@@ -58,13 +58,16 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-		Channel cmdChannel = ProxyChannelManager.getCmdChannel(tokens[1]);
+//		Channel cmdChannel = ProxyChannelManager.getCmdChannel(tokens[1]);
+		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(tokens[1]);
+
 		if (cmdChannel == null) {
 			ctx.channel().close();
 			return;
 		}
 
-		Channel userChannel = ProxyChannelManager.getUserChannel(cmdChannel, tokens[0]);
+//		Channel userChannel = ProxyChannelManager.getUserChannel(cmdChannel, tokens[0]);
+		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, tokens[0]);
 		if (userChannel != null) {
 			ctx.channel().attr(Constants.USER_ID).set(tokens[0]);
 			ctx.channel().attr(Constants.CLIENT_KEY).set(tokens[1]);

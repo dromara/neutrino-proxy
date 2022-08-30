@@ -40,7 +40,6 @@ import fun.asgc.neutrino.proxy.server.proxy.domain.ProxyMapping;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
 import fun.asgc.neutrino.proxy.server.service.UserService;
-import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -117,13 +116,16 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			return;
 		}
 
-		Channel channel = ProxyChannelManager.getCmdChannel(licenseKey);
+//		Channel channel = ProxyChannelManager.getCmdChannel(licenseKey);
+		Channel channel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
+
 		if (channel != null) {
 			ctx.channel().close();
 			return;
 		}
 
-		ProxyChannelManager.addCmdChannel(ports, licenseKey, ctx.channel());
+//		ProxyChannelManager.addCmdChannel(ports, licenseKey, ctx.channel());
+		ProxyUtil.addCmdChannel(licenseKey, ctx.channel(), ports);
 
 		startUserPortServer(ports);
 	}
