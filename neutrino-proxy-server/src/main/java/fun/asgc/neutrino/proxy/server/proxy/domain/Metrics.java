@@ -20,13 +20,11 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.base.proxy;
+package fun.asgc.neutrino.proxy.server.proxy.domain;
 
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;
 
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  *
@@ -34,43 +32,13 @@ import java.util.Map;
  * @date: 2022/6/16
  */
 @Data
-@Configuration(prefix = "neutrino.proxy")
-public class ProxyConfig {
-	private Protocol protocol;
-	private Server server;
-
-	@Data
-	public static class Protocol {
-		@Value("max-frame-length")
-		private Integer maxFrameLength;
-		@Value("length-field-offset")
-		private Integer lengthFieldOffset;
-		@Value("length-field-length")
-		private Integer lengthFieldLength;
-		@Value("initial-bytes-to-strip")
-		private Integer initialBytesToStrip;
-		@Value("length-adjustment")
-		private Integer lengthAdjustment;
-		@Value("read-idle-time")
-		private Integer readIdleTime;
-		@Value("write-idle-time")
-		private Integer writeIdleTime;
-		@Value("all-idle-time-seconds")
-		private Integer allIdleTimeSeconds;
-	}
-
-	@Data
-	public static class Server {
-		@Value("port")
-		private Integer port;
-		@Value("ssl-port")
-		private Integer sslPort;
-		@Value("key-store-password")
-		private String keyStorePassword;
-		@Value("key-manager-password")
-		private String keyManagerPassword;
-		@Value("jks-path")
-		private String jksPath;
-	}
-
+public class Metrics implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int port;
+    private long readBytes;
+    private long wroteBytes;
+    private long readMsgs;
+    private long wroteMsgs;
+    private int channels;
+    private long timestamp;
 }

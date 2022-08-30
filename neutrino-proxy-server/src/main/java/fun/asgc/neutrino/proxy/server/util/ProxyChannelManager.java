@@ -23,14 +23,13 @@
 package fun.asgc.neutrino.proxy.server.util;
 
 import fun.asgc.neutrino.proxy.core.Constants;
-import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -44,7 +43,7 @@ public class ProxyChannelManager {
 
     private static final AttributeKey<String> REQUEST_LAN_INFO = AttributeKey.newInstance("request_lan_info");
 
-    private static final AttributeKey<List<Integer>> CHANNEL_PORT = AttributeKey.newInstance("channel_port");
+    private static final AttributeKey<Set<Integer>> CHANNEL_PORT = AttributeKey.newInstance("channel_port");
 
     private static final AttributeKey<String> CHANNEL_CLIENT_KEY = AttributeKey.newInstance("channel_client_key");
 
@@ -58,7 +57,7 @@ public class ProxyChannelManager {
      * @param ports
      * @param channel
      */
-    public static void addCmdChannel(List<Integer> ports, String clientKey, Channel channel) {
+    public static void addCmdChannel(Set<Integer> ports, String clientKey, Channel channel) {
         if (ports == null) {
             throw new IllegalArgumentException("port can not be null");
         }
@@ -93,7 +92,7 @@ public class ProxyChannelManager {
             cmdChannels.put(clientKey, channel);
         }
 
-        List<Integer> ports = channel.attr(CHANNEL_PORT).get();
+        Set<Integer> ports = channel.attr(CHANNEL_PORT).get();
         for (int port : ports) {
             Channel proxyChannel = portCmdChannelMapping.remove(port);
             if (proxyChannel == null) {
@@ -136,7 +135,7 @@ public class ProxyChannelManager {
      */
     public static void addUserChannelToCmdChannel(Channel cmdChannel, String userId, Channel userChannel) {
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
-        String lanInfo = ProxyServerConfig.getInstance().getLanInfo(sa.getPort());
+        String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
         userChannel.attr(Constants.USER_ID).set(userId);
         userChannel.attr(REQUEST_LAN_INFO).set(lanInfo);
         cmdChannel.attr(USER_CHANNELS).get().put(userId, userChannel);

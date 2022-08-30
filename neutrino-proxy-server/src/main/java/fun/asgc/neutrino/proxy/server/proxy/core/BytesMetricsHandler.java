@@ -22,7 +22,7 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.proxy.server.proxy.monitor.MetricsCollector;
+import fun.asgc.neutrino.proxy.server.proxy.domain.MetricsCollector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

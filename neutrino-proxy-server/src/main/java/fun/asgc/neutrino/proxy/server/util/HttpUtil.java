@@ -39,7 +39,7 @@ public class HttpUtil {
 	 * 获取客户端IP
 	 */
 	public static String getIP(ChannelHandlerContext context, HttpRequestWrapper request) {
-		String ip = request.getHeaderValue("clientip"); // for UC browser
+		String ip = request.getHeaderValue("clientip");
 		if (ip == null) {
 			ip = request.getHeaderValue("X-Real-IP");
 			if (ip == null) {

@@ -19,26 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.proxy.domain;
 
-package fun.asgc.neutrino.proxy.server.proxy.monitor;
-
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/8/30
  */
+@Accessors(chain = true)
 @Data
-public class Metrics implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private int port;
-    private long readBytes;
-    private long wroteBytes;
-    private long readMsgs;
-    private long wroteMsgs;
-    private int channels;
-    private long timestamp;
+public class ProxyMapping {
+	/**
+	 * 服务端端口
+	 */
+	private Integer serverPort;
+	/**
+	 * 客户端信息 IP:port
+	 */
+	private String lanInfo;
+
+	public static List<ProxyMapping> buildList(List<PortMappingDO> portMappingList) {
+		List<ProxyMapping> list = new ArrayList<>();
+		if (CollectionUtil.isEmpty(portMappingList)) {
+			return list;
+		}
+		for (PortMappingDO portMapping : portMappingList) {
+			list.add(new ProxyMapping()
+				.setServerPort(portMapping.getServerPort())
+				.setLanInfo(String.format("%s:%s", portMapping.getClientIp(), portMapping.getClientPort())));
+		}
+		return list;
+	}
 }
+

@@ -22,14 +22,12 @@
 
 package fun.asgc.neutrino.proxy.client.core;
 
-import com.alibaba.fastjson.JSONObject;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
@@ -158,30 +156,6 @@ public class ProxyClientRunner implements ApplicationRunner {
 	@Bean
 	public Bootstrap realServerBootstrap() {
 		return new Bootstrap();
-	}
-
-	private ProxyClientConfig getClientConfig(String path) {
-		if (StringUtil.isEmpty(path)) {
-			path = "./config.json";
-		}
-		String content = FileUtil.readContentAsString(path);
-		if (StringUtil.isEmpty(content)) {
-			log.error("配置文件: {} 不存在或格式异常!", path);
-			System.exit(0);
-			return null;
-		}
-		try {
-			ProxyClientConfig clientConfig = JSONObject.parseObject(content, ProxyClientConfig.class);
-			if (StringUtil.isEmpty(clientConfig.getClientKey()) || CollectionUtil.isEmpty(clientConfig.getProxy())) {
-				log.error("配置异常!");
-				System.exit(0);
-				return null;
-			}
-			return clientConfig;
-		} catch (Exception e) {
-			log.error("解析配置文件异常!", e);
-		}
-		return null;
 	}
 
 	private String getLicenseKey(String[] args) {

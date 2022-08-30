@@ -54,11 +54,13 @@ public class VisitLogInterceptor implements HandlerInterceptor {
 		Date receiveTime = SystemContextHolder.getContext().getReceiveTime();
 		Date now = new Date();
 		long elapsedTime = now.getTime() - receiveTime.getTime();
-		log.info("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\nURL参数:{}\n请求体参数:{}\n响应结果:{}",
+		log.info("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\nURL参数:{}\n请求体参数:{}\n响应结果:{}\n客户端IP:{}\n",
 			requestParser.getMethod().name(), requestParser.getUrl(), getElapsedTimeStr(elapsedTime),
 			requestParser.getQueryString(),
 			requestParser.getContentAsString(),
-			JSONObject.toJSONString(result));
+			JSONObject.toJSONString(result),
+			SystemContextHolder.getIp()
+			);
 	}
 
 	/**

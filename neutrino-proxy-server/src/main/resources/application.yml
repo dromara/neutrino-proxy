@@ -26,9 +26,6 @@ neutrino:
       key-store-password: 123456
       key-manager-password: 123456
       jks-path: classpath:/test.jks
-    license:
-      79419a1a8691413aa5e845b9e3e90051: 3
-      9352b1c25f564c81a5677131d7769876: 2
   data:
     sqlite:
       url: jdbc:sqlite:data.db

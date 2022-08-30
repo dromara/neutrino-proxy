@@ -23,10 +23,7 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.web.annotation.PostMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
@@ -58,5 +55,4 @@ public class IndexController {
 	public void logout() {
 		userService.logout();
 	}
-
 }

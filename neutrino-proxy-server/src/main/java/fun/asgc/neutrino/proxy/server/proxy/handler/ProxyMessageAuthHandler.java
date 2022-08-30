@@ -30,17 +30,18 @@ import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
-import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
 import fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.proxy.core.BytesMetricsHandler;
 import fun.asgc.neutrino.proxy.server.proxy.core.UserChannelHandler;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.proxy.domain.ProxyMapping;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
+import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -52,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.BindException;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -108,8 +110,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			return;
 		}
 
-		ProxyServerConfig.getInstance().addClientConfig(licenseKey, portMappingList);
-		List<Integer> ports = ProxyServerConfig.getInstance().getClientInetPorts(licenseKey);
+		ProxyUtil.initProxyInfo(licenseKey, ProxyMapping.buildList(portMappingList));
+		Set<Integer> ports = ProxyUtil.getServerPortsByLicenseKey(licenseKey);
 		if (ports == null) {
 			ctx.channel().close();
 			return;
@@ -131,7 +133,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		return ProxyDataTypeEnum.AUTH.getDesc();
 	}
 
-	private void startUserPortServer(List<Integer> ports) {
+	private void startUserPortServer(Set<Integer> ports) {
 		ServerBootstrap bootstrap = new ServerBootstrap();
 		bootstrap.group(serverBossGroup, serverWorkerGroup)
 			.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {

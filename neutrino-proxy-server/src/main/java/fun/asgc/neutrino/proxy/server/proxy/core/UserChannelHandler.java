@@ -24,8 +24,8 @@ package fun.asgc.neutrino.proxy.server.proxy.core;
 
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
-import fun.asgc.neutrino.proxy.server.base.proxy.ProxyServerConfig;
 import fun.asgc.neutrino.proxy.server.util.ProxyChannelManager;
+import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -80,7 +80,7 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
             ctx.channel().close();
         } else {
             String userId = newUserId();
-            String lanInfo = ProxyServerConfig.getInstance().getLanInfo(sa.getPort());
+            String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
             // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
             userChannel.config().setOption(ChannelOption.AUTO_READ, false);
             ProxyChannelManager.addUserChannelToCmdChannel(cmdChannel, userId, userChannel);

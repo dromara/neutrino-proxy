@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package fun.asgc.neutrino.proxy.server.proxy.monitor;
+package fun.asgc.neutrino.proxy.server.proxy.domain;
 
 import java.util.ArrayList;
 import java.util.Iterator;
