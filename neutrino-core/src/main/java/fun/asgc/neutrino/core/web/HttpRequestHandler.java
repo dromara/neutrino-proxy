@@ -81,12 +81,6 @@ public class HttpRequestHandler {
 			HttpContextHolder.setInterceptorList(getInterceptorsForPath(routePath));
 
 			if (httpMethod == HttpMethod.OPTIONS) {
-//				responseWrapper.headers().add("Access-Control-Allow-Origin", "*");
-//				responseWrapper.headers().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-//				responseWrapper.headers().add("Access-Control-Max-Age", "86400");
-//				responseWrapper.headers().add("Access-Control-Allow-Headers", "*");
-//				responseWrapper.headers().add("Access-Control-Allow-Credentials", "true");
-//				responseWrapper.headers().add("XDomainRequestAllowed", "1");
 				postHandle(requestParser.getRoutePath(), null, null);
 				HttpServerUtil.sendResponse(HttpResponseStatus.OK);
 				return;
@@ -96,7 +90,6 @@ public class HttpRequestHandler {
 				HttpServerUtil.send404Response(requestParser.getUrl());
 				return;
 			}
-//			HttpContextHolder.setInterceptorList(getInterceptorsForPath(httpRouteResult.getPageRoute()));
 
 			if (HttpRouterType.METHOD == httpRouteResult.getType()) {
 				if (!preHandle(httpRouteResult.getPageRoute(), httpRouteResult.getMethod())) {
