@@ -103,28 +103,20 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			return;
 		}
 		List<PortMappingDO> portMappingList = portMappingService.findEnableListByLicenseId(licenseDO.getId());
+		// 没有端口映射仍然保持连接
 		if (CollectionUtil.isEmpty(portMappingList)) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license没有可用的端口映射!"));
+			return;
+		}
+		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
+		if (null != cmdChannel) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license已被另一节点使用!"));
 			ctx.channel().close();
 			return;
 		}
 
 		ProxyUtil.initProxyInfo(licenseKey, ProxyMapping.buildList(portMappingList));
 		Set<Integer> ports = ProxyUtil.getServerPortsByLicenseKey(licenseKey);
-		if (ports == null) {
-			ctx.channel().close();
-			return;
-		}
 
-//		Channel channel = ProxyChannelManager.getCmdChannel(licenseKey);
-		Channel channel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
-
-		if (channel != null) {
-			ctx.channel().close();
-			return;
-		}
-
-//		ProxyChannelManager.addCmdChannel(ports, licenseKey, ctx.channel());
 		ProxyUtil.addCmdChannel(licenseKey, ctx.channel(), ports);
 
 		startUserPortServer(ports);
