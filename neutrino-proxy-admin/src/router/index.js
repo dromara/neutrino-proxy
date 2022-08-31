@@ -238,7 +238,20 @@ export const asyncRouterMap = [
   },
 
   { path: '*', redirect: '/404', hidden: true },
-
+  {
+    path: '/proxy',
+    component: Layout,
+    redirect: 'noredirect',
+    name: 'proxy',
+    meta: {
+      title: 'proxy',
+      icon: 'component'
+    },
+    children: [
+      { path: 'user', component: _import('system/user'), name: 'user', meta: { title: 'user' }},
+      { path: 'portPool', component: _import('system/portPool'), name: 'portPool', meta: { title: 'portPool' }}
+    ]
+  },
   {
     path: '/system',
     component: Layout,
