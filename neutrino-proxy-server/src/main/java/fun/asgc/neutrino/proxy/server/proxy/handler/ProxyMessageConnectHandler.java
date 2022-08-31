@@ -58,7 +58,6 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-//		Channel cmdChannel = ProxyChannelManager.getCmdChannel(tokens[1]);
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(tokens[1]);
 
 		if (cmdChannel == null) {
@@ -66,7 +65,6 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-//		Channel userChannel = ProxyChannelManager.getUserChannel(cmdChannel, tokens[0]);
 		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, tokens[0]);
 		if (userChannel != null) {
 			ctx.channel().attr(Constants.USER_ID).set(tokens[0]);

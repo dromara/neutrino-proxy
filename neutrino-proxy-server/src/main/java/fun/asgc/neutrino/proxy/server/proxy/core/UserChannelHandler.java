@@ -63,7 +63,6 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-//            String userId = ProxyChannelManager.getUserChannelUserId(userChannel);
             String userId = ProxyUtil.getUserChannelUserId(userChannel);
             proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(userId, bytes));
         }
@@ -73,7 +72,6 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel userChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
-//        Channel cmdChannel = ProxyChannelManager.getCmdChannel(sa.getPort());
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
@@ -84,7 +82,6 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
             String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
             // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
             userChannel.config().setOption(ChannelOption.AUTO_READ, false);
-//            ProxyChannelManager.addUserChannelToCmdChannel(cmdChannel, userId, userChannel);
             ProxyUtil.addUserChannelToCmdChannel(cmdChannel, userId, userChannel);
             cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(userId).setData(lanInfo.getBytes()));
         }
@@ -98,7 +95,6 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         // 通知代理客户端
         Channel userChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
-//        Channel cmdChannel = ProxyChannelManager.getCmdChannel(sa.getPort());
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
@@ -108,9 +104,7 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         } else {
 
             // 用户连接断开，从控制连接中移除
-//            String userId = ProxyChannelManager.getUserChannelUserId(userChannel);
             String userId = ProxyUtil.getUserChannelUserId(userChannel);
-//            ProxyChannelManager.removeUserChannelFromCmdChannel(cmdChannel, userId);
             ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
 
             Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
@@ -134,11 +128,9 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         // 通知代理客户端
         Channel userChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
-//        Channel cmdChannel = ProxyChannelManager.getCmdChannel(sa.getPort());
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
-
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {

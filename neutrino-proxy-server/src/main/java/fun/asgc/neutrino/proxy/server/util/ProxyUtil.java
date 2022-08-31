@@ -34,6 +34,8 @@ import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
@@ -58,6 +60,11 @@ public class ProxyUtil {
 	 * license -> 指令通道映射
 	 */
 	private static Map<String, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
+
+	/**
+	 * cmdChannelAttachInfo.getUserChannelMap() 读写锁
+	 */
+	private static final ReadWriteLock userChannelMapLock = new ReentrantReadWriteLock();
 
 	/**
 	 * 初始化代理信息
@@ -130,6 +137,7 @@ public class ProxyUtil {
 		if (null == cmdChannel || null == getAttachInfo(cmdChannel)) {
 			return;
 		}
+
 		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
 		Channel channel0 = licenseToCmdChannelMap.remove(cmdChannelAttachInfo.getLicenseKey());
 		if (cmdChannel != channel0) {
@@ -183,7 +191,12 @@ public class ProxyUtil {
 			.setUserId(userId)
 			.setLanInfo(lanInfo)
 		);
-		((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getUserChannelMap().put(userId, userChannel);
+		userChannelMapLock.writeLock().lock();
+		try {
+			((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getUserChannelMap().put(userId, userChannel);
+		} finally {
+			userChannelMapLock.writeLock().unlock();
+		}
 	}
 
 	public static Channel removeUserChannelFromCmdChannel(Channel cmdChannel, String userId) {
@@ -191,8 +204,11 @@ public class ProxyUtil {
 			return null;
 		}
 
-		synchronized (cmdChannel) {
+		userChannelMapLock.writeLock().lock();
+		try {
 			return ((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getUserChannelMap().remove(userId);
+		} finally {
+			userChannelMapLock.writeLock().unlock();
 		}
 	}
 

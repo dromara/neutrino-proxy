@@ -51,7 +51,7 @@ public class BytesMetricsHandler extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         InetSocketAddress sa = (InetSocketAddress) ctx.channel().localAddress();
         MetricsCollector metricsCollector = MetricsCollector.getCollector(sa.getPort());
-        metricsCollector.incrementWroteBytes(((ByteBuf) msg).readableBytes());
+        metricsCollector.incrementWriteBytes(((ByteBuf) msg).readableBytes());
         metricsCollector.incrementWroteMsgs(1);
         super.write(ctx, msg, promise);
     }

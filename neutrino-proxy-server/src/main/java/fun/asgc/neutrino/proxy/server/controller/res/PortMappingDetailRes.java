@@ -22,7 +22,7 @@
 package fun.asgc.neutrino.proxy.server.controller.res;
 
 import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -73,7 +73,7 @@ public class PortMappingDetailRes {
 	private Integer isOnline;
 	/**
 	 * 启用状态
-	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
 	 */
 	private Integer enable;
 	/**

@@ -19,35 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
+package fun.asgc.neutrino.proxy.server.constant;
 
-import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
-import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
-import fun.asgc.neutrino.core.web.interceptor.RestControllerExceptionHandler;
-import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.base.rest.ResponseBody;
-import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- *
+ * 在线状态枚举
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/8/6
  */
-public class GlobalExceptionHandler implements RestControllerExceptionHandler {
+@Getter
+@AllArgsConstructor
+public enum OnlineStatusEnum {
+	ONLINE(1, "在线"),
+	OFFLINE(2, "离线");
 
-	@Override
-	public Object handle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, Throwable e) {
-		if (e instanceof ServiceException) {
-			ServiceException serviceException = (ServiceException)e;
-			return new ResponseBody<>()
-				.setCode(serviceException.getCode())
-				.setMsg(serviceException.getMsg());
-		}
-		return new ResponseBody<>()
-			.setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
-			.setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())
-			.setStack(ExceptionUtils.getStackTrace(e));
-	}
-
+	private Integer status;
+	private String desc;
 }

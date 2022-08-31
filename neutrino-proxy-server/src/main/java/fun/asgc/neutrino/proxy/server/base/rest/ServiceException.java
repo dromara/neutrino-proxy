@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest;
 
-import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 

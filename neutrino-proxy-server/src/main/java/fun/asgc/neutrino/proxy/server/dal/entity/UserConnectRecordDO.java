@@ -19,41 +19,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.constant;
+package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import fun.asgc.neutrino.core.db.annotation.Table;
+import lombok.Data;
+import lombok.ToString;
+
+import java.util.Date;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/8/31
  */
-@Getter
-@AllArgsConstructor
-public enum ExceptionConstant {
-	SUCCESS(0, "成功"),
-	USER_NOT_LOGIN(1, "用户未登录"),
-	PARAMS_INVALID(2, "参数不正确"),
-	USER_NAME_OR_PASSWORD_ERROR(3, "用户名或密码错误"),
-	USER_DISABLE(4, "当前用户已被禁止登录"),
-	NO_PERMISSION_VISIT(5, "当前用户无权访问该资源"),
-	PARAMS_NOT_NULL(10, "参数[{}]不能为空"),
-	PARAMS_NOT_EMPTY(11, "参数[{}]不能为空"),
-
-	// 用户管理(11000)
-	// license管理(12000)
-	LICENSE_NAME_CANNOT_REPEAT(12000, "license名称不能重复"),
-	LICENSE_NOT_EXIST(12001, "license数据不存在"),
-	// 端口池管理(13000)
-	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
-	PORT_NOT_EXIST(13001, "该端口在端口池中不存在，不允许映射"),
-	// 端口映射管理(14000)
-	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
-	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),
-	SYSTEM_ERROR(500, "系统异常"),
-	;
-
-	private int code;
-	private String msg;
+@ToString
+@Data
+@Table("user_connect_record")
+public class UserConnectRecordDO {
+	private Integer id;
+	/**
+	 * 服务端端口号
+	 */
+	private Integer serverPort;
+	/**
+	 * userIp
+	 */
+	private String userIp;
+	/**
+	 * 客户端IP
+	 */
+	private String clientIp;
+	/**
+	 * 客户端信息
+	 */
+	private String clientLanInfo;
+	/**
+	 * 用户ID
+	 */
+	private String userId;
+	/**
+	 * licenseId
+	 */
+	private Integer licenseId;
+	/**
+	 * licenseKey
+	 */
+	private String licenseKey;
+	/**
+	 * writeBytes
+	 */
+	private Integer writeBytes;
+	/**
+	 * readBytes
+	 */
+	private Integer readBytes;
+	/**
+	 * type
+	 */
+	private Integer type;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
 }

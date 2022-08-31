@@ -74,11 +74,9 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
         if (userChannel != null && userChannel.isActive()) {
             String clientKey = ctx.channel().attr(Constants.CLIENT_KEY).get();
             String userId = ctx.channel().attr(Constants.USER_ID).get();
-//            Channel cmdChannel = ProxyChannelManager.getCmdChannel(clientKey);
             Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(clientKey);
 
             if (cmdChannel != null) {
-//                ProxyChannelManager.removeUserChannelFromCmdChannel(cmdChannel, userId);
                 ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
             }
 
@@ -86,7 +84,6 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             userChannel.close();
         } else {
-//            ProxyChannelManager.removeCmdChannel(ctx.channel());
             ProxyUtil.removeCmdChannel(ctx.channel());
         }
 

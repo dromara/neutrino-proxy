@@ -19,22 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.constant;
+package fun.asgc.neutrino.proxy.server.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 启用状态枚举
+ *
  * @author: aoshiguchen
- * @date: 2022/8/5
+ * @date: 2022/8/31
  */
 @Getter
 @AllArgsConstructor
-public enum EnableStatusEnum {
-	ENABLE(1, "启用"),
-	DISABLE(2, "禁用");
-
-	private Integer status;
+public enum ConnectTypeEnum {
+	CONNECT(1, "连接"),
+	DISCONNECT(2, "端开连接");
+	private Integer type;
 	private String desc;
 }

@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 #license表
 CREATE TABLE IF NOT EXISTS `license` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  `name` varchar(50) NOT NULL,
-  `key` varchar(100) NOT NULL,
+  `name` VARCHAR(50) NOT NULL,
+  `key` VARCHAR(100) NOT NULL,
   `user_id` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
   `enable` INTEGER(2) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `license_id` INTEGER(20) NOT NULL,
   `server_port` INTEGER NOT NULL,
-  `client_ip` varchar(20) NOT NULL,
+  `client_ip` VARCHAR(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
   `enable` INTEGER(2) NOT NULL,
@@ -67,11 +67,27 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
 CREATE TABLE IF NOT EXISTS `client_connect_record` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `user_id` INTEGER NOT NULL,
-  `ip` varchar(50) NOT NULL,
+  `ip` VARCHAR(50) NOT NULL,
   `license_id` INTEGER(20) NOT NULL,
   `license_key` VARCHAR(100) NOT NULL,
-  `write_bytes` INTEGER(20) NOT NULL,
-  `read_bytes` INTEGER(20) NOT NULL,
+  `write_bytes` INTEGER(20),
+  `read_bytes` INTEGER(20),
+  `type` INTEGER(2) NOT NULL,
+  `create_time` INTEGER(20) NOT NULL
+);
+
+#用户连接记录表
+CREATE TABLE IF NOT EXISTS `user_connect_record` (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `server_port` INTEGER NOT NULL,
+  `user_ip` VARCHAR(50) NOT NULL,
+  `client_ip` VARCHAR(50) NOT NULL,
+  `client_lan_info` VARCHAR(50) NOT NULL,
+  `user_id` INTEGER NOT NULL,
+  `license_id` INTEGER(20) NOT NULL,
+  `license_key` VARCHAR(100) NOT NULL,
+  `write_bytes` INTEGER(20),
+  `read_bytes` INTEGER(20),
   `type` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );

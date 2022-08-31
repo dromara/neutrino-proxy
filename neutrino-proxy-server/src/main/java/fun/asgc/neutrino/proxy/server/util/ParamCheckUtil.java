@@ -22,7 +22,7 @@
 package fun.asgc.neutrino.proxy.server.util;
 
 import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.proxy.server.base.rest.constant.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 
 import java.util.Collection;

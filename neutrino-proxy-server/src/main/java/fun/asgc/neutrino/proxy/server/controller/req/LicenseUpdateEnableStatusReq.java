@@ -36,7 +36,7 @@ public class LicenseUpdateEnableStatusReq {
 	private Integer id;
 	/**
 	 * 启用状态
-	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
 	 */
 	private Integer enable;
 }

@@ -23,7 +23,7 @@ package fun.asgc.neutrino.proxy.server.dal.entity;
 
 import fun.asgc.neutrino.core.db.annotation.Id;
 import fun.asgc.neutrino.core.db.annotation.Table;
-import fun.asgc.neutrino.proxy.server.base.rest.constant.OnlineStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -65,7 +65,7 @@ public class PortMappingDO {
 	private Integer isOnline;
 	/**
 	 * 启用状态
-	 * {@link fun.asgc.neutrino.proxy.server.base.rest.constant.EnableStatusEnum}
+	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
 	 */
 	private Integer enable;
 	/**

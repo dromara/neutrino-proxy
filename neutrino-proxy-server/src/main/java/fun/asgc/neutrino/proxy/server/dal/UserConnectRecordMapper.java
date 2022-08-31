@@ -19,22 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.constant;
+package fun.asgc.neutrino.proxy.server.dal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 
 /**
- * 在线状态枚举
+ *
  * @author: aoshiguchen
- * @date: 2022/8/6
+ * @date: 2022/8/31
  */
-@Getter
-@AllArgsConstructor
-public enum OnlineStatusEnum {
-	ONLINE(1, "在线"),
-	OFFLINE(2, "离线");
+@Component
+public interface UserConnectRecordMapper extends SqlMapper {
 
-	private Integer status;
-	private String desc;
 }

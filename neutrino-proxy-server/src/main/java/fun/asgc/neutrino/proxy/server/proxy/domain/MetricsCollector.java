@@ -44,7 +44,7 @@ public class MetricsCollector {
 
     private AtomicLong readBytes = new AtomicLong();
 
-    private AtomicLong wroteBytes = new AtomicLong();
+    private AtomicLong writeBytes = new AtomicLong();
 
     private AtomicLong readMsgs = new AtomicLong();
 
@@ -96,7 +96,7 @@ public class MetricsCollector {
         metrics.setChannels(channels.get());
         metrics.setPort(port);
         metrics.setReadBytes(readBytes.getAndSet(0));
-        metrics.setWroteBytes(wroteBytes.getAndSet(0));
+        metrics.setWroteBytes(writeBytes.getAndSet(0));
         metrics.setTimestamp(System.currentTimeMillis());
         metrics.setReadMsgs(readMsgs.getAndSet(0));
         metrics.setWroteMsgs(wroteMsgs.getAndSet(0));
@@ -109,7 +109,7 @@ public class MetricsCollector {
         metrics.setChannels(channels.get());
         metrics.setPort(port);
         metrics.setReadBytes(readBytes.get());
-        metrics.setWroteBytes(wroteBytes.get());
+        metrics.setWroteBytes(writeBytes.get());
         metrics.setTimestamp(System.currentTimeMillis());
         metrics.setReadMsgs(readMsgs.get());
         metrics.setWroteMsgs(wroteMsgs.get());
@@ -121,8 +121,8 @@ public class MetricsCollector {
         readBytes.addAndGet(bytes);
     }
 
-    public void incrementWroteBytes(long bytes) {
-        wroteBytes.addAndGet(bytes);
+    public void incrementWriteBytes(long bytes) {
+        writeBytes.addAndGet(bytes);
     }
 
     public void incrementReadMsgs(long msgs) {

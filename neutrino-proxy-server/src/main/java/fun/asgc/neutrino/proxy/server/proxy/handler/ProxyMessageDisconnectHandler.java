@@ -53,7 +53,6 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 		// 代理连接没有连上服务器由控制连接发送用户端断开连接消息
 		if (clientKey == null) {
 			String userId = proxyMessage.getInfo();
-//			Channel userChannel = ProxyChannelManager.removeUserChannelFromCmdChannel(ctx.channel(), userId);
 			Channel userChannel = ProxyUtil.removeUserChannelFromCmdChannel(ctx.channel(), userId);
 			if (userChannel != null) {
 				// 数据发送完成后再关闭连接，解决http1.0数据传输问题
@@ -62,20 +61,15 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-//		Channel cmdChannel = ProxyChannelManager.getCmdChannel(clientKey);
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(clientKey);
 		if (cmdChannel == null) {
 			return;
 		}
 
-//		Channel userChannel = ProxyChannelManager.removeUserChannelFromCmdChannel(cmdChannel, ctx.channel().attr(Constants.USER_ID).get());
 		Channel userChannel = ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, ((UserChannelAttachInfo)ProxyUtil.getAttachInfo(ctx.channel())).getUserId());
 		if (userChannel != null) {
 			// 数据发送完成后再关闭连接，解决http1.0数据传输问题
 			userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-//			ctx.channel().attr(Constants.NEXT_CHANNEL).remove();
-//			ctx.channel().attr(Constants.CLIENT_KEY).remove();
-//			ctx.channel().attr(Constants.USER_ID).remove();
 		}
 	}
 
