@@ -25,7 +25,7 @@ package fun.asgc.neutrino.proxy.client.handler;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.proxy.client.util.ClientChannelMannager;
+import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
@@ -50,7 +50,7 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 		Channel realServerChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
 		if (realServerChannel != null) {
 			ctx.channel().attr(Constants.NEXT_CHANNEL).remove();
-			ClientChannelMannager.returnProxyChanel(ctx.channel());
+			ProxyUtil.returnProxyChanel(ctx.channel());
 			realServerChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
 		}
 	}

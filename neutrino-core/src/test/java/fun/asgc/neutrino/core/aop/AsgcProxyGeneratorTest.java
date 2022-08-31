@@ -56,6 +56,7 @@ public class AsgcProxyGeneratorTest {
 	}
 
 	public static class A implements Handler<String,String>{
+		@Override
 		public void handle(String s, String s2) {
 			System.out.println("hello");
 		}

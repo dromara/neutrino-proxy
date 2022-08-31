@@ -26,7 +26,7 @@ import fun.asgc.neutrino.core.base.DefaultDispatcher;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.LockUtil;
-import fun.asgc.neutrino.proxy.client.util.ClientChannelMannager;
+import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
@@ -75,10 +75,10 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // 控制连接
-        if (ClientChannelMannager.getCmdChannel() == ctx.channel()) {
+        if (ProxyUtil.getCmdChannel() == ctx.channel()) {
             log.info("与服务端断开连接");
-            ClientChannelMannager.setCmdChannel(null);
-            ClientChannelMannager.clearRealServerChannels();
+            ProxyUtil.setCmdChannel(null);
+            ProxyUtil.clearRealServerChannels();
         } else {
             // 数据传输连接
             Channel realServerChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
@@ -87,7 +87,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             }
         }
 
-        ClientChannelMannager.removeProxyChanel(ctx.channel());
+        ProxyUtil.removeProxyChanel(ctx.channel());
         super.channelInactive(ctx);
     }
 

@@ -28,7 +28,7 @@ import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
 import fun.asgc.neutrino.proxy.client.core.ProxyChannelBorrowListener;
-import fun.asgc.neutrino.proxy.client.util.ClientChannelMannager;
+import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -66,7 +66,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 					realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
 					// 获取连接
-					ClientChannelMannager.borrowProxyChanel(bootstrap, new ProxyChannelBorrowListener() {
+					ProxyUtil.borrowProxyChanel(bootstrap, new ProxyChannelBorrowListener() {
 
 						@Override
 						public void success(Channel channel) {
@@ -78,8 +78,8 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							channel.writeAndFlush(ProxyMessage.buildConnectMessage(userId + "@" + ProxyConfig.instance.getLicenseKey()));
 
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
-							ClientChannelMannager.addRealServerChannel(userId, realServerChannel);
-							ClientChannelMannager.setRealServerChannelUserId(realServerChannel, userId);
+							ProxyUtil.addRealServerChannel(userId, realServerChannel);
+							ProxyUtil.setRealServerChannelUserId(realServerChannel, userId);
 						}
 
 						@Override

@@ -31,7 +31,7 @@ import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
-import fun.asgc.neutrino.proxy.client.util.ClientChannelMannager;
+import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -114,7 +114,7 @@ public class ProxyClientRunner implements ApplicationRunner {
 				public void operationComplete(ChannelFuture future) throws Exception {
 					if (future.isSuccess()) {
 						// 连接成功，向服务器发送客户端认证信息（clientKey）
-						ClientChannelMannager.setCmdChannel(future.channel());
+						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
 						log.info("连接代理服务成功.");
 					} else {
