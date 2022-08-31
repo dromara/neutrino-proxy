@@ -47,7 +47,9 @@ export default {
     user: '用户管理',
     system: '系统管理',
     portPool: '端口池管理',
-    proxy: '代理配置'
+    proxy: '代理配置',
+    license: 'License管理',
+    portMapping: '端口映射'
   },
   navbar: {
     logOut: '退出登录',

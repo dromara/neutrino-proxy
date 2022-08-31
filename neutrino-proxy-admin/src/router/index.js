@@ -248,8 +248,8 @@ export const asyncRouterMap = [
       icon: 'component'
     },
     children: [
-      { path: 'user', component: _import('system/user'), name: 'user', meta: { title: 'user' }},
-      { path: 'portPool', component: _import('system/portPool'), name: 'portPool', meta: { title: 'portPool' }}
+      { path: 'license', component: _import('proxy/license'), name: 'license', meta: { title: 'license' }},
+      { path: 'portMapping', component: _import('proxy/portMapping'), name: 'portMapping', meta: { title: 'portMapping' }}
     ]
   },
   {
