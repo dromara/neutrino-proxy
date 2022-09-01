@@ -336,8 +336,8 @@
           }
         })
       },
-      selectedFeeItem(list, index) {
-        console.log(list, index)
+      selectedFeeItem(list) {
+        console.log(list)
         this.temp.licenseId = list.id
         this.temp.licenseName = list.name
       },

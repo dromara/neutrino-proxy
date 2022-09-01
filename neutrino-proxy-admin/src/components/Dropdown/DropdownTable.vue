@@ -80,8 +80,8 @@
       }
     },
     methods: {
-      handleRowClick(val, column) {
-        this.$emit('selectedData', { list: val, index: column })
+      handleRowClick(val) {
+        this.$emit('selectedData', val)
         this.timer = setTimeout(() => {
           this.popVisible = false
         }, 200)
