@@ -23,6 +23,7 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
+import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.Select;
@@ -37,6 +38,7 @@ import java.util.Date;
  * @author: aoshiguchen
  * @date: 2022/8/1
  */
+@Intercept(ignoreGlobal = true)
 @Component
 public interface UserTokenMapper extends SqlMapper {
 	/**

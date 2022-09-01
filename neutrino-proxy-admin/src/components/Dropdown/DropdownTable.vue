@@ -42,23 +42,13 @@
       return {
         countryColumns: [
           {
-            prop: 'NameCn',
-            label: '中文名',
+            prop: 'userName',
+            label: '用户名',
             align: 'center'
           },
           {
-            prop: 'NameEn',
-            label: '英文名',
-            align: 'center'
-          },
-          {
-            prop: 'FeeItemCode',
-            label: '费用项编码',
-            align: 'center'
-          },
-          {
-            prop: 'FeeItemTypeStr',
-            label: '费用类型',
+            prop: 'name',
+            label: 'License',
             align: 'center'
           }
         ],

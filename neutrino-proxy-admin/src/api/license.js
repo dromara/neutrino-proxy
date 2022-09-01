@@ -8,6 +8,13 @@ export function fetchList(query) {
   })
 }
 
+export function licenseList() {
+  return request({
+    url: '/license/list',
+    method: 'get'
+  })
+}
+
 export function createLicense(data) {
   return request({
     url: '/license/create',

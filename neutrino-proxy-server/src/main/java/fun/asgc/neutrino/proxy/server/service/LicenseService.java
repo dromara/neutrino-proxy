@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.server.service;
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
+@NonIntercept
 @Component
 public class LicenseService {
 

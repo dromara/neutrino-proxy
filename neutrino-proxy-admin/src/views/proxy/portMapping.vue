@@ -71,12 +71,12 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('License')" prop="licenseId">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">
-            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
+<!--        <el-form-item :label="$t('License')" prop="licenseId">-->
+<!--          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">-->
+<!--            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
 
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable
@@ -85,6 +85,7 @@
             :tableData= "licenseList"
             @selectedData="selectedFeeItem"
             placeholder="请选择"
+            :width="280"
           />
 
         </el-form-item>
@@ -124,6 +125,7 @@
 <script>
   import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
   import { portPoolList } from '@/api/portPool'
+  import { licenseList } from '@/api/license'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -168,10 +170,7 @@
         calendarTypeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
-        licenseList: [
-          { id: 1, name: '我的Mac' },
-          { id: 2, name: '我的台式机' }
-        ],
+        licenseList: [],
         serverPortList: [],
         showReviewer: false,
         temp: {
@@ -228,6 +227,7 @@
     created() {
       this.getList()
       this.getPortPoolList()
+      this.getLicenseList()
     },
     methods: {
       getList() {
@@ -241,6 +241,11 @@
       getPortPoolList() {
         portPoolList().then(response => {
           this.serverPortList = response.data.data
+        })
+      },
+      getLicenseList() {
+        licenseList().then(response => {
+          this.licenseList = response.data.data
         })
       },
       handleFilter() {
@@ -270,12 +275,11 @@
       resetTemp() {
         this.temp = {
           id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
+          licenseId: undefined,
+          licenseName: undefined,
+          serverPort: undefined,
+          clientIp: undefined,
+          clientPort: undefined
         }
       },
       handleCreate() {

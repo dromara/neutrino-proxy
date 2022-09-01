@@ -23,6 +23,7 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.DateUtil;
@@ -50,6 +51,7 @@ import java.util.UUID;
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
+@NonIntercept
 @Component
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
