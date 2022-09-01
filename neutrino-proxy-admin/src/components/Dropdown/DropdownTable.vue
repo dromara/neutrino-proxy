@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-popover v-model="popVisible" width="700" trigger="click" placement="bottom">
+    <el-popover v-model="popVisible" :width="width" trigger="click" placement="bottom">
       <div>
         <FBATable
           ref="countryTableRef"
@@ -10,7 +10,7 @@
           @rowClick="handleRowClick"
         ></FBATable>
       </div>
-      <el-input v-model="keyWords" :placeholder="placeholder" slot="reference"/>
+      <el-input v-model="name" :placeholder="placeholder" slot="reference"/>
     </el-popover>
   </div>
 </template>
@@ -21,6 +21,10 @@
       name: {
         type: String,
         default: ''
+      },
+      width: {
+        type: Number,
+        default: 700
       },
       placeholder: {
         type: String,
@@ -36,11 +40,6 @@
     },
     data() {
       return {
-        pagination: {
-          TotalCount: 0,
-          PageIndex: 1,
-          PageSize: 10
-        },
         countryColumns: [
           {
             prop: 'NameCn',
@@ -64,19 +63,7 @@
           }
         ],
         popVisible: false,
-        selected: [],
         timer: null
-      }
-    },
-    created() {},
-    computed: {
-      keyWords: {
-        get() {
-          return this.name
-        },
-        set(val) {
-          this.$emit('update:name', val)
-        }
       }
     },
     methods: {
@@ -85,14 +72,6 @@
         this.timer = setTimeout(() => {
           this.popVisible = false
         }, 200)
-      },
-      handleSizeChange(val) {
-        this.pagination.PageSize = val
-        this.getList()
-      },
-      handleCurrentChange(val) {
-        this.pagination.PageIndex = val
-        this.getList()
       }
     },
     destroyed() {
