@@ -84,7 +84,7 @@
             :name.sync="temp.licenseId"
             :tableData= "licenseList"
             @selectedData="selectedFeeItem"
-            placeholder="选择费用项"
+            placeholder="请选择"
           />
 
         </el-form-item>

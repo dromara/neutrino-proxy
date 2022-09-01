@@ -22,10 +22,6 @@
         type: String,
         default: ''
       },
-      index: {
-        type: Number,
-        default: () => 0
-      },
       placeholder: {
         type: String,
         default: '请选择'
@@ -84,8 +80,8 @@
       }
     },
     methods: {
-      handleRowClick(val) {
-        this.$emit('selectedData', { list: val, index: this.index })
+      handleRowClick(val, column) {
+        this.$emit('selectedData', { list: val, index: column })
         this.timer = setTimeout(() => {
           this.popVisible = false
         }, 200)
