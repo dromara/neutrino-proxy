@@ -66,9 +66,15 @@
         timer: null
       }
     },
+    watch: {
+      name(val) {
+        console.log(val, this.name)
+      }
+    },
     methods: {
       handleRowClick(val) {
         this.$emit('selectedData', val)
+        this.name = val.name
         this.timer = setTimeout(() => {
           this.popVisible = false
         }, 200)
