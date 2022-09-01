@@ -70,12 +70,24 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('用户名')" prop="name">
-          <el-input v-model="temp.name"></el-input>
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
+        <el-form-item :label="$t('License')" prop="licenseId">
+          <el-select class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">
+            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item :label="$t('登录名')" prop="loginName">
-          <el-input v-model="temp.loginName"></el-input>
+        <el-form-item :label="$t('服务端端口')" prop="serverPort">
+          <el-select class="filter-item" v-model="temp.serverPort" placeholder="请选择">
+            <el-option v-for="item in serverPortList" :key="item" :label="item" :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('客户端IP')" prop="clientIp">
+          <el-input v-model="temp.clientIp"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('客户端端口')" prop="clientPort">
+          <el-input v-model="temp.clientPort"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -99,7 +111,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/portMapping'
+  import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -142,15 +154,18 @@
         calendarTypeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
+        licenseList: [
+          {id: 1, name: '我的Mac'},
+          {id: 2, name: '我的台式机'}
+        ],
+        serverPortList: [9101, 9102, 9103, 9104],
         showReviewer: false,
         temp: {
           id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          type: '',
-          status: 'published'
+          licenseId: undefined,
+          serverPort: undefined,
+          clientIp: undefined,
+          clientPort: undefined
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -161,8 +176,10 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          name: [{ required: true, message: '用户名必填', trigger: 'blur' }],
-          loginName: [{ required: true, message: '登录名必填', trigger: 'blur' }]
+          licenseId: [{ required: true, message: '请选择License', trigger: 'blur' }],
+          serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
+          clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
+          clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
         },
         downloadLoading: false
       }
@@ -251,7 +268,7 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            createUser(this.temp).then(response => {
+            createUserPortMapping(this.temp).then(response => {
               if (response.data.code === 0) {
                 this.dialogFormVisible = false
                 this.$notify({
@@ -279,7 +296,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             const tempData = Object.assign({}, this.temp)
-            updateUser(tempData).then(response => {
+            updateUserPortMapping(tempData).then(response => {
               if (response.data.code === 0) {
                 // this.$message({
                 //   message: '操作成功',
@@ -318,7 +335,7 @@
         }).catch(() => {})
       },
       handleDelete2(row) {
-        deleteUser(row.id).then(response => {
+        deletePortMapping(row.id).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',
