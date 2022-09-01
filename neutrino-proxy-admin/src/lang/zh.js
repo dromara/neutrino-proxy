@@ -117,7 +117,13 @@ export default {
     disable: '禁用',
     enable: '启用',
     loginName: '登录名',
-    port: '端口'
+    port: '端口',
+    licenseName: 'License名称',
+    licenseKey: 'License Key',
+    isOnline: '在线状态',
+    enableStatus: '启用状态',
+    serverPort: '服务端口',
+    proxyClient: '代理客户端'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

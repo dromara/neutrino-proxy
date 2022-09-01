@@ -61,6 +61,10 @@ public class PortMappingListRes {
 	/**
 	 * 客户端端口
 	 */
+	private Integer clientPort;
+	/**
+	 * 客户端端口
+	 */
 	private Integer port;
 	/**
 	 * 是否在线

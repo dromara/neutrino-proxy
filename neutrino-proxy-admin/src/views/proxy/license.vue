@@ -6,19 +6,24 @@
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="100">
+      <el-table-column align="center" :label="$t('table.id')" width="50">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.userName')" width="200">
+      <el-table-column align="center" :label="$t('table.userName')" width="150">
+        <template slot-scope="scope">
+          <span>{{scope.row.userName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.licenseName')" width="150">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.loginName')" width="200">
+      <el-table-column align="center" :label="$t('table.licenseKey')" width="300">
         <template slot-scope="scope">
-          <span>{{scope.row.loginName}}</span>
+          <span>{{scope.row.key}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
@@ -31,9 +36,14 @@
           <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.status')" width="100">
+      <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('table.isOnline')" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.isOnline | statusFilter">{{scope.row.isOnline | isOnlineName}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
@@ -55,12 +65,15 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('用户名')" prop="name">
-          <el-input v-model="temp.name"></el-input>
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
+        <el-form-item :label="$t('用户')" prop="userId">
+          <el-select class="filter-item" v-model="temp.userId" placeholder="Please select" :disabled="dialogStatus=='update'">
+            <el-option v-for="item in  userList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item :label="$t('登录名')" prop="loginName">
-          <el-input v-model="temp.loginName"></el-input>
+        <el-form-item :label="$t('License名称')" prop="name">
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -84,7 +97,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/user'
+  import { fetchList, createLicense, updateLicense, updateEnableStatus, deleteLicense } from '@/api/license'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -125,6 +138,10 @@
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
+        userList: [
+          {id: 1, name: '管理员'},
+          {id: 2, name: '游客'}
+        ],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
@@ -146,8 +163,8 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          name: [{ required: true, message: '用户名必填', trigger: 'blur' }],
-          loginName: [{ required: true, message: '登录名必填', trigger: 'blur' }]
+          userId: [{ required: true, message: '请选择用户', trigger: 'blur' }],
+          name: [{ required: true, message: 'License名称不能为空', trigger: 'blur' }]
         },
         downloadLoading: false
       }
@@ -159,6 +176,13 @@
           2: '禁用'
         }
         return statusMap[status]
+      },
+      isOnlineName(isOnline) {
+        const isOnlineMap = {
+          1: '在线',
+          2: '离线'
+        }
+        return isOnlineMap[isOnline]
       },
       statusFilter(status) {
         const statusMap = {
@@ -175,6 +199,9 @@
       this.getList()
     },
     methods: {
+      getUserList() {
+        console.log('获取用户列表')
+      },
       getList() {
         this.listLoading = true
         fetchList(this.listQuery).then(response => {
@@ -210,12 +237,8 @@
       resetTemp() {
         this.temp = {
           id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
+          name: undefined,
+          userId: undefined
         }
       },
       handleCreate() {
@@ -229,7 +252,7 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            createUser(this.temp).then(response => {
+            createLicense(this.temp).then(response => {
               if (response.data.code === 0) {
                 this.dialogFormVisible = false
                 this.$notify({
@@ -246,7 +269,6 @@
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -257,12 +279,8 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             const tempData = Object.assign({}, this.temp)
-            updateUser(tempData).then(response => {
+            updateLicense(tempData).then(response => {
               if (response.data.code === 0) {
-                // this.$message({
-                //   message: '操作成功',
-                //   type: 'success'
-                // })
                 this.$notify({
                   title: '成功',
                   message: '更新成功',
@@ -296,7 +314,7 @@
         }).catch(() => {})
       },
       handleDelete2(row) {
-        deleteUser(row.id).then(response => {
+        deleteLicense(row.id).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',

@@ -30,6 +30,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,8 +52,8 @@ public interface PortPoolMapper extends SqlMapper {
 	@Insert("insert into port_pool(`port`,`enable`,`create_time`,`update_time`) values(:port,:enable,:createTime,:updateTime)")
 	void add(PortPoolDO portPool);
 
-	@Update("update `port_pool` set enable = :enable where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+	@Update("update `port_pool` set enable = :enable, update_time = :updateTime where id = :id")
+	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
 	@Delete("delete from `port_pool` where id = ?")
 	void delete(Integer id);

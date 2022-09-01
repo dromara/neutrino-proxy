@@ -6,19 +6,29 @@
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="100">
+      <el-table-column align="center" :label="$t('table.id')" width="50">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.userName')" width="200">
+      <el-table-column align="center" :label="$t('table.userName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
+          <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.loginName')" width="200">
+      <el-table-column align="center" :label="$t('table.licenseName')" width="150">
         <template slot-scope="scope">
-          <span>{{scope.row.loginName}}</span>
+          <span>{{scope.row.licenseName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.serverPort')" width="200">
+        <template slot-scope="scope">
+          <span>{{scope.row.serverPort}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.proxyClient')" width="200">
+        <template slot-scope="scope">
+          <span>{{scope.row.clientIp}}:{{scope.row.clientPort}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
@@ -31,9 +41,14 @@
           <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.status')" width="100">
+      <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('table.isOnline')" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.isOnline | statusFilter">{{scope.row.isOnline | isOnlineName}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
@@ -84,7 +99,7 @@
 </template>
 
 <script>
-  import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/user'
+  import { fetchList, createUser, updateUser, updateEnableStatus, deleteUser } from '@/api/portMapping'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -159,6 +174,13 @@
           2: '禁用'
         }
         return statusMap[status]
+      },
+      isOnlineName(isOnline) {
+        const isOnlineMap = {
+          1: '在线',
+          2: '离线'
+        }
+        return isOnlineMap[isOnline]
       },
       statusFilter(status) {
         const statusMap = {

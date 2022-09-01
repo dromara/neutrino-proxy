@@ -79,7 +79,7 @@ public class PortPoolService {
 
 	public PortPoolUpdateEnableStatusRes updateEnableStatus(PortPoolUpdateEnableStatusReq req) {
 
-		portPoolMapper.updateEnableStatus(req.getId(), req.getEnable());
+		portPoolMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
 		return new PortPoolUpdateEnableStatusRes();
 	}

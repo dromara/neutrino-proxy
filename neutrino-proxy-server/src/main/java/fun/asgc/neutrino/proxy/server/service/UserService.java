@@ -158,7 +158,7 @@ public class UserService {
 	}
 
 	public UserUpdateEnableStatusRes updateEnableStatus(UserUpdateEnableStatusReq req) {
-		userMapper.updateEnableStatus(req.getId(), req.getEnable());
+		userMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
 		return new UserUpdateEnableStatusRes();
 	}
@@ -191,7 +191,7 @@ public class UserService {
 
 	public UserUpdatePasswordRes updatePassword(UserUpdatePasswordReq req) {
 		String loginPassword = Md5Util.encode(req.getLoginPassword());
-		userMapper.updateLoginPassword(req.getId(), loginPassword);
+		userMapper.updateLoginPassword(req.getId(), loginPassword, new Date());
 		return new UserUpdatePasswordRes();
 	}
 

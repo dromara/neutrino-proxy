@@ -125,7 +125,7 @@ public class LicenseService {
 		LicenseDO licenseCheck = licenseMapper.checkRepeat(oldLicenseDO.getUserId(), req.getName(), Sets.newHashSet(oldLicenseDO.getId()));
 		ParamCheckUtil.checkExpression(null == licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
-		licenseMapper.update(req.getId(), req.getName());
+		licenseMapper.update(req.getId(), req.getName(), new Date());
 		return new LicenseUpdateRes();
 	}
 
@@ -158,7 +158,7 @@ public class LicenseService {
 	 * @return
 	 */
 	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
-		licenseMapper.updateEnableStatus(req.getId(), req.getEnable());
+		licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
 		return new LicenseUpdateEnableStatusRes();
 	}

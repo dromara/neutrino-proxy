@@ -63,8 +63,8 @@ public interface LicenseMapper extends SqlMapper {
 	 */
 	int add(LicenseDO license);
 
-	@Update("update `license` set enable = :enable where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+	@Update("update `license` set enable = :enable, update_time = :updateTime where id = :id")
+	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
 	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
 	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
@@ -75,11 +75,11 @@ public interface LicenseMapper extends SqlMapper {
 	@Select("select * from `license` where id = ?")
 	LicenseDO findById(Integer id);
 
-	@Update("update `license` set name = :name where id = :id")
-	void update(@Param("id") Integer id, @Param("name") String name);
+	@Update("update `license` set name = :name, update_time = :updateTime where id = :id")
+	void update(@Param("id") Integer id, @Param("name") String name, @Param("updateTime") Date updateTime);
 
 	@ResultType(LicenseDO.class)
-	@Select("select * from `license` where in in (:ids)")
+	@Select("select * from `license` where id in (:ids)")
 	List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids);
 
 	@ResultType(LicenseDO.class)
