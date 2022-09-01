@@ -79,13 +79,14 @@
         </el-form-item>
 
         <el-form-item :label="$t('License')" prop="licenseId">
-          <SearchCostItem
+          <DropdownTable
             v-model="temp.licenseId"
             :name.sync="temp.licenseId"
             :tableData= "licenseList"
             @selectedData="selectedFeeItem"
             placeholder="选择费用项"
           />
+
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
@@ -126,6 +127,7 @@
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
+  import DropdownTable from '../../components/Dropdown/DropdownTable'
 
   const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
@@ -146,6 +148,7 @@
       waves
     },
     components: {
+      DropdownTable,
       ButtonPopover
     },
     data() {
