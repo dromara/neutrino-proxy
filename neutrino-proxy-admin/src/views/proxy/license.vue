@@ -67,7 +67,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('用户')" prop="userId">
-          <el-select class="filter-item" v-model="temp.userId" placeholder="Please select" :disabled="dialogStatus=='update'">
+          <el-select style="width: 280px" class="filter-item" v-model="temp.userId" placeholder="请选择" :disabled="dialogStatus=='update'">
             <el-option v-for="item in  userList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -98,6 +98,7 @@
 
 <script>
   import { fetchList, createLicense, updateLicense, updateEnableStatus, deleteLicense } from '@/api/license'
+  import { userList } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -138,10 +139,7 @@
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
-        userList: [
-          { id: 1, name: '管理员' },
-          { id: 2, name: '游客' }
-        ],
+        userList: [],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
@@ -197,17 +195,20 @@
     },
     created() {
       this.getList()
+      this.getUserList()
     },
     methods: {
-      getUserList() {
-        console.log('获取用户列表')
-      },
       getList() {
         this.listLoading = true
         fetchList(this.listQuery).then(response => {
           this.list = response.data.data.records
           this.total = response.data.data.total
           this.listLoading = false
+        })
+      },
+      getUserList() {
+        userList().then(response => {
+          this.userList = response.data.data
         })
       },
       handleFilter() {

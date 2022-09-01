@@ -72,13 +72,13 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('License')" prop="licenseId">
-          <el-select class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">
+          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">
             <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
-          <el-select class="filter-item" v-model="temp.serverPort" placeholder="请选择">
+          <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
             <el-option v-for="item in serverPortList" :key="item" :label="item" :value="item">
             </el-option>
           </el-select>

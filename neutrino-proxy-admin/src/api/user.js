@@ -8,6 +8,13 @@ export function fetchList(query) {
   })
 }
 
+export function userList() {
+  return request({
+    url: '/user/list',
+    method: 'get'
+  })
+}
+
 export function fetchUser() {
   return request({
     url: '/user/detail',
