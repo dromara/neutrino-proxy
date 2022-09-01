@@ -155,8 +155,8 @@
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
         licenseList: [
-          {id: 1, name: '我的Mac'},
-          {id: 2, name: '我的台式机'}
+          { id: 1, name: '我的Mac' },
+          { id: 2, name: '我的台式机' }
         ],
         serverPortList: [9101, 9102, 9103, 9104],
         showReviewer: false,
@@ -321,7 +321,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteUser(row.id).then(response => {
+          deletePortMapping(row.id).then(response => {
             if (response.data.code === 0) {
               this.$notify({
                 title: '成功',

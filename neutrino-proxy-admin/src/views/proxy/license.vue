@@ -139,8 +139,8 @@
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
         userList: [
-          {id: 1, name: '管理员'},
-          {id: 2, name: '游客'}
+          { id: 1, name: '管理员' },
+          { id: 2, name: '游客' }
         ],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
@@ -300,7 +300,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteUser(row.id).then(response => {
+          deleteLicense(row.id).then(response => {
             if (response.data.code === 0) {
               this.$notify({
                 title: '成功',
