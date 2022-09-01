@@ -21,7 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.controller.res;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
 import lombok.Data;
 
 import java.util.Date;

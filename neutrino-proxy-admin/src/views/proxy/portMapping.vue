@@ -79,7 +79,7 @@
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
-            <el-option v-for="item in serverPortList" :key="item" :label="item" :value="item">
+            <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
             </el-option>
           </el-select>
         </el-form-item>
@@ -112,6 +112,7 @@
 
 <script>
   import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
+  import { portPoolList } from '@/api/portPool'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -158,7 +159,7 @@
           { id: 1, name: '我的Mac' },
           { id: 2, name: '我的台式机' }
         ],
-        serverPortList: [9101, 9102, 9103, 9104],
+        serverPortList: [],
         showReviewer: false,
         temp: {
           id: undefined,
@@ -212,6 +213,7 @@
     },
     created() {
       this.getList()
+      this.getPortPoolList()
     },
     methods: {
       getList() {
@@ -220,6 +222,11 @@
           this.list = response.data.data.records
           this.total = response.data.data.total
           this.listLoading = false
+        })
+      },
+      getPortPoolList() {
+        portPoolList().then(response => {
+          this.serverPortList = response.data.data
         })
       },
       handleFilter() {

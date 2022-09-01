@@ -8,6 +8,13 @@ export function fetchList(query) {
   })
 }
 
+export function portPoolList() {
+  return request({
+    url: '/port-pool/list',
+    method: 'get'
+  })
+}
+
 export function updateEnableStatus(id, enable) {
   return request({
     url: '/port-pool/update/enable-status',
