@@ -9,26 +9,12 @@
           :rowHeader="countryColumns"
           @rowClick="handleRowClick"
         ></FBATable>
-        <div class="demo-footer">
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="pagination.PageIndex"
-            :page-sizes="[5, 10, 20, 50, 100]"
-            :page-size="pagination.PageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pagination.TotalCount"
-          >
-          </el-pagination>
-        </div>
       </div>
-      <el-input v-model="keyWords" @input="changeKey" :placeholder="placeholder" slot="reference" :CatId="CatId"> </el-input>
+      <el-input v-model="keyWords" :placeholder="placeholder" slot="reference"/>
     </el-popover>
   </div>
 </template>
 <script>
-  import { delay } from '@/utils/index'
-  import { wfinFeeItemGetPageList } from '@/api/OverseasWarehouse/Cost'
   import FBATable from '@/components/FBATable'
   export default {
     props: {
@@ -44,8 +30,9 @@
         type: String,
         default: '请选择'
       },
-      CatId: {
-        type: Number
+      tableData: {
+        type: Array,
+        default: []
       }
     },
     components: {
@@ -58,7 +45,6 @@
           PageIndex: 1,
           PageSize: 10
         },
-        tableData: [],
         countryColumns: [
           {
             prop: 'NameCn',
@@ -97,57 +83,11 @@
         }
       }
     },
-    watch: {
-      CatId: {
-        handler(newVal, oldVal) {
-          this.getList(newVal)
-        },
-        deep: true,
-        immediate: true
-      }
-    },
     methods: {
-      getList(CatId) {
-        const { PageSize, PageIndex } = this.pagination
-        wfinFeeItemGetPageList({
-          PageSize,
-          PageIndex,
-          NameCn: this.keyWords,
-          CatId: CatId ? CatId : 0
-        })
-          .then(res => {
-            if (res.ErrorCode === 0) {
-              this.tableData = res.Body.Items
-              this.pagination.TotalCount = res.Body.TotalCount
-            }
-          })
-          .catch(err => {
-            console.log(err)
-          })
-      },
-      handleSelectionChange(val) {
-        if (val.length >= 2) {
-          let arrays = val.splice(0, val.length - 1)
-          arrays.forEach(row => {
-            this.$refs.countryTableRef.$refs.FBATable.toggleRowSelection(row) //除了当前点击的，其他的全部取消选中
-          })
-        }
-        this.$emit('selectedData', { list: val, index: this.index })
-        this.timer = setTimeout(() => {
-          this.popVisible = false
-        }, 500)
-      },
       handleRowClick(val) {
         this.$emit('selectedData', { list: val, index: this.index })
         this.timer = setTimeout(() => {
           this.popVisible = false
-        }, 200)
-      },
-      // 搜索
-      changeKey() {
-        delay(() => {
-          this.pagination.PageIndex = 1
-          this.getList()
         }, 200)
       },
       handleSizeChange(val) {

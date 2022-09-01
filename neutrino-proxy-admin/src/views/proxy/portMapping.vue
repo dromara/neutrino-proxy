@@ -77,6 +77,16 @@
             </el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item :label="$t('License')" prop="licenseId">
+          <SearchCostItem
+            v-model="temp.licenseId"
+            :name.sync="temp.licenseId"
+            :tableData= "licenseList"
+            @selectedData="selectedFeeItem"
+            placeholder="选择费用项"
+          />
+        </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
             <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
@@ -321,6 +331,9 @@
             })
           }
         })
+      },
+      selectedFeeItem(list, index) {
+        console.log(list, index)
       },
       handleDelete(row) {
         this.$confirm('确定要删除吗？', '提示', {
