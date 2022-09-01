@@ -81,7 +81,7 @@
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable
             v-model="temp.licenseId"
-            :name.sync="temp.licenseId"
+            :name.sync="temp.licenseName"
             :tableData= "licenseList"
             @selectedData="selectedFeeItem"
             placeholder="请选择"
@@ -177,6 +177,7 @@
         temp: {
           id: undefined,
           licenseId: undefined,
+          licenseName: undefined,
           serverPort: undefined,
           clientIp: undefined,
           clientPort: undefined
@@ -337,6 +338,8 @@
       },
       selectedFeeItem(list, index) {
         console.log(list, index)
+        this.temp.licenseId = list.id
+        this.temp.licenseName = list.name
       },
       handleDelete(row) {
         this.$confirm('确定要删除吗？', '提示', {
