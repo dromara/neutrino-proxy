@@ -10,7 +10,7 @@
           @rowClick="handleRowClick"
         ></FBATable>
       </div>
-      <el-input v-model="name" :placeholder="placeholder" slot="reference"/>
+      <el-input v-model="inputValue" :placeholder="placeholder" slot="reference"/>
     </el-popover>
   </div>
 </template>
@@ -63,17 +63,17 @@
           }
         ],
         popVisible: false,
-        timer: null
+        timer: null,
+        inputValue: ''
       }
     },
-    watch: {
-      name(val) {
-        console.log(val, this.name)
-      }
+    created() {
+      this.inputValue = this.name
     },
     methods: {
       handleRowClick(val) {
         this.$emit('selectedData', val)
+        this.inputValue = val.name
         this.timer = setTimeout(() => {
           this.popVisible = false
         }, 200)
