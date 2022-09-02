@@ -81,7 +81,7 @@
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable
             v-model="temp.licenseId"
-            :name="temp.licenseName"
+            :name.sync="temp.licenseName"
             :tableData= "licenseList"
             @selectedData="selectedFeeItem"
             placeholder="请选择"
