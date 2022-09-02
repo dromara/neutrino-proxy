@@ -89,7 +89,6 @@ public class JdbcTemplate {
 	public <T> T query(Class<T> clazz, String sql, Object ...params) throws SQLException {
 		T res = null;
 		Connection conn = null;
-
 		try {
 			conn = dataSourceHolder.getConnection();
 			res = jdbcOperations.executeQuery(conn, clazz,sql, params);

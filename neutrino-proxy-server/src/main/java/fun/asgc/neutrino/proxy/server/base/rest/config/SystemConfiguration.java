@@ -21,10 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.base.Ordered;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
 
@@ -41,9 +41,9 @@ public class SystemConfiguration {
 
 	@Bean
 	public DataSource dataSource() {
-		DruidDataSource dataSource = new DruidDataSource();
+		SQLiteDataSource dataSource = new SQLiteDataSource();
 		dataSource.setUrl(sqliteConfig.getUrl());
-		dataSource.setDriverClassName(sqliteConfig.getDriverClass());
+		dataSource.setJournalMode("WAL");
 		return dataSource;
 	}
 
