@@ -190,7 +190,7 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          licenseId: [{ required: true, message: '请选择License', trigger: 'blur' }],
+          licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
           serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
           clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
           clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
