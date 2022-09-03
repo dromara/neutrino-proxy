@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS I_login_name ON `user` (login_name ASC);
 
 #license表
 CREATE TABLE IF NOT EXISTS `license` (
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `license` (
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS I_key ON `license` (`key` ASC);
 
 #用户token表
 CREATE TABLE IF NOT EXISTS `user_token` (
@@ -49,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `port_pool` (
   `update_time` INTEGER(20) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS I_port ON port_pool (port ASC);
 
 #端口映射表
 CREATE TABLE IF NOT EXISTS `port_mapping` (
@@ -62,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS I_server_port ON port_mapping (server_port ASC);
 
 #客户端链接记录表
 CREATE TABLE IF NOT EXISTS `client_connect_record` (

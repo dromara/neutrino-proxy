@@ -19,23 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.proxy.domain;
+package fun.asgc.neutrino.proxy.server.service;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * 代理交互服务
  * @author: aoshiguchen
- * @date: 2022/8/30
+ * @date: 2022/9/3
  */
-@Accessors(chain = true)
-@Data
-public class UserChannelAttachInfo {
-	private String userId;
-	private String lanInfo;
+@Slf4j
+@NonIntercept
+@Component
+public class ProxyMutualService {
+
 	/**
-	 * ip地址
+	 * 绑定服务端端口处理
+	 * @param attachInfo
+	 * @param serverPort
 	 */
-	private String ip;
+	public void bindServerPort(CmdChannelAttachInfo attachInfo, Integer serverPort) {
+		// TODO
+		log.info("绑定服务端端口 licenseId:{},ip:{},lanInfo:{},serverPort:{}", attachInfo.getLicenseId(), attachInfo.getIp(), attachInfo.getClientLanInfo(), serverPort);
+	}
+
 }

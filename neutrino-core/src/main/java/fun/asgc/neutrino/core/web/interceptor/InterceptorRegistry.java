@@ -35,11 +35,12 @@ import java.util.List;
  */
 public class InterceptorRegistry {
 
-	private final List<InterceptorRegistration> registrations = new ArrayList<InterceptorRegistration>();
+	private final List<InterceptorRegistration> registrations = new ArrayList<>();
 
 	public InterceptorRegistration addInterceptor(HandlerInterceptor interceptor) {
 		InterceptorRegistration registration = new InterceptorRegistration(interceptor);
 		this.registrations.add(registration);
+		Collections.sort(this.registrations, INTERCEPTOR_ORDER_COMPARATOR);
 		return registration;
 	}
 
@@ -47,7 +48,6 @@ public class InterceptorRegistry {
 	 * Return all registered interceptors.
 	 */
 	public List<Object> getInterceptors() {
-		Collections.sort(this.registrations, INTERCEPTOR_ORDER_COMPARATOR);
 		List<Object> result = new ArrayList<Object>(this.registrations.size());
 		for (InterceptorRegistration registration : this.registrations) {
 			result.add(registration.getInterceptor());

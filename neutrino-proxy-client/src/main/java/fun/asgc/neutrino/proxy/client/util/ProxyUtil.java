@@ -57,7 +57,7 @@ public class ProxyUtil {
 
 	public static void borrowProxyChanel(Bootstrap bootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = proxyChannelPool.poll();
-		if (channel != null) {
+		if (null != channel) {
 			borrowListener.success(channel);
 			return;
 		}

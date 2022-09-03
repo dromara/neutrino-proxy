@@ -34,7 +34,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ExceptionEnum {
 
-	AUTH_FAILED(1, "认证失败");
+	AUTH_FAILED(1, "认证失败"),
+	CONNECT_FAILED(2, "连接失败");
 
 	private Integer code;
 	private String msg;

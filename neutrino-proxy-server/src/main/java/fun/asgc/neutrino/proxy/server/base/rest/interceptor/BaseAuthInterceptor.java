@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
 import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.HttpUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
@@ -33,7 +34,6 @@ import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
-import fun.asgc.neutrino.proxy.server.util.HttpUtil;
 
 import java.lang.reflect.Method;
 

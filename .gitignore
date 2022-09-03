@@ -2,7 +2,7 @@
 # Compiled class file
 *.class
 data.db
-
+data.db-wal
 # Log file
 *.log
 

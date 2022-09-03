@@ -19,23 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.proxy.domain;
+package fun.asgc.neutrino.core.util;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
+import io.netty.channel.Channel;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/8/30
+ * @date: 2022/9/3
  */
-@Accessors(chain = true)
-@Data
-public class UserChannelAttachInfo {
-	private String userId;
-	private String lanInfo;
+public class ChannelUtil {
+
 	/**
-	 * ip地址
+	 * 获取ip地址
+	 * @param channel
+	 * @return
 	 */
-	private String ip;
+	public static String getIP(Channel channel) {
+		if (null == channel) {
+			return "";
+		}
+		String ip = ((InetSocketAddress)channel.remoteAddress()).getAddress().getHostAddress();
+		if (ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1")) {
+			//根据网卡取本机配置的IP
+			InetAddress inet = null;
+			try {
+				inet = InetAddress.getLocalHost();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+			ip = inet.getHostAddress();
+		}
+		return ip;
+	}
+
 }

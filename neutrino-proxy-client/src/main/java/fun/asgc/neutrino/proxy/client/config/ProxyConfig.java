@@ -25,7 +25,6 @@ package fun.asgc.neutrino.proxy.client.config;
 import fun.asgc.neutrino.core.annotation.Configuration;
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.Value;
-import fun.asgc.neutrino.proxy.core.ProxyClientConfig;
 import lombok.Data;
 
 /**

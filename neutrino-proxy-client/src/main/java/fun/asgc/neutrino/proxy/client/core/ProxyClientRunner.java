@@ -113,10 +113,10 @@ public class ProxyClientRunner implements ApplicationRunner {
 				@Override
 				public void operationComplete(ChannelFuture future) throws Exception {
 					if (future.isSuccess()) {
-						// 连接成功，向服务器发送客户端认证信息（clientKey）
+						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
-						log.info("连接代理服务成功.");
+						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 					} else {
 						log.info("连接代理服务失败!");
 						System.exit(-1);

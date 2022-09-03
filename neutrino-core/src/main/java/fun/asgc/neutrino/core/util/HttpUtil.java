@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.util;
+package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import io.netty.channel.ChannelHandlerContext;

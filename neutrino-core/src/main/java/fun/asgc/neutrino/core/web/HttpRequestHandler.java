@@ -143,6 +143,7 @@ public class HttpRequestHandler {
 			}
 		} catch (Throwable e) {
 			try {
+				log.error("请求处理异常:{}", requestParser.getUrl(), e);
 				postHandle(requestParser.getRoutePath(), null, null);
 				Object res = exceptionHandler(e);
 				if (null != res) {
