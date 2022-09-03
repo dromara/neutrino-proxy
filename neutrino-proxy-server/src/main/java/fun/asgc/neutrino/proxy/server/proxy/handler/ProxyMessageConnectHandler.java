@@ -22,13 +22,17 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.proxy.core.Constants;
-import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
-import fun.asgc.neutrino.proxy.core.ProxyMessage;
-import fun.asgc.neutrino.proxy.core.ProxyMessageHandler;
+import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.proxy.core.*;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.service.LicenseService;
+import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -44,31 +48,59 @@ import io.netty.channel.ChannelOption;
 @Component
 public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 
+	@Autowired
+	private LicenseService licenseService;
+	@Autowired
+	private UserService userService;
+
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
-		if (info == null) {
+		if (StringUtil.isEmpty(info)) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info不能为空!"));
 			ctx.channel().close();
 			return;
 		}
 
 		String[] tokens = info.split("@");
 		if (tokens.length != 2) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info格式有误!"));
+			ctx.channel().close();
+			return;
+		}
+		String visitorId = tokens[0];
+		String licenseKey = tokens[1];
+
+		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
+		if (null == licenseDO) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "license不存在!"));
+			ctx.channel().close();
+			return;
+		}
+		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "当前license已被禁用!"));
+			ctx.channel().close();
+			return;
+		}
+		UserDO userDO = userService.findById(licenseDO.getId());
+		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "当前license无效!"));
 			ctx.channel().close();
 			return;
 		}
 
-		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(tokens[1]);
+		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
 
-		if (cmdChannel == null) {
+		if (null == cmdChannel) {
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "服务端异常，指令通道不存在!"));
 			ctx.channel().close();
 			return;
 		}
 
-		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, tokens[0]);
+		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, visitorId);
 		if (userChannel != null) {
-			ctx.channel().attr(Constants.USER_ID).set(tokens[0]);
-			ctx.channel().attr(Constants.CLIENT_KEY).set(tokens[1]);
+			ctx.channel().attr(Constants.USER_ID).set(visitorId);
+			ctx.channel().attr(Constants.CLIENT_KEY).set(licenseKey);
 			ctx.channel().attr(Constants.NEXT_CHANNEL).set(userChannel);
 			userChannel.attr(Constants.NEXT_CHANNEL).set(ctx.channel());
 			// 代理客户端与后端服务器连接成功，修改用户连接为可读状态

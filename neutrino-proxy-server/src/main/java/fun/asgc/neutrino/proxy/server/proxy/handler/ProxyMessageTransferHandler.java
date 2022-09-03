@@ -46,7 +46,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
-		if (userChannel != null) {
+		if (null != userChannel) {
 			ByteBuf buf = ctx.alloc().buffer(proxyMessage.getData().length);
 			buf.writeBytes(proxyMessage.getData());
 			userChannel.writeAndFlush(buf);
