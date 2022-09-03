@@ -1,8 +1,8 @@
 **/target/
 # Compiled class file
 *.class
-data.db
-data.db-wal
+data.db*
+
 # Log file
 *.log
 
