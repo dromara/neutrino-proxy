@@ -52,4 +52,8 @@ public class CmdChannelAttachInfo {
 	 * licenseKey
 	 */
 	private String licenseKey;
+	/**
+	 * ip
+	 */
+	private String ip;
 }

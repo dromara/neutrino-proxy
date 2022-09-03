@@ -46,7 +46,7 @@ public class ProxyUtil {
 	/**
 	 * license -> 服务端口映射
 	 */
-	private static final Map<Integer, Set<Integer>> licenseToServerPortMap = new HashMap<>();
+	private static final Map<String, Set<Integer>> licenseToServerPortMap = new HashMap<>();
 	/**
 	 * 代理信息映射
 	 */
@@ -58,7 +58,7 @@ public class ProxyUtil {
 	/**
 	 * license -> 指令通道映射
 	 */
-	private static Map<Integer, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
+	private static Map<String, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
 
 	/**
 	 * cmdChannelAttachInfo.getUserChannelMap() 读写锁
@@ -67,24 +67,24 @@ public class ProxyUtil {
 
 	/**
 	 * 初始化代理信息
-	 * @param licenseId 客户端licenseId
+	 * @param licenseKey licenseKey
 	 * @param proxyMappingList 代理映射集合
 	 */
-	public static void initProxyInfo(Integer licenseId, List<ProxyMapping> proxyMappingList) {
-		licenseToServerPortMap.put(licenseId, new HashSet<>());
+	public static void initProxyInfo(String licenseKey, List<ProxyMapping> proxyMappingList) {
+		licenseToServerPortMap.put(licenseKey, new HashSet<>());
 		for (ProxyMapping proxyMapping : proxyMappingList) {
-			licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
+			licenseToServerPortMap.get(licenseKey).add(proxyMapping.getServerPort());
 			proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
 		}
 	}
 
 	/**
 	 * 根据licenseKey获取服务端端口集合
-	 * @param licenseId licenseId
+	 * @param licenseKey licenseKey
 	 * @return 服务端端口集合
 	 */
-	public static Set<Integer> getServerPortsByLicenseKey(Integer licenseId) {
-		return licenseToServerPortMap.get(licenseId);
+	public static Set<Integer> getServerPortsByLicenseKey(String licenseKey) {
+		return licenseToServerPortMap.get(licenseKey);
 	}
 
 	/**
@@ -98,11 +98,11 @@ public class ProxyUtil {
 
 	/**
 	 * 添加指令通道相关缓存信息
-	 * @param licenseId licenseId
+	 * @param licenseKey licenseKey
 	 * @param cmdChannel 指令通道
 	 * @param serverPorts 服务端端口集合
 	 */
-	public static void addCmdChannel(Integer licenseId, Channel cmdChannel, Set<Integer> serverPorts) {
+	public static void addCmdChannel(String licenseKey, Channel cmdChannel, Set<Integer> serverPorts) {
 		if (CollectionUtil.isEmpty(serverPorts)) {
 			return;
 		}
@@ -114,9 +114,9 @@ public class ProxyUtil {
 		setAttachInfo(cmdChannel, new CmdChannelAttachInfo()
 			.setIp(ChannelUtil.getIP(cmdChannel))
 			.setServerPorts(serverPorts)
-			.setLicenseId(licenseId)
+			.setLicenseKey(licenseKey)
 			.setUserChannelMap(new HashMap<>(16)));
-		licenseToCmdChannelMap.put(licenseId, cmdChannel);
+		licenseToCmdChannelMap.put(licenseKey, cmdChannel);
 	}
 
 	/**
@@ -129,9 +129,9 @@ public class ProxyUtil {
 		}
 
 		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
-		Channel channel0 = licenseToCmdChannelMap.remove(cmdChannelAttachInfo.getLicenseId());
+		Channel channel0 = licenseToCmdChannelMap.remove(cmdChannelAttachInfo.getLicenseKey());
 		if (cmdChannel != channel0) {
-			licenseToCmdChannelMap.put(cmdChannelAttachInfo.getLicenseId(), cmdChannel);
+			licenseToCmdChannelMap.put(cmdChannelAttachInfo.getLicenseKey(), cmdChannel);
 		}
 
 		for (int port : cmdChannelAttachInfo.getServerPorts()) {
@@ -164,8 +164,8 @@ public class ProxyUtil {
 		return serverPortToCmdChannelMap.get(serverPort);
 	}
 
-	public static Channel getCmdChannelByLicenseId(Integer licenseId) {
-		return licenseToCmdChannelMap.get(licenseId);
+	public static Channel getCmdChannelByLicenseKey(String licenseKey) {
+		return licenseToCmdChannelMap.get(licenseKey);
 	}
 
 	/**

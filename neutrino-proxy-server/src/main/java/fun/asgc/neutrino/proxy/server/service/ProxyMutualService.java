@@ -43,7 +43,7 @@ public class ProxyMutualService {
 	 */
 	public void bindServerPort(CmdChannelAttachInfo attachInfo, Integer serverPort) {
 		// TODO
-		log.info("绑定服务端端口 licenseId:{},ip:{},lanInfo:{},serverPort:{}", attachInfo.getLicenseId(), attachInfo.getIp(), attachInfo.getClientLanInfo(), serverPort);
+		log.info("绑定服务端端口 licenseKey:{},ip:{},lanInfo:{},serverPort:{}", attachInfo.getLicenseKey(), attachInfo.getIp(), attachInfo.getClientLanInfo(), serverPort);
 	}
 
 }
