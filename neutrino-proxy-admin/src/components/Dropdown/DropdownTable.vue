@@ -10,7 +10,7 @@
           @rowClick="handleRowClick"
         ></FBATable>
       </div>
-      <el-input v-model="name" :placeholder="placeholder" slot="reference"/>
+      <el-input v-model="name" :placeholder="placeholder" slot="reference" :disabled="disabled"/>
     </el-popover>
   </div>
 </template>
@@ -18,6 +18,10 @@
   import FBATable from '@/components/FBATable'
   export default {
     props: {
+      disabled: {
+        type: Boolean,
+        default: false
+      },
       name: {
         type: String,
         default: ''

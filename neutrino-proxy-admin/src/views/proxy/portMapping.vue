@@ -86,6 +86,7 @@
             @selectedData="selectedFeeItem"
             placeholder="请选择"
             :width="280"
+            :disabled="dialogStatus==='update'"
           />
 
         </el-form-item>
