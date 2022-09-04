@@ -55,4 +55,8 @@ public class Environment {
 	 * 应用配置
 	 */
 	private ApplicationConfig config;
+	/**
+	 * 启用job
+	 */
+	private boolean enableJob;
 }

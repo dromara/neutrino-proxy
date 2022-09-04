@@ -19,44 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.quartz;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.context.WebApplicationContext;
-import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+
+import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/9/4
  */
-@NonIntercept
-@Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
-	@Autowired
-	private Environment environment;
+public class DefaultJobSource implements IJobSource {
 
 	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public List<JobInfo> list() {
+		List<IJobHandler> jobHandlerList = BeanManager.getBeanListBySuperClass(IJobHandler.class);
+		if (CollectionUtil.isEmpty(jobHandlerList)) {
+			return Lists.newArrayList();
+		}
+		List<JobInfo> jobInfoList = Lists.newArrayList();
+		for (IJobHandler jobHandler : jobHandlerList) {
+			JobHandler handler = jobHandler.getClass().getAnnotation(JobHandler.class);
+			if (null == handler) {
+				continue;
+			}
+			jobInfoList.add(new JobInfo()
+				.setId(handler.name())
+				.setName(handler.name())
+				.setDesc(handler.desc())
+				.setCron(handler.cron())
+				.setParam(handler.param())
+			);
+		}
+		return jobInfoList;
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebContextHolder.class);
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
-	}
 }

@@ -19,44 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.quartz;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.context.WebApplicationContext;
-import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/9/4
  */
-@NonIntercept
-@Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
-	@Autowired
-	private Environment environment;
+public interface IJobSource {
 
-	@Override
-	public void run(String[] args) {
-		startHttpServer();
-	}
-
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebContextHolder.class);
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
-	}
+	/**
+	 * 获取所有job列表
+	 * @return
+	 */
+	List<JobInfo> list();
 }

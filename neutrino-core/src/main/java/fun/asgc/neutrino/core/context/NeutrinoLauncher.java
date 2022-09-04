@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.core.context;
 
 import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.annotation.EnableJob;
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.util.*;
@@ -88,6 +89,10 @@ public class NeutrinoLauncher {
 			}
 		}
 		log.info("scanBasePackages: {}", environment.getScanBasePackages());
+		EnableJob enableJob = environment.getMainClass().getAnnotation(EnableJob.class);
+		if (null != enableJob && enableJob.value()) {
+			environment.setEnableJob(Boolean.TRUE);
+		}
 
 		// 加载应用配置
 		environment.setConfig(ConfigUtil.getYmlConfig(ApplicationConfig.class));

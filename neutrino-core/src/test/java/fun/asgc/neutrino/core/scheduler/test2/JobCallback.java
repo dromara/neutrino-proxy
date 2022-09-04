@@ -19,44 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.scheduler.test2;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.context.WebApplicationContext;
-import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import fun.asgc.neutrino.core.quartz.IJobCallback;
+import fun.asgc.neutrino.core.quartz.JobInfo;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/9/4
  */
-@NonIntercept
-@Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
-	@Autowired
-	private Environment environment;
+@Slf4j
+public class JobCallback implements IJobCallback {
 
 	@Override
-	public void run(String[] args) {
-		startHttpServer();
-	}
-
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
+	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+		if (null == throwable) {
+			log.info("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+		} else {
+			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
 		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebContextHolder.class);
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
 	}
 }

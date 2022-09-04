@@ -19,44 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.scheduler.test2;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.context.WebApplicationContext;
-import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import fun.asgc.neutrino.core.quartz.IJobHandler;
+import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/9/4
  */
+@Slf4j
 @NonIntercept
 @Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
-	@Autowired
-	private Environment environment;
+@JobHandler(name = "TestJob1", cron = "0/5 * * * * ?", param = "123")
+public class TestJob1 implements IJobHandler {
 
 	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public void execute(String param) throws Exception {
+		log.info("TestJob1 execute param:{}", param);
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebContextHolder.class);
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
-	}
 }

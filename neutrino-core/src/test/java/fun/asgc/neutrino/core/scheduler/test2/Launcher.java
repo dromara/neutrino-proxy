@@ -19,44 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.context;
+package fun.asgc.neutrino.core.scheduler.test2;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
-import fun.asgc.neutrino.core.web.context.WebApplicationContext;
-import fun.asgc.neutrino.core.web.context.WebContextHolder;
+import fun.asgc.neutrino.core.annotation.Bean;
+import fun.asgc.neutrino.core.annotation.EnableJob;
+import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import fun.asgc.neutrino.core.quartz.DefaultJobSource;
+import fun.asgc.neutrino.core.quartz.IJobExecutor;
+import fun.asgc.neutrino.core.quartz.JobExecutor;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/7/9
+ * @date: 2022/9/4
  */
-@NonIntercept
-@Component
-public class ExtensionServiceLoader implements ApplicationRunner {
-	@Autowired
-	private ApplicationConfig applicationConfig;
-	@Autowired
-	private SimpleBeanFactory applicationBeanFactory;
-	@Autowired
-	private Environment environment;
+@EnableJob
+@NeutrinoApplication
+public class Launcher {
 
-	@Override
-	public void run(String[] args) {
-		startHttpServer();
+	public static void main(String[] args) {
+		NeutrinoLauncher.runSync(Launcher.class, args);
 	}
 
-	private void startHttpServer() {
-		if (null == applicationConfig) {
-			return;
-		}
-		ApplicationConfig.Http http = applicationConfig.getHttp();
-		if (null == http || null == http.getEnable() || !http.getEnable()) {
-			return;
-		}
-		applicationBeanFactory.registerBean(WebContextHolder.class);
-		applicationBeanFactory.registerBean(WebApplicationContext.class);
+	@Bean
+	public JobExecutor jobExecutor() {
+		JobExecutor executor = new JobExecutor();
+		executor.setJobSource(new DefaultJobSource());
+		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()));
+		executor.setJobCallback(new JobCallback());
+		return executor;
 	}
+
 }
