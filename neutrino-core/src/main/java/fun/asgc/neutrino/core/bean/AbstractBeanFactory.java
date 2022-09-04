@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.bean;
 
+import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.context.LifeCycleManager;
@@ -71,7 +72,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	/**
 	 * 调度器
 	 */
-	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new BeanFactoryThreadFactory());
+	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new CustomThreadFactory("BeanFactory"));
 
 	public AbstractBeanFactory(String name) {
 		this(null, name);
@@ -565,32 +566,5 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 			() -> environment = getBean(Environment.class),
 			() -> environment
 		);
-	}
-
-	static class BeanFactoryThreadFactory implements ThreadFactory {
-		private static final AtomicInteger poolNumber = new AtomicInteger(1);
-		private final ThreadGroup group;
-		private final AtomicInteger threadNumber = new AtomicInteger(1);
-		private final String namePrefix;
-
-		BeanFactoryThreadFactory() {
-			SecurityManager s = System.getSecurityManager();
-			group = (s != null) ? s.getThreadGroup() :
-				Thread.currentThread().getThreadGroup();
-			namePrefix = "BeanFactoryPool-" + poolNumber.getAndIncrement() + "-thread-";
-		}
-
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(),
-				0);
-			if (t.isDaemon()) {
-				t.setDaemon(false);
-			}
-			if (t.getPriority() != Thread.NORM_PRIORITY) {
-				t.setPriority(Thread.NORM_PRIORITY);
-			}
-			return t;
-		}
 	}
 }

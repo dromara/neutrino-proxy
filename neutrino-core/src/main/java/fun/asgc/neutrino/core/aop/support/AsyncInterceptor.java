@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.aop.support;
 
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
+import fun.asgc.neutrino.core.base.CustomThreadFactory;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class AsyncInterceptor implements Interceptor {
 	private static final ExecutorService executorService = new ThreadPoolExecutor(10, 50,
-		10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new AsyncThreadFactory());
+		10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new CustomThreadFactory("Async"));
 
 	@Override
 	public void intercept(Invocation inv) throws Exception {
@@ -45,32 +46,5 @@ public class AsyncInterceptor implements Interceptor {
 				e.printStackTrace();
 			}
 		});
-	}
-
-	static class AsyncThreadFactory implements ThreadFactory {
-		private static final AtomicInteger poolNumber = new AtomicInteger(1);
-		private final ThreadGroup group;
-		private final AtomicInteger threadNumber = new AtomicInteger(1);
-		private final String namePrefix;
-
-		AsyncThreadFactory() {
-			SecurityManager s = System.getSecurityManager();
-			group = (s != null) ? s.getThreadGroup() :
-				Thread.currentThread().getThreadGroup();
-			namePrefix = "AsyncPool-" + poolNumber.getAndIncrement() + "-thread-";
-		}
-
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(),
-				0);
-			if (t.isDaemon()) {
-				t.setDaemon(false);
-			}
-			if (t.getPriority() != Thread.NORM_PRIORITY) {
-				t.setPriority(Thread.NORM_PRIORITY);
-			}
-			return t;
-		}
 	}
 }

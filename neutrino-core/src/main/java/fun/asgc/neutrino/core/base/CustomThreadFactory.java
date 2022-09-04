@@ -19,37 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.config;
+package fun.asgc.neutrino.core.base;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Bean;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.base.CustomThreadFactory;
-import fun.asgc.neutrino.core.quartz.DefaultJobSource;
-import fun.asgc.neutrino.core.quartz.JobExecutor;
-import fun.asgc.neutrino.proxy.server.service.JobLogService;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Component
-public class JobConfig {
-	@Autowired
-	private JobLogService jobLogService;
+public class CustomThreadFactory implements ThreadFactory {
+	private final ThreadGroup group;
+	private final AtomicInteger threadNumber = new AtomicInteger(1);
+	private final String namePrefix;
 
-	@Bean
-	public JobExecutor jobExecutor() {
-		JobExecutor executor = new JobExecutor();
-		executor.setJobSource(new DefaultJobSource());
-		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(), new CustomThreadFactory("JobPool")));
-		executor.setJobCallback(jobLogService);
-		return executor;
+	public CustomThreadFactory(String prefix) {
+		SecurityManager s = System.getSecurityManager();
+		group = (s != null) ? s.getThreadGroup() :
+			Thread.currentThread().getThreadGroup();
+		namePrefix = prefix + "-thread-";
+	}
+
+	@Override
+	public Thread newThread(Runnable r) {
+		Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+		if (t.isDaemon()) {
+			t.setDaemon(false);
+		}
+		if (t.getPriority() != Thread.NORM_PRIORITY) {
+			t.setPriority(Thread.NORM_PRIORITY);
+		}
+		return t;
 	}
 }
