@@ -19,26 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.scheduler.test2;
+package fun.asgc.neutrino.core.quartz.test2;
 
-import fun.asgc.neutrino.core.quartz.IJobCallback;
-import fun.asgc.neutrino.core.quartz.JobInfo;
-import lombok.extern.slf4j.Slf4j;
+import fun.asgc.neutrino.core.annotation.Bean;
+import fun.asgc.neutrino.core.annotation.EnableJob;
+import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import fun.asgc.neutrino.core.quartz.DefaultJobSource;
+import fun.asgc.neutrino.core.quartz.JobExecutor;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Slf4j
-public class JobCallback implements IJobCallback {
+@EnableJob
+@NeutrinoApplication
+public class Launcher {
 
-	@Override
-	public void executeLog(JobInfo jobInfo, Throwable throwable) {
-		if (null == throwable) {
-			log.info("job[name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
-		} else {
-			log.error("job[name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
-		}
+	public static void main(String[] args) {
+		NeutrinoLauncher.runSync(Launcher.class, args);
 	}
+
+	@Bean
+	public JobExecutor jobExecutor() {
+		JobExecutor executor = new JobExecutor();
+		executor.setJobSource(new DefaultJobSource());
+		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()));
+		executor.setJobCallback(new JobCallback());
+		return executor;
+	}
+
 }

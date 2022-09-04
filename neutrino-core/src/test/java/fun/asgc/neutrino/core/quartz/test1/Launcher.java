@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.scheduler.test1;
+package fun.asgc.neutrino.core.quartz.test1;
 
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;

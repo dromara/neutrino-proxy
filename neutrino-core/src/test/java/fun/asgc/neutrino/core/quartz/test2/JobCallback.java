@@ -19,12 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.scheduler.test2;
+package fun.asgc.neutrino.core.quartz.test2;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.quartz.IJobHandler;
-import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import fun.asgc.neutrino.core.quartz.IJobCallback;
+import fun.asgc.neutrino.core.quartz.JobInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,14 +31,14 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2022/9/4
  */
 @Slf4j
-@NonIntercept
-@Component
-@JobHandler(name = "TestJob1", cron = "0/5 * * * * ?", param = "123")
-public class TestJob1 implements IJobHandler {
+public class JobCallback implements IJobCallback {
 
 	@Override
-	public void execute(String param) throws Exception {
-		log.info("TestJob1 execute param:{}", param);
+	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+		if (null == throwable) {
+			log.info("job[name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+		} else {
+			log.error("job[name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
+		}
 	}
-
 }
