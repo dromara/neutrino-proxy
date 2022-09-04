@@ -28,7 +28,6 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.proxy.core.IdleCheckHandler;
 import fun.asgc.neutrino.proxy.core.ProxyMessageDecoder;
 import fun.asgc.neutrino.proxy.core.ProxyMessageEncoder;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
@@ -39,6 +38,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.*;
@@ -137,7 +137,7 @@ public class ProxyServerRunner implements ApplicationRunner {
 			proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
 			proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
 		ch.pipeline().addLast(new ProxyMessageEncoder());
-		ch.pipeline().addLast(new IdleCheckHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
+		ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
 		ch.pipeline().addLast(new ServerChannelHandler());
 	}
 

@@ -29,6 +29,7 @@ import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.channel.*;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -97,4 +98,22 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
         cause.printStackTrace();
     }
 
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if(evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent)evt;
+            switch (event.state()) {
+                case READER_IDLE:
+                    // 读超时，断开连接
+                    log.info("读超时");
+                    ctx.channel().close();
+                    break;
+                case WRITER_IDLE:
+                    ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
+                    break;
+                case ALL_IDLE:
+                    break;
+            }
+        }
+    }
 }

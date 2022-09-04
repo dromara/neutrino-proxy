@@ -105,7 +105,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
             // 用户连接断开，从控制连接中移除
             String userId = ProxyUtil.getVisitorChannelUserId(userChannel);
-            ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
+            ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, userId);
 
             Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
             if (proxyChannel != null && proxyChannel.isActive()) {

@@ -190,7 +190,7 @@ public class ProxyUtil {
 		}
 	}
 
-	public static Channel removeUserChannelFromCmdChannel(Channel cmdChannel, String visitorId) {
+	public static Channel removeVisitorChannelFromCmdChannel(Channel cmdChannel, String visitorId) {
 		if (null == getAttachInfo(cmdChannel) || null == ((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getVisitorChannelMap().get(visitorId)) {
 			return null;
 		}

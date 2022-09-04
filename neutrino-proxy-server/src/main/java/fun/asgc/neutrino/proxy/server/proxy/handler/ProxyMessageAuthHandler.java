@@ -143,9 +143,9 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 		for (PortMappingDO portMapping : portMappingList) {
 			try {
+				proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
 				bootstrap.bind(portMapping.getServerPort()).get();
 				log.info("绑定用户端口： {}", portMapping.getServerPort());
-				proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
 			} catch (Exception ex) {
 				// BindException表示该端口已经绑定过
 				if (!(ex.getCause() instanceof BindException)) {

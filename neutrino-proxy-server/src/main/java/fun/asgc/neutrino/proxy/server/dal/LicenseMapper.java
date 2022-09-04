@@ -68,6 +68,9 @@ public interface LicenseMapper extends SqlMapper {
 	@Update("update `license` set enable = :enable, update_time = :updateTime where id = :id")
 	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
+	@Update("update `license` set is_online = :isOnline, update_time = :updateTime where id = :id")
+	void updateOnlineStatus(@Param("id") Integer id, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+
 	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
 	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
 

@@ -27,15 +27,20 @@ import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.proxy.core.*;
+import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
+import fun.asgc.neutrino.proxy.server.service.ProxyMutualService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.handler.timeout.IdleStateEvent;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
 
@@ -77,13 +82,17 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseId);
 
             if (cmdChannel != null) {
-                ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, visitorId);
+                ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, visitorId);
             }
 
             // 数据发送完成后再关闭连接，解决http1.0数据传输问题
             userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             userChannel.close();
         } else {
+            CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
+            if (null != cmdChannelAttachInfo) {
+                BeanManager.getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
+            }
             ProxyUtil.removeCmdChannel(ctx.channel());
         }
 
@@ -93,5 +102,24 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if(evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent)evt;
+            switch (event.state()) {
+                case READER_IDLE:
+                    // 读超时，断开连接
+                    log.info("读超时");
+                    ctx.channel().close();
+                    break;
+                case WRITER_IDLE:
+                    log.info("写超时");
+                    break;
+                case ALL_IDLE:
+                    break;
+            }
+        }
     }
 }

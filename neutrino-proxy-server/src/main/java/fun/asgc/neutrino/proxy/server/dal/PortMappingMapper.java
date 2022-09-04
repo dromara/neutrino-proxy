@@ -34,6 +34,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -57,8 +58,8 @@ public interface PortMappingMapper extends SqlMapper {
 	@Select("select * from port_mapping where id = ?")
 	PortMappingDO findById(Integer id);
 
-	@Update("update `port_mapping` set enable = :enable where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable);
+	@Update("update `port_mapping` set enable = :enable,update_time = :updateTime where id = :id")
+	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
 	@Delete("delete from `port_mapping` where id = ?")
 	void delete(Integer id);
@@ -72,4 +73,10 @@ public interface PortMappingMapper extends SqlMapper {
 	@ResultType(PortMappingDO.class)
 	@Select("select * from port_mapping where license_id = ? and enable = 1")
 	List<PortMappingDO> findEnableListByLicenseId(Integer licenseId);
+
+	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId and server_port = :serverPort")
+	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+
+	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId")
+	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
 }

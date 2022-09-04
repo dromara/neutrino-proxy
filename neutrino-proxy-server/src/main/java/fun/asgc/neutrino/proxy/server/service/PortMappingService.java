@@ -186,7 +186,7 @@ public class PortMappingService {
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 
-		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable());
+		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
 		return new PortMappingUpdateEnableStatusRes();
 	}

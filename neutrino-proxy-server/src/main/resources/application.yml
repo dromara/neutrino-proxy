@@ -17,8 +17,8 @@ neutrino:
       length-field-length: 4
       initial-bytes-to-strip: 0
       length-adjustment: 0
-      read-idle-time: 60
-      write-idle-time: 40
+      read-idle-time: 40
+      write-idle-time: 10
       all-idle-time-seconds: 0
     server:
       port: 9000
