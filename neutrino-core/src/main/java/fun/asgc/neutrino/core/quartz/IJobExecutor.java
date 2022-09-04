@@ -42,7 +42,14 @@ public interface IJobExecutor {
 
 	/**
 	 * 删除job
-	 * @param jobId
+	 * @param jobName
 	 */
-	void remove(String jobId);
+	void remove(String jobName);
+
+	/**
+	 * 触发
+	 * @param jobName
+	 * @param param
+	 */
+	void trigger(String jobName, String param);
 }

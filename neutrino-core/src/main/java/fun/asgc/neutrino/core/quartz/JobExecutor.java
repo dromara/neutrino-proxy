@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.quartz;
 
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.context.Environment;
@@ -34,6 +35,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -52,6 +54,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 	private SchedulerFactory schedulerFactory;
 	private Scheduler scheduler;
 	private Map<String, IJobHandler> jobHandlerMap = new ConcurrentHashMap<>();
+	private Set<String> runJobSet = Sets.newHashSet();
 	private IJobCallback jobCallback;
 
 	@Override
@@ -68,6 +71,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 					continue;
 				}
 				jobHandlerMap.put(jobHandler.name(), item);
+				runJobSet.add(jobHandler.name());
 			}
 		}
 
@@ -106,13 +110,13 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 
 	@Override
 	public synchronized void add(JobInfo jobInfo) throws JobException {
-		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getId()) || StringUtil.isEmpty(jobInfo.getCron()) || jobInfoMap.containsKey(jobInfo.getId())) {
+		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getName()) || StringUtil.isEmpty(jobInfo.getCron()) || jobInfoMap.containsKey(jobInfo.getName())) {
 			return;
 		}
-		jobInfoMap.put(jobInfo.getId(), jobInfo);
+		jobInfoMap.put(jobInfo.getName(), jobInfo);
 
-		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getId());
-		JobKey jobKey = new JobKey(jobInfo.getId());
+		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getName());
+		JobKey jobKey = new JobKey(jobInfo.getName());
 
 		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron()).withMisfireHandlingInstructionDoNothing();
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
@@ -122,13 +126,18 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 			scheduler.scheduleJob(jobDetail, cronTrigger);
 			scheduler.start();
 		} catch (Exception e) {
-			throw new RuntimeException(String.format("新增job[id=%s]异常", jobInfo.getId()));
+			throw new RuntimeException(String.format("新增job[name=%s]异常", jobInfo.getName()));
 		}
 	}
 
 	@Override
-	public void remove(String jobId) {
-		jobInfoMap.remove(jobId);
+	public void remove(String jobName) {
+		runJobSet.remove(jobName);
+	}
+
+	@Override
+	public void trigger(String jobId, String param) {
+
 	}
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {

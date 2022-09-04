@@ -33,10 +33,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +71,7 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 	/**
 	 * 调度器
 	 */
-	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new BeanFactoryThreadFactory());
 
 	public AbstractBeanFactory(String name) {
 		this(null, name);
@@ -567,5 +565,32 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 			() -> environment = getBean(Environment.class),
 			() -> environment
 		);
+	}
+
+	static class BeanFactoryThreadFactory implements ThreadFactory {
+		private static final AtomicInteger poolNumber = new AtomicInteger(1);
+		private final ThreadGroup group;
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		private final String namePrefix;
+
+		BeanFactoryThreadFactory() {
+			SecurityManager s = System.getSecurityManager();
+			group = (s != null) ? s.getThreadGroup() :
+				Thread.currentThread().getThreadGroup();
+			namePrefix = "BeanFactoryPool-" + poolNumber.getAndIncrement() + "-thread-";
+		}
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(),
+				0);
+			if (t.isDaemon()) {
+				t.setDaemon(false);
+			}
+			if (t.getPriority() != Thread.NORM_PRIORITY) {
+				t.setPriority(Thread.NORM_PRIORITY);
+			}
+			return t;
+		}
 	}
 }

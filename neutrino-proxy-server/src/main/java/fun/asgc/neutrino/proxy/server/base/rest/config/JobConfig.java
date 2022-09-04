@@ -29,8 +29,10 @@ import fun.asgc.neutrino.core.quartz.JobExecutor;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -46,9 +48,35 @@ public class JobConfig {
 	public JobExecutor jobExecutor() {
 		JobExecutor executor = new JobExecutor();
 		executor.setJobSource(new DefaultJobSource());
-		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()));
+		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new JobThreadFactory()));
 		executor.setJobCallback(jobLogService);
 		return executor;
 	}
 
+	static class JobThreadFactory implements ThreadFactory {
+		private static final AtomicInteger poolNumber = new AtomicInteger(1);
+		private final ThreadGroup group;
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		private final String namePrefix;
+
+		JobThreadFactory() {
+			SecurityManager s = System.getSecurityManager();
+			group = (s != null) ? s.getThreadGroup() :
+				Thread.currentThread().getThreadGroup();
+			namePrefix = "JobPool-" + poolNumber.getAndIncrement() + "-thread-";
+		}
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(),
+				0);
+			if (t.isDaemon()) {
+				t.setDaemon(false);
+			}
+			if (t.getPriority() != Thread.NORM_PRIORITY) {
+				t.setPriority(Thread.NORM_PRIORITY);
+			}
+			return t;
+		}
+	}
 }

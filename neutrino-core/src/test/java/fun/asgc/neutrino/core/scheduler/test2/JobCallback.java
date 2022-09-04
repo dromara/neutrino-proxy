@@ -36,9 +36,9 @@ public class JobCallback implements IJobCallback {
 	@Override
 	public void executeLog(JobInfo jobInfo, Throwable throwable) {
 		if (null == throwable) {
-			log.info("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+			log.info("job[name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
 		} else {
-			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
+			log.error("job[name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
 		}
 	}
 }

@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class DefaultJobSource implements IJobSource {
 		List<JobInfo> jobInfoList = Lists.newArrayList();
 		for (IJobHandler jobHandler : jobHandlerList) {
 			JobHandler handler = jobHandler.getClass().getAnnotation(JobHandler.class);
-			if (null == handler) {
+			if (null == handler || StringUtil.isEmpty(handler.name()) || StringUtil.isEmpty(handler.cron())) {
 				continue;
 			}
 			jobInfoList.add(new JobInfo()
