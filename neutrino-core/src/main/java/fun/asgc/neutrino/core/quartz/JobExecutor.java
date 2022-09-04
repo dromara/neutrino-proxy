@@ -98,7 +98,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 
 	@Override
 	public void init() throws JobException {
-		List<JobInfo> jobInfoList = jobSource.list();
+		List<JobInfo> jobInfoList = jobSource.sourceList();
 		if (CollectionUtil.isEmpty(jobInfoList)) {
 			return;
 		}

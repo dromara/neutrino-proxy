@@ -37,7 +37,7 @@ import java.util.List;
 public class DefaultJobSource implements IJobSource {
 
 	@Override
-	public List<JobInfo> list() {
+	public List<JobInfo> sourceList() {
 		List<IJobHandler> jobHandlerList = BeanManager.getBeanListBySuperClass(IJobHandler.class);
 		if (CollectionUtil.isEmpty(jobHandlerList)) {
 			return Lists.newArrayList();

@@ -34,5 +34,5 @@ public interface IJobSource {
 	 * 获取所有job列表
 	 * @return
 	 */
-	List<JobInfo> list();
+	List<JobInfo> sourceList();
 }

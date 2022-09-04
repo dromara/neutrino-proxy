@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.db.annotation.Id;
 import fun.asgc.neutrino.core.db.annotation.Table;
 import lombok.Data;
 import lombok.ToString;
@@ -31,24 +31,33 @@ import java.util.Date;
 
 /**
  *
- * @author: wen.y
+ * @author: aoshiguchen
  * @date: 2022/9/4
  */
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("job_qrtz_trigger_log")
-public class JobQrtzTriggerLog {
-	@Autowired
+@Table("job_info")
+public class JobInfoDO {
+	@Id
 	private Integer id;
-	private Integer jobId;
-	private String executorHandler;
-	private String executorParam;
-	private Integer code;
-	private String msg;
-	private Integer alarmStatus;
+	private String cron;
+	private String desc;
+	private String alarmEmail;
+	private String alarmDing;
+	private String handler;
+	private String param;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
+	 */
+	private Integer enable;
 	/**
 	 * 创建时间
 	 */
 	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

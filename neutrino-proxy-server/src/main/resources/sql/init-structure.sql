@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `client_connect_record` (
   `ip` VARCHAR(50) NOT NULL,
   `license_id` INTEGER(20) NOT NULL,
   `license_key` VARCHAR(100) NOT NULL,
-  `write_bytes` INTEGER(20),
-  `read_bytes` INTEGER(20),
+  `write_bytes` INTEGER(20) DEFAULT NULL,
+  `read_bytes` INTEGER(20) DEFAULT NULL,
   `type` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );
@@ -90,38 +90,38 @@ CREATE TABLE IF NOT EXISTS `user_connect_record` (
   `user_id` INTEGER NOT NULL,
   `license_id` INTEGER(20) NOT NULL,
   `license_key` VARCHAR(100) NOT NULL,
-  `write_bytes` INTEGER(20),
-  `read_bytes` INTEGER(20),
+  `write_bytes` INTEGER(20) DEFAULT NULL,
+  `read_bytes` INTEGER(20) DEFAULT NULL,
   `type` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL
 );
 
 #############################调度管理相关表#############################
 #触发器信息表
-CREATE TABLE IF NOT EXISTS `job_qrtz_trigger_info` (
+CREATE TABLE IF NOT EXISTS `job_info` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  `job_cron` VARCHAR(128) NOT NULL ,
-  `job_desc` VARCHAR(255) NOT NULL,
+  `desc` VARCHAR(255) NOT NULL,
+  `handler` VARCHAR(255) DEFAULT NULL,
+  `cron` VARCHAR(128) NOT NULL ,
+  `param` VARCHAR(512) DEFAULT NULL,
+  `alarm_email` VARCHAR(255) DEFAULT NULL,
+  `alarm_ding` VARCHAR(255) DEFAULT NULL,
+  `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
-  `update_time` INTEGER(20) NOT NULL,
-  `alarm_email` VARCHAR(255),
-  `alarm_ding` VARCHAR(255),
-  `executor_handler` VARCHAR(255) DEFAULT NULL,
-  `executor_param` VARCHAR(512) DEFAULT NULL,
-  `enable` INTEGER(2) NOT NULL
+  `update_time` INTEGER(20) NOT NULL
 );
-CREATE UNIQUE INDEX IF NOT EXISTS I_executor_handler ON `job_qrtz_trigger_info` (`executor_handler` ASC);
+CREATE UNIQUE INDEX IF NOT EXISTS I_handler ON `job_info` (`handler` ASC);
 
 #触发器日志表
-CREATE TABLE IF NOT EXISTS `job_qrtz_trigger_log` (
+CREATE TABLE IF NOT EXISTS `job_log` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `job_id` INTEGER(20) NOT NULL,
-  `executor_handler` VARCHAR(255) NOT NULL,
-  `executor_param` VARCHAR(512) DEFAULT NULL,
-  `create_time` INTEGER(20) NOT NULL,
+  `handler` VARCHAR(255) NOT NULL,
+  `param` VARCHAR(512) DEFAULT NULL,
   `code` INTEGER(20) NOT NULL,
-  `msg` TEXT,
-  `alarm_status` INTEGER(2) NOT NULL DEFAULT '0'
+  `msg` TEXT DEFAULT NULL,
+  `alarm_status` INTEGER(2) NOT NULL DEFAULT '0',
+  `create_time` INTEGER(20) NOT NULL
 );
-CREATE INDEX IF NOT EXISTS I_create_time ON job_qrtz_trigger_log(create_time);
-CREATE INDEX IF NOT EXISTS I_code ON job_qrtz_trigger_log(code);
+CREATE INDEX IF NOT EXISTS I_create_time ON job_log(create_time);
+CREATE INDEX IF NOT EXISTS I_code ON job_log(code);
