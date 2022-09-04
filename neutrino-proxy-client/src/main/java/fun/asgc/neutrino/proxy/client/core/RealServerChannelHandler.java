@@ -49,8 +49,8 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            String userId = ProxyUtil.getRealServerChannelUserId(realServerChannel);
-            channel.writeAndFlush(ProxyMessage.buildTransferMessage(userId, bytes));
+            String visitorId = ProxyUtil.getRealServerChannelVisitorId(realServerChannel);
+            channel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
         }
     }
 
@@ -62,11 +62,11 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel realServerChannel = ctx.channel();
-        String userId = ProxyUtil.getRealServerChannelUserId(realServerChannel);
-        ProxyUtil.removeRealServerChannel(userId);
+        String visitorId = ProxyUtil.getRealServerChannelVisitorId(realServerChannel);
+        ProxyUtil.removeRealServerChannel(visitorId);
         Channel channel = realServerChannel.attr(Constants.NEXT_CHANNEL).get();
         if (channel != null) {
-            channel.writeAndFlush(ProxyMessage.buildDisconnectMessage(userId));
+            channel.writeAndFlush(ProxyMessage.buildDisconnectMessage(visitorId));
         }
 
         super.channelInactive(ctx);

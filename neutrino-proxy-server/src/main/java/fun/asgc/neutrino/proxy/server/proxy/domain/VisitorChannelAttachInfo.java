@@ -31,8 +31,8 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain = true)
 @Data
-public class UserChannelAttachInfo {
-	private String userId;
+public class VisitorChannelAttachInfo {
+	private String visitorId;
 	private String lanInfo;
 	/**
 	 * ip地址

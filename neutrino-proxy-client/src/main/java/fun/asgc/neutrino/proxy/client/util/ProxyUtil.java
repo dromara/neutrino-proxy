@@ -97,12 +97,12 @@ public class ProxyUtil {
 		return cmdChannel;
 	}
 
-	public static void setRealServerChannelUserId(Channel realServerChannel, String userId) {
-		realServerChannel.attr(Constants.USER_ID).set(userId);
+	public static void setRealServerChannelVisitorId(Channel realServerChannel, String visitorId) {
+		realServerChannel.attr(Constants.VISITOR_ID).set(visitorId);
 	}
 
-	public static String getRealServerChannelUserId(Channel realServerChannel) {
-		return realServerChannel.attr(Constants.USER_ID).get();
+	public static String getRealServerChannelVisitorId(Channel realServerChannel) {
+		return realServerChannel.attr(Constants.VISITOR_ID).get();
 	}
 
 	public static Channel getRealServerChannel(String userId) {

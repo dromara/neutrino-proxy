@@ -32,13 +32,15 @@ import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.constant.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
 import fun.asgc.neutrino.proxy.server.proxy.core.BytesMetricsHandler;
-import fun.asgc.neutrino.proxy.server.proxy.core.UserChannelHandler;
+import fun.asgc.neutrino.proxy.server.proxy.core.VisitorChannelHandler;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import fun.asgc.neutrino.proxy.server.proxy.domain.ProxyMapping;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
+import fun.asgc.neutrino.proxy.server.service.ProxyMutualService;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -52,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.BindException;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -76,6 +78,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private UserService userService;
 	@Autowired
 	private PortMappingService portMappingService;
+	@Autowired
+	private ProxyMutualService proxyMutualService;
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
@@ -107,19 +111,18 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		if (CollectionUtil.isEmpty(portMappingList)) {
 			return;
 		}
-		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
+		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.AUTH_FAILED, "当前license已被另一节点使用!"));
 			ctx.channel().close();
 			return;
 		}
 
-		ProxyUtil.initProxyInfo(licenseKey, ProxyMapping.buildList(portMappingList));
-		Set<Integer> ports = ProxyUtil.getServerPortsByLicenseKey(licenseKey);
+		ProxyUtil.initProxyInfo(licenseDO.getId(), ProxyMapping.buildList(portMappingList));
 
-		ProxyUtil.addCmdChannel(licenseKey, ctx.channel(), ports);
+		ProxyUtil.addCmdChannel(licenseDO.getId(), ctx.channel(), portMappingList.stream().map(PortMappingDO::getServerPort).collect(Collectors.toSet()));
 
-		startUserPortServer(ports);
+		startUserPortServer(ProxyUtil.getAttachInfo(ctx.channel()), portMappingList);
 	}
 
 	@Override
@@ -127,21 +130,22 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		return ProxyDataTypeEnum.AUTH.getDesc();
 	}
 
-	private void startUserPortServer(Set<Integer> ports) {
+	private void startUserPortServer(CmdChannelAttachInfo cmdChannelAttachInfo, List<PortMappingDO> portMappingList) {
 		ServerBootstrap bootstrap = new ServerBootstrap();
 		bootstrap.group(serverBossGroup, serverWorkerGroup)
 			.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
 				ch.pipeline().addFirst(new BytesMetricsHandler());
-				ch.pipeline().addLast(new UserChannelHandler());
+				ch.pipeline().addLast(new VisitorChannelHandler());
 			}
 		});
 
-		for (int port : ports) {
+		for (PortMappingDO portMapping : portMappingList) {
 			try {
-				bootstrap.bind(port).get();
-				log.info("绑定用户端口： {}", port);
+				bootstrap.bind(portMapping.getServerPort()).get();
+				log.info("绑定用户端口： {}", portMapping.getServerPort());
+				proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
 			} catch (Exception ex) {
 				// BindException表示该端口已经绑定过
 				if (!(ex.getCause() instanceof BindException)) {

@@ -72,12 +72,12 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
         if (userChannel != null && userChannel.isActive()) {
-            String clientKey = ctx.channel().attr(Constants.CLIENT_KEY).get();
-            String userId = ctx.channel().attr(Constants.USER_ID).get();
-            Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(clientKey);
+            Integer licenseId = ctx.channel().attr(Constants.LICENSE_ID).get();
+            String visitorId = ctx.channel().attr(Constants.VISITOR_ID).get();
+            Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseId);
 
             if (cmdChannel != null) {
-                ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
+                ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, visitorId);
             }
 
             // 数据发送完成后再关闭连接，解决http1.0数据传输问题

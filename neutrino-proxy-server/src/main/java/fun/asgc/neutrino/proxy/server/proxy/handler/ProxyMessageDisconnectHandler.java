@@ -25,12 +25,11 @@ package fun.asgc.neutrino.proxy.server.proxy.handler;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.core.ProxyMessageHandler;
-import fun.asgc.neutrino.proxy.server.proxy.domain.UserChannelAttachInfo;
+import fun.asgc.neutrino.proxy.server.proxy.domain.VisitorChannelAttachInfo;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -49,25 +48,14 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-		String licenseKey = ctx.channel().attr(Constants.CLIENT_KEY).get();
-
+		Integer licenseId = ctx.channel().attr(Constants.LICENSE_ID).get();
+		// licenseId为空，说明访问者通道已经关闭，无需处理
+		if (null == licenseId) {
+			return;
+		}
 		// 代理连接没有连上服务器由控制连接发送用户端断开连接消息
-		if (StringUtil.isEmpty(licenseKey)) {
-			String userId = proxyMessage.getInfo();
-			Channel userChannel = ProxyUtil.removeUserChannelFromCmdChannel(ctx.channel(), userId);
-			if (null != userChannel) {
-				// 数据发送完成后再关闭连接，解决http1.0数据传输问题
-				userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-			}
-			return;
-		}
-
-		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
-		if (null == cmdChannel) {
-			return;
-		}
-
-		Channel userChannel = ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, ((UserChannelAttachInfo)ProxyUtil.getAttachInfo(ctx.channel())).getUserId());
+		String visitorId = proxyMessage.getInfo();
+		Channel userChannel = ProxyUtil.removeUserChannelFromCmdChannel(ctx.channel(), visitorId);
 		if (null != userChannel) {
 			// 数据发送完成后再关闭连接，解决http1.0数据传输问题
 			userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);

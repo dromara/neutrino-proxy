@@ -89,7 +89,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseKey(licenseKey);
+		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 
 		if (null == cmdChannel) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "服务端异常，指令通道不存在!"));
@@ -99,8 +99,8 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 
 		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, visitorId);
 		if (userChannel != null) {
-			ctx.channel().attr(Constants.USER_ID).set(visitorId);
-			ctx.channel().attr(Constants.CLIENT_KEY).set(licenseKey);
+			ctx.channel().attr(Constants.VISITOR_ID).set(visitorId);
+			ctx.channel().attr(Constants.LICENSE_ID).set(licenseDO.getId());
 			ctx.channel().attr(Constants.NEXT_CHANNEL).set(userChannel);
 			userChannel.attr(Constants.NEXT_CHANNEL).set(ctx.channel());
 			// 代理客户端与后端服务器连接成功，修改用户连接为可读状态

@@ -50,7 +50,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		final Channel cmdChannel = ctx.channel();
-		final String userId = proxyMessage.getInfo();
+		final String visitorId = proxyMessage.getInfo();
 		String[] serverInfo = new String(proxyMessage.getData()).split(":");
 		String ip = serverInfo[0];
 		int port = Integer.parseInt(serverInfo[1]);
@@ -75,24 +75,24 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
 
 							// 远程绑定
-							channel.writeAndFlush(ProxyMessage.buildConnectMessage(userId + "@" + ProxyConfig.instance.getLicenseKey()));
+							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + ProxyConfig.instance.getLicenseKey()));
 
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
-							ProxyUtil.addRealServerChannel(userId, realServerChannel);
-							ProxyUtil.setRealServerChannelUserId(realServerChannel, userId);
+							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
+							ProxyUtil.setRealServerChannelVisitorId(realServerChannel, visitorId);
 						}
 
 						@Override
 						public void error(Throwable cause) {
 							ProxyMessage proxyMessage = new ProxyMessage();
 							proxyMessage.setType(ProxyMessage.TYPE_DISCONNECT);
-							proxyMessage.setInfo(userId);
+							proxyMessage.setInfo(visitorId);
 							cmdChannel.writeAndFlush(proxyMessage);
 						}
 					});
 
 				} else {
-					cmdChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(userId));
+					cmdChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(visitorId));
 				}
 			}
 		});

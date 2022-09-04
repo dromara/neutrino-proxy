@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private static AtomicLong userIdProducer = new AtomicLong(0);
 
@@ -54,8 +54,8 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
 
         // 通知代理客户端
-        Channel userChannel = ctx.channel();
-        Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
+        Channel visitorChannel = ctx.channel();
+        Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
         if (proxyChannel == null) {
 
             // 该端口还没有代理客户端
@@ -63,7 +63,7 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            String userId = ProxyUtil.getUserChannelUserId(userChannel);
+            String userId = ProxyUtil.getVisitorChannelUserId(visitorChannel);
             proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(userId, bytes));
         }
     }
@@ -104,14 +104,14 @@ public class UserChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
         } else {
 
             // 用户连接断开，从控制连接中移除
-            String userId = ProxyUtil.getUserChannelUserId(userChannel);
+            String userId = ProxyUtil.getVisitorChannelUserId(userChannel);
             ProxyUtil.removeUserChannelFromCmdChannel(cmdChannel, userId);
 
             Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
             if (proxyChannel != null && proxyChannel.isActive()) {
                 proxyChannel.attr(Constants.NEXT_CHANNEL).remove();
-                proxyChannel.attr(Constants.CLIENT_KEY).remove();
-                proxyChannel.attr(Constants.USER_ID).remove();
+                proxyChannel.attr(Constants.LICENSE_ID).remove();
+                proxyChannel.attr(Constants.VISITOR_ID).remove();
 
                 proxyChannel.config().setOption(ChannelOption.AUTO_READ, true);
                 // 通知客户端，用户连接已经断开

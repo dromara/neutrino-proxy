@@ -39,19 +39,15 @@ public class CmdChannelAttachInfo {
 	/**
 	 * 用户通道映射
 	 */
-	private Map<String, Channel> userChannelMap;
-	/**
-	 * 客户端信息
-	 */
-	private String clientLanInfo;
+	private Map<String, Channel> visitorChannelMap;
 	/**
 	 * 服务端端口集合
 	 */
 	private Set<Integer> serverPorts;
 	/**
-	 * licenseKey
+	 * licenseId
 	 */
-	private String licenseKey;
+	private Integer licenseId;
 	/**
 	 * ip
 	 */

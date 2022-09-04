@@ -21,8 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 @NonIntercept
 @Component
 public class ProxyMutualService {
+	@Autowired
+	private PortMappingMapper portMappingMapper;
 
 	/**
 	 * 绑定服务端端口处理
@@ -43,7 +47,7 @@ public class ProxyMutualService {
 	 */
 	public void bindServerPort(CmdChannelAttachInfo attachInfo, Integer serverPort) {
 		// TODO
-		log.info("绑定服务端端口 licenseKey:{},ip:{},lanInfo:{},serverPort:{}", attachInfo.getLicenseKey(), attachInfo.getIp(), attachInfo.getClientLanInfo(), serverPort);
+		log.info("绑定服务端端口 licenseId:{},ip:{},serverPort:{}", attachInfo.getLicenseId(), attachInfo.getIp(),  serverPort);
 	}
 
 }
