@@ -39,6 +39,7 @@ public class ProxyConfig {
 	private Protocol protocol;
 	private Client client;
 	private String licenseKey;
+	public static volatile boolean authSuccess;
 
 	@Data
 	public static class Protocol {
@@ -72,6 +73,8 @@ public class ProxyConfig {
 		private Integer serverPort;
 		@Value("ssl-enable")
 		private Boolean sslEnable;
+		@Value("obtain-license-interval")
+		private Integer obtainLicenseInterval;
 	}
 
 	@Init

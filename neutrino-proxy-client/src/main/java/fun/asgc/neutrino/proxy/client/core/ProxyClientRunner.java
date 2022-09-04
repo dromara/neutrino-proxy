@@ -27,17 +27,14 @@ import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
-import fun.asgc.neutrino.core.util.ArrayUtil;
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -51,6 +48,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.util.Scanner;
 
 /**
  *
@@ -60,7 +58,7 @@ import java.security.KeyStore;
 @Slf4j
 @NonIntercept
 @Component
-public class ProxyClientRunner implements ApplicationRunner {
+public class ProxyClientRunner {
 	@Autowired
 	private ProxyConfig proxyConfig;
 	@Autowired("bootstrap")
@@ -68,11 +66,20 @@ public class ProxyClientRunner implements ApplicationRunner {
 	@Autowired("realServerBootstrap")
 	private static Bootstrap realServerBootstrap;
 	private static NioEventLoopGroup workerGroup;
+	@Autowired
+	private Environment environment;
+	private volatile Channel channel;
 
-	@Override
-	public void run(String[] args) {
-		proxyConfig.setLicenseKey(getLicenseKey(args));
-		connectProxyServer();
+	public void start(String licenseKey) {
+		if (StringUtil.isEmpty(licenseKey)) {
+			return;
+		}
+		proxyConfig.setLicenseKey(licenseKey);
+		if (null == channel || !channel.isActive()) {
+			connectProxyServer();
+		} else {
+			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
+		}
 	}
 
 	/**
@@ -114,6 +121,7 @@ public class ProxyClientRunner implements ApplicationRunner {
 				@Override
 				public void operationComplete(ChannelFuture future) throws Exception {
 					if (future.isSuccess()) {
+						channel = future.channel();
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
@@ -157,26 +165,5 @@ public class ProxyClientRunner implements ApplicationRunner {
 	@Bean
 	public Bootstrap realServerBootstrap() {
 		return new Bootstrap();
-	}
-
-	private String getLicenseKey(String[] args) {
-		String license = "";
-		if (null != args && ArrayUtil.notEmpty(args)) {
-			for (String s : args) {
-				if (s.startsWith("license=") && s.length() > 8) {
-					license = s.substring(8).trim();
-				}
-			}
-		}
-		if (StringUtil.isEmpty(license)) {
-			license = FileUtil.readContentAsString("./.neutrino-proxy.license");
-		}
-		if (StringUtil.isEmpty(license)) {
-			log.error("未配置license，执行结束.");
-			System.exit(-1);
-		}
-		FileUtil.write("./.neutrino-proxy.license", license);
-
-		return license;
 	}
 }

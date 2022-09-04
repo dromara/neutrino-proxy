@@ -112,4 +112,12 @@ public class SystemUtil {
 		String osName = System.getProperty("os.name", "unknown");
 		return osName.toLowerCase().indexOf("windows") != -1;
 	}
+
+	public static void trySleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (Exception e) {
+			// ignore
+		}
+	}
 }

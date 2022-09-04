@@ -22,6 +22,7 @@
 
 package fun.asgc.neutrino.core.context;
 
+import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -59,4 +60,8 @@ public class Environment {
 	 * 启用job
 	 */
 	private boolean enableJob;
+	/**
+	 * 运行上下文
+	 */
+	private SystemUtil.RunContext runContext;
 }

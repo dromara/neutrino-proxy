@@ -106,6 +106,15 @@ public class ProxyMessage {
             .setInfo(info);
     }
 
+    public static ProxyMessage buildAuthResultMessage(Integer code, String msg, String licenseKey) {
+        JSONObject data = new JSONObject();
+        data.put("code", code);
+        data.put("msg", msg);
+        data.put("licenseKey", licenseKey);
+        return create().setType(TYPE_AUTH)
+            .setInfo(data.toJSONString());
+    }
+
     public static ProxyMessage buildConnectMessage(String info) {
         return create().setType(TYPE_CONNECT)
             .setInfo(info);

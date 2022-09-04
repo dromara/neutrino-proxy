@@ -99,7 +99,7 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		}
 		Handler<Context,Data> handler = handlerMap.get(type);
 		if (null == handler) {
-			log.warn("{} 找不到匹配的处理器 type:{}", this.name, type);
+//			log.debug("{} 找不到匹配的处理器 type:{}", this.name, type);
 			return;
 		}
 		String handlerName = handler.name();
