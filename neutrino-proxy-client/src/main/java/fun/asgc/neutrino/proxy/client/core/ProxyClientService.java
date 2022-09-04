@@ -58,7 +58,7 @@ import java.util.Scanner;
 @Slf4j
 @NonIntercept
 @Component
-public class ProxyClientRunner {
+public class ProxyClientService {
 	@Autowired
 	private ProxyConfig proxyConfig;
 	@Autowired("bootstrap")

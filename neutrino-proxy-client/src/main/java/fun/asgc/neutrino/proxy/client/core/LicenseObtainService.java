@@ -56,7 +56,7 @@ public class LicenseObtainService implements ApplicationRunner {
 	private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(new CustomThreadFactory("LicenseObtain"));
 
 	@Autowired
-	private ProxyClientRunner proxyClientRunner;
+	private ProxyClientService proxyClientService;
 	private ReentrantLock runLock = new ReentrantLock();
 	private Scanner scanner = new Scanner(System.in);
 	private volatile boolean isFirst;
@@ -89,7 +89,7 @@ public class LicenseObtainService implements ApplicationRunner {
 			SystemUtil.trySleep(2000);
 		}
 		String licenseKey = getLicenseKey(args);
-		proxyClientRunner.start(licenseKey);
+		proxyClientService.start(licenseKey);
 	}
 
 	private String getLicenseKey(String[] args) {
