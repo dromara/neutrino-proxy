@@ -19,24 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.service;
 
-package fun.asgc.neutrino.proxy.server;
-
-import fun.asgc.neutrino.core.annotation.EnableJob;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.quartz.IJobCallback;
+import fun.asgc.neutrino.core.quartz.JobInfo;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/9/4
  */
-@EnableJob
-@NeutrinoApplication
-public class ProxyServer {
+@Slf4j
+@NonIntercept
+@Component
+public class JobLogService implements IJobCallback {
 
-	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyServer.class, args).sync();
+	@Override
+	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+		if (null == throwable) {
+			log.info("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+		} else {
+			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
+		}
 	}
 
 }

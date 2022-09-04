@@ -19,24 +19,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.dal.entity;
 
-package fun.asgc.neutrino.proxy.server;
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.core.db.annotation.Table;
+import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
-import fun.asgc.neutrino.core.annotation.EnableJob;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import java.util.Date;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/9/4
  */
-@EnableJob
-@NeutrinoApplication
-public class ProxyServer {
-
-	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyServer.class, args).sync();
-	}
-
+@ToString
+@Accessors(chain = true)
+@Data
+@Table("job_qrtz_trigger_info")
+public class JobQrtzTriggerInfoDO {
+	@Id
+	private Integer id;
+	private String jobCron;
+	private String jobDesc;
+	private String alarmEmail;
+	private String alarmDing;
+	private String executorHandler;
+	private String executorParam;
+	/**
+	 * 启用状态
+	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
+	 */
+	private Integer enable;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }

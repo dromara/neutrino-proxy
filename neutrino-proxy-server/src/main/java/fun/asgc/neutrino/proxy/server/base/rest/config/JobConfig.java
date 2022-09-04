@@ -19,24 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-package fun.asgc.neutrino.proxy.server;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Bean;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.quartz.DefaultJobSource;
+import fun.asgc.neutrino.core.quartz.JobExecutor;
+import fun.asgc.neutrino.proxy.server.service.JobLogService;
 
-import fun.asgc.neutrino.core.annotation.EnableJob;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/9/4
  */
-@EnableJob
-@NeutrinoApplication
-public class ProxyServer {
+@Component
+public class JobConfig {
+	@Autowired
+	private JobLogService jobLogService;
 
-	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyServer.class, args).sync();
+	@Bean
+	public JobExecutor jobExecutor() {
+		JobExecutor executor = new JobExecutor();
+		executor.setJobSource(new DefaultJobSource());
+		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()));
+		executor.setJobCallback(jobLogService);
+		return executor;
 	}
 
 }

@@ -108,8 +108,9 @@ CREATE TABLE IF NOT EXISTS `job_qrtz_trigger_info` (
   `alarm_ding` VARCHAR(255),
   `executor_handler` VARCHAR(255) DEFAULT NULL,
   `executor_param` VARCHAR(512) DEFAULT NULL,
-  `executor_timeout` INTEGER(20) NOT NULL DEFAULT '0'
+  `enable` INTEGER(2) NOT NULL
 );
+CREATE UNIQUE INDEX IF NOT EXISTS I_executor_handler ON `job_qrtz_trigger_info` (`executor_handler` ASC);
 
 #触发器日志表
 CREATE TABLE IF NOT EXISTS `job_qrtz_trigger_log` (

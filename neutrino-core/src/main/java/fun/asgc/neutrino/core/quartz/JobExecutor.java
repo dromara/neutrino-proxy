@@ -114,7 +114,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getId());
 		JobKey jobKey = new JobKey(jobInfo.getId());
 
-		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("0/5 * * * * ?").withMisfireHandlingInstructionDoNothing();
+		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron()).withMisfireHandlingInstructionDoNothing();
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
 		JobDetail jobDetail = JobBuilder.newJob(JobBean.class).withIdentity(jobKey).build();
 

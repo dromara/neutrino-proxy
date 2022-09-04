@@ -19,24 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package fun.asgc.neutrino.proxy.server.job;
 
-package fun.asgc.neutrino.proxy.server;
-
-import fun.asgc.neutrino.core.annotation.EnableJob;
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.quartz.IJobHandler;
+import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
- * @date: 2022/6/16
+ * @date: 2022/9/4
  */
-@EnableJob
-@NeutrinoApplication
-public class ProxyServer {
+@Slf4j
+@NonIntercept
+@Component
+@JobHandler(name = "DemoJob", cron = "0/10 * * * * ?", param = "{\"a\":1}")
+public class DemoJob implements IJobHandler {
 
-	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyServer.class, args).sync();
+	@Override
+	public void execute(String param) throws Exception {
+		System.out.println("DemoJob execute param:" + param);
 	}
-
 }
