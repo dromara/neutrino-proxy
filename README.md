@@ -116,3 +116,8 @@ proxy:
 - 微信: yuyunshize
 - Gitee(主更): https://gitee.com/asgc/neutrino-proxy
 - Github: https://github.com/aoshiguchen/neutrino-proxy
+
+# 7、特别鸣谢
+* [JetBrains](https://www.jetbrains.com?from=RedisFront)
+
+![JenBrains logo](assets/jetbrains.svg)
