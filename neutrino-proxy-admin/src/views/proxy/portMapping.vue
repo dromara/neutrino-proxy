@@ -89,7 +89,16 @@
             :width="280"
             :disabled="dialogStatus==='update'"
           />
-
+<!--          <DropdownTable
+            :columns="countryColumns"
+            :data="licenseList"
+            v-model="temp.licenseId"
+            :value="temp.licenseName"
+            @rowClick="selectedFeeItem"
+            disabled
+            :disabled="dialogStatus==='update'"
+            style="width: 280px"
+          />-->
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
@@ -197,7 +206,11 @@
           clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
           clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        countryColumns: [
+          { prop: 'userName', label: '用户名', align: 'center' },
+          { prop: 'name', label: 'License', align: 'center' }
+        ]
       }
     },
     filters: {
@@ -342,10 +355,9 @@
           }
         })
       },
-      selectedFeeItem(list) {
-        console.log(list)
-        this.temp.licenseId = list.id
-        this.temp.licenseName = list.name
+      selectedFeeItem(row, list) {
+        this.temp.licenseId = row.id
+        this.temp.licenseName = row.name
       },
       handleDelete(row) {
         this.$confirm('确定要删除吗？', '提示', {
