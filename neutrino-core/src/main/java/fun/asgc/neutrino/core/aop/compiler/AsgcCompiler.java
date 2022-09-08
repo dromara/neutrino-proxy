@@ -24,10 +24,13 @@ package fun.asgc.neutrino.core.aop.compiler;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.tools.*;
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +46,7 @@ public class AsgcCompiler {
 	private final DiagnosticCollector<JavaFileObject> collector;
 	private final StandardJavaFileManager standardJavaFileManager;
 	private final List<String> options = new ArrayList<>();
+	private final List<String> defaultClassPathList = new ArrayList<>();
 	private final List<String> classpathList = new ArrayList<>();
 	private final Collection<JavaFileObject> compilationUnits = new ArrayList<JavaFileObject>();
 	private boolean isSaveSourceCodeFile;
@@ -91,9 +95,10 @@ public class AsgcCompiler {
 
 	private List<String> getOptions() {
 		List<String> list = Lists.newArrayList(options);
-		if (!CollectionUtil.isEmpty(classpathList)) {
+		List<String> cp = getClasspathList();
+		if (!CollectionUtil.isEmpty(cp)) {
 			list.add("-classpath");
-			list.add(classpathList.stream().collect(Collectors.joining(File.pathSeparator)));
+			list.add(cp.stream().collect(Collectors.joining(File.pathSeparator)));
 		}
 		return list;
 	}
@@ -172,11 +177,61 @@ public class AsgcCompiler {
 	private void log() {
 		List<String> warnings = getWarnings();
 		List<String> errors = getErrors();
-		if (!CollectionUtil.isEmpty(warnings)) {
-			log.warn(warnings.stream().collect(Collectors.joining()));
-		}
+//		if (!CollectionUtil.isEmpty(warnings)) {
+//			log.warn(warnings.stream().collect(Collectors.joining()));
+//		}
 		if (!CollectionUtil.isEmpty(errors)) {
 			log.warn(errors.stream().collect(Collectors.joining()));
 		}
+	}
+
+	private URLClassLoader getURLClassLoader() {
+		ClassLoader ret = Thread.currentThread().getContextClassLoader();
+		if (null == ret) {
+			ret = AsgcCompiler.class.getClassLoader();
+		}
+		return (ret instanceof URLClassLoader) ? (URLClassLoader)ret : null;
+	}
+
+	private List<String> getClasspathList() {
+		List<String> classpathList = new ArrayList<>();
+		List<String> defaultClasspathList = getDefaultClasspathList();
+		List<String> customClasspathList = this.classpathList;
+		if (!CollectionUtil.isEmpty(defaultClasspathList)) {
+			classpathList.addAll(defaultClasspathList);
+		}
+		if (!CollectionUtil.isEmpty(customClasspathList)) {
+			classpathList.addAll(customClasspathList);
+		}
+		return classpathList;
+	}
+
+	private synchronized List<String> getDefaultClasspathList() {
+		if (!CollectionUtil.isEmpty(defaultClassPathList)) {
+			return defaultClassPathList;
+		}
+		URLClassLoader classLoader = getURLClassLoader();
+		if (null == classLoader) {
+			return defaultClassPathList;
+		}
+
+		boolean isWindows = SystemUtil.isWindows();
+		for (URL url : classLoader.getURLs()) {
+			String path = url.getFile();
+
+			// 如果是 windows 系统，去除前缀字符 '/'
+			if (isWindows && path.startsWith("/")) {
+				path = path.substring(1);
+			}
+
+			// 去除后缀字符 '/'
+			if (path.length() > 1 && (path.endsWith("/") || path.endsWith(File.separator))) {
+				path = path.substring(0, path.length() - 1);
+			}
+
+			defaultClassPathList.add(path);
+		}
+
+		return defaultClassPathList;
 	}
 }
