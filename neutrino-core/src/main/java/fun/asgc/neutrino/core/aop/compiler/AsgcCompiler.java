@@ -69,7 +69,7 @@ public class AsgcCompiler {
 		this.standardJavaFileManager = javaCompiler.getStandardFileManager(collector, null, null);
 		this.isSaveClassFile = false;
 		this.generatorCodeSavePath = GlobalConfig.getGeneratorCodeSavePath();
-		this.dynamicClassLoader = new DynamicClassLoader(classLoader);
+		this.dynamicClassLoader = new DynamicClassLoader(this, classLoader);
 
 		addOption("-Xlint:unchecked");
 		addOption("-implicit:class");
@@ -193,7 +193,7 @@ public class AsgcCompiler {
 		return (ret instanceof URLClassLoader) ? (URLClassLoader)ret : null;
 	}
 
-	private List<String> getClasspathList() {
+	public List<String> getClasspathList() {
 		List<String> classpathList = new ArrayList<>();
 		List<String> defaultClasspathList = getDefaultClasspathList();
 		List<String> customClasspathList = this.classpathList;

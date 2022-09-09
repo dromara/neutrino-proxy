@@ -21,8 +21,11 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import java.util.HashMap;
-import java.util.Map;
+import fun.asgc.neutrino.core.util.ClassUtil;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+
+import java.net.URL;
+import java.util.*;
 
 /**
  *
@@ -31,9 +34,15 @@ import java.util.Map;
  */
 public class DynamicClassLoader extends ClassLoader {
 	private final Map<String, MemoryByteCode> byteCodes = new HashMap<>();
+	private AsgcCompiler compiler;
 
 	public DynamicClassLoader(ClassLoader classLoader) {
 		super(classLoader);
+	}
+
+	public DynamicClassLoader(AsgcCompiler compiler, ClassLoader classLoader) {
+		super(classLoader);
+		this.compiler = compiler;
 	}
 
 	public void registerCompiledSource(MemoryByteCode byteCode) {
@@ -43,11 +52,47 @@ public class DynamicClassLoader extends ClassLoader {
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		MemoryByteCode byteCode = byteCodes.get(name);
-		if (null == byteCode) {
-			return super.findClass(name);
+		if (null != byteCode) {
+			return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
 		}
+		Class<?> ret = doFindClass(name);
+		if (null != ret) {
+			return ret;
+		}
+		return super.findClass(name);
+	}
 
-		return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
+	private Class<?> doFindClass(String name) throws ClassNotFoundException {
+		if (null == compiler) {
+			return null;
+		}
+		List<String> classpathList = compiler.getClasspathList();
+		if (CollectionUtil.isEmpty(classpathList)) {
+			return null;
+		}
+		String packageName = "";
+		if (name.lastIndexOf(".") != -1) {
+			packageName = name.substring(0, name.lastIndexOf("."));
+		}
+		for (String path : classpathList) {
+			try {
+				URL url = new URL("file:" + path);
+				if (path.endsWith(".jar")) {
+					url = new URL("jar:file:" + path + "!/");
+				}
+				Set<Class<?>> classSet = ClassUtil.scan(packageName, url);
+				if (CollectionUtil.isEmpty(classSet)) {
+					continue;
+				}
+				Optional<Class<?>> classOptional = classSet.stream().filter(c -> c.getName().equals(name)).findFirst();
+				if (classOptional.isPresent()) {
+					return classOptional.get();
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+		return null;
 	}
 
 	public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
