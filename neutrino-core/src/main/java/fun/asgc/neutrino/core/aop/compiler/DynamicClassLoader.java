@@ -40,7 +40,7 @@ public class DynamicClassLoader extends ClassLoader {
 		super(classLoader);
 	}
 
-	public DynamicClassLoader(AsgcCompiler compiler, ClassLoader classLoader) {
+	public DynamicClassLoader(ClassLoader classLoader, AsgcCompiler compiler) {
 		super(classLoader);
 		this.compiler = compiler;
 	}
@@ -55,18 +55,16 @@ public class DynamicClassLoader extends ClassLoader {
 		if (null != byteCode) {
 			return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
 		}
-		Class<?> ret = doFindClass(name);
-		if (null != ret) {
-			return ret;
+		if (null != this.compiler) {
+			Class<?> ret = doFindClass(name, compiler.getClasspathList());
+			if (null != ret) {
+				return ret;
+			}
 		}
 		return super.findClass(name);
 	}
 
-	private Class<?> doFindClass(String name) throws ClassNotFoundException {
-		if (null == compiler) {
-			return null;
-		}
-		List<String> classpathList = compiler.getClasspathList();
+	private Class<?> doFindClass(String name, List<String> classpathList) throws ClassNotFoundException {
 		if (CollectionUtil.isEmpty(classpathList)) {
 			return null;
 		}

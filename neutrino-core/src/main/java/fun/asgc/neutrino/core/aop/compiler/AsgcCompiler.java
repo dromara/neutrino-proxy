@@ -69,7 +69,7 @@ public class AsgcCompiler {
 		this.standardJavaFileManager = javaCompiler.getStandardFileManager(collector, null, null);
 		this.isSaveClassFile = false;
 		this.generatorCodeSavePath = GlobalConfig.getGeneratorCodeSavePath();
-		this.dynamicClassLoader = new DynamicClassLoader(this, classLoader);
+		this.dynamicClassLoader = new DynamicClassLoader(classLoader, this);
 
 		addOption("-Xlint:unchecked");
 		addOption("-implicit:class");
