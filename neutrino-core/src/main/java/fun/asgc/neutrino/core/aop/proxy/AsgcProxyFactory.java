@@ -91,10 +91,10 @@ public class AsgcProxyFactory implements ProxyFactory {
 	}
 
 	private <T> Class<T> compile(ProxyClass proxyClass) throws ClassNotFoundException {
-		if (SystemUtil.isStartupFromJar() || GlobalConfig.isSaveGeneratorCode()) {
-			compiler.compileToFile(proxyClass);
-			return (Class<T>)classLoader.loadProxyClass(proxyClass);
-		}
+//		if (SystemUtil.isStartupFromJar() || GlobalConfig.isSaveGeneratorCode()) {
+//			compiler.compileToFile(proxyClass);
+//			return (Class<T>)classLoader.loadProxyClass(proxyClass);
+//		}
 		compiler.compile(proxyClass);
 		return (Class<T>)classLoader.loadProxyClass(proxyClass);
 	}

@@ -120,6 +120,9 @@ public class ProxyCompiler {
 			}
 		}
 		list.add(GlobalConfig.getGeneratorCodeSavePath() + "BOOT-INF/classes/");
+		if (SystemUtil.isStartupFromJar()) {
+			list.add(SystemUtil.getCurrentJarFilePath());
+		}
 		return list.stream().collect(Collectors.joining(File.pathSeparator));
 	}
 
@@ -138,6 +141,7 @@ public class ProxyCompiler {
 				"Visit https://jfinal.com/doc/4-8 for details \n");
 		}
 
+		System.out.println("=====> classpath:" + getOptions());
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
 		try (MyJavaFileManager javaFileManager = new MyJavaFileManager(compiler.getStandardFileManager(collector, null, null))) {
 
