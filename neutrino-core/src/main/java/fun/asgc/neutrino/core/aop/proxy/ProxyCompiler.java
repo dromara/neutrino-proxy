@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  * @date: 2022/6/24
  */
 @Slf4j
+@Deprecated
 public class ProxyCompiler {
 	/**
 	 * 收集编译过程信息
