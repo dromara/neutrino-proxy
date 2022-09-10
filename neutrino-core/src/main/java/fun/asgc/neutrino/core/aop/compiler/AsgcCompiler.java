@@ -24,6 +24,7 @@ package fun.asgc.neutrino.core.aop.compiler;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,6 +79,9 @@ public class AsgcCompiler {
 	}
 
 	public void addClasspath(String classpath) {
+		if (this.classpathList.contains(classpath)) {
+			return;
+		}
 		this.classpathList.add(classpath);
 	}
 
@@ -128,7 +132,15 @@ public class AsgcCompiler {
 	public Class<?> compile(String pkg, String className, String sourceCode) throws ClassNotFoundException {
 		log.info("options:" + getOptions());
 		JavaFileManager javaFileManager = new DynamicJavaFileManager(standardJavaFileManager, dynamicClassLoader);
-		Boolean result = javaCompiler.getTask(null, javaFileManager, collector, getOptions(), null, Lists.newArrayList(new StringSource(className, sourceCode))).call();
+		Iterable<? extends JavaFileObject> compilationUnits = Lists.newArrayList(new StringSource(className, sourceCode));
+		if (GlobalConfig.isSaveGeneratorCode()) {
+			javaFileManager = standardJavaFileManager;
+			File file = FileUtil.save(GlobalConfig.getGeneratorCodeSavePath() + pkg.replaceAll("\\.", "/"), className + ".java", sourceCode);
+			compilationUnits = standardJavaFileManager.getJavaFileObjects(file);
+			addClasspath(GlobalConfig.getGeneratorCodeSavePath());
+		}
+
+		Boolean result = javaCompiler.getTask(null, javaFileManager, collector, getOptions(), null, compilationUnits).call();
 		if (!result || collector.getDiagnostics().size() > 0) {
 			if (!result || collector.getDiagnostics().size() > 0) {
 				for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {

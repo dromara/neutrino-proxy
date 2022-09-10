@@ -21,11 +21,22 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
+import fun.asgc.neutrino.core.base.GlobalConfig;
+import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.ClassUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.FileUtil;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  *
@@ -35,6 +46,7 @@ import java.util.*;
 public class DynamicClassLoader extends ClassLoader {
 	private final Map<String, MemoryByteCode> byteCodes = new HashMap<>();
 	private AsgcCompiler compiler;
+	private Map<String, Class<?>> classMap = new HashMap<>();
 
 	public DynamicClassLoader(ClassLoader classLoader) {
 		super(classLoader);
@@ -51,6 +63,9 @@ public class DynamicClassLoader extends ClassLoader {
 
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		if (classMap.containsKey(name)) {
+			return classMap.get(name);
+		}
 		MemoryByteCode byteCode = byteCodes.get(name);
 		if (null != byteCode) {
 			return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
@@ -78,7 +93,7 @@ public class DynamicClassLoader extends ClassLoader {
 				if (path.endsWith(".jar")) {
 					url = new URL("jar:file:" + path + "!/");
 				}
-				Set<Class<?>> classSet = ClassUtil.scan(packageName, url);
+				Set<Class<?>> classSet = scan(packageName, url);
 				if (CollectionUtil.isEmpty(classSet)) {
 					continue;
 				}
@@ -91,6 +106,69 @@ public class DynamicClassLoader extends ClassLoader {
 			}
 		}
 		return null;
+	}
+
+	public Set<Class<?>> scan(String packageName, URL url) throws IOException, ClassNotFoundException, URISyntaxException {
+		Set<Class<?>> result = new HashSet<>();
+		if (null == url) {
+			return result;
+		}
+		String packagePath = packageName.replace(".", "/");
+		URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{url}, Thread.currentThread().getContextClassLoader());
+		String protocol = url.getProtocol();
+		if ("jar".equals(protocol)) {
+			JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+			JarFile jarFile = jarURLConnection.getJarFile();
+			Enumeration<JarEntry> entries = jarFile.entries();
+			while (entries.hasMoreElements()) {
+				JarEntry jarEntry = entries.nextElement();
+				String name = jarEntry.getName();
+				int index = name.indexOf(packagePath);
+				if (index != -1 && name.endsWith(".class")) {
+					String replace = name.substring(index, name.length() - 6).replace("/", ".");
+					Class clazz = urlClassLoader.loadClass(replace);
+					result.add(clazz);
+				}
+			}
+		} else if ("file".endsWith(protocol)) {
+			String path = url.getPath();
+			String targetPath = path + "/" + packagePath;
+			addClasses(targetPath, result, packageName);
+		}
+		return result;
+	}
+
+	private synchronized void addClasses(String path, Set<Class<?>> classes, String packageName) throws ClassNotFoundException, URISyntaxException {
+		File[] files = new File(path).listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				return (file.isFile() && file.getName().endsWith(".class")) || file.isDirectory();
+			}
+		});
+		if (ArrayUtil.isEmpty(files)) {
+			return;
+		}
+
+		for (File file : files) {
+			String fileName = file.getName();
+			if (file.isFile()) {
+				String className = fileName.substring(0, fileName.lastIndexOf("."));
+				String fullClassName = packageName + "." + className;
+				Class clazz = null;
+				if (path.startsWith(GlobalConfig.getGeneratorCodeSavePath())) {
+					byte[] byteCode = FileUtil.readBytes(file);
+					clazz = super.defineClass(fullClassName, byteCode, 0, byteCode.length);
+					this.classMap.put(fullClassName, clazz);
+				} else {
+					clazz = Thread.currentThread().getContextClassLoader().loadClass(fullClassName);
+				}
+				classes.add(clazz);
+			} else {
+				String subPackagePath = path + "/" + fileName;
+				String subPackageName = packageName + "." + fileName;
+				addClasses(subPackagePath, classes, subPackageName);
+			}
+		}
 	}
 
 	public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
