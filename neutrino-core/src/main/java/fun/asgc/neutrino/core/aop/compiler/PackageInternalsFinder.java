@@ -21,8 +21,6 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import fun.asgc.neutrino.core.util.CollectionUtil;
-
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;

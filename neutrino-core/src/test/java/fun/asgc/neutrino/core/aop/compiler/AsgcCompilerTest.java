@@ -97,6 +97,7 @@ public class AsgcCompilerTest {
 			"\t\tSystem.out.println(\"收音机播放\");\n" +
 			"\t}\n" +
 			"}\n";
+//		GlobalConfig.setIsSaveGeneratorCode(true);
 		Class clazz = compiler.compile("a.b","RadioPlayer", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
 		Object instance = clazz.newInstance();

@@ -21,9 +21,7 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.ArrayUtil;
-import fun.asgc.neutrino.core.util.ClassUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 
@@ -155,14 +153,20 @@ public class DynamicClassLoader extends ClassLoader {
 				String className = fileName.substring(0, fileName.lastIndexOf("."));
 				String fullClassName = packageName + "." + className;
 				Class clazz = null;
-				if (path.startsWith(GlobalConfig.getGeneratorCodeSavePath())) {
-					byte[] byteCode = FileUtil.readBytes(file);
-					clazz = super.defineClass(fullClassName, byteCode, 0, byteCode.length);
-					this.classMap.put(fullClassName, clazz);
-				} else {
+				try {
 					clazz = Thread.currentThread().getContextClassLoader().loadClass(fullClassName);
+				} catch (ClassNotFoundException e) {
+					if (this.classMap.containsKey(fullClassName)) {
+						clazz = this.classMap.get(fileName);
+					} else {
+						byte[] byteCode = FileUtil.readBytes(file);
+						clazz = super.defineClass(fullClassName, byteCode, 0, byteCode.length);
+						this.classMap.put(fullClassName, clazz);
+					}
 				}
-				classes.add(clazz);
+				if (null != clazz) {
+					classes.add(clazz);
+				}
 			} else {
 				String subPackagePath = path + "/" + fileName;
 				String subPackageName = packageName + "." + fileName;
