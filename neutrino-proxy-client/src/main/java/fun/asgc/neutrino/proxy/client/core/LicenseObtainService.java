@@ -98,6 +98,7 @@ public class LicenseObtainService implements ApplicationRunner {
 			for (String s : args) {
 				if (s.startsWith("license=") && s.length() > 8) {
 					license = s.substring(8).trim();
+					break;
 				}
 			}
 		}
