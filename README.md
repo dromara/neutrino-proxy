@@ -1,7 +1,7 @@
 # 1、简介
 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 
-# 2、示例截图
+# 2、运行示例
 ![用户管理](assets/user-manager1.png)
 ![端口池管理](assets/port-pool1.png)
 ![License管理](assets/license1.png)
