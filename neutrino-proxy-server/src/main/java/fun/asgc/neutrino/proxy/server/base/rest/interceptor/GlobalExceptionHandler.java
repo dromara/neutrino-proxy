@@ -30,7 +30,7 @@ import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
- *
+ * 全局异常处理
  * @author: aoshiguchen
  * @date: 2022/7/31
  */

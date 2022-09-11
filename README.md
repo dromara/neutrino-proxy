@@ -1,7 +1,14 @@
 # 1、简介
 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 
-# 2、项目结构
+# 2、运行示例
+![用户管理](assets/user-manager1.png)
+![端口池管理](assets/port-pool1.png)
+![License管理](assets/license1.png)
+![端口映射管理](assets/port-mapping1.png)
+![客户端启动示例](assets/client-run1.png)
+
+# 3、项目结构
 - neutrino-proxy 
     - neutrino-core     与代理无关的基础封装
     - neutrino-proxy-core       与代理相关的公共常量、编解码器
@@ -9,13 +16,13 @@
     - neutrino-proxy-server     代理服务端项目
     - neutrino-proxy-admin      代理监控项目（基于vue-element-admin开发）
 
-# 3、运行
-## 3.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
+# 4、运行
+## 4.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
 ```shell
 keytool -genkey -alias test1 -keyalg RSA -keysize 1024 -validity 3650 -keypass 123456 -storepass 123456 -keystore  "./test.jks"
 ```
 
-## 3.2、修改服务端配置（application.yml）
+## 4.2、修改服务端配置（application.yml）
 ```yml
 application:
   name: neutrino-proxy-server
@@ -39,18 +46,18 @@ proxy:
     key-store-password: 123456
     key-manager-password: 123456
     # 证书存放路径，若不想打进jar包，可不带classpath:前缀
-    jks-path: classpath:/test.jks
-  # license配置, 客户端连接时需要用这个进行校验
-  license:
-    # license数为3表示用该license连接的客户端最多可代理3个端口，-1为不限
-    79419a1a8691413aa5e845b9e3e90051: 3
-    9352b1c25f564c81a5677131d7769876: 2
+    jks-path: classpath:/test.jks 
+  data:
+    # 数据库配置（不用动，项目自动会自动初始化）
+    sqlite:
+      url: jdbc:sqlite:data.db
+      driver-class: org.sqlite.JDBC
 ```
 
-## 3.3、启动服务端
+## 4.3、启动服务端
 > fun.asgc.neutrino.proxy.server.ProxyServer
 
-## 3.4、修改客户端配置
+## 4.4、修改客户端配置
 ```yml
 application:
   name: neutrino-proxy-client
@@ -76,35 +83,16 @@ proxy:
     server-port: 9000
     # 是否启用ssl，启用则必须配置ssl相关参数
     ssl-enable: false
+    # 获取license提示间隔（秒）
+    obtain-license-interval: 5
 ```
 
-## 3.5、准备代理信息配置文件 config.json
-```
-{
-    "environment": "我的Mac",
-    "clientKey": "79419a1a8691413aa5e845b9e3e90051",  # 对应服务端配置license中的key
-    "proxy": [
-        {
-            "serverPort": 9100,         # 外网服务器对外暴露的端口
-            "clientInfo": "127.0.0.1:3306" # 需要代理的本地端口(mysql)
-        },
-        {
-            "serverPort": 9101, # 外网服务器对外暴露的端口
-            "clientInfo": "rm-xxxx.mysql.rds.aliyuncs.com:3306" # 代理外网端口本身无意义，仅供测试
-        },
-        {
-            "serverPort": 9102, # 外网服务器对外暴露的端口
-            "clientInfo": "127.0.0.1:8080" # 需要代理的本地端口(http)
-        }
-    ]
-}
-```
-
-## 3.6、启动客户端
+## 4.6、启动客户端
 > fun.asgc.neutrino.proxy.client.ProxyClient
-默认情况下，客户端会加载当前目录下的config.json文件作为代理配置，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar /xxx/proxy.json
+默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
+若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
 
-# 4、未来迭代方向
+# 5、未来迭代方向
 - 优化代码、增强稳定性
 - 服务端增加管理页面，提供报表、授权、限流等功能
 - 从项目中分离、孵化出另一个开源项目(neutrino-framework)
@@ -112,12 +100,12 @@ proxy:
 # 5、技术文档
 - [Aop](./docs/Aop.MD)
 
-# 6、联系我们
+# 7、联系我们
 - 微信: yuyunshize
 - Gitee(主更): https://gitee.com/asgc/neutrino-proxy
 - Github: https://github.com/aoshiguchen/neutrino-proxy
 
-# 7、特别鸣谢
-* [JetBrains](https://www.jetbrains.com?from=neutrino-proxy)
+# 8、特别鸣谢
+* [JetBrains](https://www.jetbrains.com?from=RedisFront)
 
 ![JenBrains logo](assets/jetbrains.svg)

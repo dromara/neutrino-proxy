@@ -25,6 +25,8 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +71,14 @@ public class ClassUtilTest {
 		public void hello() {
 			System.out.println("hello");
 		}
+	}
+
+	@Test
+	public void scan() throws Exception {
+		String path = "jar:file:/Users/yangwen/my/tmp/java/neutrino-proxy-server-1.0-SNAPSHOT-jar-with-dependencies.jar!/";
+		URL url = new URL(path);
+		Set<Class<?>> c = ClassUtil.scan("fun.asgc.neutrino.proxy.server", url);
+		System.out.println(c);
 	}
 
 }

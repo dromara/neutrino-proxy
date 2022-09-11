@@ -25,7 +25,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- *
+ * 响应体
  * @author: aoshiguchen
  * @date: 2022/7/31
  */

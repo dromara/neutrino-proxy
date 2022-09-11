@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.aop.compiler.AsgcCompiler;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class AsgcProxyFactory implements ProxyFactory {
 	private static final String SYMBOLIC = "AsgcProxy$$";
 	private static final String classNameTemplate = "%s" + SYMBOLIC + "%s";
 	private static AtomicLong proxyClassCounter = new AtomicLong();
-	private ProxyCompiler compiler = new ProxyCompiler();
+	private AsgcCompiler compiler = new AsgcCompiler();
 	private ProxyClassLoader classLoader = new ProxyClassLoader();
 
 	@Override
@@ -85,18 +86,9 @@ public class AsgcProxyFactory implements ProxyFactory {
 		if (GlobalConfig.isPrintGeneratorCode()) {
 			log.debug("类:{} 的代理类源码:\n{}", targetType.getName(), sourceCode);
 		}
-		Class<P> retClass = compile(proxyClass);
+		Class<P> retClass = (Class<P>)compiler.compile(proxyClass.getPkg(), proxyClass.getName(), proxyClass.getSourceCode());
 		P obj = retClass.newInstance();
 		return obj;
-	}
-
-	private <T> Class<T> compile(ProxyClass proxyClass) throws ClassNotFoundException {
-		if (SystemUtil.isStartupFromJar() || GlobalConfig.isSaveGeneratorCode()) {
-			compiler.compileToFile(proxyClass);
-			return (Class<T>)classLoader.loadProxyClass(proxyClass);
-		}
-		compiler.compile(proxyClass);
-		return (Class<T>)classLoader.loadProxyClass(proxyClass);
 	}
 
 	private String generateClassName(Class<?> clazz) {

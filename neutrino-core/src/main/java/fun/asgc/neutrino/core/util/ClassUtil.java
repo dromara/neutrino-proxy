@@ -128,37 +128,48 @@ public class ClassUtil {
 		}
 		log.info("开始进行类扫描，扫描包：{}", packageName);
 		Set<Class<?>> classes = new HashSet<>();
-		String packagePath = packageName.replace(".", "/");
 		Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("");
 		while (resources.hasMoreElements()) {
-			URL url = resources.nextElement();
-			URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{url}, Thread.currentThread().getContextClassLoader());
-			log.info(url.toString());
-			String protocol = url.getProtocol();
-			if ("jar".equals(protocol)) {
-				JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
-				JarFile jarFile = jarURLConnection.getJarFile();
-				Enumeration<JarEntry> entries = jarFile.entries();
-				while (entries.hasMoreElements()) {
-					JarEntry jarEntry = entries.nextElement();
-					String name = jarEntry.getName();
-					int index = name.indexOf(packagePath);
-					if (index != -1 && name.endsWith(".class")) {
-						String replace = name.substring(index, name.length() - 6).replace("/", ".");
-						Class clazz = urlClassLoader.loadClass(replace);
-						log.debug("scan class {}", clazz.getName());
-						classes.add(clazz);
-					}
-				}
-			} else if ("file".endsWith(protocol)) {
-				String path = url.getPath();
-				String targetPath = path + "/" + packagePath;
-				addClasses(targetPath, classes, packageName);
-			}
+			classes.addAll(scan(packageName, resources.nextElement()));
+		}
+		if (SystemUtil.isStartupFromJar()) {
+			classes.addAll(scan(packageName, new URL("jar:file:" + SystemUtil.getCurrentJarFilePath()  + "!/")));
 		}
 		log.info("扫描完毕，包：{}下一共有:{}个类", packageName, classes.size());
 		classesCache.set(packageName, classes);
 		return classes;
+	}
+
+	public static Set<Class<?>> scan(String packageName, URL url) throws IOException, ClassNotFoundException {
+		Set<Class<?>> result = new HashSet<>();
+		if (null == url) {
+			return result;
+		}
+		String packagePath = packageName.replace(".", "/");
+		URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{url}, Thread.currentThread().getContextClassLoader());
+		log.info(url.toString());
+		String protocol = url.getProtocol();
+		if ("jar".equals(protocol)) {
+			JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+			JarFile jarFile = jarURLConnection.getJarFile();
+			Enumeration<JarEntry> entries = jarFile.entries();
+			while (entries.hasMoreElements()) {
+				JarEntry jarEntry = entries.nextElement();
+				String name = jarEntry.getName();
+				int index = name.indexOf(packagePath);
+				if (index != -1 && name.endsWith(".class")) {
+					String replace = name.substring(index, name.length() - 6).replace("/", ".");
+					Class clazz = urlClassLoader.loadClass(replace);
+					log.debug("scan class {}", clazz.getName());
+					result.add(clazz);
+				}
+			}
+		} else if ("file".endsWith(protocol)) {
+			String path = url.getPath();
+			String targetPath = path + "/" + packagePath;
+			addClasses(targetPath, result, packageName);
+		}
+		return result;
 	}
 
 	private static void addClasses(String path, Set<Class<?>> classes, String packageName) throws ClassNotFoundException {

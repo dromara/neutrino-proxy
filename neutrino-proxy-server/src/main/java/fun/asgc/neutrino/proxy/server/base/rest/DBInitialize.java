@@ -33,14 +33,14 @@ import java.sql.DriverManager;
 import java.util.List;
 
 /**
- *
- * @author: 初始化数据库
+ * 初始化数据库
+ * @author: aoshiguchen
  * @date: 2022/7/31
  */
 @Slf4j
 @PreLoad("init")
 public class DBInitialize {
-	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping", "job_qrtz_trigger_info");
+	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping", "job_info");
 	private static SqliteConfig sqliteConfig;
 	private static JdbcTemplate jdbcTemplate;
 

@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * 鉴权注解
  * @author: aoshiguchen
  * @date: 2022/7/31
  */

@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- *
+ * 连接类型枚举
  * @author: aoshiguchen
  * @date: 2022/8/31
  */

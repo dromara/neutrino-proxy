@@ -88,15 +88,16 @@ public class AsgcCompilerTest {
 		compiler.addClasspath("/Users/yangwen/my/tmp/java");
 		compiler.addClasspath("/Users/yangwen/my/tmp/java/asgc-package-lab1-1.0-SNAPSHOT.jar");
 		String code = "package a.b;\n" +
-			"import fun.asgc.lab.pkg.lab1.Dog1;\n" +
+			"import fun.asgc.lab.pkg.lab1.Dog;\n" +
 			"import fun.asgc.cptest.Player;\n" +
 			"public class RadioPlayer implements Player {\n" +
 			"\tpublic void play() {\n" +
-//			"\t\tSystem.out.println(Dog.class);\n" +
-//			"\t\tSystem.out.println(new Dog(\"大黄\").eat(\"骨头\"));\n" +
+			"\t\tSystem.out.println(Dog.class);\n" +
+			"\t\tSystem.out.println(new Dog(\"大黄\").eat(\"骨头\"));\n" +
 			"\t\tSystem.out.println(\"收音机播放\");\n" +
 			"\t}\n" +
 			"}\n";
+//		GlobalConfig.setIsSaveGeneratorCode(true);
 		Class clazz = compiler.compile("a.b","RadioPlayer", code);
 		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("play")).findFirst().get();
 		Object instance = clazz.newInstance();

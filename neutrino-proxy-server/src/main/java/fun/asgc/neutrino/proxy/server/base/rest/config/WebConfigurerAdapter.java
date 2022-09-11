@@ -29,7 +29,7 @@ import fun.asgc.neutrino.core.web.interceptor.RestControllerAdviceHandler;
 import fun.asgc.neutrino.proxy.server.base.rest.interceptor.*;
 
 /**
- *
+ * web配置
  * @author: aoshiguchen
  * @date: 2022/7/30
  */

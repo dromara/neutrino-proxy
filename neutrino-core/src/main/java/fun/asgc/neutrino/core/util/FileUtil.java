@@ -111,16 +111,28 @@ public class FileUtil {
 	 */
 	public static byte[] readBytes(String path) {
 		try (InputStream in = getInputStream(path)){
-			byte[] bytes = new byte[1024];
-			int length = 0;
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			while ((length = in.read(bytes)) != -1) {
-				baos.write(bytes, 0, length);
-			}
-			return baos.toByteArray();
+			return readBytes(in);
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public static byte[] readBytes(File file) {
+		try (InputStream in = new FileInputStream(file)){
+			return readBytes(in);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static byte[] readBytes(InputStream in) throws IOException {
+		byte[] bytes = new byte[1024];
+		int length = 0;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		while ((length = in.read(bytes)) != -1) {
+			baos.write(bytes, 0, length);
+		}
+		return baos.toByteArray();
 	}
 
 	public static void write(String path, String content) {

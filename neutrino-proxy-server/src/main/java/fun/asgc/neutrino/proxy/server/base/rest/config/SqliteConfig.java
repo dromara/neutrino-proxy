@@ -28,7 +28,7 @@ import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;
 
 /**
- *
+ * sqlite数据库配置
  * @author: aoshiguchen
  * @date: 2022/7/31
  */

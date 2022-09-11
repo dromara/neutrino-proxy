@@ -34,7 +34,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * 定时任务配置
  * @author: aoshiguchen
  * @date: 2022/9/4
  */

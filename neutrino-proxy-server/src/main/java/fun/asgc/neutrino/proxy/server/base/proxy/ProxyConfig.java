@@ -29,14 +29,20 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- *
+ * 服务端代理配置
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
 @Data
 @Configuration(prefix = "neutrino.proxy")
 public class ProxyConfig {
+	/**
+	 * 传输协议相关配置
+	 */
 	private Protocol protocol;
+	/**
+	 * 服务端配置
+	 */
 	private Server server;
 
 	@Data
