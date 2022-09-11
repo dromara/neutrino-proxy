@@ -90,7 +90,7 @@ proxy:
 ## 4.6、启动客户端
 > fun.asgc.neutrino.proxy.client.ProxyClient
 默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
-若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、示例截图](#2)
+若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
 
 # 5、未来迭代方向
 - 优化代码、增强稳定性
