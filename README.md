@@ -1,14 +1,21 @@
 # 1、简介
 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 
-# 2、运行示例
+# 2、名称由来
+中微子，是轻子的一种，是组成自然界的最基本的粒子之一。它十分微小、不带电，可自由穿过地球，以接近光速运动，与其他物质的相互作用十分微弱，号称宇宙间的“隐身人”。
+
+中微子是宇宙中穿透能力最强的物质,只有粒子之间的间隙小于10的负19次方米时,才能够阻挡住中微子。
+
+因此以中微子命名，寓意着中微子代理拥有中微子"安全"、"快速"、"穿透力强"的特点。
+
+# 3、运行示例
 ![用户管理](assets/user-manager1.png)
 ![端口池管理](assets/port-pool1.png)
 ![License管理](assets/license1.png)
 ![端口映射管理](assets/port-mapping1.png)
 ![客户端启动示例](assets/client-run1.png)
 
-# 3、项目结构
+# 4、项目结构
 - neutrino-proxy 
     - neutrino-core     与代理无关的基础封装
     - neutrino-proxy-core       与代理相关的公共常量、编解码器
@@ -16,13 +23,13 @@
     - neutrino-proxy-server     代理服务端项目
     - neutrino-proxy-admin      代理监控项目（基于vue-element-admin开发）
 
-# 4、运行
-## 4.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
+# 5、运行
+## 5.1、使用keytool工具生成ssl证书, 若不需要ssl加密可跳过
 ```shell
 keytool -genkey -alias test1 -keyalg RSA -keysize 1024 -validity 3650 -keypass 123456 -storepass 123456 -keystore  "./test.jks"
 ```
 
-## 4.2、修改服务端配置（application.yml）
+## 5.2、修改服务端配置（application.yml）
 ```yml
 application:
   name: neutrino-proxy-server
@@ -54,10 +61,10 @@ proxy:
       driver-class: org.sqlite.JDBC
 ```
 
-## 4.3、启动服务端
+## 5.3、启动服务端
 > fun.asgc.neutrino.proxy.server.ProxyServer
 
-## 4.4、修改客户端配置
+## 5.4、修改客户端配置
 ```yml
 application:
   name: neutrino-proxy-client
@@ -87,25 +94,25 @@ proxy:
     obtain-license-interval: 5
 ```
 
-## 4.6、启动客户端
+## 5.5、启动客户端
 > fun.asgc.neutrino.proxy.client.ProxyClient
 默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
 若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
 
-# 5、未来迭代方向
+# 6、未来迭代方向
 - 优化代码、增强稳定性
 - 服务端增加管理页面，提供报表、授权、限流等功能
 - 从项目中分离、孵化出另一个开源项目(neutrino-framework)
 
-# 5、技术文档
+# 7、技术文档
 - [Aop](./docs/Aop.MD)
 
-# 7、联系我们
+# 8、联系我们
 - 微信: yuyunshize
 - Gitee(主更): https://gitee.com/asgc/neutrino-proxy
 - Github: https://github.com/aoshiguchen/neutrino-proxy
 
-# 8、特别鸣谢
+# 9、特别鸣谢
 * [JetBrains](https://www.jetbrains.com?from=RedisFront)
 
 ![JenBrains logo](assets/jetbrains.svg)
