@@ -33,8 +33,8 @@ import java.sql.DriverManager;
 import java.util.List;
 
 /**
- *
- * @author: 初始化数据库
+ * 初始化数据库
+ * @author: aoshiguchen
  * @date: 2022/7/31
  */
 @Slf4j

@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- *
+ * 异常常量枚举
  * @author: aoshiguchen
  * @date: 2022/7/31
  */

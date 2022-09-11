@@ -24,7 +24,7 @@ package fun.asgc.neutrino.proxy.server.base.rest;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 /**
- *
+ * 系统上下文持有者
  * @author: aoshiguchen
  * @date: 2022/8/2
  */

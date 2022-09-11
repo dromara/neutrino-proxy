@@ -26,7 +26,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- *
+ * 服务异常
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
