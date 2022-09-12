@@ -36,7 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * asgc编译器
  * @author: aoshiguchen
  * @date: 2022/8/17
  */
@@ -58,10 +58,17 @@ public class AsgcCompiler {
 	private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<Diagnostic<? extends JavaFileObject>>();
 	private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<Diagnostic<? extends JavaFileObject>>();
 
+	/**
+	 * 构造编译器
+	 */
 	public AsgcCompiler() {
 		this(ClassLoader.getSystemClassLoader());
 	}
 
+	/**
+	 * 构造编译器
+	 * @param classLoader
+	 */
 	public AsgcCompiler(ClassLoader classLoader) {
 		if (null == javaCompiler) {
 			throw new RuntimeException("Can not load JavaCompiler from javax.tools.ToolProvider#getSystemJavaCompiler(),\n please confirm the application running in JDK not JRE.");
@@ -78,6 +85,10 @@ public class AsgcCompiler {
 		addOption("-target", "1.8");
 	}
 
+	/**
+	 * 添加类路径
+	 * @param classpath
+	 */
 	public void addClasspath(String classpath) {
 		if (this.classpathList.contains(classpath)) {
 			return;
@@ -85,18 +96,34 @@ public class AsgcCompiler {
 		this.classpathList.add(classpath);
 	}
 
+	/**
+	 * 设置是否保存类文件
+	 * @param saveClassFile
+	 */
 	public void setSaveClassFile(boolean saveClassFile) {
 		this.isSaveClassFile = saveClassFile;
 	}
 
+	/**
+	 * 设置是否保存源代码文件
+	 * @param saveSourceCodeFile
+	 */
 	public void setSaveSourceCodeFile(boolean saveSourceCodeFile) {
 		isSaveSourceCodeFile = saveSourceCodeFile;
 	}
 
+	/**
+	 * 设置保存代码路径
+	 * @param generatorCodeSavePath
+	 */
 	public void setGeneratorCodeSavePath(String generatorCodeSavePath) {
 		this.generatorCodeSavePath = generatorCodeSavePath;
 	}
 
+	/**
+	 * 获取options
+	 * @return
+	 */
 	private List<String> getOptions() {
 		List<String> list = Lists.newArrayList(options);
 		List<String> cp = getClasspathList();
@@ -107,19 +134,37 @@ public class AsgcCompiler {
 		return list;
 	}
 
+	/**
+	 * 添加option
+	 * @param option
+	 */
 	private void addOption(String option) {
 		this.options.add(option);
 	}
 
+	/**
+	 * 添加option
+	 * @param key
+	 * @param val
+	 */
 	private void addOption(String key, String val) {
 		this.options.add(key);
 		this.options.add(val);
 	}
 
+	/**
+	 * 添加源代码
+	 * @param className
+	 * @param source
+	 */
 	private void addSource(String className, String source) {
 		addSource(new StringSource(className, source));
 	}
 
+	/**
+	 * 添加源代码
+	 * @param javaFileObject
+	 */
 	private void addSource(JavaFileObject javaFileObject) {
 		compilationUnits.add(javaFileObject);
 	}
@@ -165,6 +210,11 @@ public class AsgcCompiler {
 		return dynamicClassLoader.findClass(pkg + "." + className);
 	}
 
+	/**
+	 * 获取编译诊断信息
+	 * @param diagnostics
+	 * @return
+	 */
 	private List<String> diagnosticToString(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
 
 		List<String> diagnosticMessages = new ArrayList<String>();
@@ -178,14 +228,25 @@ public class AsgcCompiler {
 
 	}
 
+	/**
+	 * 获取异常信息
+	 * @return
+	 */
 	public List<String> getErrors() {
 		return diagnosticToString(errors);
 	}
 
+	/**
+	 * 获取警告信息
+	 * @return
+	 */
 	public List<String> getWarnings() {
 		return diagnosticToString(warnings);
 	}
 
+	/**
+	 * 打印编译日志
+	 */
 	private void log() {
 		List<String> warnings = getWarnings();
 		List<String> errors = getErrors();
@@ -193,10 +254,14 @@ public class AsgcCompiler {
 //			log.warn(warnings.stream().collect(Collectors.joining()));
 //		}
 		if (!CollectionUtil.isEmpty(errors)) {
-			log.warn(errors.stream().collect(Collectors.joining()));
+			log.error(errors.stream().collect(Collectors.joining()));
 		}
 	}
 
+	/**
+	 * 获取URL类路径加载器
+	 * @return
+	 */
 	private URLClassLoader getURLClassLoader() {
 		ClassLoader ret = Thread.currentThread().getContextClassLoader();
 		if (null == ret) {
@@ -205,6 +270,10 @@ public class AsgcCompiler {
 		return (ret instanceof URLClassLoader) ? (URLClassLoader)ret : null;
 	}
 
+	/**
+	 * 获取类路径列表
+	 * @return
+	 */
 	public List<String> getClasspathList() {
 		List<String> classpathList = new ArrayList<>();
 		List<String> defaultClasspathList = getDefaultClasspathList();
@@ -218,6 +287,10 @@ public class AsgcCompiler {
 		return classpathList;
 	}
 
+	/**
+	 * 获取默认的类路径列表
+	 * @return
+	 */
 	private synchronized List<String> getDefaultClasspathList() {
 		if (!CollectionUtil.isEmpty(defaultClassPathList)) {
 			return defaultClassPathList;

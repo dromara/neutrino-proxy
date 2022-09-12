@@ -29,7 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- *
+ * 内存字节码
  * @author: aoshiguchen
  * @date: 2022/8/25
  */
