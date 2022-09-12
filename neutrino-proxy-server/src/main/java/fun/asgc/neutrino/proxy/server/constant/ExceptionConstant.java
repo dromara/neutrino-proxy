@@ -51,6 +51,8 @@ public enum ExceptionConstant {
 	// 端口映射管理(14000)
 	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
 	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),
+	// 调度管理(15000)
+	JOB_INFO_NOT_EXIST(15000, "调度管理记录不存在"),
 	SYSTEM_ERROR(500, "系统异常"),
 	;
 

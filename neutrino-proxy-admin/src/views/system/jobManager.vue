@@ -2,19 +2,27 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
-              style="width: 100%">
+    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row style="width: 100%">
       <el-table-column align="center" :label="$t('table.id')" width="100">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.port')" width="200">
+      <el-table-column align="center" :label="$t('table.desc')" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.port}}</span>
+          <span>{{scope.row.desc}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.handler')" width="200">
+        <template slot-scope="scope">
+          <span>{{scope.row.handler}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.cron')" width="200">
+        <template slot-scope="scope">
+          <span>{{scope.row.cron}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
@@ -34,71 +42,41 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
-          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-<!--          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
-            <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px"/>
+          <el-button size="mini" type="primary" @click="handleExecuteClick(scope.row)">执行</el-button>
+          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{'停止'}}</el-button>
+          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{'启动'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
-
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.currentPage"
                      :page-sizes="[10,20,30, 50]" :page-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('table.port')" prop="port">
-          <el-input v-model="temp.port"></el-input>
+    <el-dialog title="执行" :visible.sync="executeVisible">
+      <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px">
+        <el-form-item :label="$t('table.jobParam')" prop="param">
+          <el-input v-model="temp.param" type="textarea" :rows="4" placeholder="请输入任务执行参数" :maxlength="200" show-word-limit style="padding-right: 20px"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
+        <el-button @click="executeVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="commitExecute">{{$t('table.confirm')}}</el-button>
       </div>
-    </el-dialog>
-
-    <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"> </el-table-column>
-        <el-table-column prop="pv" label="Pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>
-      </span>
     </el-dialog>
 
   </div>
 </template>
 
 <script>
-  import { fetchList, updateEnableStatus, createPortPool, deletePortPool } from '@/api/portPool'
+  import { fetchList, updateEnableStatus, execute } from '@/api/jobInfo'
   import waves from '@/directive/waves' // 水波纹指令
-  import { parseTime } from '@/utils'
-  import ButtonPopover from '../../components/Button/buttonPopover'
-
-  const calendarTypeOptions = [
-    { key: 'CN', display_name: 'China' },
-    { key: 'US', display_name: 'USA' },
-    { key: 'JP', display_name: 'Japan' },
-    { key: 'EU', display_name: 'Eurozone' }
-  ]
-
-  // arr to obj ,such as { CN : "China", US : "USA" }
-  const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-    acc[cur.key] = cur.display_name
-    return acc
-  }, {})
 
   export default {
     name: 'jobManager',
     directives: {
       waves
-    },
-    components: {
-      ButtonPopover
     },
     data() {
       return {
@@ -113,39 +91,18 @@
           title: undefined,
           type: undefined
         },
-        importanceOptions: [1, 2, 3],
-        calendarTypeOptions,
-        sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-        statusOptions: ['published', 'draft', 'deleted'],
-        showReviewer: false,
         temp: {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          type: '',
-          status: 'published'
+          id: '',
+          param: ''
         },
-        dialogFormVisible: false,
-        dialogStatus: '',
-        textMap: {
-          update: '编辑',
-          create: '新建'
-        },
-        dialogPvVisible: false,
-        pvData: [],
-        rules: {
-          port: [{ required: true, message: '端口必填', trigger: 'blur' }]
-        },
-        downloadLoading: false
+        executeVisible: false
       }
     },
     filters: {
       statusName(status) {
         const statusMap = {
-          1: '启用',
-          2: '禁用'
+          1: '启动',
+          2: '停止'
         }
         return statusMap[status]
       },
@@ -155,9 +112,6 @@
           2: 'danger'
         }
         return statusMap[status]
-      },
-      typeFilter(type) {
-        return calendarTypeKeyValue[type]
       }
     },
     created() {
@@ -185,7 +139,6 @@
         this.getList()
       },
       handleModifyStatus(row, enable) {
-        console.log('route', this.$route)
         updateEnableStatus(row.id, enable).then(response => {
           if (response.data.data.code === 0) {
             this.$message({
@@ -196,83 +149,21 @@
           this.getList()
         })
       },
-      resetTemp() {
-        this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
-        }
+      handleExecuteClick(row) {
+        this.temp.id = row.id
+        this.temp.param = row.param
+        this.executeVisible = true
       },
-      handleCreate() {
-        this.resetTemp()
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      createData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            createPortPool(this.temp).then(response => {
-              if (response.data.code === 0) {
-                this.dialogFormVisible = false
-                this.$notify({
-                  title: '成功',
-                  message: '创建成功',
-                  type: 'success',
-                  duration: 2000
-                })
-                this.getList()
-              }
-            })
-          }
-        })
-      },
-      handleUpdate(row) {
-        this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
-        this.dialogStatus = 'update'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      handleDelete(row) {
-        deletePortPool(row.id).then(response => {
+      commitExecute() {
+        execute(this.temp).then(response => {
           if (response.data.code === 0) {
-            this.$notify({
-              title: '成功',
-              message: '删除成功',
-              type: 'success',
-              duration: 2000
+            this.executeVisible = false
+            this.$message({
+              message: '操作成功',
+              type: 'success'
             })
-            this.getList()
           }
         })
-      },
-      handleDownload() {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-          const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-          const data = this.formatJson(filterVal, this.list)
-          excel.export_json_to_excel(tHeader, data, 'table-list')
-          this.downloadLoading = false
-        })
-      },
-      formatJson(filterVal, jsonData) {
-        return jsonData.map(v => filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
-          } else {
-            return v[j]
-          }
-        }))
       }
     }
   }

@@ -125,7 +125,13 @@ export default {
     isOnline: '在线状态',
     enableStatus: '启用状态',
     serverPort: '服务端口',
-    proxyClient: '代理客户端'
+    proxyClient: '代理客户端',
+    desc: '描述',
+    handler: '处理器',
+    cron: 'cron',
+    jobParam: '任务参数',
+    alarmEmail: '任务报警邮箱',
+    alarmDing: '任务报警钉钉'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

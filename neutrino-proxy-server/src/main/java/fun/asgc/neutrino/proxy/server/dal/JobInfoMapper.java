@@ -22,8 +22,18 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
+import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
+
+import java.util.Date;
 
 /**
  *
@@ -34,4 +44,13 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 @Component
 public interface JobInfoMapper extends SqlMapper {
 
+    @ResultType(JobInfoListRes.class)
+    @Select("select * from job_info")
+    void page(Page page, JobInfoListReq req);
+
+    @Select("select * from job_info where id = ?")
+    JobInfoDO findById(Integer id);
+
+    @Update("update `job_info` set enable = :enable,update_time = :updateTime where id = :id")
+    void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 }

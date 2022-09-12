@@ -21,9 +21,22 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
 
 /**
  *
@@ -35,4 +48,19 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JobInfoService {
 
+    @Autowired
+    private JobInfoMapper jobInfoMapper;
+
+    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+        Page<JobInfoListRes> page = Page.create(pageQuery);
+        jobInfoMapper.page(page, req);
+        return page;
+    }
+
+    public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
+        JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
+        ParamCheckUtil.checkExpression(null != jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
+        jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        return new JobInfoUpdateEnableStatusRes();
+    }
 }
