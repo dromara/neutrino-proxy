@@ -42,9 +42,10 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button size="mini" type="primary" @click="handleEditClick(scope.row)" :disabled="scope.row.enable === 1">编辑</el-button>
           <el-button size="mini" type="primary" @click="handleExecuteClick(scope.row)">执行</el-button>
-          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{'停止'}}</el-button>
-          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{'启动'}}</el-button>
+          <el-button v-if="scope.row.enable === 1" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">停止</el-button>
+          <el-button v-if="scope.row.enable === 2" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">启动</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -55,7 +56,7 @@
     </div>
 
     <el-dialog title="执行" :visible.sync="executeVisible">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px">
+      <el-form ref="dataForm" :model="temp" label-position="right" label-width="70px">
         <el-form-item :label="$t('table.jobParam')" prop="param">
           <el-input v-model="temp.param" type="textarea" :rows="4" placeholder="请输入任务执行参数" :maxlength="200" show-word-limit style="padding-right: 20px"/>
         </el-form-item>
@@ -66,11 +67,38 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="编辑" :visible.sync="editVisible">
+      <el-form ref="editForm" :rules="editRules" :model="edit" label-position="right" label-width="100px" style="padding-right: 20px">
+        <el-form-item :label="$t('table.handler')" prop="handler">
+          <el-input v-model="edit.handler" :placeholder="'请输入'+$t('table.handler')" disabled/>
+        </el-form-item>
+        <el-form-item :label="$t('table.cron')" prop="cron">
+          <el-input v-model="edit.cron" :placeholder="'请输入'+$t('table.cron')"/>
+        </el-form-item>
+        <el-form-item :label="$t('table.desc')" prop="desc">
+          <el-input v-model="edit.desc" type="textarea" :rows="2" :placeholder="'请输入'+$t('table.desc')" show-word-limit/>
+        </el-form-item>
+        <el-form-item :label="$t('table.jobParam')" prop="param">
+          <el-input v-model="edit.param" type="textarea" :rows="2" :placeholder="'请输入'+$t('table.jobParam')" show-word-limit/>
+        </el-form-item>
+        <el-form-item :label="$t('table.alarmEmail')" prop="alarmEmail">
+          <el-input v-model="edit.alarmEmail" :placeholder="'请输入'+$t('table.alarmEmail')"/>
+        </el-form-item>
+        <el-form-item :label="$t('table.alarmDing')" prop="alarmDing">
+          <el-input v-model="edit.alarmDing" :placeholder="'请输入'+$t('table.alarmDing')"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="commitEdit">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-  import { fetchList, updateEnableStatus, execute } from '@/api/jobInfo'
+  import { fetchList, updateEnableStatus, execute, updateJobInfo } from '@/api/jobInfo'
   import waves from '@/directive/waves' // 水波纹指令
 
   export default {
@@ -95,7 +123,22 @@
           id: '',
           param: ''
         },
-        executeVisible: false
+        executeVisible: false,
+        editVisible: false,
+        edit: {
+          id: '',
+          desc: '',
+          handler: '',
+          cron: '',
+          alarmEmail: '',
+          alarmDing: '',
+          param: ''
+        },
+        editRules: {
+          desc: [{ required: true, message: '描述必填', trigger: 'blur' }],
+          handler: [{ required: true, message: '处理器必填', trigger: 'blur' }],
+          cron: [{ required: true, message: 'cron必填', trigger: 'blur' }]
+        }
       }
     },
     filters: {
@@ -154,10 +197,25 @@
         this.temp.param = row.param
         this.executeVisible = true
       },
+      handleEditClick(row) {
+        this.edit = row
+        this.editVisible = true
+      },
       commitExecute() {
         execute(this.temp).then(response => {
           if (response.data.code === 0) {
             this.executeVisible = false
+            this.$message({
+              message: '操作成功',
+              type: 'success'
+            })
+          }
+        })
+      },
+      commitEdit() {
+        updateJobInfo(this.edit).then(response => {
+          if (response.data.code === 0) {
+            this.editVisible = false
             this.$message({
               message: '操作成功',
               type: 'success'

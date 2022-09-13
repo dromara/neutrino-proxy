@@ -26,3 +26,11 @@ export function execute(data) {
     data: data
   })
 }
+
+export function updateJobInfo(data) {
+  return request({
+    url: '/job-info/update',
+    method: 'post',
+    data: data
+  })
+}
