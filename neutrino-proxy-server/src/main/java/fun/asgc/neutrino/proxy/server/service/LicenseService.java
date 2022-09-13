@@ -103,7 +103,7 @@ public class LicenseService {
 	 */
 	public LicenseCreateRes create(LicenseCreateReq req) {
 		LicenseDO licenseDO = licenseMapper.checkRepeat(req.getUserId(), req.getName());
-		ParamCheckUtil.checkExpression(null == licenseDO, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
 		String key = UUID.randomUUID().toString().replaceAll("-", "");
 		Date now = new Date();
@@ -122,10 +122,10 @@ public class LicenseService {
 
 	public LicenseUpdateRes update(LicenseUpdateReq req) {
 		LicenseDO oldLicenseDO = licenseMapper.findById(req.getId());
-		ParamCheckUtil.checkExpression(null != oldLicenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(oldLicenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 
 		LicenseDO licenseCheck = licenseMapper.checkRepeat(oldLicenseDO.getUserId(), req.getName(), Sets.newHashSet(oldLicenseDO.getId()));
-		ParamCheckUtil.checkExpression(null == licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+		ParamCheckUtil.checkNotNull(licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
 		licenseMapper.update(req.getId(), req.getName(), new Date());
 		return new LicenseUpdateRes();

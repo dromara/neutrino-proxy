@@ -106,6 +106,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		for (JobInfo jobInfo : jobInfoList) {
 			add(jobInfo);
 		}
+		log.info("Job初始化完成.");
 	}
 
 	@Override

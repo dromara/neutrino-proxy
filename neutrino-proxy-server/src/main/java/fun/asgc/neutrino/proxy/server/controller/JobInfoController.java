@@ -70,8 +70,10 @@ public class JobInfoController {
     @OnlyAdmin
     @PostMapping("execute")
     public JobInfoExecuteRes execute(@RequestBody JobInfoExecuteReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-        return new JobInfoExecuteRes();
+        return jobInfoService.execute(req);
     }
 
 }

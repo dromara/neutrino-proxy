@@ -25,8 +25,8 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
-import fun.asgc.neutrino.core.quartz.DefaultJobSource;
 import fun.asgc.neutrino.core.quartz.JobExecutor;
+import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -42,11 +42,13 @@ import java.util.concurrent.TimeUnit;
 public class JobConfig {
 	@Autowired
 	private JobLogService jobLogService;
+	@Autowired
+	private JobInfoService jobInfoService;
 
 	@Bean
 	public JobExecutor jobExecutor() {
 		JobExecutor executor = new JobExecutor();
-		executor.setJobSource(new DefaultJobSource());
+		executor.setJobSource(jobInfoService);
 		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(), new CustomThreadFactory("JobPool")));
 		executor.setJobCallback(jobLogService);

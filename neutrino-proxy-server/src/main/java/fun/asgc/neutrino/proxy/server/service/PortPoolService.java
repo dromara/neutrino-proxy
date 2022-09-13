@@ -65,7 +65,7 @@ public class PortPoolService {
 
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
-		ParamCheckUtil.checkExpression(null == oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
+		ParamCheckUtil.checkNotNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
 
 		Date now = new Date();
 

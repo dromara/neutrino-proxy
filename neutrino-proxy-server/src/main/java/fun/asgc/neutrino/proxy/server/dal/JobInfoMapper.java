@@ -34,6 +34,7 @@ import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -53,4 +54,8 @@ public interface JobInfoMapper extends SqlMapper {
 
     @Update("update `job_info` set enable = :enable,update_time = :updateTime where id = :id")
     void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
+
+    @ResultType(JobInfoDO.class)
+    @Select("select * from job_info where enable = 1")
+    List<JobInfoDO> findEnableList();
 }

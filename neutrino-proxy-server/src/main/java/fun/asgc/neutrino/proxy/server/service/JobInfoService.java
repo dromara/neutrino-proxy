@@ -21,14 +21,22 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.quartz.IJobSource;
+import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
 import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
@@ -37,6 +45,7 @@ import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -46,7 +55,7 @@ import java.util.Date;
 @Slf4j
 @NonIntercept
 @Component
-public class JobInfoService {
+public class JobInfoService implements IJobSource {
 
     @Autowired
     private JobInfoMapper jobInfoMapper;
@@ -59,8 +68,34 @@ public class JobInfoService {
 
     public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
         JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
-        ParamCheckUtil.checkExpression(null != jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
+        ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
         jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
         return new JobInfoUpdateEnableStatusRes();
+    }
+
+    public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
+
+
+        return new JobInfoExecuteRes();
+    }
+
+    @Override
+    public List<JobInfo> sourceList() {
+        List<JobInfo> jobInfoList = Lists.newArrayList();
+        List<JobInfoDO> jobInfoDOList = jobInfoMapper.findEnableList();
+        if (CollectionUtil.isEmpty(jobInfoDOList)) {
+            return jobInfoList;
+        }
+        for (JobInfoDO item : jobInfoDOList) {
+            jobInfoList.add(new JobInfo()
+                    .setId(String.valueOf(item.getId()))
+                    .setName(item.getHandler())
+                    .setDesc(item.getDesc())
+                    .setCron(item.getCron())
+                    .setParam(item.getParam())
+            );
+        }
+
+        return jobInfoList;
     }
 }
