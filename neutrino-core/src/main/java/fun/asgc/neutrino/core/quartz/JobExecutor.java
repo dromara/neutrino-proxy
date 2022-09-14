@@ -56,6 +56,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 	private Map<String, IJobHandler> jobHandlerMap = new ConcurrentHashMap<>();
 	private Set<String> runJobSet = Sets.newHashSet();
 	private IJobCallback jobCallback;
+	private Map<String, TriggerKey> triggerKeyMap = new ConcurrentHashMap<>();
 
 	@Override
 	public void run(String[] args) throws JobException {
@@ -114,9 +115,10 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getName()) || StringUtil.isEmpty(jobInfo.getCron()) || jobInfoMap.containsKey(jobInfo.getName())) {
 			return;
 		}
-		jobInfoMap.put(jobInfo.getName(), jobInfo);
+		jobInfoMap.put(jobInfo.getId(), jobInfo);
 
-		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getName());
+		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getId());
+		triggerKeyMap.put(jobInfo.getId(), triggerKey);
 		JobKey jobKey = new JobKey(jobInfo.getName());
 
 		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron()).withMisfireHandlingInstructionDoNothing();
@@ -145,15 +147,32 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		if (null == context || null == context.getTrigger()) {
 			return;
 		}
-		if (!jobInfoMap.containsKey(context.getTrigger().getKey().getName())
-			|| !jobHandlerMap.containsKey(context.getTrigger().getKey().getName())) {
+		String jobId = context.getTrigger().getKey().getName();
+		JobInfo jobInfo = jobInfoMap.get(jobId);
+		if (null == jobInfo) {
+			TriggerKey triggerKey = triggerKeyMap.get(jobId);
+			if (null != triggerKey) {
+				try {
+					scheduler.unscheduleJob(triggerKey);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			return;
 		}
+		doExecute(jobId, jobInfo.getParam());
+	}
 
+	private void doExecute(String jobId, String param) {
+		JobInfo jobInfo = jobInfoMap.get(jobId);
+		if (null == jobInfo) {
+			return;
+		}
+		IJobHandler jobHandler =jobHandlerMap.get(jobInfo.getName());
+		if (null == jobHandler) {
+			return;
+		}
 		threadPoolExecutor.submit(() -> {
-			JobInfo jobInfo = jobInfoMap.get(context.getTrigger().getKey().getName());
-			IJobHandler jobHandler =jobHandlerMap.get(jobInfo.getName());
-
 			try {
 				jobHandler.execute(jobInfo.getParam());
 				if (null != jobCallback) {
