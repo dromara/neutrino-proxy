@@ -28,10 +28,13 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.quartz.IJobSource;
+import fun.asgc.neutrino.core.quartz.JobExecutor;
 import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
@@ -70,12 +73,22 @@ public class JobInfoService implements IJobSource {
         JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
         ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
         jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        if (EnableStatusEnum.ENABLE.getStatus().equals(req.getEnable())) {
+            BeanManager.getBean(JobExecutor.class).add(new JobInfo()
+                    .setId(String.valueOf(jobInfoDO.getId()))
+                    .setName(jobInfoDO.getHandler())
+                    .setDesc(jobInfoDO.getDesc())
+                    .setCron(jobInfoDO.getCron())
+                    .setParam(jobInfoDO.getParam())
+            );
+        } else {
+            BeanManager.getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
+        }
         return new JobInfoUpdateEnableStatusRes();
     }
 
     public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
-
-
+        BeanManager.getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
         return new JobInfoExecuteRes();
     }
 
