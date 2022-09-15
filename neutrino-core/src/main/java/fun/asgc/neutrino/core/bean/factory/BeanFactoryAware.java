@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.bean.factory;
 
 /**
  * 用于标识需要beanFactory的组件

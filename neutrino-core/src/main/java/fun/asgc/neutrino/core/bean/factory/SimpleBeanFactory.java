@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.bean.factory;
 
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.*;
@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
+import fun.asgc.neutrino.core.bean.*;
 import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.util.*;

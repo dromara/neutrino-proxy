@@ -26,7 +26,7 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Init;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.bean.BeanWrapper;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.bean.factory.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.annotation.RestController;

@@ -23,7 +23,7 @@ package fun.asgc.neutrino.core.web.context;
 
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.bean.factory.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationContext;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.web.HttpRequestHandler;

@@ -23,8 +23,8 @@
 package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.bean.BeanFactory;
-import fun.asgc.neutrino.core.bean.BeanFactoryAware;
+import fun.asgc.neutrino.core.bean.factory.BeanFactory;
+import fun.asgc.neutrino.core.bean.factory.BeanFactoryAware;
 import fun.asgc.neutrino.core.bean.BeanIdentity;
 import fun.asgc.neutrino.core.exception.BeanException;
 import lombok.extern.slf4j.Slf4j;
