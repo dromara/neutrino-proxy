@@ -188,7 +188,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		}
 		threadPoolExecutor.submit(() -> {
 			try {
-				jobHandler.execute(jobInfo.getParam());
+				jobHandler.execute(param);
 				if (null != jobCallback) {
 					jobCallback.executeLog(jobInfo, null);
 				}
