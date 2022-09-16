@@ -21,11 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.quartz.IJobCallback;
 import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import java.util.Date;
 
 /**
  *
@@ -36,14 +42,30 @@ import lombok.extern.slf4j.Slf4j;
 @NonIntercept
 @Component
 public class JobLogService implements IJobCallback {
+	@Autowired
+	private JobLogMapper jobLogMapper;
 
 	@Override
 	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+		Integer code = 0;
+		String msg = "";
 		if (null == throwable) {
+			msg = "执行成功";
 			log.info("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
 		} else {
 			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
+			msg = "执行异常:\r\n" + ExceptionUtils.getStackTrace(throwable);
+			code = -1;
 		}
+		jobLogMapper.add(new JobLogDO()
+				.setJobId(Integer.valueOf(jobInfo.getId()))
+				.setHandler(jobInfo.getName())
+				.setParam(jobInfo.getParam())
+				.setCode(code)
+				.setMsg(msg)
+				.setAlarmStatus(0)
+				.setCreateTime(new Date())
+		);
 	}
 
 }

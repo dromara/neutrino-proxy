@@ -38,7 +38,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @Data
 @Table("job_log")
-public class JobLog {
+public class JobLogDO {
 	@Autowired
 	private Integer id;
 	private Integer jobId;
