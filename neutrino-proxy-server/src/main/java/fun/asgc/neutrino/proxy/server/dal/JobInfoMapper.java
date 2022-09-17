@@ -58,4 +58,6 @@ public interface JobInfoMapper extends SqlMapper {
     @ResultType(JobInfoDO.class)
     @Select("select * from job_info where enable = 1")
     List<JobInfoDO> findEnableList();
+
+    void update(JobInfoDO jobInfoDO);
 }

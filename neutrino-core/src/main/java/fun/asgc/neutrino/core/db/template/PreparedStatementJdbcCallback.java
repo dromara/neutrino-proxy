@@ -48,7 +48,7 @@ public abstract class PreparedStatementJdbcCallback<T> implements JdbcCallback<T
 		StringBuffer sb = new StringBuffer();
 		if (ArrayUtil.notEmpty(params)) {
 			for(Object o : params){
-				sb.append(o.toString()).append(",");
+				sb.append(o).append(",");
 			}
 
 			if(sb.length() > 0 && sb.charAt(sb.length() - 1) == ','){

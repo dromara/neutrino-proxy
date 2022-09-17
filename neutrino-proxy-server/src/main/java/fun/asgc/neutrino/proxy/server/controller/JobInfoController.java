@@ -27,14 +27,8 @@ import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortMappingUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +68,13 @@ public class JobInfoController {
         ParamCheckUtil.checkNotNull(req.getId(), "id");
 
         return jobInfoService.execute(req);
+    }
+
+    @PostMapping("update")
+    public JobInfoUpdateRes update(@RequestBody JobInfoUpdateReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+
+        return jobInfoService.update(req);
     }
 
 }

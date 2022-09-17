@@ -42,7 +42,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="handleEditClick(scope.row)" :disabled="scope.row.enable === 1">编辑</el-button>
+          <el-button size="mini" type="primary" @click="handleEditClick(scope.row)">编辑</el-button>
           <el-button size="mini" type="primary" @click="handleExecuteClick(scope.row)">执行</el-button>
           <el-button v-if="scope.row.enable === 1" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">停止</el-button>
           <el-button v-if="scope.row.enable === 2" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">启动</el-button>

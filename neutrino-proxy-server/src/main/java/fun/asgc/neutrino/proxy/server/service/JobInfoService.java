@@ -32,16 +32,10 @@ import fun.asgc.neutrino.core.quartz.JobExecutor;
 import fun.asgc.neutrino.core.quartz.JobInfo;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
@@ -110,5 +104,21 @@ public class JobInfoService implements IJobSource {
         }
 
         return jobInfoList;
+    }
+
+    public JobInfoUpdateRes update(JobInfoUpdateReq req) {
+        JobInfoDO  jobInfoDO = jobInfoMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull( jobInfoDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        JobInfoDO jobInfo = new JobInfoDO();
+        jobInfo.setId(req.getId());
+        jobInfo.setCron(req.getCron());
+        jobInfo.setDesc(req.getDesc());
+        jobInfo.setAlarmEmail(req.getAlarmEmail());
+        jobInfo.setAlarmDing(req.getAlarmDing());
+        jobInfo.setParam(req.getParam());
+        jobInfo.setUpdateTime(new Date());
+
+        jobInfoMapper.update( jobInfo);
+        return new JobInfoUpdateRes();
     }
 }
