@@ -28,7 +28,7 @@ import java.io.*;
 import java.net.URI;
 
 /**
- *
+ * 自定义java文件对象
  * @author: aoshiguchen
  * @date: 2022/8/25
  */

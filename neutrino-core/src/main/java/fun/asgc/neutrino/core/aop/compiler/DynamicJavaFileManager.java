@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- *
+ * 动态java文件管理器
  * @author: aoshiguchen
  * @date: 2022/8/17
  */

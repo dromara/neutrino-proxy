@@ -21,9 +21,28 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.quartz.IJobSource;
+import fun.asgc.neutrino.core.quartz.JobExecutor;
+import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -33,6 +52,73 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NonIntercept
 @Component
-public class JobInfoService {
+public class JobInfoService implements IJobSource {
 
+    @Autowired
+    private JobInfoMapper jobInfoMapper;
+
+    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+        Page<JobInfoListRes> page = Page.create(pageQuery);
+        jobInfoMapper.page(page, req);
+        return page;
+    }
+
+    public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
+        JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
+        jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        if (EnableStatusEnum.ENABLE.getStatus().equals(req.getEnable())) {
+            BeanManager.getBean(JobExecutor.class).add(new JobInfo()
+                    .setId(String.valueOf(jobInfoDO.getId()))
+                    .setName(jobInfoDO.getHandler())
+                    .setDesc(jobInfoDO.getDesc())
+                    .setCron(jobInfoDO.getCron())
+                    .setParam(jobInfoDO.getParam())
+            );
+        } else {
+            BeanManager.getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
+        }
+        return new JobInfoUpdateEnableStatusRes();
+    }
+
+    public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
+        BeanManager.getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
+        return new JobInfoExecuteRes();
+    }
+
+    @Override
+    public List<JobInfo> sourceList() {
+        List<JobInfo> jobInfoList = Lists.newArrayList();
+        List<JobInfoDO> jobInfoDOList = jobInfoMapper.findEnableList();
+        if (CollectionUtil.isEmpty(jobInfoDOList)) {
+            return jobInfoList;
+        }
+        for (JobInfoDO item : jobInfoDOList) {
+            jobInfoList.add(new JobInfo()
+                    .setId(String.valueOf(item.getId()))
+                    .setName(item.getHandler())
+                    .setDesc(item.getDesc())
+                    .setCron(item.getCron())
+                    .setParam(item.getParam())
+            );
+        }
+
+        return jobInfoList;
+    }
+
+    public JobInfoUpdateRes update(JobInfoUpdateReq req) {
+        JobInfoDO  jobInfoDO = jobInfoMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull( jobInfoDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        JobInfoDO jobInfo = new JobInfoDO();
+        jobInfo.setId(req.getId());
+        jobInfo.setCron(req.getCron());
+        jobInfo.setDesc(req.getDesc());
+        jobInfo.setAlarmEmail(req.getAlarmEmail());
+        jobInfo.setAlarmDing(req.getAlarmDing());
+        jobInfo.setParam(req.getParam());
+        jobInfo.setUpdateTime(new Date());
+
+        jobInfoMapper.update( jobInfo);
+        return new JobInfoUpdateRes();
+    }
 }

@@ -21,18 +21,60 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.service.JobInfoService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/5
  */
+@Slf4j
 @NonIntercept
 @RequestMapping("job-info")
 @RestController
 public class JobInfoController {
+    @Autowired
+    private JobInfoService jobInfoService;
+
+    @GetMapping("page")
+    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+        return jobInfoService.page(pageQuery, req);
+    }
+
+    @OnlyAdmin
+    @PostMapping("update/enable-status")
+    public JobInfoUpdateEnableStatusRes updateEnableStatus(@RequestBody JobInfoUpdateEnableStatusReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
+        ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
+        return jobInfoService.updateEnableStatus(req);
+    }
+
+    @OnlyAdmin
+    @PostMapping("execute")
+    public JobInfoExecuteRes execute(@RequestBody JobInfoExecuteReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
+
+        return jobInfoService.execute(req);
+    }
+
+    @PostMapping("update")
+    public JobInfoUpdateRes update(@RequestBody JobInfoUpdateReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+
+        return jobInfoService.update(req);
+    }
 
 }

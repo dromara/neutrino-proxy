@@ -66,6 +66,36 @@ public class ParamCheckUtil {
 		}
 	}
 
+	public static void checkNotNull(Object obj, ExceptionConstant constant, Object... params) {
+		if (null == obj) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
+	public static void checkNotEmpty(String str, ExceptionConstant constant, Object... params) {
+		if (StringUtil.isEmpty(str)) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
+	public static void checkNotEmpty(Collection collection, ExceptionConstant constant, Object... params) {
+		if (null == collection || collection.isEmpty()) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
+	public static void checkNotEmpty(Map map, ExceptionConstant constant, Object... params) {
+		if (null == map || map.isEmpty()) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
+	public static void checkNotEmpty(Set set, ExceptionConstant constant, Object... params) {
+		if (null == set || set.isEmpty()) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
 	public static void checkExpression(boolean expression, ExceptionConstant constant, Object... params) {
 		if (!expression) {
 			throw ServiceException.create(constant, params);

@@ -19,18 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.proxy.server.controller.res;
+
+import lombok.Data;
 
 /**
- * 用于标识需要beanFactory的组件
- * @author: aoshiguchen
- * @date: 2022/7/6
+ * 调度管理更新响应
+ * @author: zCans
+ * @date: 2022/9/12
  */
-public interface BeanFactoryAware {
+@Data
+public class JobInfoUpdateRes {
 
-	/**
-	 * 设置bean工厂
-	 * @param beanFactory
-	 */
-	void setBeanFactory(BeanFactory beanFactory);
 }

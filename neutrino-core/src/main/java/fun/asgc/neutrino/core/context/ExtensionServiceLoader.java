@@ -24,7 +24,7 @@ package fun.asgc.neutrino.core.context;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.bean.factory.SimpleBeanFactory;
 import fun.asgc.neutrino.core.web.context.WebApplicationContext;
 import fun.asgc.neutrino.core.web.context.WebContextHolder;
 

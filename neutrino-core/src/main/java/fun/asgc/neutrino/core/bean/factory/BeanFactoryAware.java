@@ -19,36 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
-
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.db.annotation.Table;
-import lombok.Data;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
+package fun.asgc.neutrino.core.bean.factory;
 
 /**
- *
- * @author: wen.y
- * @date: 2022/9/4
+ * 用于标识需要beanFactory的组件
+ * @author: aoshiguchen
+ * @date: 2022/7/6
  */
-@ToString
-@Accessors(chain = true)
-@Data
-@Table("job_log")
-public class JobLog {
-	@Autowired
-	private Integer id;
-	private Integer jobId;
-	private String handler;
-	private String param;
-	private Integer code;
-	private String msg;
-	private Integer alarmStatus;
+public interface BeanFactoryAware {
+
 	/**
-	 * 创建时间
+	 * 设置bean工厂
+	 * @param beanFactory
 	 */
-	private Date createTime;
+	void setBeanFactory(BeanFactory beanFactory);
 }

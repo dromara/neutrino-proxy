@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 
 /**
- *
+ * 包内部查询器
  * @author: aoshiguchen
  * @date: 2022/8/25
  */

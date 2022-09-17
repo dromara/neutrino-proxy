@@ -19,8 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.bean.factory;
 
+import fun.asgc.neutrino.core.bean.BeanIdentity;
 import fun.asgc.neutrino.core.exception.BeanException;
 
 import java.util.List;

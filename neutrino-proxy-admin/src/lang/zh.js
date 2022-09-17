@@ -1,6 +1,7 @@
 export default {
   route: {
     dashboard: '首页',
+    home: '首页',
     introduction: '简述',
     documentation: '文档',
     permission: '权限测试页',
@@ -49,7 +50,8 @@ export default {
     portPool: '端口池管理',
     proxy: '代理配置',
     license: 'License管理',
-    portMapping: '端口映射'
+    portMapping: '端口映射',
+    jobManager: '调度管理'
   },
   navbar: {
     logOut: '退出登录',
@@ -123,7 +125,13 @@ export default {
     isOnline: '在线状态',
     enableStatus: '启用状态',
     serverPort: '服务端口',
-    proxyClient: '代理客户端'
+    proxyClient: '代理客户端',
+    desc: '描述',
+    handler: '处理器',
+    cron: 'cron',
+    jobParam: '任务参数',
+    alarmEmail: '任务报警邮箱',
+    alarmDing: '任务报警钉钉'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

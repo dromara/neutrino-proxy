@@ -19,9 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.bean;
+package fun.asgc.neutrino.core.bean.factory;
 
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
+import fun.asgc.neutrino.core.bean.*;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.context.LifeCycle;
 import fun.asgc.neutrino.core.context.LifeCycleManager;
@@ -35,7 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**

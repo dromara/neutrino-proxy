@@ -100,14 +100,14 @@ public class PortMappingService {
 
 	public PortMappingCreateRes create(PortMappingCreateReq req) {
 		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
-		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
 			// 临时处理，如果当前用户不是管理院，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
-		ParamCheckUtil.checkExpression(null != portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort()), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(portMappingMapper.findByPort(req.getServerPort()), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
 
 
 		Date now = new Date();
@@ -126,14 +126,14 @@ public class PortMappingService {
 
 	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
 		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
-		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
 			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
-		ParamCheckUtil.checkExpression(null != portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
 
 		PortMappingDO portMappingDO = new PortMappingDO();
 		portMappingDO.setId(req.getId());
@@ -177,10 +177,10 @@ public class PortMappingService {
 
 	public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
 		PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
-		ParamCheckUtil.checkExpression(null != portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
 		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
-		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
 			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
@@ -193,10 +193,10 @@ public class PortMappingService {
 
 	public void delete(Integer id) {
 		PortMappingDO portMappingDO = portMappingMapper.findById(id);
-		ParamCheckUtil.checkExpression(null != portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
 		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
-		ParamCheckUtil.checkExpression(null != licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
 			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);

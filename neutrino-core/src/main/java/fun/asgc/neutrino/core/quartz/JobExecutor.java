@@ -56,6 +56,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 	private Map<String, IJobHandler> jobHandlerMap = new ConcurrentHashMap<>();
 	private Set<String> runJobSet = Sets.newHashSet();
 	private IJobCallback jobCallback;
+	private Map<String, TriggerKey> triggerKeyMap = new ConcurrentHashMap<>();
 
 	@Override
 	public void run(String[] args) throws JobException {
@@ -71,7 +72,6 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 					continue;
 				}
 				jobHandlerMap.put(jobHandler.name(), item);
-				runJobSet.add(jobHandler.name());
 			}
 		}
 
@@ -106,55 +106,89 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 		for (JobInfo jobInfo : jobInfoList) {
 			add(jobInfo);
 		}
+		log.info("Job初始化完成.");
 	}
 
 	@Override
-	public synchronized void add(JobInfo jobInfo) throws JobException {
-		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getName()) || StringUtil.isEmpty(jobInfo.getCron()) || jobInfoMap.containsKey(jobInfo.getName())) {
+	public void add(JobInfo jobInfo) throws JobException {
+		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getId()) || StringUtil.isEmpty(jobInfo.getName()) ||
+				StringUtil.isEmpty(jobInfo.getCron()) || runJobSet.contains(jobInfo.getName())) {
 			return;
 		}
-		jobInfoMap.put(jobInfo.getName(), jobInfo);
+		synchronized (jobInfo.getId()) {
+			runJobSet.add(jobInfo.getName());
+			jobInfoMap.put(jobInfo.getId(), jobInfo);
 
-		TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getName());
-		JobKey jobKey = new JobKey(jobInfo.getName());
+			TriggerKey triggerKey = TriggerKey.triggerKey(jobInfo.getId());
+			triggerKeyMap.put(jobInfo.getId(), triggerKey);
+			JobKey jobKey = new JobKey(jobInfo.getName());
 
-		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron()).withMisfireHandlingInstructionDoNothing();
-		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
-		JobDetail jobDetail = JobBuilder.newJob(JobBean.class).withIdentity(jobKey).build();
+			CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron()).withMisfireHandlingInstructionDoNothing();
+			CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
+			JobDetail jobDetail = JobBuilder.newJob(JobBean.class).withIdentity(jobKey).build();
 
-		try {
-			scheduler.scheduleJob(jobDetail, cronTrigger);
-			scheduler.start();
-		} catch (Exception e) {
-			throw new RuntimeException(String.format("新增job[name=%s]异常", jobInfo.getName()));
+			try {
+				scheduler.scheduleJob(jobDetail, cronTrigger);
+				scheduler.start();
+			} catch (Exception e) {
+				throw new RuntimeException(String.format("新增job[name=%s]异常", jobInfo.getName()));
+			}
 		}
 	}
 
 	@Override
-	public void remove(String jobName) {
-		runJobSet.remove(jobName);
+	public void remove(String jobId) {
+		JobInfo jobInfo = jobInfoMap.get(jobId);
+		if (null == jobInfo) {
+			return;
+		}
+		synchronized (jobId) {
+			runJobSet.remove(jobInfo.getName());
+			unscheduleJob(jobId);
+		}
 	}
 
 	@Override
 	public void trigger(String jobId, String param) {
-
+		doExecute(jobId, param);
 	}
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		if (null == context || null == context.getTrigger()) {
 			return;
 		}
-		if (!jobInfoMap.containsKey(context.getTrigger().getKey().getName())
-			|| !jobHandlerMap.containsKey(context.getTrigger().getKey().getName())) {
+		String jobId = context.getTrigger().getKey().getName();
+		JobInfo jobInfo = jobInfoMap.get(jobId);
+		if (null == jobInfo) {
+			unscheduleJob(jobId);
 			return;
 		}
+		doExecute(jobId, jobInfo.getParam());
+	}
 
-		threadPoolExecutor.submit(() -> {
-			JobInfo jobInfo = jobInfoMap.get(context.getTrigger().getKey().getName());
-			IJobHandler jobHandler =jobHandlerMap.get(jobInfo.getName());
-
+	private void unscheduleJob(String jobId) {
+		TriggerKey triggerKey = triggerKeyMap.get(jobId);
+		if (null != triggerKey) {
 			try {
-				jobHandler.execute(jobInfo.getParam());
+				scheduler.unscheduleJob(triggerKey);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void doExecute(String jobId, String param) {
+		JobInfo jobInfo = jobInfoMap.get(jobId);
+		if (null == jobInfo) {
+			return;
+		}
+		IJobHandler jobHandler =jobHandlerMap.get(jobInfo.getName());
+		if (null == jobHandler) {
+			return;
+		}
+		threadPoolExecutor.submit(() -> {
+			try {
+				jobHandler.execute(param);
 				if (null != jobCallback) {
 					jobCallback.executeLog(jobInfo, null);
 				}

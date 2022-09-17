@@ -24,8 +24,8 @@ package fun.asgc.neutrino.core.context;
 
 import fun.asgc.neutrino.core.annotation.PreLoad;
 import fun.asgc.neutrino.core.base.GlobalConfig;
-import fun.asgc.neutrino.core.bean.BeanFactoryAware;
-import fun.asgc.neutrino.core.bean.SimpleBeanFactory;
+import fun.asgc.neutrino.core.bean.factory.BeanFactoryAware;
+import fun.asgc.neutrino.core.bean.factory.SimpleBeanFactory;
 import fun.asgc.neutrino.core.util.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
