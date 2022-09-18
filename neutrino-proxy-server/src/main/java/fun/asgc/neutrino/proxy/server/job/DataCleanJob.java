@@ -11,6 +11,7 @@ import fun.asgc.neutrino.proxy.server.dal.DataCleanMapper;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,14 +39,16 @@ public class DataCleanJob implements IJobHandler {
     public void execute(String s) throws Exception {
         JobParams jobParams = getParams(s);
 
-        Date date = DateUtil.addDate(new Date(), Calendar.DATE, jobParams.getJobLogKeepDays());
+        Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
         log.info("清理调度管理日志 date:{}", sdf.format(date));
-        dataCleanMapper.cleanJobLog(date);
+        dataCleanMapper.cleanJobLog(date.getTime());
     }
 
     public static JobParams getParams(String s) {
         try {
-            return JSONObject.parseObject(s, JobParams.class);
+            if (StringUtils.isNotBlank(s)) {
+                return JSONObject.parseObject(s, JobParams.class);
+            }
         } catch (Exception e) {
             // ignore
         }

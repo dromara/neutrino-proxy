@@ -112,7 +112,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 	@Override
 	public void add(JobInfo jobInfo) throws JobException {
 		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getId()) || StringUtil.isEmpty(jobInfo.getName()) ||
-				StringUtil.isEmpty(jobInfo.getCron()) || runJobSet.contains(jobInfo.getName())) {
+				StringUtil.isEmpty(jobInfo.getCron())) {
 			return;
 		}
 		synchronized (jobInfo.getId()) {
@@ -128,8 +128,10 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 			JobDetail jobDetail = JobBuilder.newJob(JobBean.class).withIdentity(jobKey).build();
 
 			try {
-				scheduler.scheduleJob(jobDetail, cronTrigger);
-				scheduler.start();
+				if (jobInfo.isEnable()) {
+					scheduler.scheduleJob(jobDetail, cronTrigger);
+					scheduler.start();
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(String.format("新增job[name=%s]异常", jobInfo.getName()));
 			}
@@ -190,10 +192,10 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 			try {
 				jobHandler.execute(param);
 				if (null != jobCallback) {
-					jobCallback.executeLog(jobInfo, null);
+					jobCallback.executeLog(jobInfo, param, null);
 				}
 			} catch (Throwable e) {
-				jobCallback.executeLog(jobInfo, e);
+				jobCallback.executeLog(jobInfo, param, e);
 			}
 		});
 	}

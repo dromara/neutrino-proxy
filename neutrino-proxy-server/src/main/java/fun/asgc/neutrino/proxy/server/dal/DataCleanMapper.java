@@ -16,6 +16,6 @@ import java.util.Date;
 public interface DataCleanMapper extends SqlMapper {
 
     @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(Date date);
+    void cleanJobLog(long date);
 
 }

@@ -46,7 +46,7 @@ public class JobLogService implements IJobCallback {
 	private JobLogMapper jobLogMapper;
 
 	@Override
-	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+	public void executeLog(JobInfo jobInfo, String param, Throwable throwable) {
 		Integer code = 0;
 		String msg = "";
 		if (null == throwable) {
@@ -60,7 +60,7 @@ public class JobLogService implements IJobCallback {
 		jobLogMapper.add(new JobLogDO()
 				.setJobId(Integer.valueOf(jobInfo.getId()))
 				.setHandler(jobInfo.getName())
-				.setParam(jobInfo.getParam())
+				.setParam(param)
 				.setCode(code)
 				.setMsg(msg)
 				.setAlarmStatus(0)

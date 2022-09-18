@@ -74,6 +74,7 @@ public class JobInfoService implements IJobSource {
                     .setDesc(jobInfoDO.getDesc())
                     .setCron(jobInfoDO.getCron())
                     .setParam(jobInfoDO.getParam())
+                    .setEnable(true)
             );
         } else {
             BeanManager.getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
@@ -89,7 +90,7 @@ public class JobInfoService implements IJobSource {
     @Override
     public List<JobInfo> sourceList() {
         List<JobInfo> jobInfoList = Lists.newArrayList();
-        List<JobInfoDO> jobInfoDOList = jobInfoMapper.findEnableList();
+        List<JobInfoDO> jobInfoDOList = jobInfoMapper.findList();
         if (CollectionUtil.isEmpty(jobInfoDOList)) {
             return jobInfoList;
         }
@@ -100,6 +101,7 @@ public class JobInfoService implements IJobSource {
                     .setDesc(item.getDesc())
                     .setCron(item.getCron())
                     .setParam(item.getParam())
+                    .setEnable(EnableStatusEnum.ENABLE.getStatus().equals(item.getEnable()))
             );
         }
 

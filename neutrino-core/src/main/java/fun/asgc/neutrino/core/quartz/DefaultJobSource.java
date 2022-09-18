@@ -54,6 +54,7 @@ public class DefaultJobSource implements IJobSource {
 				.setDesc(handler.desc())
 				.setCron(handler.cron())
 				.setParam(handler.param())
+				.setEnable(true)
 			);
 		}
 		return jobInfoList;
