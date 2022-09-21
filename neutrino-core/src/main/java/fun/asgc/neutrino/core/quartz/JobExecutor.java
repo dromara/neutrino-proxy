@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.quartz;
 
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
@@ -37,7 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Job执行器
@@ -60,8 +63,12 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 
 	@Override
 	public void run(String[] args) throws JobException {
-		if (!environment.isEnableJob() || null == jobSource || null == threadPoolExecutor) {
+		if (!environment.isEnableJob() || null == jobSource) {
 			return;
+		}
+		if (null == threadPoolExecutor) {
+			threadPoolExecutor = new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<>(), new CustomThreadFactory("DefaultJobPool"));
 		}
 
 		List<IJobHandler> jobHandlerList = BeanManager.getBeanListBySuperClass(IJobHandler.class);

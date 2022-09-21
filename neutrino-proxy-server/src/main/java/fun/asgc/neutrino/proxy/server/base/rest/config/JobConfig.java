@@ -49,8 +49,6 @@ public class JobConfig {
 	public JobExecutor jobExecutor() {
 		JobExecutor executor = new JobExecutor();
 		executor.setJobSource(jobInfoService);
-		executor.setThreadPoolExecutor(new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(), new CustomThreadFactory("JobPool")));
 		executor.setJobCallback(jobLogService);
 		return executor;
 	}
