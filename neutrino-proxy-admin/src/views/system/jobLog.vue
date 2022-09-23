@@ -25,7 +25,7 @@
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.jobLogMsg')" width="200">
+      <el-table-column align="center" :label="$t('table.jobLogMsg')" width="400">
         <template slot-scope="scope">
           <span>{{scope.row.msg}}</span>
         </template>
@@ -40,7 +40,7 @@
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" min-width="150">
+      <el-table-column align="center" :label="$t('table.actions')" min-width="120">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="handleShowClick(scope.row)">查看日志</el-button>
         </template>
