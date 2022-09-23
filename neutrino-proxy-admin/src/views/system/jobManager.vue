@@ -40,6 +40,11 @@
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('route.jobLog')" width="100">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleLogClick(scope.row)">查看</el-button>
+        </template>
+      </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="handleEditClick(scope.row)">编辑</el-button>
@@ -222,6 +227,9 @@
             })
           }
         })
+      },
+      handleLogClick(row) {
+        this.$router.push({ path: '/system/jobLog', query: { jobId: row.id }})
       }
     }
   }

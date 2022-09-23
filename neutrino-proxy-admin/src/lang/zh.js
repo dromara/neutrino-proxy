@@ -51,7 +51,8 @@ export default {
     proxy: '代理配置',
     license: 'License管理',
     portMapping: '端口映射',
-    jobManager: '调度管理'
+    jobManager: '调度管理',
+    jobLog: '调度日志'
   },
   navbar: {
     logOut: '退出登录',
@@ -131,7 +132,10 @@ export default {
     cron: 'cron',
     jobParam: '任务参数',
     alarmEmail: '任务报警邮箱',
-    alarmDing: '任务报警钉钉'
+    alarmDing: '任务报警钉钉',
+    jobLogCode: '执行结果',
+    jobLogMsg: '执行日志',
+    alarmStatus: '报警状态'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
