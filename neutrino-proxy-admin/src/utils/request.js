@@ -25,8 +25,8 @@ service.interceptors.request.use(config => {
 // respone interceptor
 service.interceptors.response.use(
   response => {
-    console.log('response', response)
-    console.log('router', this.router)
+    // console.log('response', response)
+    // console.log('router', this.router)
     const res = response.data
     if (res.code !== 0) {
       Message({

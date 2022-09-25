@@ -24,8 +24,14 @@ package fun.asgc.neutrino.proxy.server.service;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.quartz.IJobCallback;
 import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +72,17 @@ public class JobLogService implements IJobCallback {
 				.setAlarmStatus(0)
 				.setCreateTime(new Date())
 		);
+	}
+
+	public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+		Page<JobLogListRes> page = Page.create(pageQuery);
+
+		if(req.getJobId() != null){
+			jobLogMapper.pageByJobId(page, req);
+		} else {
+			jobLogMapper.page(page, req);
+		}
+		return page;
 	}
 
 }

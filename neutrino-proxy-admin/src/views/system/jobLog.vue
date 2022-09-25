@@ -20,9 +20,9 @@
           <span>{{scope.row.param}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.jobLogCode')" width="200">
+      <el-table-column align="center" :label="$t('table.jobLogCode')" width="120">
         <template slot-scope="scope">
-          <span>{{scope.row.code}}</span>
+          <el-tag :type="scope.row.code | statusFilter">{{scope.row.code | statusName}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.jobLogMsg')" width="400">
@@ -30,12 +30,12 @@
           <span>{{scope.row.msg}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.alarmStatus')" width="200">
+      <el-table-column align="center" :label="$t('table.alarmStatus')" width="120">
         <template slot-scope="scope">
           <span>{{scope.row.alarmStatus}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" :label="$t('table.createTime')">
+      <el-table-column align="center" :label="$t('table.createTime')" width="150">
         <template slot-scope="scope">
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
@@ -77,20 +77,30 @@ export default {
     }
   },
   filters: {
+    statusName(status) {
+      const statusMap = {
+        0: '成功',
+        1: '失败'
+      }
+      return statusMap[status]
+    },
     statusFilter(status) {
       const statusMap = {
-        1: 'success',
-        2: 'danger'
+        0: 'success',
+        1: 'danger'
       }
       return statusMap[status]
     }
   },
   created() {
-    // this.getList()
+    this.getList()
   },
   activated() {
-    this.listQuery.jobId = this.$route.query.jobId
-    // this.getList()
+    if (this.$route.query.jobId) {
+      this.listQuery.jobId = this.$route.query.jobId
+      console.log(this.listQuery.jobId, this.$route.query.jobId)
+      this.getList()
+    }
   },
   methods: {
     getList() {
