@@ -63,6 +63,11 @@ public class JobInfoService implements IJobSource {
         return page;
     }
 
+    public List<JobInfoDO> findList() {
+        List<JobInfoDO> jobInfoDOList = jobInfoMapper.findList();
+        return jobInfoDOList;
+    }
+
     public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
         JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
         ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);

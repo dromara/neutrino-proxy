@@ -29,9 +29,12 @@ import fun.asgc.neutrino.core.web.annotation.*;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  *
@@ -50,6 +53,11 @@ public class JobInfoController {
     public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return jobInfoService.page(pageQuery, req);
+    }
+
+    @GetMapping("findList")
+    public List<JobInfoDO> findList() {
+        return jobInfoService.findList();
     }
 
     @OnlyAdmin
