@@ -32,6 +32,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AlarmStatusEnum {
+	NOT(0, "-"),
 	WAIT(1, "待发送"),
 	SUCCESS(2, "发送成功"),
 	ERROR(3, "发送失败");

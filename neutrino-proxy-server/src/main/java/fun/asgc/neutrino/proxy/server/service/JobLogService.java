@@ -77,7 +77,7 @@ public class JobLogService implements IJobCallback {
 	public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
 		Page<JobLogListRes> page = Page.create(pageQuery);
 
-		if(req.getJobId() != null){
+		if(req.getJobId() != null && req.getJobId() > 0){
 			jobLogMapper.pageByJobId(page, req);
 		} else {
 			jobLogMapper.page(page, req);

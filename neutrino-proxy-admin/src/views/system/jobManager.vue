@@ -5,11 +5,7 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="100">
-        <template slot-scope="scope">
-          <span>{{scope.row.id}}</span>
-        </template>
-      </el-table-column>
+      <el-table-column type="index" width="100" :label="$t('table.id')"></el-table-column>
       <el-table-column align="center" :label="$t('table.desc')" width="200">
         <template slot-scope="scope">
           <span>{{scope.row.desc}}</span>
