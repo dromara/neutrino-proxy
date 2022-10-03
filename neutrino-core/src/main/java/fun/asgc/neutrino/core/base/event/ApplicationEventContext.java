@@ -21,9 +21,71 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import fun.asgc.neutrino.core.util.StringUtil;
+
+import java.util.*;
+
 /**
  * @author: aoshiguchen
  * @date: 2022/9/28
  */
 public class ApplicationEventContext implements EventContext {
+
+    private String id;
+    private String topic;
+    private Set<String> tags;
+    private Object source;
+    private Date happenTime;
+    private Map<String, Object> attachData = new HashMap<>();
+
+    public ApplicationEventContext() {
+        this.id = StringUtil.genUUID();
+        this.happenTime = new Date();
+    }
+
+    @Override
+    public Map<String, Object> attachData() {
+        return attachData;
+    }
+
+    @Override
+    public String id() {
+        return id;
+    }
+
+    @Override
+    public Date happenTime() {
+        return happenTime;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public <S> S source() {
+        return (S)source;
+    }
+
+    @Override
+    public String topic() {
+        return topic;
+    }
+
+    @Override
+    public Set<String> tags() {
+        return tags;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
+    public <S> void setSource(S source) {
+        this.source = source;
+    }
 }

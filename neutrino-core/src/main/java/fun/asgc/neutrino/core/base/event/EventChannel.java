@@ -21,48 +21,13 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import fun.asgc.neutrino.core.base.Channel;
+import fun.asgc.neutrino.core.base.Dispatcher;
 
 /**
- * @author: wen.y
- * @date: 2022/9/28
+ * @author: aoshiguchen
+ * @date: 2022/9/29
  */
-public interface EventContext {
-    /**
-     * 获取事件源
-     * @return 事件源
-     */
-    <T> T source();
-    /**
-     * 事件主题
-     * 用于订阅一级过滤
-     * @return 主题
-     */
-    String topic();
+public interface EventChannel<D,EC extends EventContext, E extends Event<EC,D>, R extends EventReceiver, Dis extends Dispatcher> extends Channel<E,R,Dis> {
 
-    /**
-     * 事件标签
-     * 用于订阅二级过滤
-     * @return 标签
-     */
-    Set<String> tags();
-    /**
-     * 附加数据
-     * @return 附加数据
-     */
-    Map<String, Object> attachData();
-
-    /**
-     * 事件ID
-     * @return 事件ID
-     */
-    String id();
-
-    /**
-     * 事件发生的时间
-     * @return 事件发生的时间
-     */
-    Date happenTime();
 }

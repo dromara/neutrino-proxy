@@ -21,20 +21,11 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @author: aoshiguchen
  * @date: 2022/9/28
  */
-public interface Event<C extends EventContext, S extends EventSource, D extends Object> {
-    /**
-     * 获取事件源
-     * @return 事件源
-     */
-    S source();
-
+public interface Event<C extends EventContext, D extends Object> {
     /**
      * 获取数据
      * @return 数据
@@ -46,30 +37,4 @@ public interface Event<C extends EventContext, S extends EventSource, D extends 
      * @return 上下文
      */
     C context();
-
-    /**
-     * 事件主题
-     * 用于订阅一级过滤
-     * @return 主题
-     */
-    String topic();
-
-    /**
-     * 事件标签
-     * 用于订阅二级过滤
-     * @return 标签
-     */
-    Set<String> tags();
-
-    /**
-     * 附加数据
-     * @return 附加数据
-     */
-    Map<String, Object> attachData();
-
-    /**
-     * 事件ID
-     * @return 事件ID
-     */
-    String id();
 }

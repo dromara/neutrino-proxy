@@ -21,10 +21,12 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import fun.asgc.neutrino.core.base.Publisher;
+
 /**
  * @author: aoshiguchen
  * @date: 2022/9/28
  */
-public interface EventPublisher {
+public interface EventPublisher<D,EC extends EventContext,E extends Event<EC,D>,Ch extends EventChannel> extends Publisher<E,Ch> {
 
 }

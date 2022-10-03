@@ -21,10 +21,39 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+
+import fun.asgc.neutrino.core.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author: aoshiguchen
- * @date: 2022/9/28
+ * @date: 2022/9/29
  */
-public interface EventSource {
+public class ApplicationEventPublisher<D> implements EventPublisher<D,ApplicationEventContext,ApplicationEvent<D>,ApplicationEventChannel<D>> {
+    private List<ApplicationEventChannel<D>> channelList;
 
+    public ApplicationEventPublisher() {
+        this.channelList = new ArrayList<>();
+    }
+
+    @Override
+    public void publish(ApplicationEvent<D> msg) {
+        this.channelList.forEach(channel -> channel.publish(msg));
+    }
+
+    @Override
+    public void registerChannel(ApplicationEventChannel<D> channel) {
+        Assert.notNull(channel, "channel不能为空!");
+        if (!this.channelList.contains(channel)) {
+            this.channelList.add(channel);
+        }
+    }
+
+    @Override
+    public void unRegisterChannel(ApplicationEventChannel<D> channel) {
+        Assert.notNull(channel, "channel不能为空!");
+        this.channelList.remove(channel);
+    }
 }

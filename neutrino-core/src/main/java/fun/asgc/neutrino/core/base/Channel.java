@@ -19,12 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.base.event;
+package fun.asgc.neutrino.core.base;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/9/28
+ * @date: 2022/9/29
  */
-public interface EventMarket {
+public interface Channel<D,R extends Receiver,Dis extends Dispatcher> {
 
+    /**
+     * 注册接收者
+     * @param receiver 接收者
+     */
+    void registerReceiver(R receiver);
+
+    /**
+     * 注销接收者
+     * @param receiver 接收者
+     */
+    void unRegisterReceiver(R receiver);
+
+    /**
+     * 设置调度器
+     * @param dispatcher 调度器
+     */
+    void setDispatcher(Dis dispatcher);
+
+    /**
+     * 发布消息
+     * @param msg 消息
+     */
+    void publish(D msg);
 }

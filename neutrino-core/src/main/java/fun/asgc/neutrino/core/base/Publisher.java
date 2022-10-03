@@ -19,50 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.base.event;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+package fun.asgc.neutrino.core.base;
 
 /**
- * @author: wen.y
- * @date: 2022/9/28
+ * @author: aoshiguchen
+ * @date: 2022/9/29
  */
-public interface EventContext {
+public interface Publisher<D,Ch extends Channel> {
     /**
-     * 获取事件源
-     * @return 事件源
+     * 发布消息
+     * @param msg 消息
      */
-    <T> T source();
-    /**
-     * 事件主题
-     * 用于订阅一级过滤
-     * @return 主题
-     */
-    String topic();
+    void publish(D msg);
 
     /**
-     * 事件标签
-     * 用于订阅二级过滤
-     * @return 标签
+     * 注册渠道
+     * @param channel 渠道
      */
-    Set<String> tags();
-    /**
-     * 附加数据
-     * @return 附加数据
-     */
-    Map<String, Object> attachData();
+    void registerChannel(Ch channel);
 
     /**
-     * 事件ID
-     * @return 事件ID
+     * 注销渠道
+     * @param channel 渠道
      */
-    String id();
-
-    /**
-     * 事件发生的时间
-     * @return 事件发生的时间
-     */
-    Date happenTime();
+    void unRegisterChannel(Ch channel);
 }

@@ -21,48 +21,30 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @author: aoshiguchen
  * @date: 2022/9/28
  */
-public class ApplicationEvent<D> implements Event<ApplicationEventContext, ApplicationEventSource, D> {
+public class ApplicationEvent<D> implements Event<ApplicationEventContext,D> {
 
-    @Override
-    public ApplicationEventSource source() {
-        return null;
+    private D data;
+    private ApplicationEventContext context;
+
+    public ApplicationEvent() {
+        this.context = new ApplicationEventContext();
     }
 
     @Override
     public D data() {
-        return null;
+        return this.data;
     }
 
     @Override
     public ApplicationEventContext context() {
-        return null;
+        return this.context;
     }
 
-    @Override
-    public String topic() {
-        return null;
+    public void setData(D data) {
+        this.data = data;
     }
-
-    @Override
-    public Set<String> tags() {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> attachData() {
-        return null;
-    }
-
-    @Override
-    public String id() {
-        return null;
-    }
-
 }

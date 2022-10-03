@@ -21,10 +21,13 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+
+import fun.asgc.neutrino.core.base.Receiver;
+
 /**
  * @author: aoshiguchen
- * @date: 2022/9/28
+ * @date: 2022/9/29
  */
-public class ApplicationEventSource implements EventSource {
+public interface EventReceiver<EC extends EventContext,D,E extends Event<EC,D>> extends Receiver<E> {
 
 }
