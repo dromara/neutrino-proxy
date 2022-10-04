@@ -49,8 +49,6 @@ public class InterceptorRegistryTest {
 		System.out.println(antPathMatcher.match("**/**.html", "/a/11/22/33/a.html"));
 		System.out.println(antPathMatcher.match("/**/*.html", "/a/11/22/33/a.html"));
 		System.out.println(antPathMatcher.match("/**/*.html", "/a.html"));
-
-
 	}
 
 }

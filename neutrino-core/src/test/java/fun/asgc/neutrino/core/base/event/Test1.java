@@ -21,9 +21,12 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Sets;
+import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 /**
@@ -36,6 +39,7 @@ import org.junit.Test;
  * @author: aoshiguchen
  * @date: 2022/10/3
  */
+@Slf4j
 public class Test1 {
     private ApplicationEventChannel<Student> channel = new ApplicationEventChannel<>();
     private ApplicationEventPublisher<Student> publisher = new ApplicationEventPublisher<>();
@@ -49,17 +53,21 @@ public class Test1 {
         ApplicationEventReceiver<Student> receiver = new ApplicationEventReceiver<Student>() {
             @Override
             public void receive(ApplicationEvent<Student> msg) {
-                System.out.println("msg:" + msg);
+                log.info("data:{}", JSONObject.toJSONString(msg.data()));
             }
         };
+//        receiver.setTopic("/**");
+//        receiver.setTags(Sets.newHashSet("create"));
         channel.registerReceiver(receiver);
 
         ApplicationEvent<Student> event = new ApplicationEvent<>();
         event.context().setId("123");
-        event.context().setTopic("student");
+        event.context().setTopic("/student/create");
         event.context().setTags(Sets.newHashSet("create"));
         event.setData(new Student().setId("1").setName("张三").setAge(28).setSex("男"));
         publisher.publish(event);
+
+        SystemUtil.waitProcessDestroy().sync();
     }
 
     @Accessors(chain = true)

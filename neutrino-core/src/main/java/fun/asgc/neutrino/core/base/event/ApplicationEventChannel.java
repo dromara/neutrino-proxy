@@ -21,12 +21,15 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.Assert;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +76,21 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
     @Override
     public void publish(ApplicationEvent<D> msg) {
         this.receiverList.forEach(receiver -> {
-            threadPoolExecutor.submit(() -> receiver.receive(msg));
+            threadPoolExecutor.submit(() -> {
+                if (!receiver.topicMatch(msg.context().topic())) {
+                    return;
+                }
+                Set<String> tags = msg.context().tags();
+                if (CollectionUtil.isEmpty(tags)) {
+                    tags = Sets.newHashSet("");
+                }
+                for (String tag : tags) {
+                    if (receiver.tagMatch(tag)) {
+                        receiver.receive(msg);
+                        break;
+                    }
+                }
+            });
         });
     }
 }
