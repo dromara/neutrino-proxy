@@ -21,11 +21,12 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
-import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.core.web.AntPathMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
     private List<ApplicationEventReceiver<D>> receiverList;
     private Dispatcher<ApplicationEventContext,ApplicationEvent<D>> dispatcher;
     private ThreadPoolExecutor threadPoolExecutor;
+    private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public ApplicationEventChannel() {
         this.receiverList = new ArrayList<>();
@@ -77,20 +79,54 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
     public void publish(ApplicationEvent<D> msg) {
         this.receiverList.forEach(receiver -> {
             threadPoolExecutor.submit(() -> {
-                if (!receiver.topicMatch(msg.context().topic())) {
-                    return;
-                }
-                Set<String> tags = msg.context().tags();
-                if (CollectionUtil.isEmpty(tags)) {
-                    tags = Sets.newHashSet("");
-                }
-                for (String tag : tags) {
-                    if (receiver.tagMatch(tag)) {
-                        receiver.receive(msg);
-                        break;
-                    }
+                if (match(msg, receiver)) {
+                    receiver.receive(msg);
                 }
             });
         });
+    }
+
+    /**
+     * 判断指定消息和指定接受者是否匹配
+     * @param msg 消息
+     * @param receiver 接受者
+     * @return 是否匹配
+     */
+    private boolean match(ApplicationEvent<D> msg, ApplicationEventReceiver<D> receiver) {
+        if (null == msg || null == receiver) {
+            return false;
+        }
+        return topicMatch(msg.context().topic(), receiver.getTopic()) && tagMatch(msg.context().tags(), receiver.getTags());
+    }
+
+    /**
+     * topic匹配起
+     * @param eventTopic 事件主题
+     * @param subscriptionTopic 订阅的主题
+     * @return 是否匹配
+     */
+    private boolean topicMatch(String eventTopic, String subscriptionTopic) {
+        if (StringUtil.isEmpty(subscriptionTopic)) {
+            return true;
+        }
+        return antPathMatcher.match(subscriptionTopic, eventTopic == null ? "" : eventTopic);
+    }
+
+    /**
+     * 标签匹配
+     * @param eventTags 事件标签
+     * @param subscriptionTags 关注的标签
+     * @return 是否匹配
+     */
+    private boolean tagMatch(Set<String> eventTags, Set<String> subscriptionTags) {
+        if (CollectionUtil.isEmpty(subscriptionTags)) {
+            return true;
+        }
+        for (String tag : eventTags) {
+            if (subscriptionTags.contains(tag)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

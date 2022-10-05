@@ -61,7 +61,7 @@ public class Test1 {
         channel.registerReceiver(receiver);
 
         ApplicationEvent<Student> event = new ApplicationEvent<>();
-        event.context().setId("123");
+//        event.context().setId("123");
         event.context().setTopic("/student/create");
         event.context().setTags(Sets.newHashSet("create"));
         event.setData(new Student().setId("1").setName("张三").setAge(28).setSex("男"));

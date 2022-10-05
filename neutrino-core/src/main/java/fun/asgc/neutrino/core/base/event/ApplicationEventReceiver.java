@@ -22,11 +22,6 @@
 package fun.asgc.neutrino.core.base.event;
 
 import com.alibaba.fastjson.JSONObject;
-import fun.asgc.neutrino.core.base.TagMatcher;
-import fun.asgc.neutrino.core.base.TopicMatcher;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.core.web.AntPathMatcher;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
@@ -36,27 +31,9 @@ import java.util.Set;
  * @date: 2022/9/29
  */
 @Slf4j
-public class ApplicationEventReceiver<D> implements EventReceiver<ApplicationEventContext,D,ApplicationEvent<D>>,TagMatcher,TopicMatcher {
+public class ApplicationEventReceiver<D> implements EventReceiver<ApplicationEventContext,D,ApplicationEvent<D>> {
     private String topic;
     private Set<String> tags;
-    private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    @Override
-    public boolean tagMatch(String tag) {
-        if (CollectionUtil.isEmpty(this.tags)) {
-            return true;
-        }
-        return this.tags.contains(tag);
-    }
-
-    @Override
-    public boolean topicMatch(String topic) {
-        if (StringUtil.isEmpty(this.topic)) {
-            return true;
-        }
-        return antPathMatcher.match(this.topic, topic == null ? "" : topic);
-    }
-
     @Override
     public void receive(ApplicationEvent<D> msg) {
         log.debug("ApplicationEventReceiver receive {}", JSONObject.toJSONString(msg));
@@ -68,5 +45,13 @@ public class ApplicationEventReceiver<D> implements EventReceiver<ApplicationEve
 
     public void setTags(Set<String> tags) {
         this.tags = tags;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }
