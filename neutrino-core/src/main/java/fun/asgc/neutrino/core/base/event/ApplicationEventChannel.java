@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import fun.asgc.neutrino.core.base.ChannelConnector;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.Assert;
@@ -39,14 +40,16 @@ import java.util.concurrent.TimeUnit;
  * @author: aoshiguchen
  * @date: 2022/9/29
  */
-public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEventContext,ApplicationEvent<D>,ApplicationEventReceiver<D>,Dispatcher<ApplicationEventContext,ApplicationEvent<D>>> {
+public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEventContext,ApplicationEvent<D>,ApplicationEventReceiver<D>,Dispatcher<ApplicationEventContext,ApplicationEvent<D>>>, ChannelConnector<ApplicationEventChannel<D>> {
     private List<ApplicationEventReceiver<D>> receiverList;
     private Dispatcher<ApplicationEventContext,ApplicationEvent<D>> dispatcher;
     private ThreadPoolExecutor threadPoolExecutor;
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private List<ApplicationEventChannel<D>> channelList;
 
     public ApplicationEventChannel() {
         this.receiverList = new ArrayList<>();
+        this.channelList = new ArrayList<>();
         this.threadPoolExecutor = new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ApplicationEventChannel"));
     }
@@ -77,6 +80,11 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
 
     @Override
     public void publish(ApplicationEvent<D> msg) {
+        if (msg.context().channelList().contains(this)) {
+            return;
+        }
+        msg.context().channelList().add(this);
+        // 将消息推送给关注该channel的接受者
         this.receiverList.forEach(receiver -> {
             threadPoolExecutor.submit(() -> {
                 if (match(msg, receiver)) {
@@ -84,6 +92,24 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
                 }
             });
         });
+        // 将消息广播到所有关联的channel中去
+        this.channelList.forEach(channel -> channel.publish(msg));
+    }
+
+    @Override
+    public void connectChannel(ApplicationEventChannel<D> channel) {
+        if (null == channel || this.channelList.contains(channel) || this == channel) {
+            return;
+        }
+        this.channelList.add(channel);
+    }
+
+    @Override
+    public void disconnectChannel(ApplicationEventChannel<D> channel) {
+        if (null == channel) {
+            return;
+        }
+        this.channelList.remove(channel);
     }
 
     /**

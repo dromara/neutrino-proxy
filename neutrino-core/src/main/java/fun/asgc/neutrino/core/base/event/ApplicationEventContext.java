@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import fun.asgc.neutrino.core.base.Channel;
 import fun.asgc.neutrino.core.util.StringUtil;
 
 import java.util.*;
@@ -37,10 +38,12 @@ public class ApplicationEventContext implements EventContext {
     private Object source;
     private Date happenTime;
     private Map<String, Object> attachData = new HashMap<>();
+    private List<Channel> channelList;
 
     public ApplicationEventContext() {
         this.id = StringUtil.genUUID();
         this.happenTime = new Date();
+        this.channelList = new ArrayList<>();
     }
 
     @Override
@@ -87,5 +90,10 @@ public class ApplicationEventContext implements EventContext {
 
     public <S> void setSource(S source) {
         this.source = source;
+    }
+
+    @Override
+    public List<Channel> channelList() {
+        return this.channelList;
     }
 }

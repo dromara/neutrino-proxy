@@ -21,7 +21,10 @@
  */
 package fun.asgc.neutrino.core.base.event;
 
+import fun.asgc.neutrino.core.base.Channel;
+
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,4 +68,12 @@ public interface EventContext {
      * @return 事件发生的时间
      */
     Date happenTime();
+
+    /**
+     * channel列表
+     * 1、如果为空，说明该事件未经过channel
+     * 2、该list代表事件在channel中的广播顺序
+     * @return channel列表
+     */
+    List<Channel> channelList();
 }
