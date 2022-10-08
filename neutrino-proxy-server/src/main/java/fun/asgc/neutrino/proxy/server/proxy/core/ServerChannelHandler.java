@@ -22,11 +22,10 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.core.base.DefaultDispatcher;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
-import fun.asgc.neutrino.core.util.LockUtil;
-import fun.asgc.neutrino.proxy.core.*;
+import fun.asgc.neutrino.proxy.core.Constants;
+import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import fun.asgc.neutrino.proxy.server.service.ProxyMutualService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
@@ -45,17 +44,18 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
 
     public ServerChannelHandler() {
-        try {
-            LockUtil.doubleCheckProcess(() -> null == dispatcher,
-                ServerChannelHandler.class,
-                () -> {
-                    dispatcher = new DefaultDispatcher<>("消息调度器",
-                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
-                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        dispatcher = BeanManager.getBean(Dispatcher.class);
+//        try {
+//            LockUtil.doubleCheckProcess(() -> null == dispatcher,
+//                ServerChannelHandler.class,
+//                () -> {
+//                    dispatcher = new DefaultDispatcher<>("消息调度器",
+//                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
+//                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
+//             });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

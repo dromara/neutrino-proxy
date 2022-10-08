@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
-public class SystemConfiguration {
+public class RestConfiguration {
 	@Autowired
 	private SqliteConfig sqliteConfig;
 
