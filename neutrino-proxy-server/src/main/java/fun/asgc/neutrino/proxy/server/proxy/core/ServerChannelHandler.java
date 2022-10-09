@@ -45,17 +45,6 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
 
     public ServerChannelHandler() {
         dispatcher = BeanManager.getBean(Dispatcher.class);
-//        try {
-//            LockUtil.doubleCheckProcess(() -> null == dispatcher,
-//                ServerChannelHandler.class,
-//                () -> {
-//                    dispatcher = new DefaultDispatcher<>("消息调度器",
-//                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
-//                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-//             });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     @Override
