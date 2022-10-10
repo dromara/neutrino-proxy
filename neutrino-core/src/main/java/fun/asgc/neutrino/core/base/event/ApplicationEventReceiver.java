@@ -34,6 +34,20 @@ import java.util.Set;
 public class ApplicationEventReceiver<D> implements EventReceiver<ApplicationEventContext,D,ApplicationEvent<D>> {
     private String topic;
     private Set<String> tags;
+
+    public ApplicationEventReceiver() {
+
+    }
+
+    public ApplicationEventReceiver(String topic) {
+        this.topic = topic;
+    }
+
+    public ApplicationEventReceiver(String topic, Set<String> tags) {
+        this.topic = topic;
+        this.tags = tags;
+    }
+
     @Override
     public void receive(ApplicationEvent<D> msg) {
         log.debug("ApplicationEventReceiver receive {}", JSONObject.toJSONString(msg));

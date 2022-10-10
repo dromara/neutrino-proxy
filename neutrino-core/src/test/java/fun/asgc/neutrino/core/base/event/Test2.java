@@ -47,7 +47,7 @@ public class Test2 {
 
     {
         channel.connectChannel(myTestChannel);
-        publisher.registerChannel(channel);
+        publisher.bindChannel(channel);
     }
 
     @Test

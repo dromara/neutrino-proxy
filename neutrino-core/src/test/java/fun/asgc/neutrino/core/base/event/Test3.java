@@ -22,7 +22,6 @@
 package fun.asgc.neutrino.core.base.event;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -40,32 +39,28 @@ import org.junit.Test;
  * @date: 2022/10/3
  */
 @Slf4j
-public class Test1 {
-    private ApplicationEventChannel<Student> channel = new ApplicationEventChannel<>();
-    private ApplicationEventPublisher<Student> publisher = new ApplicationEventPublisher<>();
-
-    {
-        publisher.bindChannel(channel);
-    }
+public class Test3 {
+    private SimpleApplicationEventManager<Student> simpleApplicationEventManager = new SimpleApplicationEventManager<>(this);
 
     @Test
     public void test1() {
-        ApplicationEventReceiver<Student> receiver = new ApplicationEventReceiver<Student>() {
+        ApplicationEventReceiver<Student> receiver1 = new ApplicationEventReceiver<Student>() {
             @Override
             public void receive(ApplicationEvent<Student> msg) {
-                log.info("data:{}", JSONObject.toJSONString(msg.data()));
+                log.info("receiver1 data:{}", JSONObject.toJSONString(msg.data()));
             }
         };
-//        receiver.setTopic("/**");
-//        receiver.setTags(Sets.newHashSet("create"));
-        channel.registerReceiver(receiver);
+        receiver1.setTopic("/*");
+        ApplicationEventReceiver<Student> receiver2 = new ApplicationEventReceiver<Student>() {
+            @Override
+            public void receive(ApplicationEvent<Student> msg) {
+                log.info("receiver2 data:{}", JSONObject.toJSONString(msg.data()));
+            }
+        };
+        simpleApplicationEventManager.registerReceiver(receiver1);
+        simpleApplicationEventManager.registerReceiver(receiver2);
 
-        ApplicationEvent<Student> event = new ApplicationEvent<>();
-//        event.context().setId("123");
-        event.context().setTopic("/student/create");
-        event.context().setTags(Sets.newHashSet("create"));
-        event.setData(new Student().setId("1").setName("张三").setAge(28).setSex("男"));
-        publisher.publish(event);
+        simpleApplicationEventManager.publish("/aaa", null, new Student().setId("1").setName("张三").setAge(28).setSex("男"));
 
         SystemUtil.waitProcessDestroy().sync();
     }
@@ -77,5 +72,9 @@ public class Test1 {
         private String name;
         private Integer age;
         private String sex;
+    }
+
+    public static class MyTestChannel extends ApplicationEventChannel<Student> {
+
     }
 }

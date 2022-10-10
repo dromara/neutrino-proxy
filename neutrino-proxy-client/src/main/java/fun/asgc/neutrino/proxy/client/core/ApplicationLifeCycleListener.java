@@ -19,28 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.base;
+package fun.asgc.neutrino.proxy.client.core;
+
+import fun.asgc.neutrino.core.base.event.ApplicationEvent;
+import fun.asgc.neutrino.core.base.event.ApplicationEventReceiver;
+import fun.asgc.neutrino.core.constant.AppLifeCycleStatusEnum;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/9/29
+ * @date: 2022/10/10
  */
-public interface Publisher<D,Ch extends Channel> {
-    /**
-     * 发布消息
-     * @param msg 消息
-     */
-    void publish(D msg);
+@Slf4j
+public class ApplicationLifeCycleListener extends ApplicationEventReceiver<AppLifeCycleStatusEnum> {
 
-    /**
-     * 绑定渠道
-     * @param channel 渠道
-     */
-    void bindChannel(Ch channel);
+    @Override
+    public void receive(ApplicationEvent<AppLifeCycleStatusEnum> msg) {
+        log.info("ApplicationLifeCycleListener:{}", msg.data().getDesc());
+    }
 
-    /**
-     * 解绑渠道
-     * @param channel 渠道
-     */
-    void unbindChannel(Ch channel);
 }

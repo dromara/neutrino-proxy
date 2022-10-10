@@ -22,6 +22,7 @@
 
 package fun.asgc.neutrino.core.context;
 
+import fun.asgc.neutrino.core.base.event.SimpleApplicationEventManager;
 import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -64,4 +65,8 @@ public class Environment {
 	 * 运行上下文
 	 */
 	private SystemUtil.RunContext runContext;
+	/**
+	 * 默认的应用事件管理器
+	 */
+	private SimpleApplicationEventManager defaultApplicationEventManager;
 }

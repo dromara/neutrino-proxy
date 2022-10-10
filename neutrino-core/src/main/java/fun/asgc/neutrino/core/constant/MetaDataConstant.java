@@ -80,4 +80,8 @@ public interface MetaDataConstant {
 	 * 服务版本
 	 */
 	String SERVER_VS = "Neutrino-1.0";
+	/**
+	 * app生命周期主题
+	 */
+	String TOPIC_APP_LIFE_CYCLE = "TP_APP_LIFE_CYCLE";
 }

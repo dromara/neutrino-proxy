@@ -44,7 +44,7 @@ public class ApplicationEventPublisher<D> implements EventPublisher<D,Applicatio
     }
 
     @Override
-    public void registerChannel(ApplicationEventChannel<D> channel) {
+    public void bindChannel(ApplicationEventChannel<D> channel) {
         Assert.notNull(channel, "channel不能为空!");
         if (!this.channelList.contains(channel)) {
             this.channelList.add(channel);
@@ -52,7 +52,7 @@ public class ApplicationEventPublisher<D> implements EventPublisher<D,Applicatio
     }
 
     @Override
-    public void unRegisterChannel(ApplicationEventChannel<D> channel) {
+    public void unbindChannel(ApplicationEventChannel<D> channel) {
         Assert.notNull(channel, "channel不能为空!");
         this.channelList.remove(channel);
     }
