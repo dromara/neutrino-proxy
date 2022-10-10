@@ -85,7 +85,7 @@ public class LicenseObtainService implements ApplicationRunner {
 
 	public void process(String[] args) {
 		if (isFirst) {
-			isFirst = true;
+			isFirst = false;
 			SystemUtil.trySleep(2000);
 		}
 		String licenseKey = getLicenseKey(args);
