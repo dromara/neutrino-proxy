@@ -50,7 +50,7 @@ public class ApplicationEventReceiver<D> implements EventReceiver<ApplicationEve
 
     @Override
     public void receive(ApplicationEvent<D> msg) {
-        log.debug("ApplicationEventReceiver receive {}", JSONObject.toJSONString(msg));
+        log.debug("ApplicationEventReceiver receive {}", JSONObject.toJSONString(msg.data()));
     }
 
     public void setTopic(String topic) {

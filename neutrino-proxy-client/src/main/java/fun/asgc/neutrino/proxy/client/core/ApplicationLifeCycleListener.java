@@ -21,9 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.client.core;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.Subscribe;
 import fun.asgc.neutrino.core.base.event.ApplicationEvent;
 import fun.asgc.neutrino.core.base.event.ApplicationEventReceiver;
 import fun.asgc.neutrino.core.constant.AppLifeCycleStatusEnum;
+import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,11 +36,19 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2022/10/10
  */
 @Slf4j
+@NonIntercept
+@Component
+@Subscribe(topic = MetaDataConstant.TOPIC_APP_LIFE_CYCLE)
 public class ApplicationLifeCycleListener extends ApplicationEventReceiver<AppLifeCycleStatusEnum> {
+    @Autowired
+    private LicenseObtainService licenseObtainService;
 
     @Override
     public void receive(ApplicationEvent<AppLifeCycleStatusEnum> msg) {
-        log.info("ApplicationLifeCycleListener:{}", msg.data().getDesc());
+        log.debug("ApplicationLifeCycleListener:{}", msg.data().getDesc());
+        if (msg.data() == AppLifeCycleStatusEnum.APP_STARTUP) {
+            licenseObtainService.start();
+        }
     }
 
 }

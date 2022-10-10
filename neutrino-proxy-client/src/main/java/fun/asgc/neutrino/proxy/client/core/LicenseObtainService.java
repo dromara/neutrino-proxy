@@ -25,11 +25,10 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
-import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.core.util.SystemUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 @NonIntercept
 @Component
-public class LicenseObtainService implements ApplicationRunner {
+public class LicenseObtainService {
 	@Autowired
 	private ProxyConfig proxyConfig;
 	/**
@@ -59,16 +58,15 @@ public class LicenseObtainService implements ApplicationRunner {
 	private ProxyClientService proxyClientService;
 	private ReentrantLock runLock = new ReentrantLock();
 	private Scanner scanner = new Scanner(System.in);
-	private volatile boolean isFirst;
+	@Autowired
+	private Environment environment;
 
-	@Override
-	public void run(String[] args) throws Exception {
-		isFirst = true;
+	public void start() {
 		scheduledExecutor.scheduleWithFixedDelay(() -> {
 			boolean lock = runLock.tryLock();
 			try {
 				if (lock) {
-					this.process(args);
+					this.process(this.environment.getMainArgs());
 				}
 			} finally {
 				if (runLock.isHeldByCurrentThread()){
@@ -84,10 +82,6 @@ public class LicenseObtainService implements ApplicationRunner {
 	}
 
 	public void process(String[] args) {
-		if (isFirst) {
-			isFirst = false;
-			SystemUtil.trySleep(2000);
-		}
 		String licenseKey = getLicenseKey(args);
 		proxyClientService.start(licenseKey);
 	}
