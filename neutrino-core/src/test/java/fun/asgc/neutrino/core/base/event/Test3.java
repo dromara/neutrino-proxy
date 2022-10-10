@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.base.event;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -51,16 +52,18 @@ public class Test3 {
             }
         };
         receiver1.setTopic("/*");
+        receiver1.setTags(Sets.newHashSet("tag1"));
         ApplicationEventReceiver<Student> receiver2 = new ApplicationEventReceiver<Student>() {
             @Override
             public void receive(ApplicationEvent<Student> msg) {
                 log.info("receiver2 data:{}", JSONObject.toJSONString(msg.data()));
             }
         };
+        receiver2.setTags(Sets.newHashSet("tag2"));
         simpleApplicationEventManager.registerReceiver(receiver1);
         simpleApplicationEventManager.registerReceiver(receiver2);
 
-        simpleApplicationEventManager.publish("/aaa", null, new Student().setId("1").setName("张三").setAge(28).setSex("男"));
+        simpleApplicationEventManager.publish("/aaa", Sets.newHashSet("tag2"), new Student().setId("1").setName("张三").setAge(28).setSex("男"));
 
         SystemUtil.waitProcessDestroy().sync();
     }
