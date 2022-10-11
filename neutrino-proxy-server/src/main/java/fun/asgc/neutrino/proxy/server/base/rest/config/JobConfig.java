@@ -24,14 +24,9 @@ package fun.asgc.neutrino.proxy.server.base.rest.config;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.quartz.JobExecutor;
 import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 定时任务配置
