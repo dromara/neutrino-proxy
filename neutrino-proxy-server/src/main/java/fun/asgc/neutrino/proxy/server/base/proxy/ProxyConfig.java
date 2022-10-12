@@ -19,14 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package fun.asgc.neutrino.proxy.server.base.proxy;
 
 import fun.asgc.neutrino.core.annotation.Configuration;
 import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;
-
-import java.util.Map;
 
 /**
  * 服务端代理配置

@@ -25,6 +25,8 @@ package fun.asgc.neutrino.core.context;
 import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.EnableJob;
 import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
+import fun.asgc.neutrino.core.base.event.SimpleApplicationEventManager;
+import fun.asgc.neutrino.core.constant.AppLifeCycleStatusEnum;
 import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -52,25 +54,43 @@ public class NeutrinoLauncher {
 	private NeutrinoLauncher(Class<?> clazz, String[]  args) {
 		this.environment = new Environment()
 			.setMainClass(clazz)
-			.setMainArgs(args);
+			.setMainArgs(args)
+			.setDefaultApplicationEventManager(new SimpleApplicationEventManager(this))
+		;
 	}
 
 	private SystemUtil.RunContext launch() {
+		// 已创建
+		publishAppLifeCycleEvent(AppLifeCycleStatusEnum.APP_CREATE);
+
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-
 		environmentInit();
+
+		// 应用已初始化
+		publishAppLifeCycleEvent(AppLifeCycleStatusEnum.APP_INIT);
+
 		ApplicationContext context = new ApplicationContext(environment);
 		SystemUtil.RunContext runContext = SystemUtil.waitProcessDestroy(() -> {
+			// 应用准备销毁
+			publishAppLifeCycleEvent(AppLifeCycleStatusEnum.APP_PRE_DESTROY);
 			context.destroy();
 			log.info("Application already stop.");
+			// 应用已销毁
+			publishAppLifeCycleEvent(AppLifeCycleStatusEnum.APP_DESTROY);
 		});
 		environment.setRunContext(runContext);
 
 		context.run();
 
+		// 容器已初始化
+		publishAppLifeCycleEvent(AppLifeCycleStatusEnum.CONTAINER_INIT);
+
 		stopWatch.stop();
 		printLog(environment, stopWatch);
+
+		// 应用已启动完成
+		publishAppLifeCycleEvent(AppLifeCycleStatusEnum.APP_STARTUP);
 
 		return runContext;
 	}
@@ -132,5 +152,13 @@ public class NeutrinoLauncher {
 			environment.setBanner(banner);
 		}
 		log.info(environment.getBanner());
+	}
+
+	/**
+	 * 发布应用生命周期事件
+	 * @param appLifeCycleStatusEnum 应用生命周期事件
+	 */
+	private void publishAppLifeCycleEvent(AppLifeCycleStatusEnum appLifeCycleStatusEnum) {
+		this.environment.getDefaultApplicationEventManager().publish(MetaDataConstant.TOPIC_APP_LIFE_CYCLE,  appLifeCycleStatusEnum);
 	}
 }

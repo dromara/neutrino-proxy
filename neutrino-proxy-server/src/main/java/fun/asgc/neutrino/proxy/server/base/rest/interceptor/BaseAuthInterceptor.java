@@ -46,6 +46,11 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpRequestWrapper requestParser, HttpResponseWrapper responseWrapper, String route, Method targetMethod) throws Exception {
+		// TODO 临时解决静态页面被拦截的问题
+		if (null == targetMethod) {
+			return true;
+		}
+
 		SystemContext systemContext = new SystemContext();
 		SystemContextHolder.set(systemContext);
 		systemContext.setIp(HttpUtil.getIP(HttpContextHolder.getChannelHandlerContext(), requestParser));

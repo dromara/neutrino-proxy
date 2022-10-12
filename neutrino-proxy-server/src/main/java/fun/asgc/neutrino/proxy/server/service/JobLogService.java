@@ -24,8 +24,14 @@ package fun.asgc.neutrino.proxy.server.service;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.quartz.IJobCallback;
 import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +52,7 @@ public class JobLogService implements IJobCallback {
 	private JobLogMapper jobLogMapper;
 
 	@Override
-	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+	public void executeLog(JobInfo jobInfo, String param, Throwable throwable) {
 		Integer code = 0;
 		String msg = "";
 		if (null == throwable) {
@@ -60,12 +66,23 @@ public class JobLogService implements IJobCallback {
 		jobLogMapper.add(new JobLogDO()
 				.setJobId(Integer.valueOf(jobInfo.getId()))
 				.setHandler(jobInfo.getName())
-				.setParam(jobInfo.getParam())
+				.setParam(param)
 				.setCode(code)
 				.setMsg(msg)
 				.setAlarmStatus(0)
 				.setCreateTime(new Date())
 		);
+	}
+
+	public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+		Page<JobLogListRes> page = Page.create(pageQuery);
+
+		if(req.getJobId() != null && req.getJobId() > 0){
+			jobLogMapper.pageByJobId(page, req);
+		} else {
+			jobLogMapper.page(page, req);
+		}
+		return page;
 	}
 
 }

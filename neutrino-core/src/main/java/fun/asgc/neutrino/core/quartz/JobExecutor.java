@@ -23,6 +23,7 @@ package fun.asgc.neutrino.core.quartz;
 
 import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
@@ -37,7 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Job执行器
@@ -60,8 +63,12 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 
 	@Override
 	public void run(String[] args) throws JobException {
-		if (!environment.isEnableJob() || null == jobSource || null == threadPoolExecutor) {
+		if (!environment.isEnableJob() || null == jobSource) {
 			return;
+		}
+		if (null == threadPoolExecutor) {
+			threadPoolExecutor = new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<>(), new CustomThreadFactory("DefaultJobPool"));
 		}
 
 		List<IJobHandler> jobHandlerList = BeanManager.getBeanListBySuperClass(IJobHandler.class);
@@ -112,7 +119,7 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 	@Override
 	public void add(JobInfo jobInfo) throws JobException {
 		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getId()) || StringUtil.isEmpty(jobInfo.getName()) ||
-				StringUtil.isEmpty(jobInfo.getCron()) || runJobSet.contains(jobInfo.getName())) {
+				StringUtil.isEmpty(jobInfo.getCron())) {
 			return;
 		}
 		synchronized (jobInfo.getId()) {
@@ -128,8 +135,10 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 			JobDetail jobDetail = JobBuilder.newJob(JobBean.class).withIdentity(jobKey).build();
 
 			try {
-				scheduler.scheduleJob(jobDetail, cronTrigger);
-				scheduler.start();
+				if (jobInfo.isEnable()) {
+					scheduler.scheduleJob(jobDetail, cronTrigger);
+					scheduler.start();
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(String.format("新增job[name=%s]异常", jobInfo.getName()));
 			}
@@ -190,10 +199,10 @@ public class JobExecutor implements ApplicationRunner, IJobExecutor {
 			try {
 				jobHandler.execute(param);
 				if (null != jobCallback) {
-					jobCallback.executeLog(jobInfo, null);
+					jobCallback.executeLog(jobInfo, param, null);
 				}
 			} catch (Throwable e) {
-				jobCallback.executeLog(jobInfo, e);
+				jobCallback.executeLog(jobInfo, param, e);
 			}
 		});
 	}

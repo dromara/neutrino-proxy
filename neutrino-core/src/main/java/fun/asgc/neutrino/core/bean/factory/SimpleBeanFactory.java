@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.aop.interceptor.ExceptionHandler;
 import fun.asgc.neutrino.core.aop.interceptor.Filter;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.aop.interceptor.ResultAdvice;
+import fun.asgc.neutrino.core.base.event.ApplicationEventReceiver;
 import fun.asgc.neutrino.core.bean.*;
 import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
@@ -374,6 +375,7 @@ public class SimpleBeanFactory extends AbstractBeanFactory {
 				|| Filter.class.isAssignableFrom(item)
 				|| ExceptionHandler.class.isAssignableFrom(item)
 				|| ResultAdvice.class.isAssignableFrom(item)
+				|| ApplicationEventReceiver.class.isAssignableFrom(item)
 			)
 			.forEach(clazz -> {
 				String beanName = TypeUtil.getDefaultVariableName(clazz);

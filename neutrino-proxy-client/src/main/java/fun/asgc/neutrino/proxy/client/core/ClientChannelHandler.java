@@ -22,13 +22,15 @@
 
 package fun.asgc.neutrino.proxy.client.core;
 
-import fun.asgc.neutrino.core.base.DefaultDispatcher;
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
-import fun.asgc.neutrino.core.util.LockUtil;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
-import fun.asgc.neutrino.proxy.core.*;
-import io.netty.channel.*;
+import fun.asgc.neutrino.proxy.core.Constants;
+import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,17 +46,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
 
 
     public ClientChannelHandler() {
-        try {
-            LockUtil.doubleCheckProcess(() -> null == dispatcher,
-                ClientChannelHandler.class,
-                () -> {
-                    dispatcher = new DefaultDispatcher<>("消息调度器",
-                        BeanManager.getBeanListBySuperClass(ProxyMessageHandler.class),
-                        proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ? null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-                });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        dispatcher = BeanManager.getBean(Dispatcher.class);
     }
 
     @Override

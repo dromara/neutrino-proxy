@@ -1107,4 +1107,11 @@ public class StringUtil {
 		return arrayToDelimitedString(arr, ",");
 	}
 
+	/**
+	 * 生成UUID
+	 * @return
+	 */
+	public static String genUUID() {
+		return UUID.randomUUID().toString().replace("-", "").toUpperCase();
+	}
 }

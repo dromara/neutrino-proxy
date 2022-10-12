@@ -34,3 +34,10 @@ export function updateJobInfo(data) {
     data: data
   })
 }
+
+export function jobList() {
+  return request({
+    url: '/job-info/findList',
+    method: 'get'
+  })
+}

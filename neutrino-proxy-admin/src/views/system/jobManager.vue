@@ -5,11 +5,7 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="100">
-        <template slot-scope="scope">
-          <span>{{scope.row.id}}</span>
-        </template>
-      </el-table-column>
+      <el-table-column type="index" width="100" :label="$t('table.id')"></el-table-column>
       <el-table-column align="center" :label="$t('table.desc')" width="200">
         <template slot-scope="scope">
           <span>{{scope.row.desc}}</span>
@@ -38,6 +34,11 @@
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('route.jobLog')" width="100">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleLogClick(scope.row)">查看</el-button>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
@@ -222,6 +223,9 @@
             })
           }
         })
+      },
+      handleLogClick(row) {
+        this.$router.push({ path: '/system/jobLog', query: { jobId: row.id }})
       }
     }
   }

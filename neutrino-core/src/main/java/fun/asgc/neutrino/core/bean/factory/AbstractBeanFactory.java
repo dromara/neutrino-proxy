@@ -21,7 +21,10 @@
  */
 package fun.asgc.neutrino.core.bean.factory;
 
+import fun.asgc.neutrino.core.annotation.Subscribe;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
+import fun.asgc.neutrino.core.base.event.ApplicationEventReceiver;
+import fun.asgc.neutrino.core.base.event.SimpleApplicationEventManager;
 import fun.asgc.neutrino.core.bean.*;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.context.LifeCycle;
@@ -31,12 +34,13 @@ import fun.asgc.neutrino.core.exception.BeanException;
 import fun.asgc.neutrino.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 抽象的bean工厂
@@ -371,7 +375,32 @@ public abstract class AbstractBeanFactory implements BeanFactory, BeanRegistry, 
 				parent.init();
 			}
 			if (CollectionUtil.notEmpty(beanCache)) {
-				beanCache.values().stream().filter(b -> BeanStatus.INJECT == b.getStatus()).forEach(bean -> bean.init());
+				beanCache.values().stream().forEach(bean -> {
+					SimpleApplicationEventManager defaultApplicationEventManager = getEnvironment().getDefaultApplicationEventManager();
+					if (null != defaultApplicationEventManager && ApplicationEventReceiver.class.isAssignableFrom(bean.getType())) {
+						boolean enable = true;
+						String topic = null;
+						Set<String> tags = null;
+						Subscribe subscribe = bean.getType().getAnnotation(Subscribe.class);
+						if (null != subscribe) {
+							enable = subscribe.enable();
+							topic = subscribe.topic();
+							if (ArrayUtil.notEmpty(subscribe.tags())) {
+								tags = Stream.of(subscribe.tags()).collect(Collectors.toSet());
+							}
+						}
+						if (enable) {
+							ApplicationEventReceiver receiver = (ApplicationEventReceiver) bean.getInstance();
+							receiver.setTopic(topic);
+							receiver.setTags(tags);
+							defaultApplicationEventManager.registerReceiver(receiver);
+						}
+					}
+
+					if (BeanStatus.INJECT == bean.getStatus()) {
+						bean.init();
+					}
+				});
 			}
 			log.info("bean工厂[{}]初始化.", getName());
 			scheduledExecutor.scheduleWithFixedDelay(this::run, 0, 1, TimeUnit.SECONDS);

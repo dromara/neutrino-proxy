@@ -21,13 +21,11 @@
  */
 package fun.asgc.neutrino.core.bean.test2;
 
-import lombok.Data;
 import org.junit.Test;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  *
@@ -38,27 +36,38 @@ public class Test1 {
 
 	@Test
 	public void test1() throws IntrospectionException, InvocationTargetException, IllegalAccessException {
-		PropertyDescriptor descriptor = new PropertyDescriptor("age", Student.class);
-		Student student = new Student();
-		Method method = descriptor.getWriteMethod();
-		method.invoke(student, 30);
-		System.out.println(student);
+		PropertyDescriptor pd1= new PropertyDescriptor("name", Person.class);
+		PropertyDescriptor pd2= new PropertyDescriptor("age", Person.class, "getAge", "setAge");
+
+		Person person = new Person();
+		person.setName("张三");
+
+		pd1.getWriteMethod().invoke(person, "李四");
+
+		System.out.println(pd1.getReadMethod().invoke(person));
+
+		pd2.getWriteMethod().invoke(person, 20);
+		System.out.println(pd2.getReadMethod().invoke(person));
 	}
 
-	public static class Student {
+	public static class Person {
 		private String name;
 		private int age;
-		private int score;
+
+		public String isName() {
+			return name;
+		}
 
 		public int getAge() {
 			return age;
 		}
 
-//		public void setAge(int age) {
-//			this.age = age;
-//		}
+		public void setName(String name) {
+			this.name = name;
+		}
+
 		public void setAge(int age) {
-			System.out.println("111");
+			this.age = age;
 		}
 	}
 }

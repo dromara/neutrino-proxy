@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JobCallback implements IJobCallback {
 
 	@Override
-	public void executeLog(JobInfo jobInfo, Throwable throwable) {
+	public void executeLog(JobInfo jobInfo, String param, Throwable throwable) {
 		if (null == throwable) {
 			log.info("job[name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
 		} else {

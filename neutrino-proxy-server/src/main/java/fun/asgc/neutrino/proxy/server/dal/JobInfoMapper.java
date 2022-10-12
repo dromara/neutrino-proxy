@@ -56,8 +56,8 @@ public interface JobInfoMapper extends SqlMapper {
     void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
     @ResultType(JobInfoDO.class)
-    @Select("select * from job_info where enable = 1")
-    List<JobInfoDO> findEnableList();
+    @Select("select * from job_info")
+    List<JobInfoDO> findList();
 
     void update(JobInfoDO jobInfoDO);
 }

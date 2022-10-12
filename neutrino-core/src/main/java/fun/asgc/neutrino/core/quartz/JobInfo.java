@@ -39,5 +39,6 @@ public class JobInfo {
 	private String desc;
 	private String cron;
 	private String param;
+	private boolean enable;
 	private Map<String, Object> extension;
 }

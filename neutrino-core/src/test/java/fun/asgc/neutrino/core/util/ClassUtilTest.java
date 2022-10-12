@@ -80,5 +80,4 @@ public class ClassUtilTest {
 		Set<Class<?>> c = ClassUtil.scan("fun.asgc.neutrino.proxy.server", url);
 		System.out.println(c);
 	}
-
 }
