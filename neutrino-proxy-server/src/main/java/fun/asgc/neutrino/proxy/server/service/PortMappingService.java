@@ -74,27 +74,34 @@ public class PortMappingService {
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> page = Page.create(pageQuery);
 		portMappingMapper.page(page, req);
-		if (!CollectionUtil.isEmpty(page.getRecords())) {
-			Set<Integer> licenseIds = page.getRecords().stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
-			List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
-			Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
-			List<UserDO> userList = userMapper.findByIds(userIds);
-			Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
-			Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-			page.getRecords().forEach(item -> {
-				LicenseDO license = licenseMap.get(item.getLicenseId());
-				if (null == license) {
-					return;
-				}
-				item.setLicenseName(license.getName());
-				item.setUserId(license.getUserId());
-				UserDO user = userMap.get(license.getUserId());
-				if (null == user) {
-					return;
-				}
-				item.setUserName(user.getName());
-			});
+		if (CollectionUtil.isEmpty(page.getRecords())) {
+			return page;
 		}
+		Set<Integer> licenseIds = page.getRecords().stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
+		if (CollectionUtil.isEmpty(licenseIds)) {
+			return page;
+		}
+		List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
+		if (CollectionUtil.isEmpty(licenseList)) {
+			return page;
+		}
+		Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
+		List<UserDO> userList = userMapper.findByIds(userIds);
+		Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
+		Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+		page.getRecords().forEach(item -> {
+			LicenseDO license = licenseMap.get(item.getLicenseId());
+			if (null == license) {
+				return;
+			}
+			item.setLicenseName(license.getName());
+			item.setUserId(license.getUserId());
+			UserDO user = userMap.get(license.getUserId());
+			if (null == user) {
+				return;
+			}
+			item.setUserName(user.getName());
+		});
 		return page;
 	}
 
@@ -196,8 +203,7 @@ public class PortMappingService {
 		ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
 		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
-		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
-		if (!SystemContextHolder.isAdmin()) {
+		if (null != licenseDO && !SystemContextHolder.isAdmin()) {
 			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
