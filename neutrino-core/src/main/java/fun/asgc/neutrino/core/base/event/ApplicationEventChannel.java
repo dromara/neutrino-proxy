@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEventContext,ApplicationEvent<D>,ApplicationEventReceiver<D>,Dispatcher<ApplicationEventContext,ApplicationEvent<D>>>, ChannelConnector<ApplicationEventChannel<D>> {
     private List<ApplicationEventReceiver<D>> receiverList;
-    private Dispatcher<ApplicationEventContext,ApplicationEvent<D>> dispatcher;
     private ThreadPoolExecutor threadPoolExecutor;
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private List<ApplicationEventChannel<D>> channelList;
@@ -70,12 +69,6 @@ public class ApplicationEventChannel<D> implements EventChannel<D,ApplicationEve
             return;
         }
         this.receiverList.remove(receiver);
-    }
-
-    @Override
-    public void setDispatcher(Dispatcher<ApplicationEventContext, ApplicationEvent<D>> dispatcher) {
-        Assert.notNull(dispatcher, "dispatcher不能为空!");
-        this.dispatcher = dispatcher;
     }
 
     @Override

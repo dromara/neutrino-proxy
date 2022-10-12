@@ -28,6 +28,6 @@ import fun.asgc.neutrino.core.base.Dispatcher;
  * @author: aoshiguchen
  * @date: 2022/9/29
  */
-public interface EventChannel<D,EC extends EventContext, E extends Event<EC,D>, R extends EventReceiver, Dis extends Dispatcher> extends Channel<E,R,Dis> {
+public interface EventChannel<D,EC extends EventContext, E extends Event<EC,D>, R extends EventReceiver, Dis extends Dispatcher> extends Channel<E,R> {
 
 }

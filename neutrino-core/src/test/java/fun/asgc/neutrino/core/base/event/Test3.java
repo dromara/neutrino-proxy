@@ -63,7 +63,7 @@ public class Test3 {
         simpleApplicationEventManager.registerReceiver(receiver1);
         simpleApplicationEventManager.registerReceiver(receiver2);
 
-        simpleApplicationEventManager.publish("/aaa", Sets.newHashSet("tag2"), new Student().setId("1").setName("张三").setAge(28).setSex("男"));
+        simpleApplicationEventManager.publish("/aaa", Sets.newHashSet("tag1"), new Student().setId("1").setName("张三").setAge(28).setSex("男"));
 
         SystemUtil.waitProcessDestroy().sync();
     }

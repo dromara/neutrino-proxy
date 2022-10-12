@@ -25,7 +25,7 @@ package fun.asgc.neutrino.core.base;
  * @author: aoshiguchen
  * @date: 2022/9/29
  */
-public interface Channel<D,R extends Receiver,Dis extends Dispatcher> {
+public interface Channel<D,R extends Receiver> {
 
     /**
      * 注册接收者
@@ -38,12 +38,6 @@ public interface Channel<D,R extends Receiver,Dis extends Dispatcher> {
      * @param receiver 接收者
      */
     void unRegisterReceiver(R receiver);
-
-    /**
-     * 设置调度器
-     * @param dispatcher 调度器
-     */
-    void setDispatcher(Dis dispatcher);
 
     /**
      * 发布消息
