@@ -103,7 +103,7 @@ public class LicenseService {
 	 */
 	public LicenseCreateRes create(LicenseCreateReq req) {
 		LicenseDO licenseDO = licenseMapper.checkRepeat(req.getUserId(), req.getName());
-		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+		ParamCheckUtil.checkExpression(null == licenseDO, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
 		String key = UUID.randomUUID().toString().replaceAll("-", "");
 		Date now = new Date();
