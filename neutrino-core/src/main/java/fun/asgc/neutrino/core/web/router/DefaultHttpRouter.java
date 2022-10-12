@@ -234,6 +234,7 @@ public class DefaultHttpRouter implements HttpRouter {
 				if (null != staticResource && CollectionUtil.notEmpty(staticResource.getLocations())) {
 					for (String location : staticResource.getLocations()) {
 						String path = location + httpRouteParam.getUrl();
+						path = path.replaceAll("//", "/");
 						if (path.endsWith("/")) {
 							path += "index.html";
 						}
