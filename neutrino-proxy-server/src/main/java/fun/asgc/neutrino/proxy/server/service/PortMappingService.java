@@ -140,7 +140,7 @@ public class PortMappingService {
 		}
 		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
 		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkNotNull(portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
 
 		PortMappingDO portMappingDO = new PortMappingDO();
 		portMappingDO.setId(req.getId());
