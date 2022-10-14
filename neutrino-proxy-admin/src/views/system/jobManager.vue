@@ -41,7 +41,7 @@
           <el-button size="mini" type="text" @click="handleLogClick(scope.row)">查看</el-button>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.actions')" min-width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="handleEditClick(scope.row)">编辑</el-button>
           <el-button size="mini" type="primary" @click="handleExecuteClick(scope.row)">执行</el-button>
