@@ -86,30 +86,25 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		String licenseKey = proxyMessage.getInfo();
 		if (StringUtil.isEmpty(licenseKey)) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
-//			ctx.channel().close();
 			return;
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
-//			ctx.channel().close();
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被禁用!", licenseKey));
-//			ctx.channel().close();
 			return;
 		}
 		UserDO userDO = userService.findById(licenseDO.getId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license无效!", licenseKey));
-//			ctx.channel().close();
 			return;
 		}
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
-//			ctx.channel().close();
 			return;
 		}
 		// 发送认证成功消息
