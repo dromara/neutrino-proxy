@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- *
+ * 代理工具
  * @author: aoshiguchen
  * @date: 2022/8/31
  */

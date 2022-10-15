@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- *
+ * license获取服务
  * @author: aoshiguchen
  * @date: 2022/9/4
  */

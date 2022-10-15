@@ -36,7 +36,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- *
+ * 断开连接信息处理器
  * @author: aoshiguchen
  * @date: 2022/6/16
  */

@@ -32,6 +32,7 @@ import fun.asgc.neutrino.core.constant.MetaDataConstant;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 应用生命周期事件监听器
  * @author: aoshiguchen
  * @date: 2022/10/10
  */

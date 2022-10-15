@@ -34,7 +34,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- *
+ * 传输信息处理器
  * @author: aoshiguchen
  * @date: 2022/6/16
  */

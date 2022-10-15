@@ -37,7 +37,7 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * 认证信息处理器
  * @author: aoshiguchen
  * @date: 2022/9/4
  */

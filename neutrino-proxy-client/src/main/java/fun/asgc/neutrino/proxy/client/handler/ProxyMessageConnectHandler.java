@@ -34,7 +34,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 
 /**
- *
+ * 连接信息处理器
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
