@@ -106,6 +106,7 @@ proxy:
 
 # 7、技术文档
 - [Aop](./docs/Aop.MD)
+- [Channel](./docs/Channel.MD)
 
 # 8、联系我们
 - 微信: yuyunshize

@@ -54,6 +54,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		String[] serverInfo = new String(proxyMessage.getData()).split(":");
 		String ip = serverInfo[0];
 		int port = Integer.parseInt(serverInfo[1]);
+		// 连接真实的、被代理的服务
 		realServerBootstrap.connect(ip, port).addListener(new ChannelFutureListener() {
 
 			@Override
