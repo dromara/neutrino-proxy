@@ -70,11 +70,10 @@ public class ProxyClientService {
 	private Environment environment;
 	private volatile Channel channel;
 
-	public void start(String licenseKey) {
-		if (StringUtil.isEmpty(licenseKey)) {
+	public void start() {
+		if (StringUtil.isEmpty(proxyConfig.getLicenseKey())) {
 			return;
 		}
-		proxyConfig.setLicenseKey(licenseKey);
 		if (null == channel || !channel.isActive()) {
 			connectProxyServer();
 		} else {

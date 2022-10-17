@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.client.core;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
@@ -30,8 +32,11 @@ import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -82,29 +87,97 @@ public class LicenseObtainService {
 	}
 
 	public void process(String[] args) {
-		String licenseKey = getLicenseKey(args);
-		proxyClientService.start(licenseKey);
+		CustomConfig customConfig = getCustomConfigByCliParams(args);
+		proxyConfig.getClient().setJksPath(customConfig.getJksPath());
+		proxyConfig.getClient().setServerIp(customConfig.getServerIp());
+		proxyConfig.getClient().setServerPort(customConfig.getServerPort());
+		proxyConfig.getClient().setSslEnable(customConfig.getSslEnable());
+		proxyConfig.setLicenseKey(customConfig.getLicenseKey());
+		proxyClientService.start();
 	}
 
-	private String getLicenseKey(String[] args) {
-		String license = "";
-		if (null != args && ArrayUtil.notEmpty(args)) {
-			for (String s : args) {
-				if (s.startsWith("license=") && s.length() > 8) {
-					license = s.substring(8).trim();
-					break;
-				}
-			}
+	private CustomConfig getCustomConfigByCliParams(String[] args) {
+		CustomConfig customConfig = new CustomConfig();
+		// 默认无需输入
+		customConfig.setJksPath(proxyConfig.getClient().getJksPath());
+		customConfig.setServerIp(proxyConfig.getClient().getServerIp());
+		customConfig.setServerPort(proxyConfig.getClient().getServerPort());
+		customConfig.setSslEnable(proxyConfig.getClient().getSslEnable());
+		// 从cli参数中取
+		Map<String, String> cliParams = getCliParams(args);
+		if (cliParams.containsKey("jksPath")) {
+			customConfig.setJksPath(cliParams.get("jksPath"));
 		}
-		if (StringUtil.isEmpty(license)) {
-			license = FileUtil.readContentAsString("./.neutrino-proxy.license");
+		if (cliParams.containsKey("serverIp")) {
+			customConfig.setServerIp(cliParams.get("serverIp"));
+		}
+		if (cliParams.containsKey("serverPort")) {
+			customConfig.setServerPort(Integer.valueOf(cliParams.get("serverPort")));
+		}
+		if (cliParams.containsKey("sslEnable")) {
+			customConfig.setSslEnable(Boolean.valueOf(cliParams.get("sslEnable")));
+		}
+		if (cliParams.containsKey("licenseKey")) {
+			customConfig.setLicenseKey(cliParams.get("licenseKey"));
+		}
+		if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
+			FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+			return customConfig;
 		}
 
+		String config = FileUtil.readContentAsString("./.neutrino-proxy-client.config");
+		if (StringUtil.notEmpty(config)) {
+			try {
+				customConfig = JSONObject.parseObject(config, CustomConfig.class);
+			} catch (Exception e) {
+				log.error("配置异常!", e);
+			}
+			if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
+				FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+				return customConfig;
+			}
+		}
+
+		String license = "";
 		while (StringUtil.isEmpty(license)) {
 			System.out.print("请输入license:");
 			license = scanner.next();
 		}
+		customConfig.setLicenseKey(license);
+		FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 
-		return license;
+		return customConfig;
+	}
+
+	/**
+	 * 获取命令行参数
+	 * @param args
+	 * @return
+	 */
+	private Map<String, String> getCliParams(String[] args) {
+		Map<String, String> res = new HashMap<>();
+		if (ArrayUtil.notEmpty(args)) {
+			for (String item : args) {
+				if (StringUtil.isEmpty(item) || !item.contains("=")) {
+					continue;
+				}
+				int index = item.indexOf("=");
+				if (index <= 0 || index == item.length() - 1) {
+					continue;
+				}
+				res.put(item.substring(0, index), item.substring(index + 1));
+			}
+		}
+
+		return res;
+	}
+
+	@Data
+	public static class CustomConfig {
+		private String jksPath;
+		private String serverIp;
+		private Integer serverPort;
+		private Boolean sslEnable;
+		private String licenseKey;
 	}
 }
