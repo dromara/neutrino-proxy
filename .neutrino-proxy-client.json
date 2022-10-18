@@ -1,7 +1,0 @@
-{
-	"jksPath":"classpath:/test.jks",
-	"licenseKey":"9495b00018fd4d2eac4d485a4c923b6d",
-	"serverIp":"1.15.57.136",
-	"serverPort":9002,
-	"sslEnable":true
-}
