@@ -3,7 +3,7 @@
 *.class
 data.db*
 .neutrino-proxy.license
-.neutrino-proxy-client.config
+.neutrino-proxy-client.json
 lib/*
 
 

@@ -121,11 +121,11 @@ public class LicenseObtainService {
 			customConfig.setLicenseKey(cliParams.get("licenseKey"));
 		}
 		if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
-			FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+			FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 			return customConfig;
 		}
 
-		String config = FileUtil.readContentAsString("./.neutrino-proxy-client.config");
+		String config = FileUtil.readContentAsString("./.neutrino-proxy-client.json");
 		if (StringUtil.notEmpty(config)) {
 			try {
 				customConfig = JSONObject.parseObject(config, CustomConfig.class);
@@ -133,7 +133,7 @@ public class LicenseObtainService {
 				log.error("配置异常!", e);
 			}
 			if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
-				FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+				FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 				return customConfig;
 			}
 		}
@@ -144,7 +144,7 @@ public class LicenseObtainService {
 			license = scanner.next();
 		}
 		customConfig.setLicenseKey(license);
-		FileUtil.write("./.neutrino-proxy-client.config", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+		FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 
 		return customConfig;
 	}
