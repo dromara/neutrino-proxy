@@ -39,6 +39,7 @@ public class ProxyConfig {
 	private Protocol protocol;
 	private Client client;
 	private String licenseKey;
+	private CustomConfig customConfig;
 	public static volatile boolean authSuccess;
 
 	@Data

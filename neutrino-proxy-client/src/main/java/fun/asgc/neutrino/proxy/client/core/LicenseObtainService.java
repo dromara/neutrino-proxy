@@ -22,7 +22,6 @@
 package fun.asgc.neutrino.proxy.client.core;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
@@ -31,8 +30,8 @@ import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.proxy.client.config.CustomConfig;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -93,6 +92,7 @@ public class LicenseObtainService {
 		proxyConfig.getClient().setServerPort(customConfig.getServerPort());
 		proxyConfig.getClient().setSslEnable(customConfig.getSslEnable());
 		proxyConfig.setLicenseKey(customConfig.getLicenseKey());
+		proxyConfig.setCustomConfig(customConfig);
 		proxyClientService.start();
 	}
 
@@ -121,7 +121,7 @@ public class LicenseObtainService {
 			customConfig.setLicenseKey(cliParams.get("licenseKey"));
 		}
 		if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
-			FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+//			FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 			return customConfig;
 		}
 
@@ -133,7 +133,7 @@ public class LicenseObtainService {
 				log.error("配置异常!", e);
 			}
 			if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
-				FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+//				FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 				return customConfig;
 			}
 		}
@@ -144,7 +144,7 @@ public class LicenseObtainService {
 			license = scanner.next();
 		}
 		customConfig.setLicenseKey(license);
-		FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
+//		FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 
 		return customConfig;
 	}
@@ -170,14 +170,5 @@ public class LicenseObtainService {
 		}
 
 		return res;
-	}
-
-	@Data
-	public static class CustomConfig {
-		private String jksPath;
-		private String serverIp;
-		private Integer serverPort;
-		private Boolean sslEnable;
-		private String licenseKey;
 	}
 }
