@@ -52,7 +52,9 @@ export default {
     license: 'License管理',
     portMapping: '端口映射',
     jobManager: '调度管理',
-    jobLog: '调度日志'
+    jobLog: '调度日志',
+    log: '日志管理',
+    loginLog: '登录日志'
   },
   navbar: {
     logOut: '退出登录',

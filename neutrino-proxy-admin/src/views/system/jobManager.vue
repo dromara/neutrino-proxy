@@ -225,7 +225,7 @@
         })
       },
       handleLogClick(row) {
-        this.$router.push({ path: '/system/jobLog', query: { jobId: row.id }})
+        this.$router.push({ path: '/log/jobLog', query: { jobId: row.id }})
       }
     }
   }
