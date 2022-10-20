@@ -19,36 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.web.annotation.GetMapping;
+import fun.asgc.neutrino.core.web.annotation.RequestMapping;
+import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
+import fun.asgc.neutrino.proxy.server.service.UserLoginRecordService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 /**
- *
  * @author: aoshiguchen
- * @date: 2022/8/2
+ * @date: 2022/10/20
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface UserLoginRecordMapper extends SqlMapper {
-	/**
-	 * 新增用户登录日志
-	 * @param userLoginRecord
-	 * @return
-	 */
-	@Insert("insert into `user_login_record`(`user_id`,`ip`,`token`,`type`,`create_time`) values(:userId,:ip,:token,:type,:createTime)")
-	int add(UserLoginRecordDO userLoginRecord);
+@NonIntercept
+@RequestMapping("user-login-record")
+@RestController
+public class UserLoginRecordController {
+    @Autowired
+    private UserLoginRecordService userLoginRecordService;
 
-	@ResultType(UserLoginRecordListRes.class)
-	@Select("select * from user_login_record order by create_time desc")
-	void page(Page page, UserLoginRecordListReq req);
+    @GetMapping("page")
+    public Page<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return userLoginRecordService.page(pageQuery, req);
+    }
 }
