@@ -137,7 +137,9 @@ export default {
     alarmDing: '任务报警钉钉',
     jobLogCode: '执行结果',
     jobLogMsg: '执行日志',
-    alarmStatus: '报警状态'
+    alarmStatus: '报警状态',
+    ip: 'IP',
+    happendTime: '发生时间'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
