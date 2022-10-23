@@ -27,7 +27,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -125,9 +124,9 @@ public class ProxyMessage {
             .setInfo(info);
     }
 
-    public static ProxyMessage buildTransferMessage(String info, byte[] data) {
+    public static ProxyMessage buildTransferMessage(String visitorId, byte[] data) {
         return create().setType(TYPE_TRANSFER)
-            .setInfo(info)
+            .setInfo(visitorId)
             .setData(data);
     }
 

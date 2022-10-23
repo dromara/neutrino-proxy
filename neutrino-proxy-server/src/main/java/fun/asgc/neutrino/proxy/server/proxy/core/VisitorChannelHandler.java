@@ -63,8 +63,8 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            String userId = ProxyUtil.getVisitorChannelUserId(visitorChannel);
-            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(userId, bytes));
+            String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
+            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
         }
     }
 
@@ -104,7 +104,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
 
             // 用户连接断开，从控制连接中移除
-            String userId = ProxyUtil.getVisitorChannelUserId(userChannel);
+            String userId = ProxyUtil.getVisitorIdByChannel(userChannel);
             ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, userId);
 
             Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();

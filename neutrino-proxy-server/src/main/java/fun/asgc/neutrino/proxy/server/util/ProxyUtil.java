@@ -217,12 +217,12 @@ public class ProxyUtil {
 	}
 
 	/**
-	 * 获取用户编号
+	 * 获取访问者ID
 	 *
 	 * @param visitorChannel
 	 * @return
 	 */
-	public static String getVisitorChannelUserId(Channel visitorChannel) {
+	public static String getVisitorIdByChannel(Channel visitorChannel) {
 		if (null == visitorChannel || null == getAttachInfo(visitorChannel)) {
 			return null;
 		}
