@@ -19,22 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.job;
 
 import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.quartz.IJobHandler;
+import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 流量统计报表 - 分钟级别
  * @author: aoshiguchen
- * @date: 2022/9/17
+ * @date: 2022/10/24
  */
-@Intercept(ignoreGlobal = true)
+@Slf4j
+@NonIntercept
 @Component
-public interface DataCleanMapper extends SqlMapper {
+@JobHandler(name = "FlowReportForMinuteJob", cron = "0 */1 * * * ?", param = "")
+public class FlowReportForMinuteJob implements IJobHandler {
 
-    @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(long date);
-
+    @Override
+    public void execute(String param) throws Exception {
+        // TODO aoshiguchen
+    }
 }

@@ -19,22 +19,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.core.db.annotation.Table;
+import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/9/17
+ * @date: 2022/10/24
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface DataCleanMapper extends SqlMapper {
-
-    @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(long date);
-
+@ToString
+@Accessors(chain = true)
+@Data
+@Table("job_info")
+public class FlowReportMinuteDO {
+    @Id
+    private Integer id;
+    /**
+     * 用户ID
+     */
+    private Integer userId;
+    /**
+     * licenseId
+     */
+    private Integer licenseId;
+    /**
+     * ip
+     */
+    private String ip;
+    /**
+     * 写入字节数
+     */
+    private Long writeBytes;
+    /**
+     * 读取字节数
+     */
+    private Long readBytes;
+    /**
+     * 报表统计时间
+     * yyyy-MM-dd HH:mm
+     */
+    private String date;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 }
