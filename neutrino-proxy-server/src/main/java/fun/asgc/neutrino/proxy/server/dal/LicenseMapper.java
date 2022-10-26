@@ -30,7 +30,6 @@ import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
@@ -58,6 +57,10 @@ public interface LicenseMapper extends SqlMapper {
 	@ResultType(LicenseListRes.class)
 	@Select("select * from license where enable = 1")
 	List<LicenseListRes> list();
+
+	@ResultType(LicenseDO.class)
+	@Select("select * from license")
+	List<LicenseDO> listAll();
 
 	/**
 	 * 新增license

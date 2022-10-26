@@ -42,15 +42,15 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
         Channel realServerChannel = ctx.channel();
-        Channel channel = realServerChannel.attr(Constants.NEXT_CHANNEL).get();
-        if (channel == null) {
+        Channel proxyChannel = realServerChannel.attr(Constants.NEXT_CHANNEL).get();
+        if (null == proxyChannel) {
             // 代理客户端连接断开
             ctx.channel().close();
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             String visitorId = ProxyUtil.getVisitorIdByRealServerChannel(realServerChannel);
-            channel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
+            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
         }
     }
 

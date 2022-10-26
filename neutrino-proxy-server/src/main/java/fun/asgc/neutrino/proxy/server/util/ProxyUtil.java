@@ -171,20 +171,23 @@ public class ProxyUtil {
 	/**
 	 * 增加用户连接与代理客户端连接关系
 	 *
-	 * @param userId
-	 * @param userChannel
+	 * @param visitorId
+	 * @param visitorChannel
 	 */
-	public static void addUserChannelToCmdChannel(Channel cmdChannel, String userId, Channel userChannel) {
-		InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
+	public static void addVisitorChannelToCmdChannel(Channel cmdChannel, String visitorId, Channel visitorChannel) {
+		InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 		String lanInfo = getClientLanInfoByServerPort(sa.getPort());
-		setAttachInfo(userChannel, new VisitorChannelAttachInfo()
-			.setVisitorId(userId)
+		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
+
+		setAttachInfo(visitorChannel, new VisitorChannelAttachInfo()
+			.setVisitorId(visitorId)
 			.setLanInfo(lanInfo)
-			.setIp(ChannelUtil.getIP(userChannel))
+			.setLicenseId(cmdChannelAttachInfo.getLicenseId())
+			.setIp(ChannelUtil.getIP(visitorChannel))
 		);
 		userChannelMapLock.writeLock().lock();
 		try {
-			((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getVisitorChannelMap().put(userId, userChannel);
+			cmdChannelAttachInfo.getVisitorChannelMap().put(visitorId, visitorChannel);
 		} finally {
 			userChannelMapLock.writeLock().unlock();
 		}
@@ -206,14 +209,14 @@ public class ProxyUtil {
 	/**
 	 * 根据代理客户端连接与用户编号获取用户连接
 	 *
-	 * @param userId
+	 * @param visitorId
 	 * @return
 	 */
-	public static Channel getUserChannel(Channel cmdChannel, String userId) {
+	public static Channel getVisitorChannel(Channel cmdChannel, String visitorId) {
 		if (null == cmdChannel || null == getAttachInfo(cmdChannel)) {
 			return null;
 		}
-		return ((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getVisitorChannelMap().get(userId);
+		return ((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getVisitorChannelMap().get(visitorId);
 	}
 
 	/**

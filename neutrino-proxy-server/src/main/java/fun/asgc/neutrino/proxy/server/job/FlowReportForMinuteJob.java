@@ -21,11 +21,22 @@
  */
 package fun.asgc.neutrino.proxy.server.job;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.quartz.IJobHandler;
 import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.dal.FlowReportMinuteMapper;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.service.FlowReportService;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 流量统计报表 - 分钟级别
@@ -38,8 +49,34 @@ import lombok.extern.slf4j.Slf4j;
 @JobHandler(name = "FlowReportForMinuteJob", cron = "0 */1 * * * ?", param = "")
 public class FlowReportForMinuteJob implements IJobHandler {
 
+    @Autowired
+    private FlowReportService flowReportService;
+    @Autowired
+    private LicenseMapper licenseMapper;
+    @Autowired
+    private FlowReportMinuteMapper flowReportMinuteMapper;
+
     @Override
     public void execute(String param) throws Exception {
-        // TODO aoshiguchen
+        List<LicenseDO> list = licenseMapper.listAll();
+        if (CollectionUtil.isEmpty(list)) {
+            return;
+        }
+        Date now = new Date();
+        for (LicenseDO item : list) {
+            Integer writeBytes = flowReportService.getAndResetWriteByte(item.getId());
+            Integer readBytes = flowReportService.getAndResetReadByte(item.getId());
+            if (writeBytes == 0 && readBytes == 0) {
+                continue;
+            }
+            FlowReportMinuteDO flowReportMinuteDO = new FlowReportMinuteDO();
+            flowReportMinuteDO.setUserId(item.getUserId());
+            flowReportMinuteDO.setLicenseId(item.getId());
+            flowReportMinuteDO.setWriteBytes(writeBytes);
+            flowReportMinuteDO.setReadBytes(readBytes);
+            flowReportMinuteDO.setDate(DateUtil.format(now, "yyyy-MM-dd HH:mm"));
+            flowReportMinuteDO.setCreateTime(now);
+            // TODO insert
+        }
     }
 }

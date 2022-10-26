@@ -97,14 +97,14 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			return;
 		}
 
-		Channel userChannel = ProxyUtil.getUserChannel(cmdChannel, visitorId);
-		if (userChannel != null) {
+		Channel visitorChannel = ProxyUtil.getVisitorChannel(cmdChannel, visitorId);
+		if (visitorChannel != null) {
 			ctx.channel().attr(Constants.VISITOR_ID).set(visitorId);
 			ctx.channel().attr(Constants.LICENSE_ID).set(licenseDO.getId());
-			ctx.channel().attr(Constants.NEXT_CHANNEL).set(userChannel);
-			userChannel.attr(Constants.NEXT_CHANNEL).set(ctx.channel());
+			ctx.channel().attr(Constants.NEXT_CHANNEL).set(visitorChannel);
+			visitorChannel.attr(Constants.NEXT_CHANNEL).set(ctx.channel());
 			// 代理客户端与后端服务器连接成功，修改用户连接为可读状态
-			userChannel.config().setOption(ChannelOption.AUTO_READ, true);
+			visitorChannel.config().setOption(ChannelOption.AUTO_READ, true);
 		}
 	}
 

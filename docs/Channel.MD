@@ -18,9 +18,9 @@
 
 ## 代理数据传输的通道(ProxyChannel)
 - 该channel负责完成内网被代理服务与代理服务端之间的数据转发任务。
-- 每个客户端维护一个`ProxyChannel`的缓存队列，需要时从该队列中取，当取不到是，直接新建一个`ProxyChannel`返回。
+- 每个客户端维护一个`ProxyChannel`的缓存队列，需要时从该队列中取，当取不到时，直接新建一个`ProxyChannel`返回。
 当一个`ProxyChannel`实例用完后，需要归还到缓存队列中(`ProxyChannel`收到`DisConnect`指令时)。
-- 当`RealServerChannel`建立完成后，就会获取一个`ProxyChannel`,并绑定对应的`RealServerChannel`,并设置`RealServerChannel`为
+- 当`RealServerChannel`建立完成后，就会获取相关联的`ProxyChannel`,并与其绑定。设置`RealServerChannel`为
 可读状态。然后通过`ProxyChannel`向服务端发送`Connect`指令。
 
 

@@ -29,19 +29,16 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
-import fun.asgc.neutrino.proxy.server.constant.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
-import fun.asgc.neutrino.proxy.server.proxy.core.BytesMetricsHandler;
-import fun.asgc.neutrino.proxy.server.proxy.core.VisitorChannelHandler;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.proxy.core.BytesMetricsHandler;
+import fun.asgc.neutrino.proxy.server.proxy.core.VisitorChannelHandler;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import fun.asgc.neutrino.proxy.server.proxy.domain.ProxyMapping;
-import fun.asgc.neutrino.proxy.server.service.LicenseService;
-import fun.asgc.neutrino.proxy.server.service.PortMappingService;
-import fun.asgc.neutrino.proxy.server.service.ProxyMutualService;
-import fun.asgc.neutrino.proxy.server.service.UserService;
+import fun.asgc.neutrino.proxy.server.service.*;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -80,6 +77,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private PortMappingService portMappingService;
 	@Autowired
 	private ProxyMutualService proxyMutualService;
+	@Autowired
+	private FlowReportService flowReportService;
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {

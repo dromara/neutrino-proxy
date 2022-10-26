@@ -23,7 +23,9 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
 
 /**
  * @author: aoshiguchen

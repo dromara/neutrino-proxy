@@ -36,7 +36,7 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("job_info")
+@Table("flow_report_minute")
 public class FlowReportMinuteDO {
     @Id
     private Integer id;
@@ -49,17 +49,13 @@ public class FlowReportMinuteDO {
      */
     private Integer licenseId;
     /**
-     * ip
-     */
-    private String ip;
-    /**
      * 写入字节数
      */
-    private Long writeBytes;
+    private Integer writeBytes;
     /**
      * 读取字节数
      */
-    private Long readBytes;
+    private Integer readBytes;
     /**
      * 报表统计时间
      * yyyy-MM-dd HH:mm

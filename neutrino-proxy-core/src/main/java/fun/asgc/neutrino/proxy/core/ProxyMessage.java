@@ -114,9 +114,9 @@ public class ProxyMessage {
             .setInfo(data.toJSONString());
     }
 
-    public static ProxyMessage buildConnectMessage(String info) {
+    public static ProxyMessage buildConnectMessage(String visitorId) {
         return create().setType(TYPE_CONNECT)
-            .setInfo(info);
+            .setInfo(visitorId);
     }
 
     public static ProxyMessage buildDisconnectMessage(String info) {
