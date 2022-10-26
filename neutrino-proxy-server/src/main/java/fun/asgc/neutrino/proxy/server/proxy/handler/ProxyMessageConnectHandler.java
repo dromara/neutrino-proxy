@@ -82,7 +82,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			ctx.channel().close();
 			return;
 		}
-		UserDO userDO = userService.findById(licenseDO.getId());
+		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "当前license无效!"));
 			ctx.channel().close();
