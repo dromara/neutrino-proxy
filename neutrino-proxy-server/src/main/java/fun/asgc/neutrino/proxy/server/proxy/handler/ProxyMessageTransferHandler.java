@@ -57,7 +57,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 
 			// 增加流量计数
 			VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-			BeanManager.getBean(FlowReportService.class).addReadByte(visitorChannelAttachInfo.getLicenseId(), buf.readableBytes());
+			BeanManager.getBean(FlowReportService.class).addReadByte(visitorChannelAttachInfo.getLicenseId(), proxyMessage.getData().length);
 		}
 	}
 

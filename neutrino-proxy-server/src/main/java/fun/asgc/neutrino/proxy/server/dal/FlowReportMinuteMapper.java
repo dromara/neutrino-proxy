@@ -22,10 +22,16 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
+import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author: aoshiguchen
@@ -34,5 +40,13 @@ import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
 @Intercept(ignoreGlobal = true)
 @Component
 public interface FlowReportMinuteMapper extends SqlMapper {
+    @Select("select * from flow_report_minute where license_id = :licenseId and date = :date")
+    FlowReportMinuteDO findOne(@Param("licenseId") Integer licenseId, @Param("date") String date);
 
+    @ResultType(FlowReportMinuteDO.class)
+    @Select("select * from flow_report_minute where license_id in (:licenseIds) and date = :date")
+    List<FlowReportMinuteDO> findList(@Param("licenseIds") Set<Integer> licenseIds, @Param("date") String date);
+
+    @Insert("insert into flow_report_minute(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:createTime)")
+    void add(FlowReportMinuteDO flowReportMinuteDO);
 }

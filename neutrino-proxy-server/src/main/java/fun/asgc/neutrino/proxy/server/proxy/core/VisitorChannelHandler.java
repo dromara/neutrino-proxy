@@ -71,7 +71,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
             // 增加流量计数
             VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-            BeanManager.getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), buf.readableBytes());
+            BeanManager.getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         }
     }
 
