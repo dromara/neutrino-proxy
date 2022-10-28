@@ -19,54 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
+package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
-import lombok.Data;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.Param;
+import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.annotation.Select;
+import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportHourDO;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/10/24
+ * @date: 2022/10/28
  */
-@ToString
-@Accessors(chain = true)
-@Data
-@Table("flow_report_minute")
-public class FlowReportMinuteDO {
-    @Id
-    private Integer id;
-    /**
-     * 用户ID
-     */
-    private Integer userId;
-    /**
-     * licenseId
-     */
-    private Integer licenseId;
-    /**
-     * 写入字节数
-     */
-    private Integer writeBytes;
-    /**
-     * 读取字节数
-     */
-    private Integer readBytes;
-    /**
-     * 报表统计时间
-     */
-    private Date date;
-    /**
-     * 报表统计时间
-     * yyyy-MM-dd HH:mm
-     */
-    private String dateStr;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
+@Intercept(ignoreGlobal = true)
+@Component
+public interface FlowReportHourMapper extends SqlMapper {
+    @Select("select * from flow_report_hour where license_id = :licenseId and date = :date")
+    FlowReportHourDO findOne(@Param("licenseId") Integer licenseId, @Param("date") String date);
+
+    @Insert("insert into flow_report_hour(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
+    void add(FlowReportHourDO flowReportHourDO);
 }

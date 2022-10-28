@@ -19,54 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
+package fun.asgc.neutrino.proxy.server.job;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
-import lombok.Data;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
+import fun.asgc.neutrino.core.annotation.Autowired;
+import fun.asgc.neutrino.core.annotation.Component;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.quartz.IJobHandler;
+import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
+import fun.asgc.neutrino.proxy.server.dal.FlowReportMinuteMapper;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.service.FlowReportService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/10/24
+ * @date: 2022/10/28
  */
-@ToString
-@Accessors(chain = true)
-@Data
-@Table("flow_report_minute")
-public class FlowReportMinuteDO {
-    @Id
-    private Integer id;
-    /**
-     * 用户ID
-     */
-    private Integer userId;
-    /**
-     * licenseId
-     */
-    private Integer licenseId;
-    /**
-     * 写入字节数
-     */
-    private Integer writeBytes;
-    /**
-     * 读取字节数
-     */
-    private Integer readBytes;
-    /**
-     * 报表统计时间
-     */
-    private Date date;
-    /**
-     * 报表统计时间
-     * yyyy-MM-dd HH:mm
-     */
-    private String dateStr;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
+@Slf4j
+@NonIntercept
+@Component
+@JobHandler(name = "FlowReportForHourJob", cron = "0 0 */1 * * ?", param = "")
+public class FlowReportForHourJob implements IJobHandler {
+    @Autowired
+    private FlowReportService flowReportService;
+    @Autowired
+    private LicenseMapper licenseMapper;
+    @Autowired
+    private FlowReportMinuteMapper flowReportMinuteMapper;
+
+    @Override
+    public void execute(String param) throws Exception {
+        // TODO
+    }
+
 }

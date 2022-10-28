@@ -47,6 +47,6 @@ public interface FlowReportMinuteMapper extends SqlMapper {
     @Select("select * from flow_report_minute where license_id in (:licenseIds) and date = :date")
     List<FlowReportMinuteDO> findList(@Param("licenseIds") Set<Integer> licenseIds, @Param("date") String date);
 
-    @Insert("insert into flow_report_minute(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:createTime)")
+    @Insert("insert into flow_report_minute(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
     void add(FlowReportMinuteDO flowReportMinuteDO);
 }

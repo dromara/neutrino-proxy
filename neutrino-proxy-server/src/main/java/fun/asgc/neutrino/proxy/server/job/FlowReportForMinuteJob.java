@@ -65,8 +65,9 @@ public class FlowReportForMinuteJob implements IJobHandler {
         }
         Set<Integer> licenseIds = list.stream().map(LicenseDO::getId).collect(Collectors.toSet());
         Date now = new Date();
-        String date = DateUtil.format(DateUtil.addDate(now, Calendar.MINUTE, -1), "yyyy-MM-dd HH:mm");
-        List<FlowReportMinuteDO> oldList = flowReportMinuteMapper.findList(licenseIds, date);
+        String dateStr = DateUtil.format(DateUtil.addDate(now, Calendar.MINUTE, -1), "yyyy-MM-dd HH:mm");
+        Date date = DateUtil.parse(dateStr, "yyyy-MM-dd HH:mm");
+        List<FlowReportMinuteDO> oldList = flowReportMinuteMapper.findList(licenseIds, dateStr);
         Map<Integer, FlowReportMinuteDO> oldMap = CollectionUtil.isEmpty(oldList) ? new HashMap<>() :
                 oldList.stream().collect(Collectors.toMap(FlowReportMinuteDO::getLicenseId, Function.identity(), (a,b) -> a));
 
@@ -86,6 +87,7 @@ public class FlowReportForMinuteJob implements IJobHandler {
             flowReportMinuteDO.setWriteBytes(writeBytes);
             flowReportMinuteDO.setReadBytes(readBytes);
             flowReportMinuteDO.setDate(date);
+            flowReportMinuteDO.setDateStr(dateStr);
             flowReportMinuteDO.setCreateTime(now);
             flowReportMinuteMapper.add(flowReportMinuteDO);
         }

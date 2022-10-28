@@ -139,7 +139,8 @@ CREATE TABLE IF NOT EXISTS `flow_report_minute` (
     `license_id` INTEGER(20) NOT NULL,
     `write_bytes` INTEGER(20) NOT NULL,
     `read_bytes` INTEGER(20) NOT NULL,
-    `date` VARCHAR(20) NOT NULL,
+    `date` INTEGER(20) NOT NULL,
+    `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
 );
 CREATE INDEX IF NOT EXISTS I_flow_report_minute_create_time ON flow_report_minute(create_time);
@@ -154,7 +155,8 @@ CREATE TABLE IF NOT EXISTS `flow_report_hour` (
     `license_id` INTEGER(20) NOT NULL,
     `write_bytes` INTEGER(20) NOT NULL,
     `read_bytes` INTEGER(20) NOT NULL,
-    `date` VARCHAR(20) NOT NULL,
+    `date` INTEGER(20) NOT NULL,
+    `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
     );
 CREATE INDEX IF NOT EXISTS I_flow_report_hour_create_time ON flow_report_hour(create_time);
@@ -169,7 +171,8 @@ CREATE TABLE IF NOT EXISTS `flow_report_day` (
     `license_id` INTEGER(20) NOT NULL,
     `write_bytes` INTEGER(20) NOT NULL,
     `read_bytes` INTEGER(20) NOT NULL,
-    `date` VARCHAR(20) NOT NULL,
+    `date` INTEGER(20) NOT NULL,
+    `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
     );
 CREATE INDEX IF NOT EXISTS I_flow_report_day_create_time ON flow_report_day(create_time);
@@ -184,7 +187,8 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     `license_id` INTEGER(20) NOT NULL,
     `write_bytes` INTEGER(20) NOT NULL,
     `read_bytes` INTEGER(20) NOT NULL,
-    `date` VARCHAR(20) NOT NULL,
+    `date` INTEGER(20) NOT NULL,
+    `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
     );
 CREATE INDEX IF NOT EXISTS I_flow_report_month_create_time ON flow_report_month(create_time);
