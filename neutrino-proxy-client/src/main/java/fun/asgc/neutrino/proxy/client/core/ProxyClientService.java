@@ -22,10 +22,7 @@
 
 package fun.asgc.neutrino.proxy.client.core;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Bean;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.FileUtil;
@@ -84,32 +81,16 @@ public class ProxyClientService {
 	/**
 	 * 启用重连服务
 	 */
-	private volatile boolean reconnectServiceEnable = true;
+	private volatile boolean reconnectServiceEnable = false;
 	/**
 	 * 重连服务执行器
 	 */
 	private static final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor(new CustomThreadFactory("ClientReconnect"));
 
-
-	public void ProxyClientService() {
+	@Init
+	public void init() {
 		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 0, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
-	}
 
-	public void start() {
-		if (StringUtil.isEmpty(proxyConfig.getLicenseKey())) {
-			return;
-		}
-		if (null == channel || !channel.isActive()) {
-			connectProxyServer();
-		} else {
-			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
-		}
-	}
-
-	/**
-	 * 连接代理服务器
-	 */
-	private void connectProxyServer() {
 		workerGroup = new NioEventLoopGroup();
 		realServerBootstrap.group(workerGroup);
 		realServerBootstrap.channel(NioSocketChannel.class);
@@ -132,13 +113,34 @@ public class ProxyClientService {
 				}
 
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
-					proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
-					proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
+						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
+						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
 				ch.pipeline().addLast(new ProxyMessageEncoder());
 				ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
 				ch.pipeline().addLast(new ClientChannelHandler());
 			}
 		});
+	}
+
+	public void start() {
+		if (StringUtil.isEmpty(proxyConfig.getLicenseKey())) {
+			return;
+		}
+		if (null == channel || !channel.isActive()) {
+			try {
+				connectProxyServer();
+			} catch (Exception e) {
+				log.error("启动异常", e);
+			}
+		} else {
+			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
+		}
+	}
+
+	/**
+	 * 连接代理服务器
+	 */
+	private void connectProxyServer() throws InterruptedException {
 		bootstrap.connect(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort())
 			.addListener(new ChannelFutureListener() {
 
@@ -151,13 +153,13 @@ public class ProxyClientService {
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
 						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 
+						reconnectServiceEnable = true;
 						reconnectCount = 0;
 					} else {
 						log.info("连接代理服务失败!");
-						System.exit(-1);
 					}
 				}
-			});
+			}).sync();
 	}
 
 	private ChannelHandler createSslHandler() {
@@ -187,11 +189,16 @@ public class ProxyClientService {
 		if (!reconnectServiceEnable) {
 			return;
 		}
-		if (channel.isActive()) {
+		if (null != channel && channel.isActive()) {
 			return;
 		}
 		log.info("客户端重连 seq:{}", ++reconnectCount);
-		connectProxyServer();
+		try {
+			connectProxyServer();
+		} catch (Exception e) {
+			log.error("重连异常", e);
+		}
+		System.out.println("1");
 	}
 
 	@Bean
