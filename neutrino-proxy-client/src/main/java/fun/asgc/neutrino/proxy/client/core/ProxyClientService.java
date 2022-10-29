@@ -26,6 +26,7 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.base.CustomThreadFactory;
 import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
@@ -49,6 +50,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 客户端服务
@@ -69,6 +73,27 @@ public class ProxyClientService {
 	@Autowired
 	private Environment environment;
 	private volatile Channel channel;
+	/**
+	 * 重连间隔（秒）
+	 */
+	private static final long RECONNECT_INTERVAL_SECONDS = 5;
+	/**
+	 * 重连次数
+	 */
+	private volatile int reconnectCount = 0;
+	/**
+	 * 启用重连服务
+	 */
+	private volatile boolean reconnectServiceEnable = true;
+	/**
+	 * 重连服务执行器
+	 */
+	private static final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor(new CustomThreadFactory("ClientReconnect"));
+
+
+	public void ProxyClientService() {
+		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 0, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+	}
 
 	public void start() {
 		if (StringUtil.isEmpty(proxyConfig.getLicenseKey())) {
@@ -125,6 +150,8 @@ public class ProxyClientService {
 						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
 						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
+
+						reconnectCount = 0;
 					} else {
 						log.info("连接代理服务失败!");
 						System.exit(-1);
@@ -154,6 +181,17 @@ public class ProxyClientService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	protected synchronized void reconnect() {
+		if (!reconnectServiceEnable) {
+			return;
+		}
+		if (channel.isActive()) {
+			return;
+		}
+		log.info("客户端重连 seq:{}", ++reconnectCount);
+		connectProxyServer();
 	}
 
 	@Bean
