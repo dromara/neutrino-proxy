@@ -39,9 +39,6 @@ public class DateUtil {
 	public static final long SECOND_LONG = 1000L;
 	public static final long MINUTE_LONG = 60 * SECOND_LONG;
 	public static final long HOUR_LONG = 60 * MINUTE_LONG;
-	public static final long DAY_LONG = DAY_2_HOUR * HOUR_LONG;
-	public static final long MONTH_LONG = 30 * DAY_LONG;
-	public static final long YEAR_LONG = 365 * DAY_LONG;
 
 	private static final Cache<String, SimpleDateFormat> sdfCache = new MemoryCache<>();
 	private static SimpleDateFormat getSimpleDateFormat(String format) {
