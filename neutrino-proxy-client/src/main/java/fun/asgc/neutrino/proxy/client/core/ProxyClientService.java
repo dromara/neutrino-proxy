@@ -198,7 +198,6 @@ public class ProxyClientService {
 		} catch (Exception e) {
 			log.error("重连异常", e);
 		}
-		System.out.println("1");
 	}
 
 	@Bean
