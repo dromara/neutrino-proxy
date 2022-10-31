@@ -30,6 +30,7 @@ import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,10 @@ public interface FlowReportMinuteMapper extends SqlMapper {
     @ResultType(FlowReportMinuteDO.class)
     @Select("select * from flow_report_minute where license_id in (:licenseIds) and date = :date")
     List<FlowReportMinuteDO> findList(@Param("licenseIds") Set<Integer> licenseIds, @Param("date") String date);
+
+    @ResultType(FlowReportMinuteDO.class)
+    @Select("select * from flow_report_minute where date >= :startDate and date <= :endDate")
+    List<FlowReportMinuteDO> findListByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     @Insert("insert into flow_report_minute(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
     void add(FlowReportMinuteDO flowReportMinuteDO);

@@ -289,6 +289,30 @@ public class DateUtil {
 	}
 
 	/**
+	 * 获取指定小时开始时间
+	 * @param date 日期
+	 * @return 指定小时开始时间
+	 */
+	public static Date getHourBegin(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		setCalender(calendar, calendar.get(Calendar.HOUR), 0, 0, 0);
+		return calendar.getTime();
+	}
+
+	/**
+	 * 获取指定小时结束时间
+	 * @param date 日期
+	 * @return 指定小时结束时间
+	 */
+	public static Date getHourEnd(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		setCalender(calendar, calendar.get(Calendar.HOUR), 59, 59, 999);
+		return calendar.getTime();
+	}
+
+	/**
 	 * 获取当天开始时间
 	 *
 	 * @return 获得该日期的开始
