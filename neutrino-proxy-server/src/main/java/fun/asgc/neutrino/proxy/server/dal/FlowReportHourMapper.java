@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.server.dal;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
@@ -41,4 +42,7 @@ public interface FlowReportHourMapper extends SqlMapper {
 
     @Insert("insert into flow_report_hour(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
     void add(FlowReportHourDO flowReportHourDO);
+
+    @Delete("delete from flow_report_hour where date_str = :dateStr")
+    void deleteByDateStr(@Param("dateStr") String dateStr);
 }
