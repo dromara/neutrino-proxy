@@ -26,13 +26,9 @@ import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportHourDO;
-
-import java.util.Date;
-import java.util.List;
+import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportDayDO;
 
 /**
  * @author: aoshiguchen
@@ -40,18 +36,13 @@ import java.util.List;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface FlowReportHourMapper extends SqlMapper {
-    @Select("select * from flow_report_hour where license_id = :licenseId and date_str = :dateStr")
-    FlowReportHourDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
+public interface FlowReportDayMapper extends SqlMapper {
+    @Select("select * from flow_report_day where license_id = :licenseId and date_str = :dateStr")
+    FlowReportDayDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
 
-    @Insert("insert into flow_report_hour(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
-    void add(FlowReportHourDO flowReportHourDO);
+    @Insert("insert into flow_report_day(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
+    void add(FlowReportDayDO flowReportDayDO);
 
-    @Delete("delete from flow_report_hour where date_str = :dateStr")
+    @Delete("delete from flow_report_day where date_str = :dateStr")
     void deleteByDateStr(@Param("dateStr") String dateStr);
-
-    @ResultType(FlowReportHourDO.class)
-    @Select("select * from flow_report_hour where date >= :startDate and date <= :endDate")
-    List<FlowReportHourDO> findListByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
-
 }

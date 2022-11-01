@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_hour` (
     `date` INTEGER(20) NOT NULL,
     `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
-    );
+);
 CREATE INDEX IF NOT EXISTS I_flow_report_hour_create_time ON flow_report_hour(create_time);
 CREATE INDEX IF NOT EXISTS I_flow_report_hour_date ON flow_report_hour(`date`);
 CREATE INDEX IF NOT EXISTS I_flow_report_hour_user_id ON flow_report_hour(`user_id`);
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_day` (
     `date` INTEGER(20) NOT NULL,
     `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
-    );
+);
 CREATE INDEX IF NOT EXISTS I_flow_report_day_create_time ON flow_report_day(create_time);
 CREATE INDEX IF NOT EXISTS I_flow_report_day_date ON flow_report_day(`date`);
 CREATE INDEX IF NOT EXISTS I_flow_report_day_user_id ON flow_report_day(`user_id`);
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     `date` INTEGER(20) NOT NULL,
     `date_str` VARCHAR(20) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
-    );
+);
 CREATE INDEX IF NOT EXISTS I_flow_report_month_create_time ON flow_report_month(create_time);
 CREATE INDEX IF NOT EXISTS I_flow_report_month_date ON flow_report_month(`date`);
 CREATE INDEX IF NOT EXISTS I_flow_report_month_user_id ON flow_report_month(`user_id`);
