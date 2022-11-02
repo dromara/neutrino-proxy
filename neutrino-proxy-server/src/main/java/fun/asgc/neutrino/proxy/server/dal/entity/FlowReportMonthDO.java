@@ -36,8 +36,8 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("flow_report_day")
-public class FlowReportDayDO {
+@Table("flow_report_month")
+public class FlowReportMonthDO {
     @Id
     private Integer id;
     /**
@@ -62,7 +62,7 @@ public class FlowReportDayDO {
     private Date date;
     /**
      * 报表统计时间
-     * yyyy-MM-dd
+     * yyyy-MM
      */
     private String dateStr;
     /**
