@@ -56,7 +56,7 @@ public class FlowReportForMonthJob implements IJobHandler {
     @Autowired
     private FlowReportDayMapper flowReportDayMapper;
     @Autowired
-    private FlowReportMonthMapper flowReportHourDOList;
+    private FlowReportMonthMapper flowReportMonthMapper;
 
     @Override
     public void execute(String param) throws Exception {
@@ -96,7 +96,7 @@ public class FlowReportForMonthJob implements IJobHandler {
         }
 
         for (FlowReportMonthDO item : map.values()) {
-            flowReportHourDOList.add(item);
+            flowReportMonthMapper.add(item);
         }
     }
 
