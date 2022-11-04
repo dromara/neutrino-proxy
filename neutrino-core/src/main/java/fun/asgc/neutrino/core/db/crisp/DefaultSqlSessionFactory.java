@@ -21,66 +21,65 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
-import javax.sql.DataSource;
-import java.util.List;
+import java.sql.Connection;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/11/3
+ * @date: 2022/11/4
  */
-class CrispDbExecutor implements CrispDbOperator {
-    /**
-     * 配置
-     */
-    private CrispDbConfig config;
-    /**
-     * 上下文
-     */
-    private CrispDbContext context;
-
-    public CrispDbExecutor(CrispDbConfig config) {
-        this.config = config;
-        this.context = new CrispDbContext();
-    }
-
-    public CrispDbExecutor(IDataSourceProvider dataSourceProvider) {
-        this(new CrispDbConfig(dataSourceProvider));
-    }
-
-    public CrispDbExecutor(String name, IDataSourceProvider dataSourceProvider) {
-        this(new CrispDbConfig(name, dataSourceProvider));
-    }
-
-    public CrispDbExecutor(DataSource dataSource) {
-        this(new CrispDbConfig(dataSource));
-    }
-
-    public CrispDbExecutor(String name, DataSource dataSource) {
-        this(new CrispDbConfig(name, dataSource));
-    }
+public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
-    public <T> List<T> queryList(Class<T> resultType, String sql, Object... params) {
+    public SqlSession openSession() {
+        // TODO
         return null;
     }
 
     @Override
-    public <T> T query(Class<T> resultType, String sql, Object... params) {
+    public SqlSession openSession(boolean autoCommit) {
+        // TODO
         return null;
     }
 
     @Override
-    public CrispDbUpdateResult update(String sql, Object... params) {
+    public SqlSession openSession(Connection connection) {
+        // TODO
         return null;
     }
 
     @Override
-    public CrispDbUpdateResult insert(String sql, Object... params) {
+    public SqlSession openSession(TransactionIsolationLevel level) {
+        // TODO
         return null;
     }
 
     @Override
-    public CrispDbUpdateResult delete(String sql, Object... params) {
+    public SqlSession openSession(SqlExecutorType execType) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public SqlSession openSession(SqlExecutorType execType, boolean autoCommit) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public SqlSession openSession(SqlExecutorType execType, TransactionIsolationLevel level) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public SqlSession openSession(SqlExecutorType execType, Connection connection) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public DbConfig getDbConfig() {
+        // TODO
         return null;
     }
 }

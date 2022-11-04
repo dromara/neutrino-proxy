@@ -22,45 +22,61 @@
 package fun.asgc.neutrino.core.db.crisp;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/11/3
  */
-public class CrispDbConfig {
+class DbExecutor implements DbOperator {
     /**
-     * 数据库名称
+     * 配置
      */
-    private String name;
-    /**
-     * 数据源提供者
-     */
-    private IDataSourceProvider dataSourceProvider;
-    /**
-     * 是否显示sql
-     */
-    private Boolean showSql;
-    /**
-     * 是否开启调试模式
-     */
-    private Boolean debugMode;
+    private DbConfig config;
 
-    public CrispDbConfig(String name, IDataSourceProvider dataSourceProvider) {
-        this.name = name;
-        this.dataSourceProvider = dataSourceProvider;
-        this.showSql = Boolean.FALSE;
-        this.debugMode = Boolean.FALSE;
+
+    public DbExecutor(DbConfig config) {
+        this.config = config;
     }
 
-    public CrispDbConfig(String name, DataSource dataSource) {
-        this(name, new DefaultDataSourceProvider(dataSource));
+    public DbExecutor(IDataSourceProvider dataSourceProvider) {
+        this(new DbConfig(dataSourceProvider));
     }
 
-    public CrispDbConfig(IDataSourceProvider dataSourceProvider) {
-        this("unknown", dataSourceProvider);
+    public DbExecutor(String name, IDataSourceProvider dataSourceProvider) {
+        this(new DbConfig(name, dataSourceProvider));
     }
 
-    public CrispDbConfig(DataSource dataSource) {
-        this(new DefaultDataSourceProvider(dataSource));
+    public DbExecutor(DataSource dataSource) {
+        this(new DbConfig(dataSource));
+    }
+
+    public DbExecutor(String name, DataSource dataSource) {
+        this(new DbConfig(name, dataSource));
+    }
+
+    @Override
+    public <T> List<T> queryList(Class<T> resultType, String sql, Object... params) {
+        return null;
+    }
+
+    @Override
+    public <T> T query(Class<T> resultType, String sql, Object... params) {
+        return null;
+    }
+
+    @Override
+    public DbUpdateResult update(String sql, Object... params) {
+        return null;
+    }
+
+    @Override
+    public DbUpdateResult insert(String sql, Object... params) {
+        return null;
+    }
+
+    @Override
+    public DbUpdateResult delete(String sql, Object... params) {
+        return null;
     }
 }

@@ -22,12 +22,9 @@
 package fun.asgc.neutrino.core.db.crisp;
 
 /**
- * 清爽的数据库工具
  * @author: aoshiguchen
  * @date: 2022/11/3
  */
-public class CrispDbKit {
-    private static final JdbcManager manager = new JdbcManager();
-
+public class DbUpdateResult {
 
 }

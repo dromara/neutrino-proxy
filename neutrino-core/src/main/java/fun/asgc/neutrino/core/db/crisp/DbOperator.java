@@ -21,13 +21,54 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
+import java.util.List;
+
 /**
- * 清爽的数据库工具
  * @author: aoshiguchen
  * @date: 2022/11/3
  */
-public class CrispDbKit {
-    private static final JdbcManager manager = new JdbcManager();
+public interface DbOperator {
+    /**
+     * 查询数据列表
+     * @param resultType 结果类型
+     * @param sql sql
+     * @param params 参数列表
+     * @return 查询结果列表
+     * @param <T>
+     */
+    <T> List<T> queryList(Class<T> resultType, String sql, Object... params);
 
+    /**
+     * 查询单条记录
+     * @param resultType 结果类型
+     * @param sql sql
+     * @param params 参数列表
+     * @return 查询结果
+     * @param <T>
+     */
+    <T> T query(Class<T> resultType, String sql, Object... params);
 
+    /**
+     * 更新
+     * @param sql sql
+     * @param params 参数列表
+     * @return 更新结果
+     */
+    DbUpdateResult update(String sql, Object... params);
+
+    /**
+     * 新增
+     * @param sql sql
+     * @param params 参数列表
+     * @return 新增结果
+     */
+    DbUpdateResult insert(String sql, Object... params);
+
+    /**
+     * 删除
+     * @param sql sql
+     * @param params 参数列表
+     * @return 删除结果
+     */
+    DbUpdateResult delete(String sql, Object... params);
 }

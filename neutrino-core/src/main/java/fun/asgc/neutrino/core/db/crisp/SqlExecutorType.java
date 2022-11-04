@@ -21,12 +21,10 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
-import java.sql.Connection;
-
 /**
  * @author: aoshiguchen
- * @date: 2022/11/3
+ * @date: 2022/11/4
  */
-public class CrispDbContext {
-    private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
+public enum SqlExecutorType {
+    SIMPLE, REUSE, BATCH
 }

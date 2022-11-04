@@ -21,10 +21,21 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
+import java.sql.Connection;
+
 /**
  * @author: aoshiguchen
  * @date: 2022/11/3
  */
-public class CrispDbUpdateResult {
+public class DbContext {
+    private DbConfig dbConfig;
+    private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
 
+    public DbContext(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
+    }
+    public SqlSessionFactory getSqlSessionFactory() {
+        // TODO
+        return null;
+    }
 }

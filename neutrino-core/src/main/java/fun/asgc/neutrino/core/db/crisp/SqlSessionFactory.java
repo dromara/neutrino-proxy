@@ -21,54 +21,29 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
-import java.util.List;
+import java.sql.Connection;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/11/3
+ * @date: 2022/11/4
  */
-public interface CrispDbOperator {
-    /**
-     * 查询数据列表
-     * @param resultType 结果类型
-     * @param sql sql
-     * @param params 参数列表
-     * @return 查询结果列表
-     * @param <T>
-     */
-    <T> List<T> queryList(Class<T> resultType, String sql, Object... params);
+public interface SqlSessionFactory {
 
-    /**
-     * 查询单条记录
-     * @param resultType 结果类型
-     * @param sql sql
-     * @param params 参数列表
-     * @return 查询结果
-     * @param <T>
-     */
-    <T> T query(Class<T> resultType, String sql, Object... params);
+    SqlSession openSession();
 
-    /**
-     * 更新
-     * @param sql sql
-     * @param params 参数列表
-     * @return 更新结果
-     */
-    CrispDbUpdateResult update(String sql, Object... params);
+    SqlSession openSession(boolean autoCommit);
 
-    /**
-     * 新增
-     * @param sql sql
-     * @param params 参数列表
-     * @return 新增结果
-     */
-    CrispDbUpdateResult insert(String sql, Object... params);
+    SqlSession openSession(Connection connection);
 
-    /**
-     * 删除
-     * @param sql sql
-     * @param params 参数列表
-     * @return 删除结果
-     */
-    CrispDbUpdateResult delete(String sql, Object... params);
+    SqlSession openSession(TransactionIsolationLevel level);
+
+    SqlSession openSession(SqlExecutorType execType);
+
+    SqlSession openSession(SqlExecutorType execType, boolean autoCommit);
+
+    SqlSession openSession(SqlExecutorType execType, TransactionIsolationLevel level);
+
+    SqlSession openSession(SqlExecutorType execType, Connection connection);
+
+    DbConfig getDbConfig();
 }
