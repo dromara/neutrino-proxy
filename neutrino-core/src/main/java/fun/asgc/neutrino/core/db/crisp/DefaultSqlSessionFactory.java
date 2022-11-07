@@ -29,6 +29,12 @@ import java.sql.Connection;
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
+    private final DbConfig config;
+
+    public DefaultSqlSessionFactory(DbConfig config) {
+        this.config = config;
+    }
+
     @Override
     public SqlSession openSession() {
         // TODO
