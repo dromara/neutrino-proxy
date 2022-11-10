@@ -19,14 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
+package fun.asgc.neutrino.core.db.crisp.ds;
+
+import javax.sql.DataSource;
 
 /**
+ * 数据源提供商
  * @author: aoshiguchen
- * @date: 2022/11/7
+ * @date: 2022/11/3
  */
-public class SqlSessionFactoryBuilder {
-    public SqlSessionFactory build(DbConfig config) {
-        return new DefaultSqlSessionFactory(config);
-    }
+public interface IDataSourceProvider {
+    /**
+     * 获取数据源
+     * @return
+     */
+    DataSource getDataSource();
 }

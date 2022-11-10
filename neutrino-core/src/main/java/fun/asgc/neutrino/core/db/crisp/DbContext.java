@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
+import fun.asgc.neutrino.core.db.crisp.session.SqlSessionFactory;
+
 import java.sql.Connection;
 
 /**

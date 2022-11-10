@@ -19,26 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
-
-import javax.sql.DataSource;
+package fun.asgc.neutrino.core.db.crisp.base;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/11/3
+ * @date: 2022/11/4
  */
-public class DefaultDataSourceProvider implements IDataSourceProvider {
-    /**
-     * 数据源
-     */
-    private DataSource dataSource;
+public class RowBounds {
 
-    public DefaultDataSourceProvider(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public static final int NO_ROW_OFFSET = 0;
+    public static final int NO_ROW_LIMIT = Integer.MAX_VALUE;
+    public static final RowBounds DEFAULT = new RowBounds();
+
+    private final int offset;
+    private final int limit;
+
+    public RowBounds() {
+        this.offset = NO_ROW_OFFSET;
+        this.limit = NO_ROW_LIMIT;
     }
 
-    @Override
-    public DataSource getDataSource() {
-        return dataSource;
+    public RowBounds(int offset, int limit) {
+        this.offset = offset;
+        this.limit = limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public int getLimit() {
+        return limit;
     }
 }

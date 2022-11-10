@@ -19,12 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
+package fun.asgc.neutrino.core.db.crisp.session;
+
+import fun.asgc.neutrino.core.db.crisp.DbConfig;
+import fun.asgc.neutrino.core.db.crisp.base.SqlExecutorType;
+import fun.asgc.neutrino.core.db.crisp.tx.TransactionIsolationLevel;
+
+import java.sql.Connection;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/11/4
  */
-public class MappedStatement {
-    // TODO
+public interface SqlSessionFactory {
+
+    SqlSession openSession();
+
+    SqlSession openSession(boolean autoCommit);
+
+    SqlSession openSession(Connection connection);
+
+    SqlSession openSession(TransactionIsolationLevel level);
+
+    SqlSession openSession(SqlExecutorType execType);
+
+    SqlSession openSession(SqlExecutorType execType, boolean autoCommit);
+
+    SqlSession openSession(SqlExecutorType execType, TransactionIsolationLevel level);
+
+    SqlSession openSession(SqlExecutorType execType, Connection connection);
+
+    DbConfig getDbConfig();
 }

@@ -19,7 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
+package fun.asgc.neutrino.core.db.crisp.tx;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.sql.Connection;
 
@@ -27,23 +30,14 @@ import java.sql.Connection;
  * @author: aoshiguchen
  * @date: 2022/11/4
  */
-public interface SqlSessionFactory {
+@Getter
+@AllArgsConstructor
+public enum TransactionIsolationLevel {
+    NONE(Connection.TRANSACTION_NONE),
+    READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
+    READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
+    REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ),
+    SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
 
-    SqlSession openSession();
-
-    SqlSession openSession(boolean autoCommit);
-
-    SqlSession openSession(Connection connection);
-
-    SqlSession openSession(TransactionIsolationLevel level);
-
-    SqlSession openSession(SqlExecutorType execType);
-
-    SqlSession openSession(SqlExecutorType execType, boolean autoCommit);
-
-    SqlSession openSession(SqlExecutorType execType, TransactionIsolationLevel level);
-
-    SqlSession openSession(SqlExecutorType execType, Connection connection);
-
-    DbConfig getDbConfig();
+    private final int level;
 }

@@ -19,25 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.sql.Connection;
+package fun.asgc.neutrino.core.db.crisp.base;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/11/4
  */
-@Getter
-@AllArgsConstructor
-public enum TransactionIsolationLevel {
-    NONE(Connection.TRANSACTION_NONE),
-    READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
-    READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
-    REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ),
-    SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
-
-    private final int level;
+public class MappedStatement {
+    // TODO
 }

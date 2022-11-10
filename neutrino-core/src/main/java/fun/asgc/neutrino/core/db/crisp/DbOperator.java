@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.db.crisp;
 
+import fun.asgc.neutrino.core.db.crisp.base.DbUpdateResult;
+
 import java.util.List;
 
 /**

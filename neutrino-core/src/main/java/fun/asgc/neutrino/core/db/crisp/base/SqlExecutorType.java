@@ -19,19 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
-
-import javax.sql.DataSource;
+package fun.asgc.neutrino.core.db.crisp.base;
 
 /**
- * 数据源提供商
  * @author: aoshiguchen
- * @date: 2022/11/3
+ * @date: 2022/11/4
  */
-public interface IDataSourceProvider {
-    /**
-     * 获取数据源
-     * @return
-     */
-    DataSource getDataSource();
+public enum SqlExecutorType {
+    SIMPLE, REUSE, BATCH
 }

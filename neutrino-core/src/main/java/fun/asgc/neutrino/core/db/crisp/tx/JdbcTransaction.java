@@ -1,6 +1,5 @@
 package fun.asgc.neutrino.core.db.crisp.tx;
 
-import fun.asgc.neutrino.core.db.crisp.TransactionIsolationLevel;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;

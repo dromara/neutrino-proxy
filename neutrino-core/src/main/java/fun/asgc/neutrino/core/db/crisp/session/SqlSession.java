@@ -19,8 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
+package fun.asgc.neutrino.core.db.crisp.session;
 
+import fun.asgc.neutrino.core.db.crisp.base.BatchResult;
+import fun.asgc.neutrino.core.db.crisp.DbConfig;
+import fun.asgc.neutrino.core.db.crisp.base.RowBounds;
 import sun.plugin2.main.server.ResultHandler;
 
 import java.io.Closeable;

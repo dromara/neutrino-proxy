@@ -19,7 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.crisp;
+package fun.asgc.neutrino.core.db.crisp.session;
+
+import fun.asgc.neutrino.core.db.crisp.DbConfig;
+import fun.asgc.neutrino.core.db.crisp.base.SqlExecutorType;
+import fun.asgc.neutrino.core.db.crisp.tx.TransactionIsolationLevel;
 
 import java.sql.Connection;
 
