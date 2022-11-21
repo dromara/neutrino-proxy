@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `user_login_record` (
     `type` INTEGER(2) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
 );
-#客户端链接记录表
+#客户端连接记录表
 CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     `user_id` INTEGER NOT NULL,
