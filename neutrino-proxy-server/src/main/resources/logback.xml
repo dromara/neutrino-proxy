@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_FILE" value="/work/project/neutrino-proxy/server.log"/>
+    <property name="LOG_FILE" value="/work/projects/neutrino-proxy/server.log"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{50} - %msg%n"/>
     <property name="ENCODE" value="utf8" />
 

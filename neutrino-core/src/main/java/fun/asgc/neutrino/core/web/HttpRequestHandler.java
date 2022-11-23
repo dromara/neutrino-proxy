@@ -43,7 +43,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 
@@ -115,7 +114,7 @@ public class HttpRequestHandler {
 
 				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
 				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(res.getBytes()));
-				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
 				httpResponseWrapper.writeAndFlush();
 				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
