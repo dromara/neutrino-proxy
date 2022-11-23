@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.client.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
@@ -37,7 +38,7 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * 认证信息处理器
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
@@ -48,17 +49,18 @@ import lombok.extern.slf4j.Slf4j;
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	@Autowired
 	private LicenseObtainService licenseObtainService;
+	@Autowired
+	private ProxyConfig proxyConfig;
 
 	@Override
 	public void handle(ChannelHandlerContext context, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
 		JSONObject data = JSONObject.parseObject(info);
 		Integer code = data.getInteger("code");
-		String licenseKey = data.getString("licenseKey");
 		log.info("认证结果:{}", info);
 		if (ExceptionEnum.SUCCESS.getCode().equals(code)) {
 			ProxyConfig.authSuccess = true;
-			FileUtil.write("./.neutrino-proxy.license", licenseKey);
+			FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(proxyConfig.getCustomConfig(), SerializerFeature.PrettyFormat));
 			licenseObtainService.stop();
 		}
 	}

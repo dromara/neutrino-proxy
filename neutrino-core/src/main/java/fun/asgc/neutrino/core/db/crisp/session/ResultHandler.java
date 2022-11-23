@@ -19,66 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
-
-import fun.asgc.neutrino.core.db.annotation.Table;
-import lombok.Data;
-import lombok.ToString;
-
-import java.util.Date;
+package fun.asgc.neutrino.core.db.crisp.session;
 
 /**
- *
  * @author: aoshiguchen
- * @date: 2022/8/31
+ * @date: 2022/11/23
  */
-@ToString
-@Data
-@Table("user_connect_record")
-public class UserConnectRecordDO {
-	private Integer id;
-	/**
-	 * 服务端端口号
-	 */
-	private Integer serverPort;
-	/**
-	 * userIp
-	 */
-	private String userIp;
-	/**
-	 * 客户端IP
-	 */
-	private String clientIp;
-	/**
-	 * 客户端信息
-	 */
-	private String clientLanInfo;
-	/**
-	 * 用户ID
-	 */
-	private String userId;
-	/**
-	 * licenseId
-	 */
-	private Integer licenseId;
-	/**
-	 * licenseKey
-	 */
-	private String licenseKey;
-	/**
-	 * writeBytes
-	 */
-	private Integer writeBytes;
-	/**
-	 * readBytes
-	 */
-	private Integer readBytes;
-	/**
-	 * type
-	 */
-	private Integer type;
-	/**
-	 * 创建时间
-	 */
-	private Date createTime;
+public interface ResultHandler<T> {
+    void handleResult(ResultContext<? extends T> resultContext);
 }

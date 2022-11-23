@@ -172,7 +172,7 @@
         listLoading: true,
         listQuery: {
           currentPage: 1,
-          pageSize: 20,
+          pageSize: 10,
           importance: undefined,
           title: undefined,
           type: undefined

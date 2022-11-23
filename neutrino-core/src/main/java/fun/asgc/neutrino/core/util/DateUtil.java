@@ -36,6 +36,10 @@ import java.util.function.Consumer;
  * @date: 2022/6/28
  */
 public class DateUtil {
+	public static final long SECOND_LONG = 1000L;
+	public static final long MINUTE_LONG = 60 * SECOND_LONG;
+	public static final long HOUR_LONG = 60 * MINUTE_LONG;
+
 	private static final Cache<String, SimpleDateFormat> sdfCache = new MemoryCache<>();
 	private static SimpleDateFormat getSimpleDateFormat(String format) {
 		try {
@@ -281,6 +285,30 @@ public class DateUtil {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		setCalender(calendar, 0, 0, 0, 0);
+		return calendar.getTime();
+	}
+
+	/**
+	 * 获取指定小时开始时间
+	 * @param date 日期
+	 * @return 指定小时开始时间
+	 */
+	public static Date getHourBegin(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		setCalender(calendar, calendar.get(Calendar.HOUR), 0, 0, 0);
+		return calendar.getTime();
+	}
+
+	/**
+	 * 获取指定小时结束时间
+	 * @param date 日期
+	 * @return 指定小时结束时间
+	 */
+	public static Date getHourEnd(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		setCalender(calendar, calendar.get(Calendar.HOUR), 59, 59, 999);
 		return calendar.getTime();
 	}
 

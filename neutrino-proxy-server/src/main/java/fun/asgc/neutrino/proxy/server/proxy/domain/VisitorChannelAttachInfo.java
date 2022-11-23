@@ -35,6 +35,10 @@ public class VisitorChannelAttachInfo {
 	private String visitorId;
 	private String lanInfo;
 	/**
+	 * licenseId
+	 */
+	private Integer licenseId;
+	/**
 	 * ip地址
 	 */
 	private String ip;

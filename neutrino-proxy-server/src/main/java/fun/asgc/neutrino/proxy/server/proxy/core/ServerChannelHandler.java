@@ -24,15 +24,22 @@ package fun.asgc.neutrino.proxy.server.proxy.core;
 
 import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import fun.asgc.neutrino.proxy.server.constant.ClientConnectTypeEnum;
+import fun.asgc.neutrino.proxy.server.constant.SuccessCodeEnum;
+import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
+import fun.asgc.neutrino.proxy.server.service.ClientConnectRecordService;
 import fun.asgc.neutrino.proxy.server.service.ProxyMutualService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
 
 /**
  *
@@ -81,6 +88,14 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
             if (null != cmdChannelAttachInfo) {
                 BeanManager.getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
+                BeanManager.getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
+                        .setIp(ChannelUtil.getIP(ctx.channel()))
+                        .setLicenseId(cmdChannelAttachInfo.getLicenseId())
+                        .setType(ClientConnectTypeEnum.DISCONNECT.getType())
+                        .setMsg("")
+                        .setCode(SuccessCodeEnum.SUCCESS.getCode())
+                        .setCreateTime(new Date())
+                );
             }
             ProxyUtil.removeCmdChannel(ctx.channel());
         }

@@ -40,7 +40,6 @@ public class AsgcProxyFactory implements ProxyFactory {
 	private static final String classNameTemplate = "%s" + SYMBOLIC + "%s";
 	private static AtomicLong proxyClassCounter = new AtomicLong();
 	private AsgcCompiler compiler = new AsgcCompiler();
-	private ProxyClassLoader classLoader = new ProxyClassLoader();
 
 	@Override
 	public <T> T get(Class<T> targetType) throws Exception {

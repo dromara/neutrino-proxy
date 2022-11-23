@@ -26,10 +26,15 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.UserMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.List;
@@ -45,6 +50,8 @@ import java.util.List;
 public class UserController {
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserMapper userMapper;
 
 	@GetMapping("page")
 	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
@@ -101,6 +108,22 @@ public class UserController {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
+		ParamCheckUtil.checkExpression(req.getLoginPassword().length() >= 6, ExceptionConstant.LOGIN_PASSWORD_LENGTH_CHECK_FAIL);
+
+		return userService.updatePassword(req);
+	}
+
+	@PostMapping("current-user/update/password")
+	public UserUpdatePasswordRes currentUserUpdatePassword(@RequestBody UserUpdatePasswordReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotEmpty(req.getOldLoginPassword(), "oldLoginPassword");
+		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
+		req.setId(SystemContextHolder.getUserId());
+		ParamCheckUtil.checkExpression(req.getLoginPassword().length() >= 6, ExceptionConstant.LOGIN_PASSWORD_LENGTH_CHECK_FAIL);
+		// 验证原密码
+		Integer userId = req.getId();
+		UserDO userDO = userMapper.findById(userId);
+		ParamCheckUtil.checkExpression(Md5Util.encode(req.getOldLoginPassword()).equals(userDO.getLoginPassword()), ExceptionConstant.ORIGIN_PASSWORD_CHECK_FAIL);
 
 		return userService.updatePassword(req);
 	}

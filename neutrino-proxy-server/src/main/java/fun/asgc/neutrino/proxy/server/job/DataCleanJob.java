@@ -1,3 +1,24 @@
+/**
+ * Copyright (c) 2022 aoshiguchen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package fun.asgc.neutrino.proxy.server.job;
 
 import com.alibaba.fastjson.JSONObject;
@@ -34,14 +55,36 @@ public class DataCleanJob implements IJobHandler {
      * Job日志保存天数
      */
     private static final Integer JOB_LOG_KEEP_DAYS = 7;
+    /**
+     * 用户登录日志保留天数
+     */
+    private static final Integer USER_LOGIN_RECORD_KEEP_DAYS = 30;
+    /**
+     * 客户端连接记录保留天数
+     */
+    private static final Integer CLIENT_CONNECT_RECORD_KEEP_DAYS = 30;
 
     @Override
     public void execute(String s) throws Exception {
         JobParams jobParams = getParams(s);
 
-        Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
-        log.info("清理调度管理日志 date:{}", sdf.format(date));
-        dataCleanMapper.cleanJobLog(date.getTime());
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
+            log.info("清理调度管理日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanJobLog(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getUserLoginRecordKeepDays());
+            log.info("清理用户登录日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanUserLoginRecord(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getClientConnectRecordKeepDays());
+            log.info("清理客户端连接日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanClientConnectRecord(date.getTime());
+        }
     }
 
     public static JobParams getParams(String s) {
@@ -53,12 +96,16 @@ public class DataCleanJob implements IJobHandler {
             // ignore
         }
         return new JobParams()
-                .setJobLogKeepDays(JOB_LOG_KEEP_DAYS);
+                .setJobLogKeepDays(JOB_LOG_KEEP_DAYS)
+                .setUserLoginRecordKeepDays(USER_LOGIN_RECORD_KEEP_DAYS)
+                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS);
     }
 
     @Accessors(chain = true)
     @Data
     public static class JobParams {
         private Integer jobLogKeepDays;
+        private Integer userLoginRecordKeepDays;
+        private Integer clientConnectRecordKeepDays;
     }
 }

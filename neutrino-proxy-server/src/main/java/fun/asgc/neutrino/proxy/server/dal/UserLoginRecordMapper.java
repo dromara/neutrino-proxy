@@ -24,7 +24,12 @@ package fun.asgc.neutrino.proxy.server.dal;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Insert;
+import fun.asgc.neutrino.core.db.annotation.ResultType;
+import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 
 /**
@@ -42,4 +47,8 @@ public interface UserLoginRecordMapper extends SqlMapper {
 	 */
 	@Insert("insert into `user_login_record`(`user_id`,`ip`,`token`,`type`,`create_time`) values(:userId,:ip,:token,:type,:createTime)")
 	int add(UserLoginRecordDO userLoginRecord);
+
+	@ResultType(UserLoginRecordListRes.class)
+	@Select("select * from user_login_record order by create_time desc")
+	void page(Page page, UserLoginRecordListReq req);
 }

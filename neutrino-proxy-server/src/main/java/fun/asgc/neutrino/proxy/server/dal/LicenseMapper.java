@@ -30,7 +30,6 @@ import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
@@ -59,6 +58,10 @@ public interface LicenseMapper extends SqlMapper {
 	@Select("select * from license where enable = 1")
 	List<LicenseListRes> list();
 
+	@ResultType(LicenseDO.class)
+	@Select("select * from license")
+	List<LicenseDO> listAll();
+
 	/**
 	 * 新增license
 	 * @param license
@@ -70,6 +73,9 @@ public interface LicenseMapper extends SqlMapper {
 
 	@Update("update `license` set is_online = :isOnline, update_time = :updateTime where id = :id")
 	void updateOnlineStatus(@Param("id") Integer id, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+
+	@Update("update `license` set is_online = :isOnline, update_time = :updateTime")
+	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
 
 	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
 	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);

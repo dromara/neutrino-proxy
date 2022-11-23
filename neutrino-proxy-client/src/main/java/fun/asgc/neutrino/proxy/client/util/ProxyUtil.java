@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- *
+ * 代理工具
  * @author: aoshiguchen
  * @date: 2022/8/31
  */
@@ -101,7 +101,7 @@ public class ProxyUtil {
 		realServerChannel.attr(Constants.VISITOR_ID).set(visitorId);
 	}
 
-	public static String getRealServerChannelVisitorId(Channel realServerChannel) {
+	public static String getVisitorIdByRealServerChannel(Channel realServerChannel) {
 		return realServerChannel.attr(Constants.VISITOR_ID).get();
 	}
 

@@ -40,9 +40,10 @@ import fun.asgc.neutrino.core.web.router.HttpRouteParam;
 import fun.asgc.neutrino.core.web.router.HttpRouteResult;
 import fun.asgc.neutrino.core.web.router.HttpRouterType;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -113,13 +114,14 @@ public class HttpRequestHandler {
 
 				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
 				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(res.getBytes()));
-				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=UTF-8");
 				httpResponseWrapper.writeAndFlush();
 				return;
 			} else if(HttpRouterType.PAGE == httpRouteResult.getType()) {
-				if (!preHandle(httpRouteResult.getPageRoute(), null)) {
-					return;
-				}
+				// 静态页面无需前置拦截
+//				if (!preHandle(httpRouteResult.getPageRoute(), null)) {
+//					return;
+//				}
 
 				// 前端页面
 				String mimeType = MimeType.getMimeType(MimeType.parseSuffix(httpRouteResult.getPageLocation()));

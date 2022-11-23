@@ -52,7 +52,9 @@ export default {
     license: 'License管理',
     portMapping: '端口映射',
     jobManager: '调度管理',
-    jobLog: '调度日志'
+    jobLog: '调度日志',
+    log: '日志管理',
+    loginLog: '登录日志'
   },
   navbar: {
     logOut: '退出登录',
@@ -135,7 +137,9 @@ export default {
     alarmDing: '任务报警钉钉',
     jobLogCode: '执行结果',
     jobLogMsg: '执行日志',
-    alarmStatus: '报警状态'
+    alarmStatus: '报警状态',
+    ip: 'IP',
+    happendTime: '发生时间'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

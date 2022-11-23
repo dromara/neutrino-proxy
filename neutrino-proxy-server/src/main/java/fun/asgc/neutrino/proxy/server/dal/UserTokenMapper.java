@@ -25,8 +25,6 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
@@ -69,4 +67,11 @@ public interface UserTokenMapper extends SqlMapper {
 
 	@Update("update user_token set expiration_time = :expirationTime where token = :token")
 	void updateTokenExpirationTime(@Param("token") String token, @Param("expirationTime") Date expirationTime);
+
+	/**
+	 * 根据userId删除token
+	 * @param userId
+	 */
+	@Delete("delete from user_token where user_id = ?")
+	void deleteByUserId(Integer userId);
 }

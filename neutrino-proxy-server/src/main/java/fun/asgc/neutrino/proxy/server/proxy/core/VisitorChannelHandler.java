@@ -22,8 +22,11 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
+import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import fun.asgc.neutrino.proxy.server.proxy.domain.VisitorChannelAttachInfo;
+import fun.asgc.neutrino.proxy.server.service.FlowReportService;
 import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -41,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private static AtomicLong userIdProducer = new AtomicLong(0);
+    private static AtomicLong visitorIdProducer = new AtomicLong(0);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -63,27 +66,31 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            String userId = ProxyUtil.getVisitorChannelUserId(visitorChannel);
-            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(userId, bytes));
+            String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
+            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
+
+            // 增加流量计数
+            VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
+            BeanManager.getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Channel userChannel = ctx.channel();
-        InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
+        Channel visitorChannel = ctx.channel();
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {
-            String userId = newUserId();
+            String visitorId = newVisitorId();
             String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
             // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
-            userChannel.config().setOption(ChannelOption.AUTO_READ, false);
-            ProxyUtil.addUserChannelToCmdChannel(cmdChannel, userId, userChannel);
-            cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(userId).setData(lanInfo.getBytes()));
+            visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
+            ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel);
+            cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
         }
 
         super.channelActive(ctx);
@@ -104,7 +111,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
 
             // 用户连接断开，从控制连接中移除
-            String userId = ProxyUtil.getVisitorChannelUserId(userChannel);
+            String userId = ProxyUtil.getVisitorIdByChannel(userChannel);
             ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, userId);
 
             Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
@@ -144,11 +151,11 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     }
 
     /**
-     * 为用户连接产生ID
+     * 为访问者连接产生ID
      *
      * @return
      */
-    private static String newUserId() {
-        return String.valueOf(userIdProducer.incrementAndGet());
+    private static String newVisitorId() {
+        return String.valueOf(visitorIdProducer.incrementAndGet());
     }
 }
