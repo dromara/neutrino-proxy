@@ -79,28 +79,9 @@ CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `ip` VARCHAR(50) NOT NULL,
     `license_id` INTEGER(20) NOT NULL,
     `license_key` VARCHAR(100) NOT NULL,
-    `write_bytes` INTEGER(20) DEFAULT NULL,
-    `read_bytes` INTEGER(20) DEFAULT NULL,
     `type` INTEGER(2) NOT NULL,
     `create_time` INTEGER(20) NOT NULL
 );
-
-#用户连接记录表
-CREATE TABLE IF NOT EXISTS `user_connect_record` (
-    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    `server_port` INTEGER NOT NULL,
-    `user_ip` VARCHAR(50) NOT NULL,
-    `client_ip` VARCHAR(50) NOT NULL,
-    `client_lan_info` VARCHAR(50) NOT NULL,
-    `user_id` INTEGER NOT NULL,
-    `license_id` INTEGER(20) NOT NULL,
-    `license_key` VARCHAR(100) NOT NULL,
-    `write_bytes` INTEGER(20) DEFAULT NULL,
-    `read_bytes` INTEGER(20) DEFAULT NULL,
-    `type` INTEGER(2) NOT NULL,
-    `create_time` INTEGER(20) NOT NULL
-    );
-
 #############################调度管理相关表#############################
 #触发器信息表
 CREATE TABLE IF NOT EXISTS `job_info` (
