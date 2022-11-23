@@ -31,5 +31,6 @@ import lombok.Data;
 @Data
 public class UserUpdatePasswordReq {
 	private Integer id;
+	private String oldLoginPassword;
 	private String loginPassword;
 }

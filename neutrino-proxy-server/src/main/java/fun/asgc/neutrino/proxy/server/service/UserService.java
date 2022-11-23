@@ -27,10 +27,10 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.DateUtil;
-import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
-import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
@@ -40,6 +40,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -192,8 +193,16 @@ public class UserService {
 	}
 
 	public UserUpdatePasswordRes updatePassword(UserUpdatePasswordReq req) {
+		UserDO userDO = userMapper.findById(req.getId());
+		// 更新密码
 		String loginPassword = Md5Util.encode(req.getLoginPassword());
+		ParamCheckUtil.checkExpression(!userDO.getLoginPassword().equals(loginPassword), ExceptionConstant.LOGIN_PASSWORD_NO_CHANGE_MODIFY_FAIL);
+
 		userMapper.updateLoginPassword(req.getId(), loginPassword, new Date());
+
+		// 删除该用户所有token
+		userTokenMapper.deleteByUserId(req.getId());
+
 		return new UserUpdatePasswordRes();
 	}
 

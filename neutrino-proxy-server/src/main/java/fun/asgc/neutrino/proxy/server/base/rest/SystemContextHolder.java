@@ -40,7 +40,13 @@ public class SystemContextHolder {
 	}
 
 	public static UserDO getUser() {
-		return systemContextHolder.get().getUser();
+		SystemContext context = getContext();
+		return (null == context) ? null : context.getUser();
+	}
+
+	public static Integer getUserId() {
+		UserDO userDO = getUser();
+		return (null == userDO) ? null : userDO.getId();
 	}
 
 	public static String getToken() {

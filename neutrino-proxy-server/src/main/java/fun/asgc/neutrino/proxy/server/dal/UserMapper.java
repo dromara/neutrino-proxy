@@ -29,7 +29,6 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
-import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 
 import java.util.Date;
