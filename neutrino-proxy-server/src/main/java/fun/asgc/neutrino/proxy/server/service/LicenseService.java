@@ -22,9 +22,7 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
@@ -201,5 +199,14 @@ public class LicenseService {
 			return licenseKey;
 		}
 		return licenseKey.substring(0, 10) + "****" + licenseKey.substring(licenseKey.length() - 10);
+	}
+
+	/**
+	 * 服务端项目停止、启动时，更新在线状态为离线
+	 */
+	@Init
+	@Destroy
+	public void destroy() {
+		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 	}
 }

@@ -79,4 +79,7 @@ public interface PortMappingMapper extends SqlMapper {
 
 	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId")
 	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+
+	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime")
+	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
 }
