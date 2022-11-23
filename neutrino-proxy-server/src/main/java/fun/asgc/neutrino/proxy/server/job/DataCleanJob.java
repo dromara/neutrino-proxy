@@ -55,14 +55,36 @@ public class DataCleanJob implements IJobHandler {
      * Job日志保存天数
      */
     private static final Integer JOB_LOG_KEEP_DAYS = 7;
+    /**
+     * 用户登录日志保留天数
+     */
+    private static final Integer USER_LOGIN_RECORD_KEEP_DAYS = 30;
+    /**
+     * 客户端连接记录保留天数
+     */
+    private static final Integer CLIENT_CONNECT_RECORD_KEEP_DAYS = 30;
 
     @Override
     public void execute(String s) throws Exception {
         JobParams jobParams = getParams(s);
 
-        Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
-        log.info("清理调度管理日志 date:{}", sdf.format(date));
-        dataCleanMapper.cleanJobLog(date.getTime());
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
+            log.info("清理调度管理日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanJobLog(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getUserLoginRecordKeepDays());
+            log.info("清理用户登录日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanUserLoginRecord(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getClientConnectRecordKeepDays());
+            log.info("清理客户端连接日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanClientConnectRecord(date.getTime());
+        }
     }
 
     public static JobParams getParams(String s) {
@@ -74,12 +96,16 @@ public class DataCleanJob implements IJobHandler {
             // ignore
         }
         return new JobParams()
-                .setJobLogKeepDays(JOB_LOG_KEEP_DAYS);
+                .setJobLogKeepDays(JOB_LOG_KEEP_DAYS)
+                .setUserLoginRecordKeepDays(USER_LOGIN_RECORD_KEEP_DAYS)
+                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS);
     }
 
     @Accessors(chain = true)
     @Data
     public static class JobParams {
         private Integer jobLogKeepDays;
+        private Integer userLoginRecordKeepDays;
+        private Integer clientConnectRecordKeepDays;
     }
 }

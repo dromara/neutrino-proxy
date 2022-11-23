@@ -37,4 +37,9 @@ public interface DataCleanMapper extends SqlMapper {
     @Delete("delete from `job_log` where create_time < ?")
     void cleanJobLog(long date);
 
+    @Delete("delete from `user_login_record` where create_time < ?")
+    void cleanUserLoginRecord(long date);
+
+    @Delete("delete from `client_connect_record` where create_time < ?")
+    void cleanClientConnectRecord(long date);
 }

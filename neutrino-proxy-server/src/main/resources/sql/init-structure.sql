@@ -80,6 +80,9 @@ CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `license_id` INTEGER(20) NOT NULL,
     `license_key` VARCHAR(100) NOT NULL,
     `type` INTEGER(2) NOT NULL,
+    `msg` VARCHAR(512) DEFAULT NULL,
+    `code` INTEGER(2) NOT NULL,
+    `err` VARCHAR(512) DEFAULT NULL,
     `create_time` INTEGER(20) NOT NULL
 );
 #############################调度管理相关表#############################
