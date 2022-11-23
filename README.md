@@ -99,21 +99,25 @@ proxy:
 默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
 若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
 
-# 6、未来迭代方向
+# 6、演示环境
+> 可适用分配好的游客license试用。服务器带宽较低，仅供学习使用，大家手下留情！
+- 管理后台地址：http://103.163.47.16:8888
+- 游客账号：visitor/123456
+
+# 7、未来迭代方向
 - 优化代码、增强稳定性
 - 服务端增加管理页面，提供报表、授权、限流等功能
 - 从项目中分离、孵化出另一个开源项目(neutrino-framework)
 
-# 7、技术文档
+# 8、技术文档
 - [Aop](./docs/Aop.MD)
 - [Channel](./docs/Channel.MD)
 
-# 8、联系我们
+# 9、联系我们
 - 微信: yuyunshize
-- Gitee(主更): https://gitee.com/asgc/neutrino-proxy
-- Github: https://github.com/aoshiguchen/neutrino-proxy
+- Gitee: https://gitee.com/asgc/neutrino-proxy
 
-# 9、特别鸣谢
+# 10、特别鸣谢
 * [JetBrains](https://www.jetbrains.com?from=RedisFront)
 
 ![JenBrains logo](assets/jetbrains.svg)
