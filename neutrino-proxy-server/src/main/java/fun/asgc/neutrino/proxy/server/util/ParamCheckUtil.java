@@ -66,6 +66,13 @@ public class ParamCheckUtil {
 		}
 	}
 
+	public static void checkMustNull(Object obj, ExceptionConstant constant, Object... params) {
+		if (null != obj) {
+			throw ServiceException.create(constant, params);
+		}
+	}
+
+
 	public static void checkNotNull(Object obj, ExceptionConstant constant, Object... params) {
 		if (null == obj) {
 			throw ServiceException.create(constant, params);

@@ -125,7 +125,7 @@ public class LicenseService {
 		ParamCheckUtil.checkNotNull(oldLicenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 
 		LicenseDO licenseCheck = licenseMapper.checkRepeat(oldLicenseDO.getUserId(), req.getName(), Sets.newHashSet(oldLicenseDO.getId()));
-		ParamCheckUtil.checkNotNull(licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
+		ParamCheckUtil.checkMustNull(licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
 		licenseMapper.update(req.getId(), req.getName(), new Date());
 		return new LicenseUpdateRes();
