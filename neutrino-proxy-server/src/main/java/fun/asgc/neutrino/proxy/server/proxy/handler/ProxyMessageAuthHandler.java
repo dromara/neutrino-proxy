@@ -26,11 +26,15 @@ import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
+import fun.asgc.neutrino.proxy.server.constant.ClientConnectTypeEnum;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.SuccessCodeEnum;
+import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
@@ -50,6 +54,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.BindException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,35 +84,88 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private ProxyMutualService proxyMutualService;
 	@Autowired
 	private FlowReportService flowReportService;
+	@Autowired
+	private ClientConnectRecordService clientConnectRecordService;
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
+		String ip = ChannelUtil.getIP(ctx.channel());
+		Date now = new Date();
+
 		String licenseKey = proxyMessage.getInfo();
 		if (StringUtil.isEmpty(licenseKey)) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
+			clientConnectRecordService.add(new ClientConnectRecordDO()
+					.setIp(ip)
+					.setType(ClientConnectTypeEnum.CONNECT.getType())
+					.setMsg(licenseKey)
+					.setCode(SuccessCodeEnum.FAIL.getCode())
+					.setErr("license不能为空!")
+					.setCreateTime(now)
+			);
 			return;
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
+			clientConnectRecordService.add(new ClientConnectRecordDO()
+					.setIp(ip)
+					.setType(ClientConnectTypeEnum.CONNECT.getType())
+					.setMsg(licenseKey)
+					.setCode(SuccessCodeEnum.FAIL.getCode())
+					.setErr("license不存在!")
+					.setCreateTime(now)
+			);
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被禁用!", licenseKey));
+			clientConnectRecordService.add(new ClientConnectRecordDO()
+					.setIp(ip)
+					.setLicenseId(licenseDO.getId())
+					.setType(ClientConnectTypeEnum.CONNECT.getType())
+					.setMsg(licenseKey)
+					.setCode(SuccessCodeEnum.FAIL.getCode())
+					.setErr("当前license已被禁用!")
+					.setCreateTime(now));
 			return;
 		}
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license无效!", licenseKey));
+			clientConnectRecordService.add(new ClientConnectRecordDO()
+					.setIp(ip)
+					.setLicenseId(licenseDO.getId())
+					.setType(ClientConnectTypeEnum.CONNECT.getType())
+					.setMsg(licenseKey)
+					.setCode(SuccessCodeEnum.FAIL.getCode())
+					.setErr("当前license无效!")
+					.setCreateTime(now));
 			return;
 		}
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
+			clientConnectRecordService.add(new ClientConnectRecordDO()
+					.setIp(ip)
+					.setLicenseId(licenseDO.getId())
+					.setType(ClientConnectTypeEnum.CONNECT.getType())
+					.setMsg(licenseKey)
+					.setCode(SuccessCodeEnum.FAIL.getCode())
+					.setErr("当前license已被另一节点使用!")
+					.setCreateTime(now));
 			return;
 		}
 		// 发送认证成功消息
 		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "认证成功!", licenseKey));
+
+		clientConnectRecordService.add(new ClientConnectRecordDO()
+				.setIp(ip)
+				.setLicenseId(licenseDO.getId())
+				.setType(ClientConnectTypeEnum.CONNECT.getType())
+				.setMsg(licenseKey)
+				.setCode(SuccessCodeEnum.SUCCESS.getCode())
+				.setCreateTime(now));
 
 		List<PortMappingDO> portMappingList = portMappingService.findEnableListByLicenseId(licenseDO.getId());
 		// 没有端口映射仍然保持连接

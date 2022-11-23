@@ -75,10 +75,8 @@ CREATE TABLE IF NOT EXISTS `user_login_record` (
 #客户端连接记录表
 CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    `user_id` INTEGER NOT NULL,
     `ip` VARCHAR(50) NOT NULL,
-    `license_id` INTEGER(20) NOT NULL,
-    `license_key` VARCHAR(100) NOT NULL,
+    `license_id` INTEGER(20) DEFAULT NULL,
     `type` INTEGER(2) NOT NULL,
     `msg` VARCHAR(512) DEFAULT NULL,
     `code` INTEGER(2) NOT NULL,

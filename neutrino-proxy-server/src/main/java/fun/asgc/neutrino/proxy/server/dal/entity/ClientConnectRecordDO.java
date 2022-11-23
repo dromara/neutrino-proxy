@@ -19,10 +19,8 @@ import java.util.Date;
 public class ClientConnectRecordDO {
     @Id
     private Integer id;
-    private Integer userId;
     private String ip;
     private Integer licenseId;
-    private String licenseKey;
     private Integer type;
     private String msg;
     /**
