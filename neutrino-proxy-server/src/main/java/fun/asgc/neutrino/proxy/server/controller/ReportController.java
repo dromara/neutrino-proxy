@@ -37,6 +37,19 @@ import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
 @RestController
 public class ReportController {
 
+    /**
+     * 数据一览：
+     * 在线用户数 查询token有效的用户ID数
+     * 在线Client数 查询license表，状态为在线的数量
+     * 今日流量 上行/下行/总计
+     * 历史流量 上行/下行/总计
+     *
+     * 1、点击在线用户数：下方展示在线的用户列表，带分页
+     * 2、点击在线client数：下方展示在线的license列表，带分页
+     * 3、点击今日流量：下方展示今日的流量折线图（小时）。 筛选项：全部/用户列表
+     * 4、点击历史流量：下方展示历史流量折线图。筛选项：日/月 日期选择：日（展示最近30天，最多跨30日），月（展示最近12个月，最多跨12个月）
+     * @return
+     */
     @GetMapping("data-view")
     public ReportDataViewRes dataView() {
         return new ReportDataViewRes()
