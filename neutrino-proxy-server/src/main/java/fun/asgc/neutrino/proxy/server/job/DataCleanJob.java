@@ -129,7 +129,10 @@ public class DataCleanJob implements IJobHandler {
         return new JobParams()
                 .setJobLogKeepDays(JOB_LOG_KEEP_DAYS)
                 .setUserLoginRecordKeepDays(USER_LOGIN_RECORD_KEEP_DAYS)
-                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS);
+                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS)
+                .setFlowMinuteReportKeepDays(FLOW_MINUTE_REPORT_KEEP_DAYS)
+                .setFlowHourReportKeepDays(FLOW_HOUR_REPORT_KEEP_DAYS)
+                .setFlowDayReportKeepDays(FLOW_DAY_REPORT_KEEP_DAYS);
     }
 
     @Accessors(chain = true)
