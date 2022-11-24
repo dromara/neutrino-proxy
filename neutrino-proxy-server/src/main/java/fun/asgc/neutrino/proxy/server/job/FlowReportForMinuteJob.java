@@ -78,9 +78,6 @@ public class FlowReportForMinuteJob implements IJobHandler {
             }
             Integer writeBytes = flowReportService.getAndResetWriteByte(item.getId());
             Integer readBytes = flowReportService.getAndResetReadByte(item.getId());
-            if (writeBytes == 0 && readBytes == 0) {
-                continue;
-            }
             FlowReportMinuteDO flowReportMinuteDO = new FlowReportMinuteDO();
             flowReportMinuteDO.setUserId(item.getUserId());
             flowReportMinuteDO.setLicenseId(item.getId());
