@@ -85,3 +85,15 @@ export function updatePassword(params) {
   })
 }
 
+/**
+ * 修改自己密码
+ * @param params
+ */
+export function updateUserPassword(params) {
+  return request({
+    url: '/user/current-user/update/password',
+    method: 'post',
+    data: params
+  })
+}
+

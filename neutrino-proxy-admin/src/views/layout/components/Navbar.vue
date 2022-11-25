@@ -33,12 +33,17 @@
               {{$t('navbar.github')}}
             </el-dropdown-item>
           </a>
+          <el-dropdown-item>
+            <span @click="updatePwdvisible = true">{{$t('navbar.updatePwd')}}</span>
+          </el-dropdown-item>
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+
+    <UpdatePwd :visible="updatePwdvisible" @cancel="handleCancel"></UpdatePwd>
   </el-menu>
 </template>
 
@@ -50,9 +55,11 @@ import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import LangSelect from '@/components/LangSelect'
 import ThemePicker from '@/components/ThemePicker'
+import UpdatePwd from '../../system/components/update-pwd'
 
 export default {
   components: {
+    UpdatePwd,
     Breadcrumb,
     Hamburger,
     ErrorLog,
@@ -68,6 +75,11 @@ export default {
       'loginName'
     ])
   },
+  data() {
+    return {
+      updatePwdvisible: false
+    }
+  },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
@@ -76,6 +88,9 @@ export default {
       this.$store.dispatch('LogOut').then(() => {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })
+    },
+    handleCancel() {
+      this.updatePwdvisible = false
     }
   }
 }
@@ -130,12 +145,12 @@ export default {
           height: 40px;
           border-radius: 10px;
         }
-        .el-icon-caret-bottom {
+        /*.el-icon-caret-bottom {
           position: absolute;
           right: -20px;
           top: 25px;
           font-size: 12px;
-        }
+        }*/
       }
     }
   }
