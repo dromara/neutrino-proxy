@@ -64,6 +64,19 @@ public class DataCleanJob implements IJobHandler {
      */
     private static final Integer CLIENT_CONNECT_RECORD_KEEP_DAYS = 30;
 
+    /**
+     * 流量统计分钟报表记录保留天数
+     */
+    private static final Integer FLOW_MINUTE_REPORT_KEEP_DAYS = 2;
+    /**
+     * 流量统计小时报表记录保留天数
+     */
+    private static final Integer FLOW_HOUR_REPORT_KEEP_DAYS = 90;
+    /**
+     * 流量统计天报表记录保留天数
+     */
+    private static final Integer FLOW_DAY_REPORT_KEEP_DAYS = 400;
+
     @Override
     public void execute(String s) throws Exception {
         JobParams jobParams = getParams(s);
@@ -85,6 +98,24 @@ public class DataCleanJob implements IJobHandler {
             log.info("清理客户端连接日志 date:{}", sdf.format(date));
             dataCleanMapper.cleanClientConnectRecord(date.getTime());
         }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowMinuteReportKeepDays());
+            log.info("清理流通统计分钟报表日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanFlowMinuteReport(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowHourReportKeepDays());
+            log.info("清理流通统计小时报表日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanFlowHourReport(date.getTime());
+        }
+
+        {
+            Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowDayReportKeepDays());
+            log.info("清理流通统计日报表日志 date:{}", sdf.format(date));
+            dataCleanMapper.cleanFlowDayReport(date.getTime());
+        }
     }
 
     public static JobParams getParams(String s) {
@@ -98,7 +129,10 @@ public class DataCleanJob implements IJobHandler {
         return new JobParams()
                 .setJobLogKeepDays(JOB_LOG_KEEP_DAYS)
                 .setUserLoginRecordKeepDays(USER_LOGIN_RECORD_KEEP_DAYS)
-                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS);
+                .setClientConnectRecordKeepDays(CLIENT_CONNECT_RECORD_KEEP_DAYS)
+                .setFlowMinuteReportKeepDays(FLOW_MINUTE_REPORT_KEEP_DAYS)
+                .setFlowHourReportKeepDays(FLOW_HOUR_REPORT_KEEP_DAYS)
+                .setFlowDayReportKeepDays(FLOW_DAY_REPORT_KEEP_DAYS);
     }
 
     @Accessors(chain = true)
@@ -107,5 +141,8 @@ public class DataCleanJob implements IJobHandler {
         private Integer jobLogKeepDays;
         private Integer userLoginRecordKeepDays;
         private Integer clientConnectRecordKeepDays;
+        private Integer flowMinuteReportKeepDays;
+        private Integer flowHourReportKeepDays;
+        private Integer flowDayReportKeepDays;
     }
 }

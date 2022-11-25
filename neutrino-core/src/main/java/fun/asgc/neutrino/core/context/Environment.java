@@ -23,11 +23,16 @@
 package fun.asgc.neutrino.core.context;
 
 import fun.asgc.neutrino.core.base.event.SimpleApplicationEventManager;
+import fun.asgc.neutrino.core.util.ArrayUtil;
+import fun.asgc.neutrino.core.util.LockUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.util.SystemUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -69,4 +74,49 @@ public class Environment {
 	 * 默认的应用事件管理器
 	 */
 	private SimpleApplicationEventManager defaultApplicationEventManager;
+	/**
+	 * 参数map
+	 */
+	private Map<String, String> mainArgsMap = null;
+
+	private Map<String, String> getMainArgsMap() {
+		return LockUtil.doubleCheckProcessForNoException(
+				() -> null == mainArgsMap,
+				this,
+				() -> {
+					Map<String, String> map = new HashMap<>();
+					if (ArrayUtil.notEmpty(mainArgs)) {
+						for (String param : mainArgs) {
+							if (!StringUtil.isEmpty(param)) {
+								int index = param.indexOf("=");
+								if (index > 0 && index < param.length() - 1) {
+									String key = param.substring(0, index);
+									String val = param.substring(index + 1);
+									map.put(key, val);
+								}
+							}
+						}
+					}
+					mainArgsMap = map;
+				},
+				() -> mainArgsMap
+		);
+	}
+
+	private String getMainArgs(String key) {
+		return getMainArgsMap().get(key);
+	}
+
+	public Integer getMainArgsForInteger(String key) {
+		String val = getMainArgs(key);
+		Integer res = null;
+		try {
+			if (!StringUtil.isEmpty(val)) {
+				res = Integer.valueOf(val);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return res;
+	}
 }

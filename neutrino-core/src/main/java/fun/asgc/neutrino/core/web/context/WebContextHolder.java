@@ -28,6 +28,7 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.bean.BeanWrapper;
 import fun.asgc.neutrino.core.bean.factory.SimpleBeanFactory;
 import fun.asgc.neutrino.core.context.ApplicationConfig;
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.core.web.config.WebMvcConfigurer;
@@ -59,6 +60,8 @@ public class WebContextHolder {
 	private ApplicationConfig applicationConfig;
 	@Autowired
 	private SimpleBeanFactory applicationBeanFactory;
+	@Autowired
+	private Environment environment;
 
 	@Init
 	public void init() {
@@ -68,7 +71,10 @@ public class WebContextHolder {
 		initMaxContentLength();
 		initControllerBeanWrapperList();
 		initInterceptorRegistry();
-		port = http.getPort();
+		port = environment.getMainArgsForInteger("port");
+		if (null == port) {
+			port = http.getPort();
+		}
 	}
 
 	public static String getHttpContextPath() {

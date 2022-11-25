@@ -42,4 +42,14 @@ public interface DataCleanMapper extends SqlMapper {
 
     @Delete("delete from `client_connect_record` where create_time < ?")
     void cleanClientConnectRecord(long date);
+
+    @Delete("delete from `flow_report_minute` where create_time < ?")
+    void cleanFlowMinuteReport(long date);
+
+    @Delete("delete from `flow_report_hour` where create_time < ?")
+    void cleanFlowHourReport(long date);
+
+    @Delete("delete from `flow_report_day` where create_time < ?")
+    void cleanFlowDayReport(long date);
+
 }
