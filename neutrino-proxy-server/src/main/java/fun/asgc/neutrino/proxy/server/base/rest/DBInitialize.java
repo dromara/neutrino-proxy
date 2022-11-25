@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 import fun.asgc.neutrino.core.annotation.PreLoad;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
-import fun.asgc.neutrino.proxy.server.base.rest.config.SqliteConfig;
+import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.DriverManager;
@@ -41,11 +41,11 @@ import java.util.List;
 @PreLoad("init")
 public class DBInitialize {
 	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping", "job_info");
-	private static SqliteConfig sqliteConfig;
+	private static DbConfig dbConfig;
 	private static JdbcTemplate jdbcTemplate;
 
 	public static void init() throws Exception {
-		sqliteConfig = ConfigUtil.getYmlConfig(SqliteConfig.class);
+		dbConfig = ConfigUtil.getYmlConfig(DbConfig.class);
 		jdbcTemplate = getJdbcTemplate();
 		initDBStructure();
 		initDBData();
@@ -116,13 +116,13 @@ public class DBInitialize {
 			() -> null == jdbcTemplate,
 			DBInitialize.class,
 			() -> {
-				Class.forName(sqliteConfig.getDriverClass());
+				Class.forName(dbConfig.getDriverClass());
 				//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
-				DriverManager.getConnection(sqliteConfig.getUrl());
+				DriverManager.getConnection(dbConfig.getUrl());
 				// 创建数据源
 				DruidDataSource dataSource = new DruidDataSource();
-				dataSource.setUrl(sqliteConfig.getUrl());
-				dataSource.setDriverClassName(sqliteConfig.getDriverClass());
+				dataSource.setUrl(dbConfig.getUrl());
+				dataSource.setDriverClassName(dbConfig.getDriverClass());
 				// 创建jdbcTemplate
 				jdbcTemplate = new JdbcTemplate(dataSource);
 			},

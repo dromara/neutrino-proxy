@@ -27,6 +27,7 @@ neutrino:
       key-manager-password: 123456
       jks-path: classpath:/test.jks
   data:
-    sqlite:
+    db:
+      type: sqlite
       url: jdbc:sqlite:data.db
       driver-class: org.sqlite.JDBC
