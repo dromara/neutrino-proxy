@@ -21,35 +21,35 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.base.Ordered;
-import fun.asgc.neutrino.core.db.template.JdbcTemplate;
-import org.sqlite.SQLiteDataSource;
-
-import javax.sql.DataSource;
+import fun.asgc.neutrino.core.annotation.Configuration;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.Value;
+import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
+import lombok.Data;
 
 /**
- * 系统配置
- *author: aoshiguchen
- * @date: 2022/8/1
+ * sqlite数据库配置
+ * @author: aoshiguchen
+ * @date: 2022/7/31
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
-@Component
-public class RestConfiguration {
-	@Autowired
-	private DbConfig dbConfig;
-
-	@Bean
-	public DataSource dataSource() {
-		SQLiteDataSource dataSource = new SQLiteDataSource();
-		dataSource.setUrl(dbConfig.getUrl());
-		dataSource.setJournalMode("WAL");
-		return dataSource;
-	}
-
-	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(dataSource());
-	}
-
+@Data
+@NonIntercept
+@Configuration(prefix = "neutrino.data.db")
+public class DbConfig {
+	/**
+	 * 数据库类型
+	 * {@link DbTypeEnum}
+	 */
+	@Value("type")
+	private String type;
+	/**
+	 * 连接url
+	 */
+	@Value("url")
+	private String url;
+	/**
+	 * 驱动类
+	 */
+	@Value("driver-class")
+	private String driverClass;
 }
