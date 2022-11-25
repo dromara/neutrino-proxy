@@ -73,3 +73,15 @@ export function hello() {
   })
 }
 
+/**
+ * 管理员修改成员密码
+ * @param params
+ */
+export function updatePassword(params) {
+  return request({
+    url: '/user/update/password',
+    method: 'post',
+    data: params
+  })
+}
+
