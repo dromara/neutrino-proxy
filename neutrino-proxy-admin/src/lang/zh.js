@@ -139,7 +139,8 @@ export default {
     jobLogMsg: '执行日志',
     alarmStatus: '报警状态',
     ip: 'IP',
-    happendTime: '发生时间'
+    happendTime: '发生时间',
+    updatePwd: '修改密码'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
