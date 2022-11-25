@@ -11,13 +11,13 @@
           <el-input v-model="formData.loginName" disabled/>
         </el-form-item>
         <el-form-item label="旧密码" prop="oldLoginPassword" v-if="!row">
-          <el-input v-model="formData.oldLoginPassword"/>
+          <el-input v-model="formData.oldLoginPassword" type="password" placeholder="请输入旧密码"/>
         </el-form-item>
         <el-form-item label="新密码" prop="loginPassword">
-          <el-input v-model="formData.loginPassword"/>
+          <el-input v-model="formData.loginPassword" type="password" placeholder="请输入新密码"/>
         </el-form-item>
         <el-form-item label="确认密码" prop="confirmPassword" v-if="!row">
-          <el-input v-model="formData.confirmPassword"/>
+          <el-input v-model="formData.confirmPassword" type="password" placeholder="请输入确认密码"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -71,8 +71,8 @@ export default {
           { required: true, message: '用户名', trigger: 'blur' }
         ],
         loginPassword: [
-          { required: true, message: '密码必填', trigger: 'blur' },
-          { min: 6, max: 10, message: '密码长度为 6 到 10 位之间', trigger: 'blur' }
+          { required: true, message: '新密码必填', trigger: 'blur' },
+          { min: 6, max: 20, message: '密码长度为 6 到 10 位之间', trigger: 'blur' }
         ],
         oldLoginPassword: [
           { required: true, message: '旧密码必填', trigger: 'blur' }
