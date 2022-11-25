@@ -46,15 +46,11 @@ export default {
   },
   data() {
     const validatorValue = (rule, value, callback) => {
-      console.log(value)
       if (value === '' || !value) {
-        console.log(1)
         callback(new Error('确认密码必填'))
       } else if (this.formData.loginPassword !== value) {
-        console.log(2)
         callback(new Error('与新密码不一致'))
       } else {
-        console.log(3)
         callback()
       }
     }
