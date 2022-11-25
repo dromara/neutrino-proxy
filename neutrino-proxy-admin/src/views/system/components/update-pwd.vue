@@ -4,13 +4,20 @@
                :visible.sync="visible"
                :close-on-click-modal="false"
                :before-close="onCancel"
+               :width="width"
     >
-      <el-form :rules="rules" ref='form' :model="formData" label-position="left" label-width="70px" style='width: 400px margin-left:50px'>
-        <el-form-item label="登录名" prop="loginName">
+      <el-form :rules="rules" ref='form' :model="formData" label-position="left" label-width="80px" style='padding:0 20px'>
+        <el-form-item label="登录名" prop="loginName" v-if="row">
           <el-input v-model="formData.loginName" disabled/>
+        </el-form-item>
+        <el-form-item label="旧密码" prop="oldLoginPassword" v-if="!row">
+          <el-input v-model="formData.oldLoginPassword"/>
         </el-form-item>
         <el-form-item label="新密码" prop="loginPassword">
           <el-input v-model="formData.loginPassword"/>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword" v-if="!row">
+          <el-input v-model="formData.confirmPassword"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -22,20 +29,42 @@
 </template>
 
 <script>
-import { updatePassword } from '@/api/user'
+import { updatePassword, updateUserPassword } from '@/api/user'
 
 export default {
   name: 'updatePwd',
   props: {
-    row: Object,
-    visible: Boolean
+    row: {
+      type: Object,
+      default: null
+    },
+    visible: Boolean,
+    width: {
+      type: String,
+      default: '500px'
+    }
   },
   data() {
+    const validatorValue = (rule, value, callback) => {
+      console.log(value)
+      if (value === '' || !value) {
+        console.log(1)
+        callback(new Error('确认密码必填'))
+      } else if (this.formData.loginPassword !== value) {
+        console.log(2)
+        callback(new Error('与新密码不一致'))
+      } else {
+        console.log(3)
+        callback()
+      }
+    }
     return {
       formData: {
         id: undefined,
         loginName: undefined,
-        loginPassword: undefined
+        loginPassword: undefined,
+        oldLoginPassword: undefined,
+        confirmPassword: undefined
       },
       rules: {
         loginName: [
@@ -44,6 +73,12 @@ export default {
         loginPassword: [
           { required: true, message: '密码必填', trigger: 'blur' },
           { min: 6, max: 10, message: '密码长度为 6 到 10 位之间', trigger: 'blur' }
+        ],
+        oldLoginPassword: [
+          { required: true, message: '旧密码必填', trigger: 'blur' }
+        ],
+        confirmPassword: [
+          { required: true, validator: validatorValue, trigger: 'blur' }
         ]
       }
     }
@@ -51,7 +86,7 @@ export default {
   watch: {
     visible(val) {
       if (val) {
-        this.getRow()
+        this.row && this.getRow()
       }
     }
   },
@@ -64,13 +99,21 @@ export default {
     updatePwd() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          updatePassword(this.formData).then(res => {
-            console.log(res)
-            if (res.data.code === 0) {
-              this.$message.success('修改成功')
-              this.onCancel()
-            }
-          })
+          if (this.row) {
+            updatePassword(this.formData).then(res => {
+              if (res.data.code === 0) {
+                this.$message.success('修改成功')
+                this.onCancel()
+              }
+            })
+          } else {
+            updateUserPassword(this.formData).then(res => {
+              if (res.data.code === 0) {
+                this.$message.success('修改成功')
+                this.onCancel()
+              }
+            })
+          }
         }
       })
     },
