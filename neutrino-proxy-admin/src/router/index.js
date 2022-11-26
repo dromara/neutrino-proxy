@@ -90,7 +90,8 @@ export const asyncRouterMap = [
     },
     children: [
       { path: 'jobLog', component: _import('log/jobLog'), name: 'jobLog', meta: { title: 'jobLog' }},
-      { path: 'loginLog', component: _import('log/loginLog'), name: 'loginLog', meta: { title: 'loginLog' }}
+      { path: 'loginLog', component: _import('log/loginLog'), name: 'loginLog', meta: { title: 'loginLog' }},
+      { path: 'clientConnectLog', component: _import('log/clientConnectLog'), name: 'clientConnectLog', meta: { title: 'clientConnectLog' }}
     ]
   }
 ]

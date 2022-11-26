@@ -153,6 +153,7 @@ export default {
     },
     handleSizeChange(val) {
       this.listQuery.pageSize = val
+      this.listQuery.currentPage = 1
       this.getList()
     },
     handleCurrentChange(val) {

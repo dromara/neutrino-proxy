@@ -143,7 +143,10 @@ export default {
     alarmStatus: '报警状态',
     ip: 'IP',
     happendTime: '发生时间',
-    updatePwd: '修改密码'
+    updatePwd: '修改密码',
+    msg: '消息',
+    outcome: '结果',
+    err: '异常信息'
   },
   button: {
     lookOver: '查看'
