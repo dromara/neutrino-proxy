@@ -54,7 +54,8 @@ export default {
     jobManager: '调度管理',
     jobLog: '调度日志',
     log: '日志管理',
-    loginLog: '登录日志'
+    loginLog: '登录日志',
+    clientConnectLog: '客户端连接日志'
   },
   navbar: {
     logOut: '退出登录',
@@ -136,12 +137,16 @@ export default {
     jobParam: '任务参数',
     alarmEmail: '任务报警邮箱',
     alarmDing: '任务报警钉钉',
-    jobLogCode: '执行结果',
-    jobLogMsg: '执行日志',
+    jobLogCode: '调度结果',
+    jobLogMsg: '调度日志',
+    jobLogTime: '调度时间',
     alarmStatus: '报警状态',
     ip: 'IP',
     happendTime: '发生时间',
     updatePwd: '修改密码'
+  },
+  button: {
+    lookOver: '查看'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
