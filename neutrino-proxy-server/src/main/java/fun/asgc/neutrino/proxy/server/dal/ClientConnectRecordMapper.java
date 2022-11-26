@@ -21,6 +21,6 @@ public interface ClientConnectRecordMapper extends SqlMapper {
     void add(ClientConnectRecordDO clientConnectRecordDO);
 
     @ResultType(ClientConnectRecordListRes.class)
-    @Select("select * from client_connect_record")
+    @Select("select * from client_connect_record order by id desc")
     void page(Page page, ClientConnectRecordListReq req);
 }
