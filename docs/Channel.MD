@@ -31,7 +31,7 @@
 - 1.3、服务端通过`CmdChannel`接收到来自客户端的`Auth`指令。若验证`license`有效，则建立`licenseId`与`CmdChannel`的映射缓存、
 外网端口与`CmdChannel`的映射缓存。并启动服务端代理端口，等待用户连接。
 ## 2、用户连接阶段
-- 2.1、用户访向服务端代理的外网端口发起请求，服务端建立`VisitorChannel`。
+- 2.1、用户向服务端代理的外网端口发起请求，服务端建立`VisitorChannel`。
 - 2.2、根据外网端口查找`CmdChannel`，若不存在有效的`CmdChannel`，则关闭该`VisitorChannel`。否则，
 设置`VisitorChannel`为不可读，并携带内网映射信息(如：`127.0.0.1:3306`)通过`CmdChannel`向客户端发送`Connect`指令。
 ## 3、实际被代理服务连接阶段
