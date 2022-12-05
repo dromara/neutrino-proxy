@@ -84,9 +84,9 @@ CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'IP',
     `license_id` int NOT NULL COMMENT 'licenseId',
     `type` int NOT NULL COMMENT '类型（1、连接 2、断开连接）',
-    `msg` varchar(512) NOT NULL COMMENT '消息',
+    `msg` varchar(512) DEFAULT NULL COMMENT '消息',
     `code` int NOT NULL COMMENT '结果 （1、成功 2、失败）',
-    `err` text NOT NULL COMMENT '异常信息',
+    `err` text DEFAULT NULL COMMENT '异常信息',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
