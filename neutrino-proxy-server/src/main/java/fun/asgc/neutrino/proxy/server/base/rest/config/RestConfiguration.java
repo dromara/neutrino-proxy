@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.server.base.rest.config;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.base.Ordered;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
@@ -43,7 +44,7 @@ public class RestConfiguration {
 	public DataSource dataSource() {
 		SQLiteDataSource dataSource = new SQLiteDataSource();
 		dataSource.setUrl(dbConfig.getUrl());
-		dataSource.setJournalMode("WAL");
+		dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
 		return dataSource;
 	}
 

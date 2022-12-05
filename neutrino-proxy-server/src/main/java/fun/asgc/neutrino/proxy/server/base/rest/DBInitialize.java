@@ -27,7 +27,10 @@ import fun.asgc.neutrino.core.annotation.PreLoad;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
 import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
+import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteDataSource;
 
 import java.sql.DriverManager;
 import java.util.List;
@@ -44,8 +47,15 @@ public class DBInitialize {
 	private static DbConfig dbConfig;
 	private static JdbcTemplate jdbcTemplate;
 
+	private static DbTypeEnum dbTypeEnum;
+
 	public static void init() throws Exception {
 		dbConfig = ConfigUtil.getYmlConfig(DbConfig.class);
+		Assert.notNull(dbConfig.getType(), "neutrino.data.db.type不能为空!");
+		dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
+		Assert.notNull(dbTypeEnum, "neutrino.data.db.type取值异常!");
+
+		log.info("{}数据库初始化...", dbConfig.getType());
 		jdbcTemplate = getJdbcTemplate();
 		initDBStructure();
 		initDBData();
@@ -55,7 +65,7 @@ public class DBInitialize {
 	 * 初始化数据库结构
 	 */
 	private static void initDBStructure() throws Exception {
-		List<String> lines = FileUtil.readContentAsStringList("classpath:/sql/init-structure.sql");
+		List<String> lines = FileUtil.readContentAsStringList(String.format("classpath:/sql/%s/init-structure.sql", dbConfig.getType()));
 		if (CollectionUtil.isEmpty(lines)) {
 			return;
 		}
@@ -87,7 +97,7 @@ public class DBInitialize {
 			if (count > 0) {
 				continue;
 			}
-			List<String> lines = FileUtil.readContentAsStringList(String.format("classpath:/sql/%s.data.sql", tableName));
+			List<String> lines = FileUtil.readContentAsStringList(String.format("classpath:/sql/%s/%s.data.sql", dbConfig.getType(), tableName));
 			if (CollectionUtil.isEmpty(lines)) {
 				return;
 			}
@@ -117,14 +127,27 @@ public class DBInitialize {
 			DBInitialize.class,
 			() -> {
 				Class.forName(dbConfig.getDriverClass());
-				//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
-				DriverManager.getConnection(dbConfig.getUrl());
-				// 创建数据源
-				DruidDataSource dataSource = new DruidDataSource();
-				dataSource.setUrl(dbConfig.getUrl());
-				dataSource.setDriverClassName(dbConfig.getDriverClass());
-				// 创建jdbcTemplate
-				jdbcTemplate = new JdbcTemplate(dataSource);
+				if (DbTypeEnum.SQLITE == dbTypeEnum) {
+					//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
+					DriverManager.getConnection(dbConfig.getUrl());
+					// 创建数据源
+					SQLiteDataSource dataSource = new SQLiteDataSource();
+					dataSource.setUrl(dbConfig.getUrl());
+					dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
+					// 创建jdbcTemplate
+					jdbcTemplate = new JdbcTemplate(dataSource);
+				} else if (DbTypeEnum.MYSQL == dbTypeEnum) {
+					DruidDataSource dataSource = new DruidDataSource();
+					dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+					dataSource.setUrl(dbConfig.getUrl());
+					dataSource.setInitialSize(5);
+					dataSource.setMinIdle(5);
+					dataSource.setMaxActive(20);
+					dataSource.setMaxWait(60000);
+					dataSource.setPoolPreparedStatements(true);
+					dataSource.setUsername(""); // TODO
+					dataSource.setPassword("");
+				}
 			},
 			() -> jdbcTemplate
 		);
