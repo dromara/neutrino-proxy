@@ -27,6 +27,7 @@ import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.ClientConnectRecordMapper;
@@ -80,6 +81,7 @@ public class ClientConnectRecordService {
         List<UserDO> userList = userMapper.findByIds(userIds);
         Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
         Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+        boolean isAdmin = SystemContextHolder.isAdmin();
         page.getRecords().forEach(item -> {
             LicenseDO license = licenseMap.get(item.getLicenseId());
             if (null == license) {
@@ -92,6 +94,10 @@ public class ClientConnectRecordService {
                 return;
             }
             item.setUserName(user.getName());
+            if (!isAdmin) {
+                // msg可能带有license等敏感信息，若登录者为游客，则不展示
+                item.setMsg("******");
+            }
         });
         return page;
     }
