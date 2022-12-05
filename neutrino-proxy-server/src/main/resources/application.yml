@@ -28,6 +28,11 @@ neutrino:
       jks-path: classpath:/test.jks
   data:
     db:
-      type: sqlite
-      url: jdbc:sqlite:data.db
-      driver-class: org.sqlite.JDBC
+#      type: sqlite
+#      url: jdbc:sqlite:data.db
+#      driver-class: org.sqlite.JDBC
+      type: mysql
+      url: jdbc:mysql://localhost:3306/neutrino-proxy?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useAffectedRows=true&useSSL=false
+      driver-class: com.mysql.jdbc.Driver
+      username: "******"
+      password: "******"

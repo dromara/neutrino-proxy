@@ -52,4 +52,16 @@ public class DbConfig {
 	 */
 	@Value("driver-class")
 	private String driverClass;
+
+	/**
+	 * 用户名
+	 */
+	@Value("username")
+	private String username;
+
+	/**
+	 * 密码
+	 */
+	@Value("password")
+	private String password;
 }

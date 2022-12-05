@@ -145,8 +145,11 @@ public class DBInitialize {
 					dataSource.setMaxActive(20);
 					dataSource.setMaxWait(60000);
 					dataSource.setPoolPreparedStatements(true);
-					dataSource.setUsername(""); // TODO
-					dataSource.setPassword("");
+					dataSource.setUsername(dbConfig.getUsername());
+					dataSource.setPassword(dbConfig.getPassword());
+
+					// 创建jdbcTemplate
+					jdbcTemplate = new JdbcTemplate(dataSource);
 				}
 			},
 			() -> jdbcTemplate

@@ -21,9 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.base.Ordered;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 
@@ -42,10 +44,27 @@ public class RestConfiguration {
 
 	@Bean
 	public DataSource dataSource() {
-		SQLiteDataSource dataSource = new SQLiteDataSource();
-		dataSource.setUrl(dbConfig.getUrl());
-		dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
-		return dataSource;
+		DbTypeEnum dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
+		if (DbTypeEnum.SQLITE == dbTypeEnum) {
+			SQLiteDataSource dataSource = new SQLiteDataSource();
+			dataSource.setUrl(dbConfig.getUrl());
+			dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
+			return dataSource;
+		} else if (DbTypeEnum.MYSQL == dbTypeEnum) {
+			DruidDataSource dataSource = new DruidDataSource();
+			dataSource.setDriverClassName(dbConfig.getDriverClass());
+			dataSource.setUrl(dbConfig.getUrl());
+			dataSource.setInitialSize(5);
+			dataSource.setMinIdle(5);
+			dataSource.setMaxActive(20);
+			dataSource.setMaxWait(60000);
+			dataSource.setPoolPreparedStatements(true);
+			dataSource.setUsername(dbConfig.getUsername());
+			dataSource.setPassword(dbConfig.getPassword());
+			return dataSource;
+		}
+
+		return null;
 	}
 
 	@Bean
