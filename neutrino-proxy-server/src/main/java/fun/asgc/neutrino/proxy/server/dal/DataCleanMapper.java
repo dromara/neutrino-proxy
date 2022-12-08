@@ -26,6 +26,8 @@ import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 
+import java.util.Date;
+
 /**
  * @author: aoshiguchen
  * @date: 2022/9/17
@@ -35,21 +37,21 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 public interface DataCleanMapper extends SqlMapper {
 
     @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(long date);
+    void cleanJobLog(Date date);
 
     @Delete("delete from `user_login_record` where create_time < ?")
-    void cleanUserLoginRecord(long date);
+    void cleanUserLoginRecord(Date date);
 
     @Delete("delete from `client_connect_record` where create_time < ?")
-    void cleanClientConnectRecord(long date);
+    void cleanClientConnectRecord(Date date);
 
     @Delete("delete from `flow_report_minute` where create_time < ?")
-    void cleanFlowMinuteReport(long date);
+    void cleanFlowMinuteReport(Date date);
 
     @Delete("delete from `flow_report_hour` where create_time < ?")
-    void cleanFlowHourReport(long date);
+    void cleanFlowHourReport(Date date);
 
     @Delete("delete from `flow_report_day` where create_time < ?")
-    void cleanFlowDayReport(long date);
+    void cleanFlowDayReport(Date date);
 
 }
