@@ -56,7 +56,7 @@ public interface UserTokenMapper extends SqlMapper {
 	 * @return
 	 */
 //	@Select("select * from user_token where token = ? and expiration_time > ?")
-	UserTokenDO findByAvailableToken(String token, Long time);
+	UserTokenDO findByAvailableToken(String token, Date date);
 
 	/**
 	 * 根据token删除记录

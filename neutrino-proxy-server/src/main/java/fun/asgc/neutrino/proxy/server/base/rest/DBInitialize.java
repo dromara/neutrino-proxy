@@ -126,7 +126,6 @@ public class DBInitialize {
 			() -> null == jdbcTemplate,
 			DBInitialize.class,
 			() -> {
-				Class.forName(dbConfig.getDriverClass());
 				if (DbTypeEnum.SQLITE == dbTypeEnum) {
 					//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
 					DriverManager.getConnection(dbConfig.getUrl());
@@ -138,7 +137,7 @@ public class DBInitialize {
 					jdbcTemplate = new JdbcTemplate(dataSource);
 				} else if (DbTypeEnum.MYSQL == dbTypeEnum) {
 					DruidDataSource dataSource = new DruidDataSource();
-					dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+					dataSource.setDriverClassName(dbConfig.getDriverClass());
 					dataSource.setUrl(dbConfig.getUrl());
 					dataSource.setInitialSize(5);
 					dataSource.setMinIdle(5);
