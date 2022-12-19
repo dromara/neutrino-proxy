@@ -47,14 +47,14 @@
           <el-tag :type="scope.row.isOnline | statusFilter">{{scope.row.isOnline | isOnlineName}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.actions')" width="330" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          <el-button size="mini" type="primary" @click="handleReset(scope.row)">{{$t('table.resetKey')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
           <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
           <ButtonPopover @handleCommitClick="handleDelete2(scope.row)" style="margin-left: 10px"/>
-
         </template>
       </el-table-column>
     </el-table>
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-  import { fetchList, createLicense, updateLicense, updateEnableStatus, deleteLicense } from '@/api/license'
+  import { fetchList, createLicense, updateLicense, updateEnableStatus, deleteLicense, resetLicense } from '@/api/license'
   import { userList } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -276,6 +276,25 @@
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })
+      },
+      handleReset(row) {
+        this.$confirm('确定重置吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info'
+        }).then(() => {
+          resetLicense(row.id).then(response => {
+            if (response.data.code === 0) {
+              this.$notify({
+                title: '成功',
+                message: '重置成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.getList()
+            }
+          })
+        }).catch(() => {})
       },
       updateData() {
         this.$refs['dataForm'].validate((valid) => {

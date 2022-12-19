@@ -146,7 +146,8 @@ export default {
     updatePwd: '修改密码',
     msg: '消息',
     outcome: '结果',
-    err: '异常信息'
+    err: '异常信息',
+    resetKey: '重置Key'
   },
   button: {
     lookOver: '查看'
