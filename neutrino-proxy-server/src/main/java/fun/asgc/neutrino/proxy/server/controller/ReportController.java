@@ -22,10 +22,14 @@
 package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
+import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
 
 /**
  * 报表管理
@@ -58,5 +62,17 @@ public class ReportController {
                 .setServerPortOnlineNumber(3).setEnableServerPortNumber(5).setServerPortNumber(6)
                 .setTotalUpstreamFlow("23K").setTotalDownwardFlow("47M")
                 ;
+    }
+
+    /**
+     * 用户流量报表分页
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @GetMapping("user/flow-report/page")
+    public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
+        // TODO
+        return null;
     }
 }
