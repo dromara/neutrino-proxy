@@ -27,7 +27,9 @@ import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
 import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
 
@@ -72,6 +74,18 @@ public class ReportController {
      */
     @GetMapping("user/flow-report/page")
     public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
+        // TODO
+        return null;
+    }
+
+    /**
+     * license流量报表分页
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @GetMapping("license/flow-report/page")
+    public Page<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
         // TODO
         return null;
     }
