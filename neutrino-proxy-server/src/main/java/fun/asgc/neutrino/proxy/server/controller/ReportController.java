@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
@@ -32,6 +33,8 @@ import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
 import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
+import fun.asgc.neutrino.proxy.server.service.ReportService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 /**
  * 报表管理
@@ -42,6 +45,9 @@ import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
 @RequestMapping("report")
 @RestController
 public class ReportController {
+
+    @Autowired
+    private ReportService reportService;
 
     /**
      * 数据一览：
@@ -74,8 +80,9 @@ public class ReportController {
      */
     @GetMapping("user/flow-report/page")
     public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
-        // TODO
-        return null;
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.userFlowReportPage(pageQuery, req);
     }
 
     /**
@@ -86,7 +93,8 @@ public class ReportController {
      */
     @GetMapping("license/flow-report/page")
     public Page<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
-        // TODO
-        return null;
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.licenseFlowReportPage(pageQuery, req);
     }
 }
