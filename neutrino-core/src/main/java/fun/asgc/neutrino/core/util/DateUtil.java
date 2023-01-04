@@ -146,6 +146,19 @@ public class DateUtil {
 	}
 
 	/**
+	 * 获取该日期当月第一天
+	 *
+	 * @param date 日期
+	 * @return 结果日期
+	 */
+	public static Date getMonthBegin(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(getDayBegin(date));
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		return calendar.getTime();
+	}
+
+	/**
 	 * 获取该日期当月最后一天
 	 *
 	 * @param date 日期
@@ -153,10 +166,10 @@ public class DateUtil {
 	 */
 	public static Date getMonthEnd(Date date) {
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(getDayEnd(date));
+		calendar.setTime(getDayBegin(date));
 		calendar.add(Calendar.MONTH, 1);
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		calendar.add(Calendar.DAY_OF_MONTH, -1);
+		calendar.add(Calendar.MILLISECOND, -1);
 		return calendar.getTime();
 	}
 
