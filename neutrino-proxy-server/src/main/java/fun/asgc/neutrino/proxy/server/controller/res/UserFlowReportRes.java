@@ -40,6 +40,14 @@ public class UserFlowReportRes {
      */
     private String userName;
     /**
+     * 历史写入字节数
+     */
+    private Long historyWriteBytes;
+    /**
+     * 历史读取字节数
+     */
+    private Long historyReadBytes;
+    /**
      * 写入字节数
      */
     private Long writeBytes;
