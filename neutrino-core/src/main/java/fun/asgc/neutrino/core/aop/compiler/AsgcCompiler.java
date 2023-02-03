@@ -171,6 +171,7 @@ public class AsgcCompiler {
 
 	/**
 	 * 编译代码
+	 * @param pkg 包名
 	 * @param className 类名
 	 * @param sourceCode 源代码
 	 */

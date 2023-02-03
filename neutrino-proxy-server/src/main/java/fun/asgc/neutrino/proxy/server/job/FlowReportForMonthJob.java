@@ -63,11 +63,11 @@ public class FlowReportForMonthJob implements IJobHandler {
         Date now = new Date();
         String dateStr = DateUtil.format(DateUtil.addDate(now, Calendar.MONTH, -1), "yyyy-MM");
         Date date = DateUtil.parse(dateStr, "yyyy-MM");
-        Date startDayDate = DateUtil.getDayBegin(date);
-        Date endEndDate = DateUtil.getDayEnd(date);
+        Date startDayDate = DateUtil.getMonthBegin(date);
+        Date endEndDate = DateUtil.getMonthEnd(date);
 
         // 删除原来的记录
-        flowReportDayMapper.deleteByDateStr(dateStr);
+        flowReportMonthMapper.deleteByDateStr(dateStr);
 
         // 查询上个月的天级别统计数据
         List<FlowReportDayDO> flowReportDayList = flowReportDayMapper.findListByDateRange(startDayDate, endEndDate);

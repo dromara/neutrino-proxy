@@ -21,11 +21,20 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.GetMapping;
 import fun.asgc.neutrino.core.web.annotation.RequestMapping;
 import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
+import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
+import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
 import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
+import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
+import fun.asgc.neutrino.proxy.server.service.ReportService;
+import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 
 /**
  * 报表管理
@@ -36,6 +45,9 @@ import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
 @RequestMapping("report")
 @RestController
 public class ReportController {
+
+    @Autowired
+    private ReportService reportService;
 
     /**
      * 数据一览：
@@ -58,5 +70,31 @@ public class ReportController {
                 .setServerPortOnlineNumber(3).setEnableServerPortNumber(5).setServerPortNumber(6)
                 .setTotalUpstreamFlow("23K").setTotalDownwardFlow("47M")
                 ;
+    }
+
+    /**
+     * 用户流量报表分页
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @GetMapping("user/flow-report/page")
+    public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.userFlowReportPage(pageQuery, req);
+    }
+
+    /**
+     * license流量报表分页
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @GetMapping("license/flow-report/page")
+    public Page<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.licenseFlowReportPage(pageQuery, req);
     }
 }

@@ -115,7 +115,7 @@ public class UserService {
 
 	public UserDO findByToken(String token) {
 		Date now = new Date();
-		UserTokenDO userTokenDO = userTokenMapper.findByAvailableToken(token, now.getTime());
+		UserTokenDO userTokenDO = userTokenMapper.findByAvailableToken(token, now);
 		if (null == userTokenDO) {
 			return null;
 		}

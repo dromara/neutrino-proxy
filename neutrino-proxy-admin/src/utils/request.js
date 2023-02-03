@@ -34,7 +34,7 @@ service.interceptors.response.use(
         type: 'error',
         duration: 5 * 1000
       })
-      if (res.code === 4 && !window.location.href.endsWith('#/login')) {
+      if ((res.code === 4 || res.code === 1) && !window.location.href.endsWith('#/login')) {
         store.dispatch('FedLogOut').then(() => {
           location.reload() // 为了重新实例化vue-router对象 避免bug
         })

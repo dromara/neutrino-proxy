@@ -24,9 +24,25 @@ package fun.asgc.neutrino.proxy.server.service;
 import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.ClientConnectRecordMapper;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author: aoshiguchen
@@ -38,8 +54,51 @@ import lombok.extern.slf4j.Slf4j;
 public class ClientConnectRecordService {
     @Autowired
     private ClientConnectRecordMapper clientConnectRecordMapper;
+    @Autowired
+    private LicenseMapper licenseMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     public void add(ClientConnectRecordDO clientConnectRecordDO) {
         clientConnectRecordMapper.add(clientConnectRecordDO);
+    }
+
+    public Page<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
+        Page<ClientConnectRecordListRes> page = Page.create(pageQuery);
+        clientConnectRecordMapper.page(page, req);
+        if (CollectionUtil.isEmpty(page.getRecords())) {
+            return page;
+        }
+        Set<Integer> licenseIds = page.getRecords().stream().map(ClientConnectRecordListRes::getLicenseId).collect(Collectors.toSet());
+        if (CollectionUtil.isEmpty(licenseIds)) {
+            return page;
+        }
+        List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
+        if (CollectionUtil.isEmpty(licenseList)) {
+            return page;
+        }
+        Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
+        List<UserDO> userList = userMapper.findByIds(userIds);
+        Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
+        Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+        boolean isAdmin = SystemContextHolder.isAdmin();
+        page.getRecords().forEach(item -> {
+            LicenseDO license = licenseMap.get(item.getLicenseId());
+            if (null == license) {
+                return;
+            }
+            item.setLicenseName(license.getName());
+            item.setUserId(license.getUserId());
+            UserDO user = userMap.get(license.getUserId());
+            if (null == user) {
+                return;
+            }
+            item.setUserName(user.getName());
+            if (!isAdmin) {
+                // msg可能带有license等敏感信息，若登录者为游客，则不展示
+                item.setMsg("******");
+            }
+        });
+        return page;
     }
 }

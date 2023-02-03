@@ -2,7 +2,7 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item" style="margin-left: 10px" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
@@ -37,14 +37,14 @@
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.actions')" :width="loginName === 'admin' ? 320 : 230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
-          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
+          <el-button v-if="scope.row.enable === 1" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
+          <el-button v-if="scope.row.enable === 2" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
+          <el-button v-if="loginName === 'admin'" type="warning" size="mini" @click="handleUpdatePassword(scope.row)">{{$t('table.updatePwd')}}</el-button>
 <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
           <ButtonPopover @handleCommitClick="handleDelete2(scope.row)" style="margin-left: 10px"/>
-
         </template>
       </el-table-column>
     </el-table>
@@ -56,7 +56,7 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px'>
         <el-form-item :label="$t('用户名')" prop="name">
           <el-input v-model="temp.name"></el-input>
         </el-form-item>
@@ -81,6 +81,8 @@
       </span>
     </el-dialog>
 
+    <UpdatePwd :row="selectRow" :visible="updatePwdvisible" @cancel="handleCancel"></UpdatePwd>
+
   </div>
 </template>
 
@@ -89,6 +91,8 @@
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
+  import UpdatePwd from './components/update-pwd'
+  import { mapGetters } from 'vuex'
 
   const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
@@ -108,8 +112,14 @@
     directives: {
       waves
     },
+    computed: {
+      ...mapGetters([
+        'loginName'
+      ])
+    },
     components: {
-      ButtonPopover
+      ButtonPopover,
+      UpdatePwd
     },
     data() {
       return {
@@ -150,7 +160,9 @@
           name: [{ required: true, message: '用户名必填', trigger: 'blur' }],
           loginName: [{ required: true, message: '登录名必填', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        updatePwdvisible: false,
+        selectRow: null
       }
     },
     filters: {
@@ -327,6 +339,14 @@
             return v[j]
           }
         }))
+      },
+      handleUpdatePassword(row) {
+        this.selectRow = row
+        this.updatePwdvisible = true
+      },
+      handleCancel() {
+        this.updatePwdvisible = false
+        this.selectRow = null
       }
     }
   }

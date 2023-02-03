@@ -4,7 +4,7 @@
       <el-select v-model="listQuery.jobId" placeholder="请选择" clearable>
         <el-option v-for="item in jobList" :key="item.id" :label="item.desc" :value="item.id"/>
       </el-select>
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
+      <el-button type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row style="width: 100%">
@@ -24,9 +24,9 @@
           <el-tag :type="scope.row.code | statusFilter">{{scope.row.code | statusName}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.jobLogMsg')" min-width="400">
+      <el-table-column align="center" :label="$t('table.jobLogMsg')" min-width="120">
         <template slot-scope="scope">
-          <span>{{scope.row.msg}}</span>
+          <el-button type="text" @click="handleLookOver(scope.row)">{{$t('button.lookOver')}}</el-button>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.alarmStatus')" min-width="120">
@@ -34,7 +34,7 @@
           <el-tag :type="scope.row.alarmStatus | alarmStatusFilter">{{scope.row.alarmStatus | salarmStatusName}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.createTime')" min-width="150">
+      <el-table-column align="center" :label="$t('table.jobLogTime')" min-width="150">
         <template slot-scope="scope">
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
@@ -50,6 +50,15 @@
                      :page-sizes="[10,20,30, 50]" :page-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
+
+    <el-dialog
+      title="调度日志"
+      :visible.sync="dialogVisible"
+      width="700px"
+      :before-close="() => this.dialogVisible = false">
+      <div class="job-msg-div">{{selectRow.msg}}</div>
+      <div slot="footer" class="dialog-footer"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -74,7 +83,9 @@ export default {
         pageSize: 10,
         jobId: undefined
       },
-      jobList: []
+      jobList: [],
+      dialogVisible: false,
+      selectRow: {}
     }
   },
   filters: {
@@ -119,7 +130,6 @@ export default {
     this.getJobList()
     if (this.$route.query.jobId) {
       this.listQuery.jobId = this.$route.query.jobId
-      console.log(this.listQuery.jobId, this.$route.query.jobId)
       this.getList()
     }
   },
@@ -143,6 +153,7 @@ export default {
     },
     handleSizeChange(val) {
       this.listQuery.pageSize = val
+      this.listQuery.currentPage = 1
       this.getList()
     },
     handleCurrentChange(val) {
@@ -151,7 +162,18 @@ export default {
     },
     handleShowClick(row) {
       console.log(row)
+    },
+    handleLookOver(row) {
+      this.selectRow = row
+      this.dialogVisible = true
     }
   }
 }
 </script>
+
+<style>
+  .job-msg-div{
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>

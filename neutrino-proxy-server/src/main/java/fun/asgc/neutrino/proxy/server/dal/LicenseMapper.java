@@ -77,7 +77,7 @@ public interface LicenseMapper extends SqlMapper {
 	@Update("update `license` set is_online = :isOnline, update_time = :updateTime")
 	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
 
-	@Update("update `license` set key = :key,update_time = :updateTime where id = :id")
+	@Update("update `license` set `key` = :key,update_time = :updateTime where id = :id")
 	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
 
 	@Delete("delete from `license` where id = ?")
@@ -101,6 +101,6 @@ public interface LicenseMapper extends SqlMapper {
 	@Select("select * from `license` where user_id = :userId and name =:name and id not in (:excludeIds) limit 0,1")
 	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name, @Param("excludeIds") Set<Integer> excludeIds);
 
-	@Select("select * from `license` where key = ?")
+	@Select("select * from `license` where `key` = ?")
 	LicenseDO findByKey(String licenseKey);
 }

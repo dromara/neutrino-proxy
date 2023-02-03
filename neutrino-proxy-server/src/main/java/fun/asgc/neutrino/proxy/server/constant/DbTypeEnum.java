@@ -19,30 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.rest.config;
+package fun.asgc.neutrino.proxy.server.constant;
 
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.annotation.Value;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * sqlite数据库配置
+ * 数据库类型美剧
  * @author: aoshiguchen
- * @date: 2022/7/31
+ * @date: 2022/11/25
  */
-@Data
-@NonIntercept
-@Configuration(prefix = "neutrino.data.sqlite")
-public class SqliteConfig {
-	/**
-	 * 连接url
-	 */
-	@Value("url")
-	private String url;
-	/**
-	 * 驱动类
-	 */
-	@Value("driver-class")
-	private String driverClass;
+@Getter
+@AllArgsConstructor
+public enum DbTypeEnum {
+    SQLITE("sqlite"),
+    MYSQL("mysql");
+
+    private String type;
+
+    private static final Map<String, DbTypeEnum> cache = Stream.of(DbTypeEnum.values()).collect(Collectors.toMap(DbTypeEnum::getType, Function.identity()));
+
+    public static DbTypeEnum of(String type) {
+        return cache.get(type);
+    }
 }

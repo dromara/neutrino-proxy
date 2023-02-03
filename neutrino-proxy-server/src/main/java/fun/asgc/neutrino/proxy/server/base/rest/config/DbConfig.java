@@ -19,39 +19,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-
-import java.util.Date;
+import fun.asgc.neutrino.core.annotation.Configuration;
+import fun.asgc.neutrino.core.annotation.NonIntercept;
+import fun.asgc.neutrino.core.annotation.Value;
+import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
+import lombok.Data;
 
 /**
+ * sqlite数据库配置
  * @author: aoshiguchen
- * @date: 2022/9/17
+ * @date: 2022/7/31
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface DataCleanMapper extends SqlMapper {
+@Data
+@NonIntercept
+@Configuration(prefix = "neutrino.data.db")
+public class DbConfig {
+	/**
+	 * 数据库类型
+	 * {@link DbTypeEnum}
+	 */
+	@Value("type")
+	private String type;
+	/**
+	 * 连接url
+	 */
+	@Value("url")
+	private String url;
+	/**
+	 * 驱动类
+	 */
+	@Value("driver-class")
+	private String driverClass;
 
-    @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(Date date);
+	/**
+	 * 用户名
+	 */
+	@Value("username")
+	private String username;
 
-    @Delete("delete from `user_login_record` where create_time < ?")
-    void cleanUserLoginRecord(Date date);
-
-    @Delete("delete from `client_connect_record` where create_time < ?")
-    void cleanClientConnectRecord(Date date);
-
-    @Delete("delete from `flow_report_minute` where create_time < ?")
-    void cleanFlowMinuteReport(Date date);
-
-    @Delete("delete from `flow_report_hour` where create_time < ?")
-    void cleanFlowHourReport(Date date);
-
-    @Delete("delete from `flow_report_day` where create_time < ?")
-    void cleanFlowDayReport(Date date);
-
+	/**
+	 * 密码
+	 */
+	@Value("password")
+	private String password;
 }

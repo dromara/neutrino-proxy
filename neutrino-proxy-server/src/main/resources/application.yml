@@ -27,6 +27,12 @@ neutrino:
       key-manager-password: 123456
       jks-path: classpath:/test.jks
   data:
-    sqlite:
+    db:
+      type: sqlite
       url: jdbc:sqlite:data.db
       driver-class: org.sqlite.JDBC
+#      type: mysql
+#      url: jdbc:mysql://103.163.47.16:3306/neutrino-proxy?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useAffectedRows=true&useSSL=false
+#      driver-class: com.mysql.jdbc.Driver
+#      username: "******"
+#      password: "******"

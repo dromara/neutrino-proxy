@@ -5,6 +5,7 @@ data.db*
 .neutrino-proxy.license
 .neutrino-proxy-client.json*
 lib/*
+SensitiveInformation.txt
 
 
 # Log file

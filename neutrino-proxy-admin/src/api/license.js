@@ -51,3 +51,13 @@ export function deleteLicense(id) {
     }
   })
 }
+
+export function resetLicense(id) {
+  return request({
+    url: '/license/reset',
+    method: 'post',
+    params: {
+      id: id
+    }
+  })
+}

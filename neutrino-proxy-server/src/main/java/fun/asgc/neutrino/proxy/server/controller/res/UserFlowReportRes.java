@@ -19,39 +19,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.controller.res;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import lombok.Data;
 
 import java.util.Date;
 
 /**
  * @author: aoshiguchen
- * @date: 2022/9/17
+ * @date: 2022/12/21
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface DataCleanMapper extends SqlMapper {
-
-    @Delete("delete from `job_log` where create_time < ?")
-    void cleanJobLog(Date date);
-
-    @Delete("delete from `user_login_record` where create_time < ?")
-    void cleanUserLoginRecord(Date date);
-
-    @Delete("delete from `client_connect_record` where create_time < ?")
-    void cleanClientConnectRecord(Date date);
-
-    @Delete("delete from `flow_report_minute` where create_time < ?")
-    void cleanFlowMinuteReport(Date date);
-
-    @Delete("delete from `flow_report_hour` where create_time < ?")
-    void cleanFlowHourReport(Date date);
-
-    @Delete("delete from `flow_report_day` where create_time < ?")
-    void cleanFlowDayReport(Date date);
-
+@Data
+public class UserFlowReportRes {
+    /**
+     * 用户ID
+     */
+    private Integer userId;
+    /**
+     * 用户名称
+     */
+    private String userName;
+    /**
+     * 历史写入字节数
+     */
+    private Long historyWriteBytes;
+    /**
+     * 历史读取字节数
+     */
+    private Long historyReadBytes;
+    /**
+     * 写入字节数
+     */
+    private Long writeBytes;
+    /**
+     * 读取字节数
+     */
+    private Long readBytes;
+    /**
+     * 写入流量描述
+     */
+    private String writeFlowStr;
+    /**
+     * 读取流量描述
+     */
+    private String readFlowStr;
+    /**
+     * 流量描述
+     */
+    private String flowStr;
+    /**
+     * 报表时间
+     */
+    private Date date;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 }
