@@ -31,9 +31,11 @@ import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.proxy.core.BytesMetricsHandler;
 import fun.asgc.neutrino.proxy.server.proxy.core.VisitorChannelHandler;
@@ -73,6 +75,8 @@ public class VisitorChannelService {
     private LicenseMapper licenseMapper;
     @Autowired
     private PortMappingMapper portMappingMapper;
+    @Autowired
+    private PortPoolMapper portPoolMapper;
 
     /**
      * 初始化
@@ -93,15 +97,16 @@ public class VisitorChannelService {
      * 触发时机：删除用户、禁用用户、启用用户 （新增、修改用户不涉及VisitorChannel的变更）
      * @param userId
      */
-    public void updateVisitorChannelByUserId(Integer userId) {
+    public void updateVisitorChannelByUserId(Integer userId, Integer enable) {
         if (null == userId) {
             return;
         }
-        UserDO userDO = userMapper.findById(userId);
-        if (null == userDO || EnableStatusEnum.ENABLE != EnableStatusEnum.of(userDO.getEnable())) {
-            // TODO
-        } else {
-            // TODO
+        List<LicenseDO> licenseDOList = licenseMapper.listByUserId(userId);
+        if (CollectionUtil.isEmpty(licenseDOList)) {
+            return;
+        }
+        for (LicenseDO licenseDO : licenseDOList) {
+            updateVisitorChannelByLicenseId(licenseDO.getId(), enable);
         }
     }
 
@@ -111,15 +116,25 @@ public class VisitorChannelService {
      * 重置licenseKey，不会立即影响已经连接成功的license，如果想要立即影响，请先进行禁用
      * @param licenseId
      */
-    public void updateVisitorChannelByLicenseId(Integer licenseId) {
+    public void updateVisitorChannelByLicenseId(Integer licenseId, Integer enable) {
         if (null == licenseId) {
             return;
         }
-        LicenseDO licenseDO = licenseMapper.findById(licenseId);
-        if (null == licenseDO || EnableStatusEnum.ENABLE != EnableStatusEnum.of(licenseDO.getEnable())) {
-            // TODO
-        } else {
-            // TODO
+        Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseId);
+        if (null == cmdChannel) {
+            // 如果不存在有效的cmdChannel，则无需更新VisitorChannel
+            return;
+        }
+        EnableStatusEnum enableStatusEnum = EnableStatusEnum.of(enable);
+        List<PortMappingDO> portMappingDOList = portMappingMapper.findListByLicenseId(licenseId);
+        if (!CollectionUtil.isEmpty(portMappingDOList)) {
+            for (PortMappingDO portMappingDO : portMappingDOList) {
+                if (EnableStatusEnum.DISABLE == enableStatusEnum) {
+                    removeVisitorChannelByPortMapping(portMappingDO);
+                } else if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(portMappingDO.getEnable())) {
+                    addVisitorChannelByPortMapping(portMappingDO);
+                }
+            }
         }
     }
 
@@ -151,11 +166,24 @@ public class VisitorChannelService {
             // 如果不存在有效的cmdChannel，则无需更新VisitorChannel
             return;
         }
+        // 判断端口映射是否启用
         if (EnableStatusEnum.DISABLE != EnableStatusEnum.of(portMappingDO.getEnable())) {
-            // 未删除且未禁用，则开启代理
-            ProxyUtil.addProxyInfo(portMappingDO.getLicenseId(), ProxyMapping.build(portMappingDO));
-            ProxyUtil.addCmdChannel(portMappingDO.getLicenseId(), cmdChannel, Sets.newHashSet(portMappingDO.getServerPort()));
-            startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(portMappingDO));
+            LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+            // 判断license是否启用
+            if (null != licenseDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(licenseDO.getEnable())) {
+                UserDO userDO = userMapper.findById(licenseDO.getUserId());
+                // 判断用户是否启用
+                if (null != userDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(userDO.getEnable())) {
+                    PortPoolDO portPoolDO = portPoolMapper.findByPort(portMappingDO.getServerPort());
+                    // 判断端口池是否启用
+                    if (null != portPoolDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(portPoolDO.getEnable())) {
+                        // 未删除且未禁用，则开启代理
+                        ProxyUtil.addProxyInfo(portMappingDO.getLicenseId(), ProxyMapping.build(portMappingDO));
+                        ProxyUtil.addCmdChannel(portMappingDO.getLicenseId(), cmdChannel, Sets.newHashSet(portMappingDO.getServerPort()));
+                        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(portMappingDO));
+                    }
+                }
+            }
         }
     }
 

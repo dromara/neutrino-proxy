@@ -74,6 +74,10 @@ public interface PortMappingMapper extends SqlMapper {
 	@Select("select * from port_mapping where license_id = ? and enable = 1")
 	List<PortMappingDO> findEnableListByLicenseId(Integer licenseId);
 
+	@ResultType(PortMappingDO.class)
+	@Select("select * from port_mapping where license_id = ?")
+	List<PortMappingDO> findListByLicenseId(Integer licenseId);
+
 	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId and server_port = :serverPort")
 	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
 

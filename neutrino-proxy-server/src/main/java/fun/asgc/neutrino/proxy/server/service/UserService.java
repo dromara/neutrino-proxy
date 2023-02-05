@@ -165,7 +165,7 @@ public class UserService {
 	public UserUpdateEnableStatusRes updateEnableStatus(UserUpdateEnableStatusReq req) {
 		userMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 		// 更新VisitorChannel
-		visitorChannelService.updateVisitorChannelByUserId(req.getId());
+		visitorChannelService.updateVisitorChannelByUserId(req.getId(), req.getEnable());
 		return new UserUpdateEnableStatusRes();
 	}
 
@@ -212,6 +212,6 @@ public class UserService {
 	public void delete(Integer id) {
 		userMapper.delete(id);
 		// 更新VisitorChannel
-		visitorChannelService.updateVisitorChannelByUserId(id);
+		visitorChannelService.updateVisitorChannelByUserId(id, EnableStatusEnum.DISABLE.getStatus());
 	}
 }

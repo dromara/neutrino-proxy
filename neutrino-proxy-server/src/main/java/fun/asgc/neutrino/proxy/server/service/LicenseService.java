@@ -162,7 +162,7 @@ public class LicenseService {
 	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 		// 更新VisitorChannel
-		visitorChannelService.updateVisitorChannelByLicenseId(req.getId());
+		visitorChannelService.updateVisitorChannelByLicenseId(req.getId(), req.getEnable());
 		return new LicenseUpdateEnableStatusRes();
 	}
 
@@ -173,7 +173,7 @@ public class LicenseService {
 	public void delete(Integer id) {
 		licenseMapper.delete(id);
 		// 更新VisitorChannel
-		visitorChannelService.updateVisitorChannelByLicenseId(id);
+		visitorChannelService.updateVisitorChannelByLicenseId(id, EnableStatusEnum.DISABLE.getStatus());
 	}
 
 	/**
