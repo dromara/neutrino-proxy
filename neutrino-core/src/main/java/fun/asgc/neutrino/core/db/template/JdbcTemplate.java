@@ -21,16 +21,12 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
-import fun.asgc.neutrino.core.util.ArrayUtil;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -74,6 +70,31 @@ public class JdbcTemplate {
 		return res;
 	}
 
+	/**
+	 * TODO 临时用来兼容insert之后需要返设主键的问题
+	 * @param sql
+	 * @param params
+	 * @return
+	 * @throws SQLException
+	 */
+	public int updateByModel(String sql, Object model, Object ...params) throws SQLException {
+		int res = -1;
+		Connection conn = null;
+
+		try {
+			conn = dataSourceHolder.getConnection();
+			res = jdbcOperations.executeUpdateByModel(conn,sql, model, params);
+		} finally {
+			try {
+				dataSourceHolder.tryClose(conn);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return res;
+	}
+
 	public int update(SqlAndParams sqlAndParams) throws SQLException {
 		return update(sqlAndParams.getSql(), sqlAndParams.getParamArray());
 	}
@@ -83,7 +104,8 @@ public class JdbcTemplate {
 	}
 
 	public int updateByModel(String sql, Object model) throws SQLException {
-		return update(new SqlAndParams(sql, model));
+		SqlAndParams sqlAndParams = new SqlAndParams(sql, model);
+		return updateByModel(sqlAndParams.getSql(), model, sqlAndParams.getParamArray());
 	}
 
 	public <T> T query(Class<T> clazz, String sql, Object ...params) throws SQLException {
