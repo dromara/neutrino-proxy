@@ -33,7 +33,9 @@ import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
 import fun.asgc.neutrino.proxy.server.constant.ClientConnectTypeEnum;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.SuccessCodeEnum;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
@@ -86,6 +88,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private FlowReportService flowReportService;
 	@Autowired
 	private ClientConnectRecordService clientConnectRecordService;
+	@Autowired
+	private LicenseMapper licenseMapper;
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
@@ -167,15 +171,16 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 				.setCode(SuccessCodeEnum.SUCCESS.getCode())
 				.setCreateTime(now));
 
+		// 更新license在线状态
+		licenseMapper.updateOnlineStatus(licenseDO.getId(), OnlineStatusEnum.ONLINE.getStatus(), now);
+
 		List<PortMappingDO> portMappingList = portMappingService.findEnableListByLicenseId(licenseDO.getId());
 		// 没有端口映射仍然保持连接
-		if (!CollectionUtil.isEmpty(portMappingList)) {
-			ProxyUtil.initProxyInfo(licenseDO.getId(), ProxyMapping.buildList(portMappingList));
+		ProxyUtil.initProxyInfo(licenseDO.getId(), ProxyMapping.buildList(portMappingList));
 
-			ProxyUtil.addCmdChannel(licenseDO.getId(), ctx.channel(), portMappingList.stream().map(PortMappingDO::getServerPort).collect(Collectors.toSet()));
+		ProxyUtil.addCmdChannel(licenseDO.getId(), ctx.channel(), portMappingList.stream().map(PortMappingDO::getServerPort).collect(Collectors.toSet()));
 
-			startUserPortServer(ProxyUtil.getAttachInfo(ctx.channel()), portMappingList);
-		}
+		startUserPortServer(ProxyUtil.getAttachInfo(ctx.channel()), portMappingList);
 	}
 
 	@Override
@@ -184,6 +189,9 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	}
 
 	private void startUserPortServer(CmdChannelAttachInfo cmdChannelAttachInfo, List<PortMappingDO> portMappingList) {
+		if (CollectionUtil.isEmpty(portMappingList)) {
+			return;
+		}
 		ServerBootstrap bootstrap = new ServerBootstrap();
 		bootstrap.group(serverBossGroup, serverWorkerGroup)
 			.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {

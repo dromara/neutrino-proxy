@@ -72,9 +72,11 @@ public class ProxyUtil {
 	 */
 	public static void initProxyInfo(Integer licenseId, List<ProxyMapping> proxyMappingList) {
 		licenseToServerPortMap.put(licenseId, new HashSet<>());
-		for (ProxyMapping proxyMapping : proxyMappingList) {
-			licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
-			proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
+		if (!CollectionUtil.isEmpty(proxyMappingList)) {
+			for (ProxyMapping proxyMapping : proxyMappingList) {
+				licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
+				proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
+			}
 		}
 	}
 
@@ -103,12 +105,10 @@ public class ProxyUtil {
 	 * @param serverPorts 服务端端口集合
 	 */
 	public static void addCmdChannel(Integer licenseId, Channel cmdChannel, Set<Integer> serverPorts) {
-		if (CollectionUtil.isEmpty(serverPorts)) {
-			return;
-		}
-
-		for (int port : serverPorts) {
-			serverPortToCmdChannelMap.put(port, cmdChannel);
+		if (!CollectionUtil.isEmpty(serverPorts)) {
+			for (int port : serverPorts) {
+				serverPortToCmdChannelMap.put(port, cmdChannel);
+			}
 		}
 
 		setAttachInfo(cmdChannel, new CmdChannelAttachInfo()
