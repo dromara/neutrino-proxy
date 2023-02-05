@@ -88,7 +88,9 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
             String visitorId = newVisitorId();
             String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
-            if (!StringUtil.isEmpty(lanInfo)) {
+            if (StringUtil.isEmpty(lanInfo)) {
+                ctx.channel().close();
+            } else {
                 // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
                 visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
