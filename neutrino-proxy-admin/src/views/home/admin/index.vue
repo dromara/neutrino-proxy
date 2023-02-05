@@ -1,110 +1,107 @@
 <template>
   <div class="dashboard-editor-container">
-    <github-corner></github-corner>
-
-    <panel-group @handleSetLineChartData="handleSetLineChartData"></panel-group>
-
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData"></line-chart>
-    </el-row>
-
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart></raddar-chart>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart></pie-chart>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart></bar-chart>
-        </div>
-      </el-col>
-    </el-row>
-
     <el-row :gutter="8">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        <transaction-table></transaction-table>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <el-row>
+            <el-col :span="24">
+              <el-row>
+                <el-col :span="12">
+                  <license-chart :licenseChart="echartsData.licenseChart"/>
+                </el-col>
+                <el-col :span="12">
+                  <port-mapping-chart :portMappingChart="echartsData.portMappingChart"/>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <daily-traffic-chart :dailyTrafficChart="echartsData.dailyTrafficChart"/>
+                </el-col>
+                <el-col :span="12">
+                  <daily-traffic-chart :dailyTrafficChart="echartsData.historyTrafficChart"/>
+                </el-col>
+              </el-row>
+            </el-col>
+          </el-row>
+        </el-card>
       </el-col>
-      <el-col :xs="{span: 12}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 5}">
-        <todo-list></todo-list>
-      </el-col>
-      <el-col :xs="{span: 12}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 5}">
-        <box-card></box-card>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <el-col :span="24">
+            <table-chart :tableChart="echartsData.tableChart"/>
+          </el-col>
+        </el-card>
       </el-col>
     </el-row>
-
+    <el-row class="line-chart">
+      <el-col :span="24">
+        <el-card>
+          <traffic-sum-chart/>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
-import PanelGroup from './components/PanelGroup'
-import LineChart from './components/LineChart'
-import RaddarChart from './components/RaddarChart'
-import PieChart from './components/PieChart'
-import BarChart from './components/BarChart'
-import TransactionTable from './components/TransactionTable'
-import TodoList from './components/TodoList'
-import BoxCard from './components/BoxCard'
 
-const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
+import LicenseChart from './components/LicenseChart'
+import PortMappingChart from './components/PortMappingChart'
+import DailyTrafficChart from './components/DailyTrafficChart'
+import TableChart from './components/TableChart'
+import TrafficSumChart from './components/TrafficSumChart'
+
+const echartsData = {
+  licenseChart: {
+    total: 100,
+    onLine: 80
   },
-  messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
+  portMappingChart: {
+    total: 100,
+    onLine: 25
   },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
+  dailyTrafficChart: {
+    upload: 300,
+    download: 680,
+    isHistory: false
   },
-  shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
-  }
+  historyTrafficChart: {
+    upload: 4100,
+    download: 9520,
+    isHistory: true
+  },
+  tableChart: [
+    { date: '2016-05-02', name: '王小虎', address: '上海市普陀区金沙江路 1518 弄' },
+    { date: '2016-05-04', name: '王小虎', address: '上海市普陀区金沙江路 1517 弄' },
+    { date: '2016-05-01', name: '王小虎', address: '上海市普陀区金沙江路 1519 弄' },
+    { date: '2016-05-03', name: '王小虎', address: '上海市普陀区金沙江路 1516 弄' },
+    { date: '2016-05-04', name: '王小虎', address: '上海市普陀区金沙江路 1517 弄' }
+  ]
 }
 
 export default {
   name: 'dashboard-admin',
-  components: {
-    GithubCorner,
-    PanelGroup,
-    LineChart,
-    RaddarChart,
-    PieChart,
-    BarChart,
-    TransactionTable,
-    TodoList,
-    BoxCard
-  },
+  components: { TrafficSumChart, TableChart, DailyTrafficChart, PortMappingChart, LicenseChart },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      echartsData: echartsData
     }
   },
+  mounted() {
+  },
   methods: {
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
-    }
+
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
+  min-height: calc(100vh - 85px);
+  padding: 16px;
   background-color: rgb(240, 242, 245);
-  .chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
+  .line-chart {
+    margin-top: 16px;
   }
 }
 </style>
