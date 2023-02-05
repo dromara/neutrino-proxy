@@ -58,6 +58,8 @@ public class LicenseService {
 	private LicenseMapper licenseMapper;
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private VisitorChannelService visitorChannelService;
 
 	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		Page<LicenseListRes> page = Page.create(pageQuery);
@@ -159,7 +161,8 @@ public class LicenseService {
 	 */
 	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
-
+		// 更新VisitorChannel
+		visitorChannelService.updateVisitorChannelByLicenseId(req.getId(), req.getEnable());
 		return new LicenseUpdateEnableStatusRes();
 	}
 
@@ -169,6 +172,8 @@ public class LicenseService {
 	 */
 	public void delete(Integer id) {
 		licenseMapper.delete(id);
+		// 更新VisitorChannel
+		visitorChannelService.updateVisitorChannelByLicenseId(id, EnableStatusEnum.DISABLE.getStatus());
 	}
 
 	/**

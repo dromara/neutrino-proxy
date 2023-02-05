@@ -62,4 +62,7 @@ public interface PortPoolMapper extends SqlMapper {
 
 	@Select("select * from port_pool where port = ? limit 0,1")
 	PortPoolDO findByPort(Integer port);
+
+	@Select("select * from port_pool where id = ?")
+	PortPoolDO findById(Integer id);
 }
