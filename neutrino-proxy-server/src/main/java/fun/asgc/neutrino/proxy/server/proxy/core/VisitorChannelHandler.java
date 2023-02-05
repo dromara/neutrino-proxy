@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
 import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.server.proxy.domain.VisitorChannelAttachInfo;
@@ -87,10 +88,13 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
             String visitorId = newVisitorId();
             String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
-            // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
-            visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
-            ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel);
-            cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
+            if (!StringUtil.isEmpty(lanInfo)) {
+                // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
+                visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
+
+                ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel, sa.getPort());
+                cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
+            }
         }
 
         super.channelActive(ctx);
@@ -133,17 +137,17 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
 
         // 通知代理客户端
-        Channel userChannel = ctx.channel();
-        InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
+        Channel visitorChannel = ctx.channel();
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {
-            Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
+            Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
             if (proxyChannel != null) {
-                proxyChannel.config().setOption(ChannelOption.AUTO_READ, userChannel.isWritable());
+                proxyChannel.config().setOption(ChannelOption.AUTO_READ, visitorChannel.isWritable());
             }
         }
 
