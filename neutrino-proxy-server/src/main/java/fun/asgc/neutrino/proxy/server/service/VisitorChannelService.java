@@ -94,6 +94,30 @@ public class VisitorChannelService {
 
     /**
      * 更新
+     * 触发时机：删除端口池、禁用端口池、启用端口池
+     * @param serverPort
+     * @param enable
+     */
+    public void updateVisitorChannelByPortPool(Integer serverPort, Integer enable) {
+        if (null == serverPort) {
+            return;
+        }
+        List<PortMappingDO> portMappingDOList = portMappingMapper.findListByServerPort(serverPort);
+        if (CollectionUtil.isEmpty(portMappingDOList)) {
+            return;
+        }
+        EnableStatusEnum enableStatusEnum = EnableStatusEnum.of(enable);
+        for (PortMappingDO portMappingDO : portMappingDOList) {
+            if (EnableStatusEnum.DISABLE == enableStatusEnum) {
+                removeVisitorChannelByPortMapping(portMappingDO);
+            } else if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(portMappingDO.getEnable())) {
+                addVisitorChannelByPortMapping(portMappingDO);
+            }
+        }
+    }
+
+    /**
+     * 更新
      * 触发时机：删除用户、禁用用户、启用用户 （新增、修改用户不涉及VisitorChannel的变更）
      * @param userId
      */

@@ -75,6 +75,10 @@ public interface PortMappingMapper extends SqlMapper {
 	List<PortMappingDO> findEnableListByLicenseId(Integer licenseId);
 
 	@ResultType(PortMappingDO.class)
+	@Select("select * from port_mapping where server_port = :serverPort")
+	List<PortMappingDO> findListByServerPort(@Param("serverPort") Integer serverPort);
+
+	@ResultType(PortMappingDO.class)
 	@Select("select * from port_mapping where license_id = ?")
 	List<PortMappingDO> findListByLicenseId(Integer licenseId);
 

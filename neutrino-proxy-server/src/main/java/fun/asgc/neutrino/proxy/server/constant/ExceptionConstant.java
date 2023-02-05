@@ -50,7 +50,7 @@ public enum ExceptionConstant {
 	LOGIN_PASSWORD_NO_CHANGE_MODIFY_FAIL(12004, "密码没有变化，修改失败"),
 	// 端口池管理(13000)
 	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
-	PORT_NOT_EXIST(13001, "该端口在端口池中不存在，不允许映射"),
+	PORT_NOT_EXIST(13001, "该端口在端口池中不存在"),
 	// 端口映射管理(14000)
 	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
 	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),
