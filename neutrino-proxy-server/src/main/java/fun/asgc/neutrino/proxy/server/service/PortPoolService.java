@@ -52,6 +52,8 @@ public class PortPoolService {
 
 	@Autowired
 	private PortPoolMapper portPoolMapper;
+	@Autowired
+	private VisitorChannelService visitorChannelService;
 
 	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
 		Page<PortPoolListRes> page = Page.create(pageQuery);
@@ -65,7 +67,7 @@ public class PortPoolService {
 
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
-		ParamCheckUtil.checkNotNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
+		ParamCheckUtil.checkMustNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
 
 		Date now = new Date();
 
@@ -75,19 +77,31 @@ public class PortPoolService {
 			.setCreateTime(now)
 			.setUpdateTime(now)
 		);
+		// 更新visitorChannel
+		visitorChannelService.updateVisitorChannelByPortPool(req.getPort(), EnableStatusEnum.ENABLE.getStatus());
 
 		return new PortPoolCreateRes();
 	}
 
 	public PortPoolUpdateEnableStatusRes updateEnableStatus(PortPoolUpdateEnableStatusReq req) {
-
+		PortPoolDO portPoolDO = portPoolMapper.findById(req.getId());
+		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
 		portPoolMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+
+		// 更新visitorChannel
+		visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), req.getEnable());
 
 		return new PortPoolUpdateEnableStatusRes();
 	}
 
 	public void delete(Integer id) {
+		PortPoolDO portPoolDO = portPoolMapper.findById(id);
+		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+
 		portPoolMapper.delete(id);
+
+		// 更新visitorChannel
+		visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());
 	}
 
 }

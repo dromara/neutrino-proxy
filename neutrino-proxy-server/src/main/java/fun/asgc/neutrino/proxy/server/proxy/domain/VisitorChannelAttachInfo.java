@@ -34,6 +34,7 @@ import lombok.experimental.Accessors;
 public class VisitorChannelAttachInfo {
 	private String visitorId;
 	private String lanInfo;
+	private Integer serverPort;
 	/**
 	 * licenseId
 	 */

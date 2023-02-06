@@ -68,6 +68,8 @@ public class PortMappingService {
 	private UserMapper userMapper;
 	@Autowired
 	private PortPoolMapper portPoolMapper;
+	@Autowired
+	private VisitorChannelService visitorChannelService;
 
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> page = Page.create(pageQuery);
@@ -126,6 +128,8 @@ public class PortMappingService {
 		portMappingDO.setCreateTime(now);
 		portMappingDO.setUpdateTime(now);
 		portMappingMapper.add(portMappingDO);
+		// 更新VisitorChannel
+		visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
 		return new PortMappingCreateRes();
 	}
 
@@ -140,6 +144,10 @@ public class PortMappingService {
 		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
 		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
 
+		// 查询原端口映射
+		PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
+		ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+
 		PortMappingDO portMappingDO = new PortMappingDO();
 		portMappingDO.setId(req.getId());
 		portMappingDO.setLicenseId(req.getLicenseId());
@@ -147,7 +155,10 @@ public class PortMappingService {
 		portMappingDO.setClientIp(req.getClientIp());
 		portMappingDO.setClientPort(req.getClientPort());
 		portMappingDO.setUpdateTime(new Date());
+		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
 		portMappingMapper.update(portMappingDO);
+		// 更新VisitorChannel
+		visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
 		return new PortMappingUpdateRes();
 	}
 
@@ -193,6 +204,14 @@ public class PortMappingService {
 
 		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
+		// 更新VisitorChannel
+		portMappingDO.setEnable(req.getEnable());
+		if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
+			visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+		} else {
+			visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+		}
+
 		return new PortMappingUpdateEnableStatusRes();
 	}
 
@@ -207,6 +226,9 @@ public class PortMappingService {
 		}
 
 		portMappingMapper.delete(id);
+
+		// 更新VisitorChannel
+		visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
 	}
 
 	/**

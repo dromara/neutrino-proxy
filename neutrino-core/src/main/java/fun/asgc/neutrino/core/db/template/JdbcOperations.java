@@ -21,15 +21,15 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
+import fun.asgc.neutrino.core.db.annotation.Id;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import fun.asgc.neutrino.core.util.TypeUtil;
 
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -38,6 +38,8 @@ import java.util.Map;
  */
 public class JdbcOperations {
 	private static final JdbcOperations instance = new JdbcOperations();
+	
+	private static final Map<Class<?>, Field> generateIdFieldMap = new ConcurrentHashMap<>();
 
 	private JdbcOperations() {
 
@@ -69,6 +71,45 @@ public class JdbcOperations {
 			@Override
 			public Integer execute(PreparedStatement ps) throws SQLException {
 				return ps.executeUpdate();
+			}
+			@Override
+			public Object[] getParams() {
+				return params;
+			}
+			@Override
+			public String getSql() {
+				return sql;
+			}
+			@Override
+			public Connection getConnection(){
+				return conn;
+			}
+		});
+	}
+
+	/**
+	 * 执行更新操作
+	 * 临时兼容返设主键问题
+	 * @param conn
+	 * @param sql
+	 * @param params
+	 * @return
+	 */
+	public int executeUpdateByModel(final Connection conn , final String sql, final Object model, final Object[] params) throws SQLException {
+		return this.execute(new PreparedStatementJdbcCallback<Integer>(){
+			@Override
+			public Integer execute(PreparedStatement ps) throws SQLException {
+				Integer res = ps.executeUpdate();
+				if (null != model) {
+					ResultSet resultSet = ps.getGeneratedKeys();
+					if (resultSet.next()) {
+						Field field = getGenerateIdField(model.getClass());
+						if (null != field) {
+							ReflectUtil.setFieldValue(field, model, resultSet.getInt(1));
+						}
+					}
+				}
+				return res;
 			}
 			@Override
 			public Object[] getParams() {
@@ -224,5 +265,29 @@ public class JdbcOperations {
 			}
 
 		});
+	}
+
+	/**
+	 * 获取自动生成ID字段
+	 * @param clazz
+	 * @return
+	 */
+	private static Field getGenerateIdField(Class<?> clazz) {
+		if (null == clazz) {
+			return null;
+		}
+		if (generateIdFieldMap.containsKey(clazz)) {
+			return generateIdFieldMap.get(clazz);
+		}
+		Set<Field> fields = ReflectUtil.getDeclaredFields(clazz);
+		if (CollectionUtil.isEmpty(fields)) {
+			return null;
+		}
+		Field field = fields.stream().filter(f -> f.isAnnotationPresent(Id.class)).findFirst().orElse(null);
+		if (null != field) {
+			return field;
+		}
+		field = fields.stream().filter(f -> f.getName().equals("id")).findFirst().orElse(null);
+		return field;
 	}
 }

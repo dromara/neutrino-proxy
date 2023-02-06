@@ -52,11 +52,15 @@ public class ProxyMapping {
 			return list;
 		}
 		for (PortMappingDO portMapping : portMappingList) {
-			list.add(new ProxyMapping()
-				.setServerPort(portMapping.getServerPort())
-				.setLanInfo(String.format("%s:%s", portMapping.getClientIp(), portMapping.getClientPort())));
+			list.add(build(portMapping));
 		}
 		return list;
+	}
+
+	public static ProxyMapping build(PortMappingDO portMappingDO) {
+		return new ProxyMapping()
+				.setServerPort(portMappingDO.getServerPort())
+				.setLanInfo(String.format("%s:%s", portMappingDO.getClientIp(), portMappingDO.getClientPort()));
 	}
 }
 

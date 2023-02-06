@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.util;
 
+import com.google.common.collect.Sets;
 import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.core.ChannelAttribute;
@@ -50,7 +51,7 @@ public class ProxyUtil {
 	/**
 	 * 代理信息映射
 	 */
-	private static final Map<Integer, String> proxyInfoMap = new HashMap<>();
+	private static final Map<Integer, String> proxyInfoMap = new ConcurrentHashMap<>();
 	/**
 	 * 服务端口 -> 指令通道映射
 	 */
@@ -59,6 +60,10 @@ public class ProxyUtil {
 	 * license -> 指令通道映射
 	 */
 	private static Map<Integer, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
+	/**
+	 * 服务端口 -> 访问通道映射
+	 */
+	private static Map<Integer, Channel> serverPortToVisitorChannel = new ConcurrentHashMap<>();
 
 	/**
 	 * cmdChannelAttachInfo.getUserChannelMap() 读写锁
@@ -72,10 +77,28 @@ public class ProxyUtil {
 	 */
 	public static void initProxyInfo(Integer licenseId, List<ProxyMapping> proxyMappingList) {
 		licenseToServerPortMap.put(licenseId, new HashSet<>());
-		for (ProxyMapping proxyMapping : proxyMappingList) {
-			licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
-			proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
+		addProxyInfo(licenseId, proxyMappingList);
+	}
+
+	public static void addProxyInfo(Integer licenseId, List<ProxyMapping> proxyMappingList) {
+		if (!CollectionUtil.isEmpty(proxyMappingList)) {
+			for (ProxyMapping proxyMapping : proxyMappingList) {
+				licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
+				proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
+			}
 		}
+	}
+
+	public static void addProxyInfo(Integer licenseId, ProxyMapping proxyMapping) {
+		if (null == licenseId || null == proxyMapping) {
+			return;
+		}
+		licenseToServerPortMap.get(licenseId).add(proxyMapping.getServerPort());
+		proxyInfoMap.put(proxyMapping.getServerPort(), proxyMapping.getLanInfo());
+	}
+
+	public static void removeProxyInfo(Integer serverPort) {
+		proxyInfoMap.remove(serverPort);
 	}
 
 	/**
@@ -103,19 +126,25 @@ public class ProxyUtil {
 	 * @param serverPorts 服务端端口集合
 	 */
 	public static void addCmdChannel(Integer licenseId, Channel cmdChannel, Set<Integer> serverPorts) {
-		if (CollectionUtil.isEmpty(serverPorts)) {
-			return;
+		if (!CollectionUtil.isEmpty(serverPorts)) {
+			for (int port : serverPorts) {
+				serverPortToCmdChannelMap.put(port, cmdChannel);
+			}
+		}
+		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
+		if (null == cmdChannelAttachInfo) {
+			cmdChannelAttachInfo = new CmdChannelAttachInfo()
+					.setIp(ChannelUtil.getIP(cmdChannel))
+					.setLicenseId(licenseId)
+					.setVisitorChannelMap(new HashMap<>(16))
+					.setServerPorts(Sets.newHashSet());
+			setAttachInfo(cmdChannel, cmdChannelAttachInfo);
 		}
 
-		for (int port : serverPorts) {
-			serverPortToCmdChannelMap.put(port, cmdChannel);
+		if (!CollectionUtil.isEmpty(serverPorts)) {
+			cmdChannelAttachInfo.getServerPorts().addAll(serverPorts);
 		}
 
-		setAttachInfo(cmdChannel, new CmdChannelAttachInfo()
-			.setIp(ChannelUtil.getIP(cmdChannel))
-			.setServerPorts(serverPorts)
-			.setLicenseId(licenseId)
-			.setVisitorChannelMap(new HashMap<>(16)));
 		licenseToCmdChannelMap.put(licenseId, cmdChannel);
 	}
 
@@ -174,7 +203,7 @@ public class ProxyUtil {
 	 * @param visitorId
 	 * @param visitorChannel
 	 */
-	public static void addVisitorChannelToCmdChannel(Channel cmdChannel, String visitorId, Channel visitorChannel) {
+	public static void addVisitorChannelToCmdChannel(Channel cmdChannel, String visitorId, Channel visitorChannel, Integer serverPort) {
 		InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 		String lanInfo = getClientLanInfoByServerPort(sa.getPort());
 		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
@@ -182,6 +211,7 @@ public class ProxyUtil {
 		setAttachInfo(visitorChannel, new VisitorChannelAttachInfo()
 			.setVisitorId(visitorId)
 			.setLanInfo(lanInfo)
+			.setServerPort(serverPort)
 			.setLicenseId(cmdChannelAttachInfo.getLicenseId())
 			.setIp(ChannelUtil.getIP(visitorChannel))
 		);
@@ -191,6 +221,7 @@ public class ProxyUtil {
 		} finally {
 			userChannelMapLock.writeLock().unlock();
 		}
+		serverPortToVisitorChannel.put(serverPort, visitorChannel);
 	}
 
 	public static Channel removeVisitorChannelFromCmdChannel(Channel cmdChannel, String visitorId) {
@@ -217,6 +248,15 @@ public class ProxyUtil {
 			return null;
 		}
 		return ((CmdChannelAttachInfo)getAttachInfo(cmdChannel)).getVisitorChannelMap().get(visitorId);
+	}
+
+	/**
+	 * 根据服务端口获取访问通道
+	 * @param serverPort
+	 * @return
+	 */
+	public static Channel getVisitorChannelByServerPort(Integer serverPort) {
+		return serverPortToVisitorChannel.get(serverPort);
 	}
 
 	/**

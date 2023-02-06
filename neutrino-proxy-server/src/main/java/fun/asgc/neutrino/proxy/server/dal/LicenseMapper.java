@@ -62,6 +62,10 @@ public interface LicenseMapper extends SqlMapper {
 	@Select("select * from license")
 	List<LicenseDO> listAll();
 
+	@ResultType(LicenseDO.class)
+	@Select("select * from `license` where user_id = :userId")
+	List<LicenseDO> listByUserId(@Param("userId") Integer userId);
+
 	/**
 	 * 新增license
 	 * @param license
