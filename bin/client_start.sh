@@ -2,15 +2,23 @@
 # 中微子代理客户端启动脚本，基础参数请自行修改
 
 JAVA_OPS="-server -Xms256m -Xmx512m -XX:PermSize=128M -XX:MaxPermSize=256M -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=/work/$NAME/heapError/"
-export JAVA_HOME=/work/programs/jdk/jdk1.8.0_171
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
 export PATH=:$PATH:$JAVA_HOME/bin
 export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 mkdir -p /work/$NAME/heapError/
 
 NAME=neutrino-proxy-client
-WORK=/work/projects
-OUT=$WORK/$NAME/$NAME.out
-JAR_PATH=$WORK/$NAME
+WORK=$PWD/../deploy/client
+OUT=$WORK/$NAME.out
+JAR_PATH=$WORK
+
+#客户端配置
+jksPath=classpath:/test.jks
+serverIp=localhost
+serverPort=9002
+sslEnable=true
+licenseKey=b0a907332b474b25897c4dcb31fc7eb6
+startupParams="jksPath=$jksPath serverIp=$serverIp serverPort=$serverPort sslEnable=$sslEnable licenseKey=$licenseKey"
 
 function start(){
 PID=`jps -l | grep $NAME.jar | cut -d' ' -f 1`
@@ -29,7 +37,7 @@ cp $OUT $JAR_PATH/logs/back_$time.out
 fi
 rm -f $OUT
 cd $JAR_PATH
-nohup java $JAVA_OPS -jar $NAME.jar > $OUT 2>&1 &
+nohup java $JAVA_OPS -jar $NAME.jar $startupParams > $OUT 2>&1 &
 echo "sleep 15s wating service start"
 sleep 15
 tail -200 $OUT

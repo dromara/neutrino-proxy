@@ -48,3 +48,4 @@ hs_err_pid*
 **yarn-error.log*
 **/*.log
 **/gifs/
+**/deploy/
