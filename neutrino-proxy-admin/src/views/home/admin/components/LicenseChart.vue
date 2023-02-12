@@ -20,7 +20,7 @@ export default {
       type: String,
       default: '160px'
     },
-    licenseChart: {
+    data: {
       type: Object,
       default: () => {
         return {
@@ -51,7 +51,7 @@ export default {
       this.myChart = echarts.init(this.chartDom)
       const option = {
         title: {
-          text: this.licenseChart.onLine,
+          text: this.data.onLine,
           subtext: 'License在线数',
           left: 'center',
           top: '32%',
@@ -94,11 +94,11 @@ export default {
               // value当前进度 + 颜色
               {
                 name: '在线数',
-                value: this.licenseChart.onLine
+                value: this.data.onLine
               },
               {
                 name: '离线数',
-                value: this.licenseChart.total - this.licenseChart.onLine
+                value: this.data.total - this.data.onLine
               }
             ]
           }

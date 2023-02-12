@@ -1,45 +1,44 @@
 <template>
-  <div class="dashboard-editor-container">
-    <el-row :gutter="8">
-      <el-col :span="12">
-        <el-card class="box-card">
-          <el-row>
-            <el-col :span="24">
-              <el-row>
-                <el-col :span="12">
-                  <license-chart :licenseChart="echartsData.licenseChart"/>
-                </el-col>
-                <el-col :span="12">
-                  <port-mapping-chart :portMappingChart="echartsData.portMappingChart"/>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="12">
-                  <daily-traffic-chart :dailyTrafficChart="echartsData.dailyTrafficChart"/>
-                </el-col>
-                <el-col :span="12">
-                  <daily-traffic-chart :dailyTrafficChart="echartsData.historyTrafficChart"/>
-                </el-col>
-              </el-row>
-            </el-col>
-          </el-row>
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card class="box-card">
-          <el-col :span="24">
-            <table-chart :tableChart="echartsData.tableChart"/>
-          </el-col>
-        </el-card>
-      </el-col>
-    </el-row>
-    <el-row class="line-chart">
-      <el-col :span="24">
-        <el-card>
-          <traffic-sum-chart/>
-        </el-card>
-      </el-col>
-    </el-row>
+  <div class="dashboard-editor">
+    <div class="log-div">
+
+    </div>
+    <div class="container">
+      <el-row class="line-chart" :gutter="16">
+        <el-col :span="12">
+          <el-card>
+            <traffic-sum-chart :data="echartsData.trafficSumChart" :chartId="'traffic-sum-div1'"/>
+          </el-card>
+        </el-col>
+        <el-col :span="12">
+          <el-card>
+            <traffic-sum-chart :data="echartsData.trafficSumChart2"/>
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-row class="pie-chart" :gutter="16">
+        <el-col :span="6">
+          <el-card class="box-card">
+            <license-chart :data="echartsData.licenseChart"/>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card class="box-card">
+            <port-mapping-chart :data="echartsData.portMappingChart"/>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card class="box-card">
+            <daily-traffic-chart :data="echartsData.dailyTrafficChart" :chartId="'daily-traffic-div'"/>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card class="box-card">
+            <daily-traffic-chart :data="echartsData.historyTrafficChart" :chartId="'history-traffic-div'"/>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -48,7 +47,6 @@
 import LicenseChart from './components/LicenseChart'
 import PortMappingChart from './components/PortMappingChart'
 import DailyTrafficChart from './components/DailyTrafficChart'
-import TableChart from './components/TableChart'
 import TrafficSumChart from './components/TrafficSumChart'
 
 const echartsData = {
@@ -63,25 +61,47 @@ const echartsData = {
   dailyTrafficChart: {
     upload: 300,
     download: 680,
-    isHistory: false
+    text: '今日流量'
   },
   historyTrafficChart: {
     upload: 4100,
     download: 9520,
-    isHistory: true
+    text: '历史流量'
   },
-  tableChart: [
-    { date: '2016-05-02', name: '王小虎', address: '上海市普陀区金沙江路 1518 弄' },
-    { date: '2016-05-04', name: '王小虎', address: '上海市普陀区金沙江路 1517 弄' },
-    { date: '2016-05-01', name: '王小虎', address: '上海市普陀区金沙江路 1519 弄' },
-    { date: '2016-05-03', name: '王小虎', address: '上海市普陀区金沙江路 1516 弄' },
-    { date: '2016-05-04', name: '王小虎', address: '上海市普陀区金沙江路 1517 弄' }
-  ]
+  trafficSumChart: {
+    text: '今日流量',
+    subtext: '当日0-24时',
+    title: ['1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00'],
+    list: [
+      {
+        name: '上行',
+        value: [120, 132, 101, 134, 90, 230, 210]
+      },
+      {
+        name: '下行',
+        value: [112, 333, 150, 60, 99, 50, 102]
+      }
+    ]
+  },
+  trafficSumChart2: {
+    text: '历史流量',
+    title: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    list: [
+      {
+        name: '上行',
+        value: [132, 101, 134, 90, 120, 132, 101, 134, 90, 230, 210, 120]
+      },
+      {
+        name: '下行',
+        value: [111, 0, 50, 101, 134, 90, 230, 120, 132, 101, 60, 20]
+      }
+    ]
+  }
 }
 
 export default {
   name: 'dashboard-admin',
-  components: { TrafficSumChart, TableChart, DailyTrafficChart, PortMappingChart, LicenseChart },
+  components: { TrafficSumChart, DailyTrafficChart, PortMappingChart, LicenseChart },
   data() {
     return {
       echartsData: echartsData
@@ -96,12 +116,20 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-.dashboard-editor-container {
+.dashboard-editor{
   min-height: calc(100vh - 85px);
   padding: 16px;
-  background-color: rgb(240, 242, 245);
-  .line-chart {
-    margin-top: 16px;
+  background-color: #f5f7fa;
+  .container {
+    display: flex;
+    flex-direction: column;
+    .line-chart, .pie-chart{
+      flex: 0 0 auto;
+    }
+    .pie-chart{
+      padding-top: 16px;
+    }
   }
 }
+
 </style>

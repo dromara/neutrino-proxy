@@ -1,5 +1,5 @@
 <template>
-  <div :class="className" id="traffic-sum-div" :style="{height:height,width:width}"></div>
+  <div :class="className" :id="chartId" :style="{height:height,width:width}"></div>
 </template>
 
 <script>
@@ -8,6 +8,14 @@ require('echarts/theme/macarons') // echarts theme
 
 export default {
   props: {
+    chartId: {
+      type: String,
+      default: 'traffic-sum-div'
+    },
+    data: {
+      type: Object,
+      default: {}
+    },
     className: {
       type: String,
       default: 'chart'
@@ -19,20 +27,12 @@ export default {
     height: {
       type: String,
       default: '380px'
-    },
-    licenseChart: {
-      type: Object,
-      default: () => {
-        return {
-          onLine: 90, // 进度条最大值
-          total: 100 // 当前进度
-        }
-      }
     }
   },
   data() {
     return {
-      chartDom: null
+      chartDom: null,
+      colorList: ['#75ddfa', '#2B81B1', '#53a7e3', '#029fe8', '#015dae']
     }
   },
   mounted() {
@@ -47,18 +47,44 @@ export default {
   },
   methods: {
     initChart() {
-      this.chartDom = document.getElementById('traffic-sum-div')
+      this.chartDom = document.getElementById(this.chartId)
       this.myChart = echarts.init(this.chartDom)
+      const seriesList = []
+      const legendList = []
+      this.data.list.forEach((item, index) => {
+        seriesList.push({
+          name: item.name,
+          type: 'line',
+          stack: 'Total',
+          data: item.value,
+          areaStyle: {
+            normal: {
+              color: this.colorList[index] + '7f'
+            }
+          },
+          lineStyle: {
+            normal: {
+              color: this.colorList[index]
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: this.colorList[index]
+            }
+          }
+        })
+        legendList.push(item.name)
+      })
       const option = {
         title: {
-          text: '今日流量折线图',
-          subtext: '当日0-24时'
+          text: this.data.text + '折线图',
+          subtext: this.data.subtext || ''
         },
         tooltip: {
           trigger: 'axis'
         },
         legend: {
-          data: ['上行', '下行'],
+          data: legendList,
           left: 'right'
         },
         grid: {
@@ -70,25 +96,12 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00']
+          data: this.data.title
         },
         yAxis: {
           type: 'value'
         },
-        series: [
-          {
-            name: '上行',
-            type: 'line',
-            stack: 'Total',
-            data: [120, 132, 101, 134, 90, 230, 210]
-          },
-          {
-            name: '下行',
-            type: 'line',
-            stack: 'Total',
-            data: [220, 182, 191, 234, 290, 330, 310]
-          }
-        ]
+        series: seriesList
       }
       option && this.myChart.setOption(option)
     }

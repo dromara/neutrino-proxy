@@ -1,5 +1,5 @@
 <template>
-  <div :class="className" :id="dailyTrafficChart.isHistory ? 'history-traffic-div' : 'daily-traffic-div'" :style="{height:height,width:width}"></div>
+  <div :class="className" :id="chartId" :style="{height:height,width:width}"></div>
 </template>
 
 <script>
@@ -8,6 +8,10 @@ require('echarts/theme/macarons') // echarts theme
 
 export default {
   props: {
+    chartId: {
+      type: String,
+      default: 'daily-traffic-div'
+    },
     className: {
       type: String,
       default: 'chart'
@@ -20,13 +24,13 @@ export default {
       type: String,
       default: '160px'
     },
-    dailyTrafficChart: {
+    data: {
       type: Object,
       default: () => {
         return {
           upload: 90, // 上行
           download: 100, // 下行
-          isHistory: false
+          text: '今日流量'
         }
       }
     }
@@ -48,12 +52,11 @@ export default {
   },
   methods: {
     initChart() {
-      const isHistory = this.dailyTrafficChart.isHistory
-      this.chartDom = document.getElementById(isHistory ? 'history-traffic-div' : 'daily-traffic-div')
+      this.chartDom = document.getElementById(this.chartId)
       this.myChart = echarts.init(this.chartDom)
       const option = {
         title: {
-          text: isHistory ? '历史流量' : '今日流量',
+          text: this.data.text,
           left: 'center',
           bottom: '0',
           textStyle: {
@@ -71,7 +74,7 @@ export default {
         },
         series: [
           {
-            name: isHistory ? '历史流量' : '今日流量',
+            name: this.data.text,
             type: 'pie',
             radius: '68%',
             // 隐藏指示线
@@ -93,11 +96,11 @@ export default {
             },
             data: [
               {
-                value: this.dailyTrafficChart.upload,
+                value: this.data.upload,
                 name: '上行'
               },
               {
-                value: this.dailyTrafficChart.download,
+                value: this.data.download,
                 name: '下行'
               }
             ],
