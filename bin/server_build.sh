@@ -1,4 +1,4 @@
-#!/bin/sh
+!/bin/sh
 # 中微子代理客户端编译打包脚本，基础参数请自行修改
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
