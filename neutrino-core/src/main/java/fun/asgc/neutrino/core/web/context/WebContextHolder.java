@@ -71,10 +71,7 @@ public class WebContextHolder {
 		initMaxContentLength();
 		initControllerBeanWrapperList();
 		initInterceptorRegistry();
-		port = environment.getMainArgsForInteger("neutrino.http.port");
-		if (null == port) {
-			port = http.getPort();
-		}
+		port = environment.getMainArgsForInteger("neutrino.http.port", http.getPort());
 	}
 
 	public static String getHttpContextPath() {

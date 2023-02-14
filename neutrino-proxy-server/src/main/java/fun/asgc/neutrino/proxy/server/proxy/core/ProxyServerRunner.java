@@ -27,6 +27,7 @@ import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.context.ApplicationRunner;
+import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.proxy.core.ProxyMessageDecoder;
 import fun.asgc.neutrino.proxy.core.ProxyMessageEncoder;
@@ -60,6 +61,8 @@ public class ProxyServerRunner implements ApplicationRunner {
 	private NioEventLoopGroup serverBossGroup;
 	@Autowired("serverWorkerGroup")
 	private NioEventLoopGroup serverWorkerGroup;
+	@Autowired
+	private Environment environment;
 
 	@Override
 	public void run(String[] args) {
@@ -80,15 +83,17 @@ public class ProxyServerRunner implements ApplicationRunner {
 			}
 		});
 		try {
-			bootstrap.bind(proxyConfig.getServer().getPort()).sync();
-			log.info("代理服务启动，端口：{}", proxyConfig.getServer().getPort());
+			Integer port = environment.getMainArgsForInteger("neutrino.proxy.server.port", proxyConfig.getServer().getPort());
+			bootstrap.bind(port).sync();
+			log.info("代理服务启动，端口：{}", port);
 		} catch (Exception e) {
 			log.error("代理服务异常", e);
 		}
 	}
 
 	private void startProxyServerForSSL() {
-		if (null == proxyConfig.getServer().getSslPort()) {
+		Integer sslPort = environment.getMainArgsForInteger("neutrino.proxy.server.ssl-port", proxyConfig.getServer().getSslPort());
+		if (null == sslPort) {
 			return;
 		}
  		ServerBootstrap bootstrap = new ServerBootstrap();
@@ -101,8 +106,8 @@ public class ProxyServerRunner implements ApplicationRunner {
 			}
 		});
 		try {
-			bootstrap.bind(proxyConfig.getServer().getSslPort()).sync();
-			log.info("代理服务启动，SSL端口： {}", proxyConfig.getServer().getSslPort());
+			bootstrap.bind(sslPort).sync();
+			log.info("代理服务启动，SSL端口： {}", sslPort);
 		} catch (Exception e) {
 			log.error("代理服务异常", e);
 		}
@@ -110,12 +115,16 @@ public class ProxyServerRunner implements ApplicationRunner {
 
 	private ChannelHandler createSslHandler() {
 		try {
-			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getServer().getJksPath());
+			String jksPath = environment.getMainArgsForString("neutrino.proxy.server.jks-path", proxyConfig.getServer().getJksPath());
+			InputStream jksInputStream = FileUtil.getInputStream(jksPath);
 			SSLContext serverContext = SSLContext.getInstance("TLS");
 			final KeyStore ks = KeyStore.getInstance("JKS");
-			ks.load(jksInputStream, proxyConfig.getServer().getKeyStorePassword().toCharArray());
+
+			String keyStorePassword = environment.getMainArgsForString("neutrino.proxy.server.key-store-password", proxyConfig.getServer().getKeyStorePassword());
+			ks.load(jksInputStream, keyStorePassword.toCharArray());
 			final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			kmf.init(ks, proxyConfig.getServer().getKeyManagerPassword().toCharArray());
+			String keyManagerPassword = environment.getMainArgsForString("neutrino.proxy.server.key-manager-password", proxyConfig.getServer().getKeyManagerPassword());
+			kmf.init(ks, keyManagerPassword.toCharArray());
 			TrustManager[] trustManagers = null;
 
 			serverContext.init(kmf.getKeyManagers(), trustManagers, null);

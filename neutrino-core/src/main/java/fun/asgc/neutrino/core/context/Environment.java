@@ -107,7 +107,7 @@ public class Environment {
 		return getMainArgsMap().get(key);
 	}
 
-	public Integer getMainArgsForInteger(String key) {
+	public Integer getMainArgsForInteger(String key, Integer defaultValue) {
 		String val = getMainArgs(key);
 		Integer res = null;
 		try {
@@ -117,6 +117,11 @@ public class Environment {
 		} catch (Exception e) {
 			// ignore
 		}
-		return res;
+		return (null != res) ? res : defaultValue;
+	}
+
+	public String getMainArgsForString(String key, String defaultValue) {
+		String res = getMainArgs(key);
+		return !StringUtil.isEmpty(res) ? res : defaultValue;
 	}
 }
