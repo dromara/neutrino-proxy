@@ -120,8 +120,25 @@ public class Environment {
 		return (null != res) ? res : defaultValue;
 	}
 
+	public Boolean getMainArgsForBoolean(String key, Boolean defaultValue) {
+		String val = getMainArgs(key);
+		Boolean res = null;
+		try {
+			if (!StringUtil.isEmpty(val)) {
+				res = Boolean.valueOf(val);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return (null != res) ? res : defaultValue;
+	}
+
 	public String getMainArgsForString(String key, String defaultValue) {
 		String res = getMainArgs(key);
 		return !StringUtil.isEmpty(res) ? res : defaultValue;
+	}
+
+	public String getMainArgsForString(String key) {
+		return getMainArgsForString(key, null);
 	}
 }

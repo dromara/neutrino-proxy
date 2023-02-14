@@ -99,38 +99,24 @@ public class LicenseObtainService {
 	private CustomConfig getCustomConfigByCliParams(String[] args) {
 		CustomConfig customConfig = new CustomConfig();
 		// 默认无需输入
-		customConfig.setJksPath(proxyConfig.getClient().getJksPath());
-		customConfig.setServerIp(proxyConfig.getClient().getServerIp());
-		customConfig.setServerPort(proxyConfig.getClient().getServerPort());
-		customConfig.setSslEnable(proxyConfig.getClient().getSslEnable());
-		// 从cli参数中取
-		Map<String, String> cliParams = getCliParams(args);
-		if (cliParams.containsKey("jksPath")) {
-			customConfig.setJksPath(cliParams.get("jksPath"));
-		}
-		if (cliParams.containsKey("serverIp")) {
-			customConfig.setServerIp(cliParams.get("serverIp"));
-		}
-		if (cliParams.containsKey("serverPort")) {
-			customConfig.setServerPort(Integer.valueOf(cliParams.get("serverPort")));
-		}
-		if (cliParams.containsKey("sslEnable")) {
-			customConfig.setSslEnable(Boolean.valueOf(cliParams.get("sslEnable")));
-		}
-		if (cliParams.containsKey("licenseKey")) {
-			customConfig.setLicenseKey(cliParams.get("licenseKey"));
-		}
+		customConfig.setJksPath(environment.getMainArgsForString("jksPath", proxyConfig.getClient().getJksPath()));
+		customConfig.setServerIp(environment.getMainArgsForString("serverIp", proxyConfig.getClient().getServerIp()));
+		customConfig.setServerPort(environment.getMainArgsForInteger("serverPort", proxyConfig.getClient().getServerPort()));
+		customConfig.setSslEnable(environment.getMainArgsForBoolean("sslEnable", proxyConfig.getClient().getSslEnable()));
+		customConfig.setLicenseKey(environment.getMainArgsForString("licenseKey"));
+		// 启动参数指定了license，则无需后续处理
 		if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
 //			FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
 			return customConfig;
 		}
 
+		// 启动参数未指定license，则优先读取外部配置
 		String config = FileUtil.readContentAsString("./.neutrino-proxy-client.json");
 		if (StringUtil.notEmpty(config)) {
 			try {
 				customConfig = JSONObject.parseObject(config, CustomConfig.class);
 			} catch (Exception e) {
-				log.error("配置异常!", e);
+				log.error("file '.neutrino-proxy-client.json' config exception!", e);
 			}
 			if (StringUtil.notEmpty(customConfig.getLicenseKey())) {
 //				FileUtil.write("./.neutrino-proxy-client.json", JSONObject.toJSONString(customConfig, SerializerFeature.PrettyFormat));
@@ -140,7 +126,7 @@ public class LicenseObtainService {
 
 		String license = "";
 		while (StringUtil.isEmpty(license)) {
-			System.out.print("请输入license:");
+			System.out.print("Please input license:");
 			license = scanner.next();
 		}
 		customConfig.setLicenseKey(license);
