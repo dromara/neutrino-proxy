@@ -2,7 +2,7 @@
 # 中微子代理管理后台编译打包脚本，基础参数请自行修改
 
 #环境
-env=local
+env=docker
 nvmDir=$HOME/.nvm
 nodeVersion=v13.12.0
 deployDir="deploy"

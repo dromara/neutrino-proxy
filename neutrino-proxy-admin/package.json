@@ -8,8 +8,10 @@
   "scripts": {
     "local": "webpack-dev-server --inline --progress --config build/webpack.local.conf.js",
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "docker": "webpack-dev-server --inline --progress --config build/webpack.docker.conf.js",
     "build:local": "cross-env NODE_ENV=dev env_config=local node build/build.js",
     "build:dev": "cross-env NODE_ENV=dev env_config=dev node build/build.js",
+    "build:docker": "cross-env NODE_ENV=dev env_config=docker node build/build.js",
     "build:prod": "cross-env NODE_ENV=production env_config=prod node build/build.js",
     "build:sit": "cross-env NODE_ENV=production env_config=sit node build/build.js",
     "lint": "eslint --ext .js,.vue src",
