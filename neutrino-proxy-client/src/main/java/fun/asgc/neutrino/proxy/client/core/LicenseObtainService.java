@@ -114,7 +114,22 @@ public class LicenseObtainService {
 		String config = FileUtil.readContentAsString("./.neutrino-proxy-client.json");
 		if (StringUtil.notEmpty(config)) {
 			try {
-				customConfig = JSONObject.parseObject(config, CustomConfig.class);
+				CustomConfig tmp = JSONObject.parseObject(config, CustomConfig.class);
+				if (!StringUtil.isEmpty(tmp.getJksPath())) {
+					customConfig.setJksPath(tmp.getJksPath());
+				}
+				if (!StringUtil.isEmpty(tmp.getServerIp())) {
+					customConfig.setServerIp(tmp.getServerIp());
+				}
+				if (null != tmp.getServerPort()) {
+					customConfig.setServerPort(tmp.getServerPort());
+				}
+				if (null != tmp.getSslEnable()) {
+					customConfig.setSslEnable(tmp.getSslEnable());
+				}
+				if (!StringUtil.isEmpty(tmp.getLicenseKey())) {
+					customConfig.setLicenseKey(tmp.getLicenseKey());
+				}
 			} catch (Exception e) {
 				log.error("file '.neutrino-proxy-client.json' config exception!", e);
 			}
