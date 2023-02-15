@@ -44,16 +44,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
@@ -69,6 +70,10 @@ public class HttpRequestHandler {
 	@Autowired
 	private DefaultHttpRouter defaultHttpRouter;
 	private PathMatcher pathMatcher = new AntPathMatcher();
+	/**
+	 * 静态自愿缓存
+	 */
+	private Map<String, DataWrapper> staticResourceCache = new ConcurrentReferenceHashMap<>(16, 0.75F, 1, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
 	public void handle() {
 		ChannelHandlerContext context = HttpContextHolder.getChannelHandlerContext();
@@ -132,7 +137,7 @@ public class HttpRequestHandler {
 				postHandle(httpRouteResult.getPageRoute(), null, null);
 
 				HttpResponseWrapper httpResponseWrapper = HttpContextHolder.getHttpResponseWrapper();
-				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(FileUtil.readBytes(httpRouteResult.getPageLocation())));
+				httpResponseWrapper.setContent(Unpooled.wrappedBuffer(getStaticResourceData(httpRouteResult.getPageLocation(), mimeType)));
 				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_TYPE, mimeType);
 				httpResponseWrapper.headers().add(HttpHeaderNames.CONTENT_LANGUAGE, "zh-CN");
 				httpResponseWrapper.headers().add(HttpHeaderNames.SERVER, MetaDataConstant.SERVER_VS);
@@ -157,6 +162,38 @@ public class HttpRequestHandler {
 		} finally {
 			release();
 		}
+	}
+
+	private byte[] getStaticResourceData(String pageLocation, String mimeType) {
+		DataWrapper dataWrapper = staticResourceCache.get(pageLocation);
+		if (null != dataWrapper) {
+			if (!StringUtil.isEmpty(dataWrapper.getContentEncoding())) {
+				HttpContextHolder.getHttpResponseWrapper().headers().add("Content-Encoding", dataWrapper.getContentEncoding());
+			}
+			return dataWrapper.getData();
+		}
+		byte[] res = FileUtil.readBytes(pageLocation);
+		if (null == res) {
+			res = new byte[0];
+			staticResourceCache.put(pageLocation, new DataWrapper(res, null));
+			return res;
+		}
+		staticResourceCache.put(pageLocation, new DataWrapper(res, null));
+		if ((mimeType.startsWith("text/") || mimeType.endsWith("javascript")) && res.length > 2048) {
+			// 文本，且大于2kb才做gzip压缩
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try (GZIPOutputStream gZipOs = new GZIPOutputStream(baos)){
+				gZipOs.write(res);
+				gZipOs.flush();
+				gZipOs.finish();
+				res = baos.toByteArray();
+				staticResourceCache.put(pageLocation, new DataWrapper(res, "gzip"));
+				HttpContextHolder.getHttpResponseWrapper().headers().add("Content-Encoding", "gzip");
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return res;
 	}
 
 	private boolean preHandle(String route, Method targetMethod) throws Exception {
@@ -288,5 +325,12 @@ public class HttpRequestHandler {
 
 	private void release() {
 		HttpContextHolder.remove();
+	}
+
+	@AllArgsConstructor
+	@Data
+	public static class DataWrapper {
+		private byte[] data;
+		private String contentEncoding;
 	}
 }
