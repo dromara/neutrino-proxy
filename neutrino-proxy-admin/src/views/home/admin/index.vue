@@ -128,6 +128,9 @@ export default {
     }
     .pie-chart{
       padding-top: 16px;
+      .el-card{
+        min-height: 300px;
+      }
     }
   }
 }

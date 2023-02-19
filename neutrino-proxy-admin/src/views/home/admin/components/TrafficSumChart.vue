@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       chartDom: null,
-      colorList: ['#75ddfa', '#2B81B1', '#53a7e3', '#029fe8', '#015dae']
+      colorList: ['#2B81B1', '#75ddfa', '#53a7e3', '#029fe8', '#015dae']
     }
   },
   mounted() {
@@ -59,7 +59,7 @@ export default {
           data: item.value,
           areaStyle: {
             normal: {
-              color: this.colorList[index] + '7f'
+              color: this.colorList[index] + '1f'
             }
           },
           lineStyle: {

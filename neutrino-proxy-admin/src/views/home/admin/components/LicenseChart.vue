@@ -1,5 +1,7 @@
 <template>
-  <div :class="className" id="license-div" :style="{height:height,width:width}"></div>
+  <div>
+    <div :class="className" id="license-div" :style="{height:height,width:width}"></div>
+  </div>
 </template>
 
 <script>
@@ -18,7 +20,7 @@ export default {
     },
     height: {
       type: String,
-      default: '160px'
+      default: '250px'
     },
     data: {
       type: Object,
@@ -51,33 +53,30 @@ export default {
       this.myChart = echarts.init(this.chartDom)
       const option = {
         title: {
-          text: this.data.onLine,
-          subtext: 'License在线数',
-          left: 'center',
-          top: '32%',
+          text: 'License统计',
+          subtext: '在线数：' + this.data.onLine + '\n\n' + '离线数：' + (this.data.total - this.data.onLine),
           textStyle: {
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: 800,
-            color: '#c23531',
             align: 'center'
-          },
-          subtextStyle: {
-            fontSize: 10,
-            fontWeight: 800,
-            color: '#6c7a89'
           }
-          // bottom:'0'
         },
         tooltip: {
           trigger: 'item'
+        },
+        legend: {
+          data: ['在线数', '离线数'],
+          orient: 'vertical',
+          left: 'right'
         },
         series: [
           {
             // 第一张圆环
             name: 'License',
             type: 'pie',
-            radius: ['50%', '70%'],
-            center: ['50%', '50%'],
+            radius: [45, 65],
+            center: ['50%', '58%'],
+            avoidLabelOverlap: false,
             // 隐藏指示线
             labelLine: {
               normal: {
@@ -87,18 +86,48 @@ export default {
             // 隐藏圆环上文字
             label: {
               normal: {
-                show: false
+                show: false,
+                position: 'center'
+              }
+            },
+            emphasis: {
+              itemStyle: {
+                label: {
+                  show: true,
+                  fontSize: 40,
+                  fontWeight: 'bold'
+                }
               }
             },
             data: [
               // value当前进度 + 颜色
               {
                 name: '在线数',
-                value: this.data.onLine
+                value: this.data.onLine,
+                lineStyle: {
+                  normal: {
+                    color: '#2B81B1'
+                  }
+                },
+                itemStyle: {
+                  normal: {
+                    color: '#2B81B1'
+                  }
+                }
               },
               {
                 name: '离线数',
-                value: this.data.total - this.data.onLine
+                value: this.data.total - this.data.onLine,
+                lineStyle: {
+                  normal: {
+                    color: '#dbebf7'
+                  }
+                },
+                itemStyle: {
+                  normal: {
+                    color: '#dbebf7'
+                  }
+                }
               }
             ]
           }

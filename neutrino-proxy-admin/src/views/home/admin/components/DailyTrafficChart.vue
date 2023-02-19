@@ -22,7 +22,7 @@ export default {
     },
     height: {
       type: String,
-      default: '160px'
+      default: '250px'
     },
     data: {
       type: Object,
@@ -57,60 +57,70 @@ export default {
       const option = {
         title: {
           text: this.data.text,
-          left: 'center',
-          bottom: '0',
+          subtext: '上行：' + this.data.upload + '\n\n' + '下行：' + this.data.download,
           textStyle: {
-            fontSize: 12,
+            fontSize: 18,
             fontWeight: 800,
-            color: '#6c7a89'
+            align: 'center'
           }
         },
         tooltip: {
           trigger: 'item'
         },
         legend: {
+          data: ['上行', '下行'],
           orient: 'vertical',
-          left: 'left'
+          left: 'right'
         },
         series: [
           {
             name: this.data.text,
             type: 'pie',
-            radius: '68%',
+            radius: [45, 65],
+            center: ['50%', '58%'],
             // 隐藏指示线
             labelLine: {
               normal: {
                 show: false
               }
             },
+            // 隐藏圆环上文字
             label: {
               normal: {
-                show: true,
-                position: 'inner',
-                fontSize: 10,
-                color: '#fff',
-                formatter: (data) => {
-                  return `${data.name}${data.value > 1000 ? '：\n\n' : '：'}${data.value}`
-                }
+                show: false,
+                position: 'center'
               }
             },
             data: [
               {
                 value: this.data.upload,
-                name: '上行'
+                name: '上行',
+                lineStyle: {
+                  normal: {
+                    color: '#2B81B1'
+                  }
+                },
+                itemStyle: {
+                  normal: {
+                    color: '#2B81B1'
+                  }
+                }
               },
               {
                 value: this.data.download,
-                name: '下行'
+                name: '下行',
+                lineStyle: {
+                  normal: {
+                    color: '#dbebf7'
+                  }
+                },
+                itemStyle: {
+                  normal: {
+                    color: '#dbebf7'
+                  }
+                }
               }
-            ],
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
+            ]
           }
         ]
       }
