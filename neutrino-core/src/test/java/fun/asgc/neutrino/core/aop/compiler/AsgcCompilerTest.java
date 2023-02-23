@@ -104,6 +104,28 @@ public class AsgcCompilerTest {
 		method.invoke(instance);
 	}
 
+	/**
+	 * jar in jar测试
+	 */
+	@Test
+	public void compileAndLoadClass5() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		AsgcCompiler compiler = new AsgcCompiler();
+//		compiler.addClasspath("/Users/yangwen/my/tmp/java");
+		compiler.addClasspath("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
+		String code = "package a.b;\n" +
+				"import fun.asgc.lab.pkg.lab2;\n" +
+				"public class Test {\n" +
+				"\tpublic void execute() {\n" +
+				"\t\tSystem.out.println(\"1122\");\n" +
+				"\t}\n" +
+				"}\n";
+//		GlobalConfig.setIsSaveGeneratorCode(true);
+		Class clazz = compiler.compile("a.b","Test", code);
+		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("execute")).findFirst().get();
+		Object instance = clazz.newInstance();
+		method.invoke(instance);
+	}
+
 	private Object eval(String expression) {
 		String code = "package fun.asgc.test;\n" +
 			"import static java.lang.Math.*;\n" +
