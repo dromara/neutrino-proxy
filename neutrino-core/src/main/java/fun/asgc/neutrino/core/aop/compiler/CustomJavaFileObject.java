@@ -50,6 +50,10 @@ public class CustomJavaFileObject implements JavaFileObject {
 
 	@Override
 	public InputStream openInputStream() throws IOException {
+		InputStream in = SpringBootJarParser.getInputStream(uri);
+		if (null != in) {
+			return in;
+		}
 		return uri.toURL().openStream();
 	}
 

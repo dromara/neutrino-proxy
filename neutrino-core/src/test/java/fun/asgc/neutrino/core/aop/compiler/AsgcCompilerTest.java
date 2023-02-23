@@ -23,9 +23,11 @@ package fun.asgc.neutrino.core.aop.compiler;
 
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
+import org.springframework.boot.loader.MyJarLauncher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.stream.Stream;
 
 /**
  *
@@ -106,24 +108,46 @@ public class AsgcCompilerTest {
 
 	/**
 	 * jar in jar测试
+	 *
+	 * 使用jdk1.8跑，tools.jar放在classpath下
+	 * 测试jar in jar
+	 * jar结构：
+	 * asgc-package-lab2.jar
+	 *      - BOOT-INF/
+	 *          - classes/fun/asgc/lab/pkg/lab2/
+	 *              - Console.class
+	 *          - lib/asgc-package-lab1-1.0-SNAPSHOT.jar
+	 *              - BOOT-INF/classes/fun/asgc/lab/pkg/lab1/
+	 *                  - Dog.class
 	 */
 	@Test
-	public void compileAndLoadClass5() throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
-		AsgcCompiler compiler = new AsgcCompiler();
-//		compiler.addClasspath("/Users/yangwen/my/tmp/java");
-		compiler.addClasspath("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
+	public void compileAndLoadClass5() throws Exception {
+        MyJarLauncher jarLauncher = new MyJarLauncher("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
+		AsgcCompiler compiler = new AsgcCompiler(jarLauncher.createClassLoader());
 		String code = "package a.b;\n" +
-				"import fun.asgc.lab.pkg.lab2;\n" +
+				"import fun.asgc.lab.pkg.lab2.Console;\n" +
+				"import fun.asgc.lab.pkg.lab1.Dog;\n" +
 				"public class Test {\n" +
 				"\tpublic void execute() {\n" +
 				"\t\tSystem.out.println(\"1122\");\n" +
 				"\t}\n" +
+				"\tpublic void echo(String str){\n" +
+				"\t\tConsole.println(str);\n" +
+				"\t}\n" +
+				"\tpublic String dogEat(String name, String food){\n" +
+				"\t\treturn new Dog(name).eat(food);\n" +
+				"\t}\n" +
 				"}\n";
-//		GlobalConfig.setIsSaveGeneratorCode(true);
+		System.out.println(code);
 		Class clazz = compiler.compile("a.b","Test", code);
-		Method method = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("execute")).findFirst().get();
+		Method executeMethod = ReflectUtil.getMethods(clazz).stream().filter(m -> m.getName().equals("execute")).findFirst().get();
+		Method echoMethod = Stream.of(clazz.getDeclaredMethods()).filter(m -> m.getName().equals("echo")).findFirst().get();
+		Method dogEatMethod = Stream.of(clazz.getDeclaredMethods()).filter(m -> m.getName().equals("dogEat")).findFirst().get();
+
 		Object instance = clazz.newInstance();
-		method.invoke(instance);
+		executeMethod.invoke(instance);
+		echoMethod.invoke(instance, "哈哈哈哈");
+		System.out.println(dogEatMethod.invoke(instance, "大黄", "骨头"));
 	}
 
 	private Object eval(String expression) {
