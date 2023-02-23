@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.core.aop.compiler;
 
 import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.aop.compiler.internal.JarLauncher;
 import fun.asgc.neutrino.core.base.GlobalConfig;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
@@ -73,11 +74,23 @@ public class AsgcCompiler {
 		if (null == javaCompiler) {
 			throw new RuntimeException("Can not load JavaCompiler from javax.tools.ToolProvider#getSystemJavaCompiler(),\n please confirm the application running in JDK not JRE.");
 		}
+		ClassLoader parent = classLoader;
+		if (SystemUtil.isStartupFromJar() && GlobalConfig.isIsUseSpringBootJar()) {
+			try {
+				log.debug("使用LaunchedURLClassLoader jar路径:{}", SystemUtil.getCurrentJarFilePath());
+				JarLauncher jarLauncher = new JarLauncher(parent, SystemUtil.getCurrentJarFilePath());
+				parent = jarLauncher.createClassLoader();
+				log.debug("使用LaunchedURLClassLoader instance:{}", parent);
+			} catch (Exception e) {
+				// ignore
+				log.error("使用LaunchedURLClassLoader异常", e);
+			}
+		}
 		this.collector = new DiagnosticCollector<>();
 		this.standardJavaFileManager = javaCompiler.getStandardFileManager(collector, null, null);
 		this.isSaveClassFile = false;
 		this.generatorCodeSavePath = GlobalConfig.getGeneratorCodeSavePath();
-		this.dynamicClassLoader = new DynamicClassLoader(classLoader, this);
+		this.dynamicClassLoader = new DynamicClassLoader(parent, this);
 
 		addOption("-Xlint:unchecked");
 		addOption("-implicit:class");

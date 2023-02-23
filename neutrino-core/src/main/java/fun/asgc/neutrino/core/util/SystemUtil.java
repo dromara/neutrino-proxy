@@ -23,6 +23,7 @@
 package fun.asgc.neutrino.core.util;
 
 import fun.asgc.neutrino.core.base.CodeBlock;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 
@@ -31,6 +32,7 @@ import java.util.Objects;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class SystemUtil {
 
 	public static void addShutdownHook(Runnable runnable) {
@@ -98,14 +100,17 @@ public class SystemUtil {
 		if (!isStartupFromJar()) {
 			return null;
 		}
-		String url = SystemUtil.class.getResource("").getPath();
-		if (url.startsWith("file:")) {
-			url = url.substring(5);
+		String path = SystemUtil.class.getResource("").getPath();
+		String res = path;
+		if (res.startsWith("file:")) {
+			res = res.substring(5);
 		}
-		if (url.contains("!")) {
-			url = url.substring(0, url.indexOf("!"));
+		int index = res.indexOf("!");
+		if (index >= 0) {
+			res = res.substring(0, index);
 		}
-		return url;
+		log.debug("getCurrentJarFilePath path:{} index:{} url:{}", path, index, res);
+		return res;
 	}
 
 	public static boolean isWindows() {

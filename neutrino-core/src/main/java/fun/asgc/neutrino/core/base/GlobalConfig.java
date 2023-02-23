@@ -45,6 +45,10 @@ public class GlobalConfig {
 	 */
 	private static volatile boolean isSaveGeneratorCode = false;
 	/**
+	 * 是否使用SpringBoot方式的jar
+	 */
+	private static volatile boolean isUseSpringBootJar = true;
+	/**
 	 * 自动生成代码保存路径
 	 */
 	private static volatile String generatorCodeSavePath = "./lib/";
@@ -87,5 +91,13 @@ public class GlobalConfig {
 
 	public static String getMapperXmlFileBasePath() {
 		return mapperXmlFileBasePath;
+	}
+
+	public static boolean isIsPrintGeneratorCode() {
+		return isPrintGeneratorCode;
+	}
+
+	public static boolean isIsUseSpringBootJar() {
+		return isUseSpringBootJar;
 	}
 }

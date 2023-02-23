@@ -33,13 +33,13 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
 	private ClassPathIndexFile classPathIndex;
 
 	public ExecutableArchiveLauncher() {
-		try {
-			this.archive = createArchive();
-			this.classPathIndex = getClassPathIndex(this.archive);
-		}
-		catch (Exception ex) {
-			throw new IllegalStateException(ex);
-		}
+//		try {
+//			this.archive = createArchive();
+//			this.classPathIndex = getClassPathIndex(this.archive);
+//		}
+//		catch (Exception ex) {
+//			throw new IllegalStateException(ex);
+//		}
 	}
 
 	protected ExecutableArchiveLauncher(Archive archive) {

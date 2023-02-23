@@ -23,21 +23,25 @@ public final class SpringBootJarParser {
      */
     public static InputStream getInputStream(URI uri) {
         try {
-            if (uri.getScheme().equals("jar")) {
-                URL url = uri.toURL();
-                String path = url.getPath();
-                int index = path.indexOf("!");
-                if (index >= 0) {
-                    path = path.substring(0, index);
+            return uri.toURL().openStream();
+        } catch (Exception e) {
+            try {
+                if (uri.getScheme().equals("jar")) {
+                    URL url = uri.toURL();
+                    String path = url.getPath();
+                    int index = path.indexOf("!");
+                    if (index >= 0) {
+                        path = path.substring(0, index);
+                    }
+                    if (path.startsWith("file:")) {
+                        path = path.substring(5);
+                    }
+                    JarFile jarFile = new JarFile(new File(path));
+                    return JarURLConnection.get(url, jarFile).getInputStream();
                 }
-                if (path.startsWith("file:")) {
-                    path = path.substring(5);
-                }
-                JarFile jarFile = new JarFile(new File(path));
-                return JarURLConnection.get(url, jarFile).getInputStream();
+            } catch (Exception e1) {
+                // ignore
             }
-        } catch (Exception e1) {
-            // ignore
         }
         return null;
     }
