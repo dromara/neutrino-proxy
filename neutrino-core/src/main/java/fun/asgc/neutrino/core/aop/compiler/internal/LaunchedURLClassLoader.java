@@ -137,6 +137,10 @@ public class LaunchedURLClassLoader extends URLClassLoader {
 		}
 	}
 
+	public void addURL(URL url) {
+		addURL(url);
+	}
+
 	private Class<?> loadClassInLaunchedClassLoader(String name) throws ClassNotFoundException {
 		String internalName = name.replace('.', '/') + ".class";
 		InputStream inputStream = getParent().getResourceAsStream(internalName);

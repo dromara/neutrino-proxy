@@ -21,9 +21,9 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
+import fun.asgc.neutrino.core.aop.compiler.internal.JarLauncher;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
-import fun.asgc.neutrino.core.aop.compiler.internal.JarLauncher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

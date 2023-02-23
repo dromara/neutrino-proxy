@@ -23,6 +23,8 @@ import java.util.List;
  */
 public abstract class Launcher {
 
+	private ClassLoader classLoader;
+
 	/**
 	 * Create a classloader for the specified archives.
 	 * @param archives the archives
@@ -45,7 +47,10 @@ public abstract class Launcher {
 	 * @throws Exception if the classloader cannot be created
 	 */
 	protected ClassLoader createClassLoader(URL[] urls) throws Exception {
-		return new LaunchedURLClassLoader(isExploded(), getArchive(), urls, getClass().getClassLoader());
+		return new LaunchedURLClassLoader(isExploded(),
+				getArchive(),
+				urls,
+				(null == classLoader) ? getClass().getClassLoader() : classLoader);
 	}
 
 	/**
@@ -98,4 +103,7 @@ public abstract class Launcher {
 		return null;
 	}
 
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 }

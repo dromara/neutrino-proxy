@@ -39,6 +39,18 @@ public class JarLauncher extends ExecutableArchiveLauncher {
 		}
 	}
 
+	public JarLauncher(ClassLoader classLoader, String path) {
+		this.path = path;
+		try {
+			this.setArchive(createArchive(this.path));
+			this.setClassPathIndex(getClassPathIndex(this.getArchive()));
+			this.setClassLoader(classLoader);
+		}
+		catch (Exception ex) {
+			throw new IllegalStateException(ex);
+		}
+	}
+
 	public ClassLoader createClassLoader() throws Exception {
 		return createClassLoader(getClassPathArchivesIterator());
 	}
