@@ -23,7 +23,7 @@ package fun.asgc.neutrino.core.aop.compiler;
 
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
-import org.springframework.boot.loader.MyJarLauncher;
+import fun.asgc.neutrino.core.aop.compiler.internal.JarLauncher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -122,7 +122,7 @@ public class AsgcCompilerTest {
 	 */
 	@Test
 	public void compileAndLoadClass5() throws Exception {
-        MyJarLauncher jarLauncher = new MyJarLauncher("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
+        JarLauncher jarLauncher = new JarLauncher("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
 		AsgcCompiler compiler = new AsgcCompiler(jarLauncher.createClassLoader());
 		String code = "package a.b;\n" +
 				"import fun.asgc.lab.pkg.lab2.Console;\n" +

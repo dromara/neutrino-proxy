@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
+import fun.asgc.neutrino.core.aop.compiler.internal.SpringBootJarParser;
+
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileObject;
