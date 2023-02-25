@@ -122,7 +122,7 @@ public class AsgcCompilerTest {
 	 */
 	@Test
 	public void compileAndLoadClass5() throws Exception {
-        JarLauncher jarLauncher = new JarLauncher("/Users/yangwen/my/tmp/java/asgc-package-lab2.jar");
+        JarLauncher jarLauncher = new JarLauncher(AsgcCompilerTest.class.getResource("/asgc-package-lab2.jar").getPath());
 		AsgcCompiler compiler = new AsgcCompiler(jarLauncher.createClassLoader());
 		String code = "package a.b;\n" +
 				"import fun.asgc.lab.pkg.lab2.Console;\n" +
