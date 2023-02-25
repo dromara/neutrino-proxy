@@ -101,13 +101,15 @@ proxy:
     # 获取license提示间隔（秒）
     obtain-license-interval: 5
 ```
+## 5.5、代理示意图
+![代理流程](assets/neutrino-proxy-process.jpg)
 
-## 5.5、启动客户端
+## 5.6、启动客户端
 > fun.asgc.neutrino.proxy.client.ProxyClient
 默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
 若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
 
-## 5.6、Docker快速启动
+## 5.7、Docker快速启动
 ```shell script
     # 一键部署前端和后端，客户端按上方部署即可
     docker run -it -p 9000-9200:9000-9200/tcp -p 8888:8888 -d --name neutrino registry.cn-hangzhou.aliyuncs.com/asgc/aoshiguchen-docker-images:1.64
