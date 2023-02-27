@@ -31,6 +31,7 @@ import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.*;
 
 import java.lang.reflect.Parameter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,8 @@ public class SqlMapperInterceptor implements Interceptor {
 			int argsCount = ArrayUtil.isEmpty(inv.getArgs()) ? 0 : inv.getArgs().length;
 			if (argsCount == 1 && inv.getArgs()[0] instanceof Map) {
 				res = jdbcTemplate.updateByMap(sql, (Map)inv.getArgs()[0]);
-			} else if (argsCount == 1 && !TypeUtil.isNormalBasicType(inv.getArgs()[0].getClass())) {
+				// 临时解决只有一个参数，且参数类型不是实体类型时，参数未起作用的情况
+			} else if (argsCount == 1 && !TypeUtil.isNormalBasicType(inv.getArgs()[0].getClass()) && !(inv.getArgs()[0] instanceof Date)) {
 				res = jdbcTemplate.updateByModel(sql, inv.getArgs()[0]);
 			} else {
 				Object params = getParams(inv);
