@@ -21,7 +21,6 @@
  */
 package fun.asgc.neutrino.core.aop.compiler;
 
-import fun.asgc.neutrino.core.aop.compiler.internal.JarLauncher;
 import fun.asgc.neutrino.core.util.ReflectUtil;
 import org.junit.Test;
 
@@ -122,8 +121,8 @@ public class AsgcCompilerTest {
 	 */
 	@Test
 	public void compileAndLoadClass5() throws Exception {
-        JarLauncher jarLauncher = new JarLauncher(AsgcCompilerTest.class.getResource("/asgc-package-lab2.jar").getPath());
-		AsgcCompiler compiler = new AsgcCompiler(jarLauncher.createClassLoader());
+		AsgcCompiler compiler = new AsgcCompiler();
+		compiler.addDependSpringBootJar(AsgcCompilerTest.class.getResource("/asgc-package-lab2.jar").getPath());
 		String code = "package a.b;\n" +
 				"import fun.asgc.lab.pkg.lab2.Console;\n" +
 				"import fun.asgc.lab.pkg.lab1.Dog;\n" +
