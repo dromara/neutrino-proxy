@@ -192,17 +192,23 @@ public class AsgcCompiler {
 
 	/**
 	 * 编译代码
-	 * @param pkg 包名
 	 * @param className 类名
 	 * @param sourceCode 源代码
 	 */
-	public Class<?> compile(String pkg, String className, String sourceCode) throws ClassNotFoundException {
+	public Class<?> compile(String className, String sourceCode) throws ClassNotFoundException {
 		log.info("options:" + getOptions());
+		int index = className.lastIndexOf(".");
+		String pkg = "";
+		String simpleClassName = className;
+		if (index >= 0) {
+			pkg = className.substring(0, index);
+			simpleClassName = className.substring(index + 1);
+		}
 		JavaFileManager javaFileManager = new DynamicJavaFileManager(standardJavaFileManager, dynamicClassLoader);
 		Iterable<? extends JavaFileObject> compilationUnits = Lists.newArrayList(new StringSource(className, sourceCode));
 		if (GlobalConfig.isSaveGeneratorCode()) {
 			javaFileManager = standardJavaFileManager;
-			File file = FileUtil.save(GlobalConfig.getGeneratorCodeSavePath() + pkg.replaceAll("\\.", "/"), className + ".java", sourceCode);
+			File file = FileUtil.save(GlobalConfig.getGeneratorCodeSavePath() + pkg.replaceAll("\\.", "/"), simpleClassName + ".java", sourceCode);
 			compilationUnits = standardJavaFileManager.getJavaFileObjects(file);
 			addClasspath(GlobalConfig.getGeneratorCodeSavePath());
 		}
@@ -229,7 +235,7 @@ public class AsgcCompiler {
 			}
 		}
 
-		return dynamicClassLoader.findClass(pkg + "." + className);
+		return dynamicClassLoader.findClass(className);
 	}
 
 	/**

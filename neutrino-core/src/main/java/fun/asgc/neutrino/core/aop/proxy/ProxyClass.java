@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.core.aop.proxy;
 
+import fun.asgc.neutrino.core.util.StringUtil;
 import lombok.Data;
 
 import java.util.Map;
@@ -64,5 +65,12 @@ public class ProxyClass {
 
 	public ProxyClass() {
 
+	}
+
+	public String getClassName() {
+		if (StringUtil.isEmpty(pkg)) {
+			return name;
+		}
+		return String.format("%s.%s", pkg, name);
 	}
 }

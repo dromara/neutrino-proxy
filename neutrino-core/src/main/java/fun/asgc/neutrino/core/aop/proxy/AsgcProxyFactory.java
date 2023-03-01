@@ -85,7 +85,7 @@ public class AsgcProxyFactory implements ProxyFactory {
 		if (GlobalConfig.isPrintGeneratorCode()) {
 			log.debug("类:{} 的代理类源码:\n{}", targetType.getName(), sourceCode);
 		}
-		Class<P> retClass = (Class<P>)compiler.compile(proxyClass.getPkg(), proxyClass.getName(), proxyClass.getSourceCode());
+		Class<P> retClass = (Class<P>)compiler.compile(proxyClass.getClassName(), proxyClass.getSourceCode());
 		P obj = retClass.newInstance();
 		return obj;
 	}
