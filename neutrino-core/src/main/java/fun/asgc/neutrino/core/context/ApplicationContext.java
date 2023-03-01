@@ -125,8 +125,7 @@ public class ApplicationContext implements LifeCycle {
 				continue;
 			}
 			Optional<Method> methodOptional = methodSet.stream().filter(m -> m.getName().equals(name) && Modifier.isStatic(m.getModifiers())
-				&& (m.getParameterCount() == 0 ||
-				(m.getParameterCount() == 1 && m.getParameters()[0].getType().isArray() && String.class.isAssignableFrom(m.getParameters()[0].getType().getComponentType()))))
+				&& (m.getParameterCount() == 0 || m.getParameterCount() == 1))
 				.findFirst();
 			if (!methodOptional.isPresent()) {
 				continue;
@@ -136,8 +135,16 @@ public class ApplicationContext implements LifeCycle {
 			log.debug("PreLoad execute {}#{}", c.getName(), method.getName());
 			if (method.getParameterCount() == 0) {
 				method.invoke(o);
+			} else if (method.getParameterCount() == 1){
+				if (String[].class.isAssignableFrom(method.getParameters()[0].getType())) {
+					method.invoke(o, new Object[]{this.environment.getMainArgs()});
+				} else if (Environment.class.isAssignableFrom(method.getParameters()[0].getType())){
+					method.invoke(o, this.environment);
+				} else {
+					log.error("PreLoad execute failed. init method args nonsupport！");
+				}
 			} else {
-				method.invoke(o, new Object[]{this.environment.getMainArgs()});
+				log.error("PreLoad execute failed. init method args nonsupport！");
 			}
 		}
 	}
