@@ -1,6 +1,8 @@
 package fun.asgc.neutrino.core.base;
 
 
+import fun.asgc.neutrino.core.util.TypeUtil;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -33,6 +35,11 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
 
     public static <K,V> Kv<K,V> of(Kv<K,V> parent) {
         return new Kv(parent);
+    }
+
+    public Kv<K,V> set(K k, V v) {
+        this.put(k, v);
+        return this;
     }
 
     public Kv(Kv<K,V> parent, int initialCapacity, Locale locale) {
@@ -131,6 +138,14 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return res;
     }
 
+    public V stackGetOrDefault(K k, V defaultValue) {
+        V res = this.stackGet(k);
+        if (null == res) {
+            res = defaultValue;
+        }
+        return res;
+    }
+
     @Override
     public V put(K key, V value) {
         K k = key;
@@ -218,4 +233,92 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return res;
     }
 
+    // ====== 为了方便取值操作，take开头的方法，全部基于栈式取值 =======
+    public V take(K k) {
+        return this.stackGet(k);
+    }
+
+    public V take(K k, V defaultValue) {
+        return this.stackGetOrDefault(k, defaultValue);
+    }
+
+    public String takeStr(K k) {
+        return TypeUtil.conversion(take(k), String.class);
+    }
+
+    public String takeStr(K k, String defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), String.class);
+    }
+
+    public Byte takeByte(K k) {
+        return TypeUtil.conversion(take(k), Byte.class);
+    }
+
+    public Byte takeByte(K k, Byte defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Byte.class);
+    }
+
+    public Character takeChar(K k) {
+        return TypeUtil.conversion(take(k), Character.class);
+    }
+
+    public Character takeChar(K k, Character defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Character.class);
+    }
+
+    public Boolean takeBool(K k) {
+        return TypeUtil.conversion(take(k), Boolean.class);
+    }
+
+    public Boolean takeBool(K k, Boolean defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Boolean.class);
+    }
+
+    public Short takeShort(K k) {
+        return TypeUtil.conversion(take(k), Short.class);
+    }
+
+    public Short takeShort(K k, Short defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Short.class);
+    }
+
+    public Integer takeInt(K k) {
+        return TypeUtil.conversion(take(k), Integer.class);
+    }
+
+    public Integer takeInt(K k, Integer defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Integer.class);
+    }
+
+    public Long takeLong(K k) {
+        return TypeUtil.conversion(take(k), Long.class);
+    }
+
+    public Long takeLong(K k, Long defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Long.class);
+    }
+
+    public Float takeFloat(K k) {
+        return TypeUtil.conversion(take(k), Float.class);
+    }
+
+    public Float takeFloat(K k, Float defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Float.class);
+    }
+
+    public Double takeDouble(K k) {
+        return TypeUtil.conversion(take(k), Double.class);
+    }
+
+    public Double takeDouble(K k, Double defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Double.class);
+    }
+
+    public Date takeDate(K k) {
+        return TypeUtil.conversion(take(k), Date.class);
+    }
+
+    public Date takeDate(K k, Date defaultValue) {
+        return TypeUtil.conversion(take(k, (V)defaultValue), Date.class);
+    }
 }
