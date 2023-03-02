@@ -7,10 +7,17 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * 用于统一参数配置
- * 1、有序性（适用于方法参数）
- * 2、key为String类型时，忽略大小写、忽略分隔符(_、-)，兼容启动命令传参 + 配置文件传参
- * 3、父级委托机制：如果存在父级，且当前实例查不到，则委托父级查找。（适用于配置优先级：启动参数 > 配置文件 > 默认值）
+ * 用于统一参数配置 <br/>
+ * <p>
+ * 1、有序性（适用于方法参数）<br/>
+ * 2、key为String类型时，忽略大小写、忽略分隔符(_、-)，兼容启动命令传参 + 配置文件传参 <br/>
+ * 3、父级委托机制：如果存在父级，且当前实例查不到，则委托父级查找。（适用于配置优先级：启动参数 > 配置文件 > 默认值） <br/>
+ * </p>
+ *
+ * 使用说明：<br/>
+ * 1、take开头的方法，适用于配置层。利用parent委托机制，做优先级。 如5级配置：默认值 -> 内部配置文件 -> 环境变量 -> 外部配置文件 -> 启动参数 <br/>
+ * 2、inx开头的方法，适用于不关心参数名称，根据下标取值。如普通方法参数、sql顺序参数（非具名参数） <br/>
+ * 3、get方法取值，没有委托机制，适用于sql具名参数、bean方法具名参数 <br/>
  * @author: aoshiguchen
  * @date: 2023/3/1
  */
@@ -111,23 +118,6 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
 
     public boolean stackContainsValue(Object value) {
         return this.containsValue(value) || (null != parent && parent.containsValue(value));
-    }
-
-    @Override
-    public V get(Object key) {
-        K k = null;
-        try {
-            k = (K) key;
-        } catch (Exception e) {
-            return null;
-        }
-        if (k instanceof String) {
-            k = this._k.get(convertKey((String) k));
-        }
-        if (null != k) {
-            return this._m.get(k);
-        }
-        return null;
     }
 
     public V stackGet(K k) {
@@ -233,6 +223,112 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return res;
     }
 
+    // ====== 为了方便取值操作，get方法保持Map接口原有语义，不支持栈式取值 =======
+    @Override
+    public V get(Object key) {
+        K k = null;
+        try {
+            k = (K) key;
+        } catch (Exception e) {
+            return null;
+        }
+        if (k instanceof String) {
+            k = this._k.get(convertKey((String) k));
+        }
+        if (null != k) {
+            return this._m.get(k);
+        }
+        return null;
+    }
+
+    public V get(Object key, V defaultValue) {
+        V res = get(key);
+        if (null == res) {
+            res = defaultValue;
+        }
+        return res;
+    }
+
+    public String getStr(K k) {
+        return TypeUtil.conversion(get(k), String.class);
+    }
+
+    public String getStr(K k, String defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), String.class);
+    }
+
+    public Byte getByte(K k) {
+        return TypeUtil.conversion(get(k), Byte.class);
+    }
+
+    public Byte getByte(K k, Byte defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Byte.class);
+    }
+
+    public Character getChar(K k) {
+        return TypeUtil.conversion(get(k), Character.class);
+    }
+
+    public Character getChar(K k, Character defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Character.class);
+    }
+
+    public Boolean getBool(K k) {
+        return TypeUtil.conversion(get(k), Boolean.class);
+    }
+
+    public Boolean getBool(K k, Boolean defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Boolean.class);
+    }
+
+    public Short getShort(K k) {
+        return TypeUtil.conversion(get(k), Short.class);
+    }
+
+    public Short getShort(K k, Short defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Short.class);
+    }
+
+    public Integer getInt(K k) {
+        return TypeUtil.conversion(get(k), Integer.class);
+    }
+
+    public Integer getInt(K k, Integer defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Integer.class);
+    }
+
+    public Long getLong(K k) {
+        return TypeUtil.conversion(get(k), Long.class);
+    }
+
+    public Long getLong(K k, Long defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Long.class);
+    }
+
+    public Float getFloat(K k) {
+        return TypeUtil.conversion(get(k), Float.class);
+    }
+
+    public Float getFloat(K k, Float defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Float.class);
+    }
+
+    public Double getDouble(K k) {
+        return TypeUtil.conversion(get(k), Double.class);
+    }
+
+    public Double getDouble(K k, Double defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Double.class);
+    }
+
+    public Date getDate(K k) {
+        return TypeUtil.conversion(get(k), Date.class);
+    }
+
+    public Date getDate(K k, Date defaultValue) {
+        return TypeUtil.conversion(get(k, (V)defaultValue), Date.class);
+    }
+
     // ====== 为了方便取值操作，take开头的方法，全部基于栈式取值 =======
     public V take(K k) {
         return this.stackGet(k);
@@ -320,5 +416,101 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
 
     public Date takeDate(K k, Date defaultValue) {
         return TypeUtil.conversion(take(k, (V)defaultValue), Date.class);
+    }
+
+    // ====== 为了方便取值操作，idx开头的方法，全部基于下标取值 =======
+    public V idx(int i) {
+        if (i >= 0 && i < this.size()) {
+            return (V)this._m.values().toArray(new Object[]{})[i];
+        }
+        return null;
+    }
+
+    public V idx(int i, V defaultValue) {
+        V res = idx(i);
+        if (null == res) {
+            res = defaultValue;
+        }
+        return defaultValue;
+    }
+
+    public String idxStr(int i) {
+        return TypeUtil.conversion(idx(i), String.class);
+    }
+
+    public String idxStr(int i, String defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), String.class);
+    }
+
+    public Byte idxByte(int i) {
+        return TypeUtil.conversion(idx(i), Byte.class);
+    }
+
+    public Byte idxByte(int i, Byte defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Byte.class);
+    }
+
+    public Character idxChar(int i) {
+        return TypeUtil.conversion(idx(i), Character.class);
+    }
+
+    public Character idxChar(int i, Character defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Character.class);
+    }
+
+    public Boolean idxBool(int i) {
+        return TypeUtil.conversion(idx(i), Boolean.class);
+    }
+
+    public Boolean idxBool(int i, Boolean defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Boolean.class);
+    }
+
+    public Short idxShort(int i) {
+        return TypeUtil.conversion(idx(i), Short.class);
+    }
+
+    public Short idxShort(int i, Short defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Short.class);
+    }
+
+    public Integer idxInt(int i) {
+        return TypeUtil.conversion(idx(i), Integer.class);
+    }
+
+    public Integer idxInt(int i, Integer defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Integer.class);
+    }
+
+    public Long idxLong(int i) {
+        return TypeUtil.conversion(idx(i), Long.class);
+    }
+
+    public Long idxLong(int i, Long defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Long.class);
+    }
+
+    public Float idxFloat(int i) {
+        return TypeUtil.conversion(idx(i), Float.class);
+    }
+
+    public Float idxFloat(int i, Float defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Float.class);
+    }
+
+    public Double idxDouble(int i) {
+        return TypeUtil.conversion(idx(i), Double.class);
+    }
+
+    public Double idxDouble(int i, Double defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Double.class);
+    }
+
+    public Date idxDate(int i) {
+        return TypeUtil.conversion(idx(i), Date.class);
+    }
+
+    public Date idxDate(int i, Date defaultValue) {
+        return TypeUtil.conversion(idx(i, (V)defaultValue), Date.class);
     }
 }

@@ -28,8 +28,10 @@ public class KvTest {
         Assert.assertTrue(kv1.stackSize() == 2);
         Assert.assertTrue(kv1.get("app.server.http.http-port").equals(8080));
         Assert.assertTrue(kv1.get("app.server.http.httpPort").equals(8080));
+        Assert.assertTrue(kv1.idx(0).equals(8080));
         Assert.assertTrue(kv1.get("app.server.http.jks_Path").equals("/123/456"));
         Assert.assertTrue(kv1.get("app.server.http.jksPath").equals("/123/456"));
+        Assert.assertTrue(kv1.idx(1).equals("/123/456"));
 
         Assert.assertTrue(!kv2.isEmpty());
         Assert.assertTrue(kv2.size() == 2);
