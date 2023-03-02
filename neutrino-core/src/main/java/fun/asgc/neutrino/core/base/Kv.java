@@ -22,6 +22,7 @@ import java.util.*;
  * @date: 2023/3/1
  */
 public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
+    private HashMap<K,K> aliasMap;
     private LinkedHashMap<K, V> _m;
     private HashMap<K, K> _k;
     private Locale locale;
@@ -49,6 +50,11 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return this;
     }
 
+    public Kv<K,V> setAlias(K k, K alias) {
+        this.aliasMap.put(convertKey(alias), k);
+        return this;
+    }
+
     public Kv(Kv<K,V> parent, int initialCapacity, Locale locale) {
         this.parent = parent;
         this._m = new LinkedHashMap<K, V>(initialCapacity) {
@@ -71,6 +77,7 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
             }
         };
         this._k = new HashMap<>(initialCapacity);
+        this.aliasMap = new HashMap<>(initialCapacity);
         this.locale = (locale != null ? locale : Locale.getDefault());
     }
     
@@ -207,6 +214,16 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return key.toLowerCase(getLocale()).replaceAll(SEPARATOR, "");
     }
 
+    protected K convertKey(Object k) {
+        K res = null;
+        try {
+            res = (K) convertKey((String) k);
+        } catch (Exception e) {
+            res = (K)k;
+        }
+        return res;
+    }
+
     protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
         return false;
     }
@@ -219,6 +236,7 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         }
         res._m = (LinkedHashMap<K, V>) _m.clone();
         res._k = (HashMap<K, K>) _k.clone();
+        res.aliasMap = (HashMap<K, K>) aliasMap.clone();
         res.locale = locale;
         return res;
     }
@@ -226,9 +244,11 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
     // ====== 为了方便取值操作，get方法保持Map接口原有语义，不支持栈式取值 =======
     @Override
     public V get(Object key) {
-        K k = null;
+        K k = this.aliasMap.get(convertKey(key));
         try {
-            k = (K) key;
+            if (null == k) {
+                k = (K) key;
+            }
         } catch (Exception e) {
             return null;
         }

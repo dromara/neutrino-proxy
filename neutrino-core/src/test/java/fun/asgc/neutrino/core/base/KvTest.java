@@ -13,6 +13,7 @@ public class KvTest {
         Kv kv1 = Kv.of()
             .set("app.server.http.http-port", 8080)
             .set("app.server.http.jks_Path", "/123/456")
+            .setAlias("app.server.http.http-port", "http-port")
             ;
 
 
@@ -60,5 +61,8 @@ public class KvTest {
         Assert.assertTrue(kv3.stackGetOrDefault("app.server.http.timeout", 60000).equals(60000));
 
         Assert.assertTrue(kv3.takeStr("app.server.http.http-port").equals("8081"));
+        Assert.assertTrue(kv3.takeStr("httpPort").equals("8080"));
+        Assert.assertTrue(kv3.takeInt("http-port").equals(8080));
+
     }
 }
