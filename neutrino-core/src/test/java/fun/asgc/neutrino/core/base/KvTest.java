@@ -25,7 +25,8 @@ public class KvTest {
                 ;
 
         Kv kv3 = Kv.of(kv2)
-                .setAlias("app.server.http.http-port", "port");
+                .setAlias("app.server.http.http-port", "port")
+                .setAlias("http-port", "p");
 
         Assert.assertTrue(!kv1.isEmpty());
         Assert.assertTrue(kv1.size() == 3);
@@ -73,5 +74,7 @@ public class KvTest {
         Assert.assertTrue(kv3.takeInt("http-port").equals(8080));
         // 注意：第3层设置的别名port，找到第二层的配置，不再往上找
         Assert.assertTrue(kv3.takeInt("port").equals(8081));
+        // 注意：第3层的别名p，指向了第1层的别名http-port
+        Assert.assertTrue(kv3.takeInt("p").equals(8080));
     }
 }
