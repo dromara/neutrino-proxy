@@ -22,51 +22,51 @@ import java.util.*;
  * @author: aoshiguchen
  * @date: 2023/3/1
  */
-public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
+public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
     private HashMap<K,K> aliasMap;
     private LinkedHashMap<K, V> _m;
     private HashMap<K, K> _k;
     private Locale locale;
     private String SEPARATOR = "_|-";
-    private Kv<K,V> parent;
+    private Cfg<K,V> parent;
     
-    private Kv() {
+    private Cfg() {
         this(null, 16, null);
     }
 
-    private Kv(Kv<K,V> parent) {
+    private Cfg(Cfg<K,V> parent) {
         this(parent, 16, null);
     }
 
-    public static <K,V> Kv<K,V> of() {
-        return new Kv<>();
+    public static <K,V> Cfg<K,V> of() {
+        return new Cfg<>();
     }
 
-    public static <K,V> Kv<K,V> of(Kv<K,V> parent) {
-        return new Kv(parent);
+    public static <K,V> Cfg<K,V> of(Cfg<K,V> parent) {
+        return new Cfg(parent);
     }
 
-    public Kv<K,V> set(K k, V v) {
+    public Cfg<K,V> set(K k, V v) {
         this.put(k, v);
         return this;
     }
 
-    public Kv<K,V> setAlias(K k, K alias) {
+    public Cfg<K,V> setAlias(K k, K alias) {
         this.aliasMap.put(convertKey(alias), convertKey(k));
         return this;
     }
 
-    public Kv(Kv<K,V> parent, int initialCapacity, Locale locale) {
+    public Cfg(Cfg<K,V> parent, int initialCapacity, Locale locale) {
         this.parent = parent;
         this._m = new LinkedHashMap<K, V>(initialCapacity) {
             @Override
             public boolean containsKey(Object key) {
-                return Kv.this.containsKey(key);
+                return Cfg.this.containsKey(key);
             }
 
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-                boolean doRemove = Kv.this.removeEldestEntry(eldest);
+                boolean doRemove = Cfg.this.removeEldestEntry(eldest);
                 if (doRemove) {
                     _k.remove(convertKey(eldest.getKey()));
                 }
@@ -220,8 +220,8 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
     }
 
     @Override
-    protected Kv<K,V> clone() {
-        Kv<K,V> res = new Kv<>();
+    protected Cfg<K,V> clone() {
+        Cfg<K,V> res = new Cfg<>();
         if (null != parent) {
             res.parent = parent.clone();
         }
