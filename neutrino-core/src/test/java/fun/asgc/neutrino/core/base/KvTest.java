@@ -11,7 +11,11 @@ public class KvTest {
     @Test
     public void test1() {
         Object key1 = new Object();
-        Kv kv1 = Kv.of()
+        Kv kv0 = Kv.of()
+                .setAlias("app.server.http.http-port", "aaa")
+                ;
+
+        Kv kv1 = Kv.of(kv0)
             .set("app.server.http.http-port", 8080)
             .set("app.server.http.jks_Path", "/123/456")
             .set(key1, 1)
@@ -69,12 +73,11 @@ public class KvTest {
 
         Assert.assertTrue(kv3.takeStr("app.server.http.http-port").equals("8081"));
         Assert.assertNull(kv3.take(null));
-        // 注意：http-port是第1层设置的别名，因此用这个别名对2、3层不可见，不会指向第二层的8081（除非第2、3层定义了同样的别名）
-        Assert.assertTrue(kv3.takeStr("httpPort").equals("8080"));
-        Assert.assertTrue(kv3.takeInt("http-port").equals(8080));
-        // 注意：第3层设置的别名port，找到第二层的配置，不再往上找
+        Assert.assertTrue(kv3.takeStr("httpPort").equals("8081"));
+        Assert.assertTrue(kv3.takeInt("http-port").equals(8081));
         Assert.assertTrue(kv3.takeInt("port").equals(8081));
         // 注意：第3层的别名p，指向了第1层的别名http-port
         Assert.assertTrue(kv3.takeInt("p").equals(8080));
+        Assert.assertTrue(kv3.takeStr("aaa").equals("8081"));
     }
 }

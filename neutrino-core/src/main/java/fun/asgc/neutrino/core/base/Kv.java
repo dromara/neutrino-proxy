@@ -19,11 +19,6 @@ import java.util.*;
  * 2、inx开头的方法，适用于不关心参数名称，根据下标取值。如普通方法参数、sql顺序参数（非具名参数） <br/>
  * 3、get方法取值，没有委托机制，适用于sql具名参数、bean方法具名参数 <br/>
  * 4、setAlias用于为一个key设置别名，用于解决应用层简化配置，避免冗长的配置名。<br/>
- *
- * 注意：<br/>
- * 1、对于key来说，key对于所有上层Kv都是可见的。比如kv1设置了key1，kv2的父级是kv1,那么kv2使用key1能够查找到kv1的配置。<br/>
- * 2、对于alias来说，与key相反。alias对于所有上层kv是不可见的，除非上层kv再次定义了该alias。<br/>
- * 3、所有的key、alias都不区分大小写、忽略-、_符号。<br/>
  * @author: aoshiguchen
  * @date: 2023/3/1
  */
@@ -335,12 +330,28 @@ public class Kv<K,V> implements Map<K,V> , Serializable, Cloneable {
         return TypeUtil.conversion(get(k, (V)defaultValue), Date.class);
     }
 
+    public K getAlias(K k) {
+        return this.aliasMap.get(convertKey(k));
+    }
+
+    public K stackGetAlias(K k) {
+        K res = getAlias(k);
+        if (null == res && null != parent) {
+            res = parent.stackGetAlias(k);
+        }
+        return res;
+    }
+
     // ====== 为了方便取值操作，take开头的方法，全部基于栈式取值 =======
     public V take(K k) {
-        if (this.aliasMap.containsKey(convertKey(k))) {
-            return this.stackGet(this.aliasMap.get(convertKey(k)));
+        V res = null;
+        K aliasK = this.stackGetAlias(k);
+        if (null != aliasK) {
+            res = this.stackGet(aliasK);
         }
-        V res = this.stackGet(k);
+        if (null == res) {
+            res = this.stackGet(k);
+        }
         return res;
     }
 
