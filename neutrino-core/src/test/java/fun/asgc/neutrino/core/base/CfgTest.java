@@ -18,6 +18,7 @@ public class CfgTest {
         Cfg cfg1 = Cfg.of(cfg0)
             .set("app.server.http.http-port", 8080)
             .set("app.server.http.jks_Path", "/123/456")
+            .set("app.server.websocket.port", "ws-port", 8888) // 设值的同时设置别名
             .set(key1, 1)
             .setAlias("app.server.http.http-port", "http-port")
             ;
@@ -33,8 +34,8 @@ public class CfgTest {
                 .setAlias("http-port", "p");
 
         Assert.assertTrue(!cfg1.isEmpty());
-        Assert.assertTrue(cfg1.size() == 3);
-        Assert.assertTrue(cfg1.stackSize() == 3);
+        Assert.assertTrue(cfg1.size() == 4);
+        Assert.assertTrue(cfg1.stackSize() == 4);
         Assert.assertTrue(cfg1.get("app.server.http.http-port").equals(8080));
         Assert.assertTrue(cfg1.get("app.server.http.httpPort").equals(8080));
         Assert.assertTrue(cfg1.idx(0).equals(8080));
@@ -47,7 +48,7 @@ public class CfgTest {
 
         Assert.assertTrue(!cfg2.isEmpty());
         Assert.assertTrue(cfg2.size() == 2);
-        Assert.assertTrue(cfg2.stackSize() == 5);
+        Assert.assertTrue(cfg2.stackSize() == 6);
         Assert.assertTrue(cfg2.get("app.server.http.http-port").equals(8081));
         Assert.assertTrue(cfg2.get("app.server.http.httpPort").equals(8081));
         Assert.assertTrue(cfg2.get("app.server.http.jks-path") == null);
@@ -61,7 +62,7 @@ public class CfgTest {
         Assert.assertTrue(cfg3.isEmpty());
         Assert.assertTrue(!cfg3.isStackEmpty());
         Assert.assertTrue(cfg3.size() == 0);
-        Assert.assertTrue(cfg3.stackSize() == 5);
+        Assert.assertTrue(cfg3.stackSize() == 6);
         Assert.assertTrue(cfg3.get("app.server.http.jks-path") == null);
         Assert.assertTrue(cfg3.get("app.server.http.jksPath") == null);
         Assert.assertTrue(cfg3.get("app.server.http.context-path") == null);
@@ -79,5 +80,6 @@ public class CfgTest {
         // 注意：第3层的别名p，指向了第1层的别名http-port
         Assert.assertTrue(cfg3.takeInt("p").equals(8080));
         Assert.assertTrue(cfg3.takeStr("aaa").equals("8081"));
+        Assert.assertTrue(cfg3.takeInt("wsPort").equals(8888));
     }
 }

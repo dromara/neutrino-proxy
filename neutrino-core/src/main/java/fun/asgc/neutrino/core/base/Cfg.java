@@ -51,6 +51,12 @@ public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
         return this;
     }
 
+    public Cfg<K,V> set(K k, K alias, V v) {
+        this.set(k, v);
+        this.setAlias(k, alias);
+        return this;
+    }
+
     public Cfg<K,V> setAlias(K k, K alias) {
         this.aliasMap.put(convertKey(alias), convertKey(k));
         return this;
