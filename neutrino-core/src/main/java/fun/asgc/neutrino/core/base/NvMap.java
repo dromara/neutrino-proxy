@@ -22,57 +22,66 @@ import java.util.*;
  * @author: aoshiguchen
  * @date: 2023/3/1
  */
-public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
+public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
     private HashMap<K,K> aliasMap;
+    private HashMap<K,K> reverseAliasMap;
     private LinkedHashMap<K, V> _m;
     private HashMap<K, K> _k;
     private Locale locale;
     private String SEPARATOR = "_|-";
-    private Cfg<K,V> parent;
+    private NvMap<K,V> parent;
     
-    private Cfg() {
+    private NvMap() {
         this(null, 16, null);
     }
 
-    private Cfg(Cfg<K,V> parent) {
+    private NvMap(NvMap<K,V> parent) {
         this(parent, 16, null);
     }
 
-    public static <K,V> Cfg<K,V> of() {
-        return new Cfg<>();
+    public static <K,V> NvMap<K,V> of() {
+        return new NvMap<>();
     }
 
-    public static <K,V> Cfg<K,V> of(Cfg<K,V> parent) {
-        return new Cfg(parent);
+    public static <K,V> NvMap<K,V> of(NvMap<K,V> parent) {
+        NvMap<K,V> nvMap = new NvMap(parent);
+        nvMap.aliasMap.putAll(parent.aliasMap);
+        nvMap.reverseAliasMap.putAll(parent.reverseAliasMap);
+        return nvMap;
     }
 
-    public Cfg<K,V> set(K k, V v) {
-        this.put(k, v);
+    public NvMap<K,V> set(K k, V v) {
+        if (this.aliasMap.containsKey(convertKey(k))) {
+            this.put(this.aliasMap.get(convertKey(k)), v);
+        } else {
+            this.put(k, v);
+        }
         return this;
     }
 
-    public Cfg<K,V> set(K k, K alias, V v) {
+    public NvMap<K,V> set(K k, K alias, V v) {
         this.set(k, v);
         this.setAlias(k, alias);
         return this;
     }
 
-    public Cfg<K,V> setAlias(K k, K alias) {
+    public NvMap<K,V> setAlias(K k, K alias) {
         this.aliasMap.put(convertKey(alias), convertKey(k));
+        this.reverseAliasMap.put(convertKey(k), convertKey(alias));
         return this;
     }
 
-    public Cfg(Cfg<K,V> parent, int initialCapacity, Locale locale) {
+    public NvMap(NvMap<K,V> parent, int initialCapacity, Locale locale) {
         this.parent = parent;
         this._m = new LinkedHashMap<K, V>(initialCapacity) {
             @Override
             public boolean containsKey(Object key) {
-                return Cfg.this.containsKey(key);
+                return NvMap.this.containsKey(key);
             }
 
             @Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-                boolean doRemove = Cfg.this.removeEldestEntry(eldest);
+                boolean doRemove = NvMap.this.removeEldestEntry(eldest);
                 if (doRemove) {
                     _k.remove(convertKey(eldest.getKey()));
                 }
@@ -81,6 +90,7 @@ public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
         };
         this._k = new HashMap<>(initialCapacity);
         this.aliasMap = new HashMap<>(initialCapacity);
+        this.reverseAliasMap = new HashMap<>(initialCapacity);
         this.locale = (locale != null ? locale : Locale.getDefault());
     }
     
@@ -226,14 +236,15 @@ public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
     }
 
     @Override
-    protected Cfg<K,V> clone() {
-        Cfg<K,V> res = new Cfg<>();
+    protected NvMap<K,V> clone() {
+        NvMap<K,V> res = new NvMap<>();
         if (null != parent) {
             res.parent = parent.clone();
         }
         res._m = (LinkedHashMap<K, V>) _m.clone();
         res._k = (HashMap<K, K>) _k.clone();
         res.aliasMap = (HashMap<K, K>) aliasMap.clone();
+        res.reverseAliasMap = (HashMap<K, K>) reverseAliasMap.clone();
         res.locale = locale;
         return res;
     }
@@ -241,11 +252,15 @@ public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
     // ====== 为了方便取值操作，get方法保持Map接口原有语义，不支持栈式取值 =======
     @Override
     public V get(Object key) {
-        key = convertKey(key);
-        if (this.aliasMap.containsKey(key)) {
-            key = this.aliasMap.get(key);
+        V res = null;
+        if (this.aliasMap.containsKey(convertKey(key))) {
+            Object aliasKey = this.aliasMap.get(convertKey(key));
+            res = this._m.get(this._k.get(convertKey(aliasKey)));
         }
-        return this._m.get(this._k.get(key));
+        if (null == res) {
+            res = this._m.get(this._k.get(convertKey(key)));
+        }
+        return res;
     }
 
     public V get(Object key, V defaultValue) {
@@ -351,12 +366,12 @@ public class Cfg<K,V> implements Map<K,V> , Serializable, Cloneable {
     // ====== 为了方便取值操作，take开头的方法，全部基于栈式取值 =======
     public V take(K k) {
         V res = null;
-        K aliasK = this.stackGetAlias(k);
+        K aliasK = this.getAlias(k);
         if (null != aliasK) {
-            res = this.stackGet(aliasK);
+            res = stackGet(aliasK);
         }
         if (null == res) {
-            res = this.stackGet(k);
+            res = stackGet(k);
         }
         return res;
     }

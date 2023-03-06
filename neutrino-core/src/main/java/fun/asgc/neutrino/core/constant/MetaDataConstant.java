@@ -84,4 +84,8 @@ public interface MetaDataConstant {
 	 * app生命周期主题
 	 */
 	String TOPIC_APP_LIFE_CYCLE = "TP_APP_LIFE_CYCLE";
+	/**
+	 * 环境变量key
+	 */
+	String ENVIRONMENT_VARIABLE_KEY = "NEUTRINO_PROXY";
 }

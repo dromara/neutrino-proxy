@@ -28,10 +28,6 @@ import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -84,6 +80,20 @@ public class FileUtil {
 	 */
 	public static String readContentAsString(String path) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path)))){
+			return br.lines().collect(Collectors.joining("\n"));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * 读取文件内容
+	 * @param in
+	 * @return
+	 * @throws IOException
+	 */
+	public static String readContentAsString(InputStream in) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(in))){
 			return br.lines().collect(Collectors.joining("\n"));
 		} catch (Exception e) {
 			return null;
@@ -219,5 +229,16 @@ public class FileUtil {
 				is.close();
 			}
 		}
+	}
+
+	public static String getFileSuffix(String path) {
+		if (StringUtils.isBlank(path)) {
+			return "";
+		}
+		int index = path.lastIndexOf(".");
+		if (index >= 0) {
+			return path.substring(index);
+		}
+		return "";
 	}
 }

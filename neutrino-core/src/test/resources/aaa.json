@@ -1,0 +1,10 @@
+{
+  "neutrino": {
+    "application": {
+      "name": "test-app"
+    },
+    "http": {
+
+    }
+  }
+}
