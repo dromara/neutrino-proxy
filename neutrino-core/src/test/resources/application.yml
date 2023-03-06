@@ -1,9 +1,9 @@
 neutrino:
   application:
-    name:
+    name: neutrino-proxy-server
   http:
     enable: false
-    port:
+    port: 8080
     context-path: /test
     max-content-length-desc: 128K
     static-resource:
