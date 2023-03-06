@@ -118,7 +118,13 @@ public class NeutrinoLauncher {
 
 		// 加载应用配置
 		environment.setConfig(ConfigUtil.getYmlConfig(ApplicationConfig.class));
-		log.info("load ApplicationConfig finished.");
+		try {
+			environment.loadNvMap(neutrinoApplication.environmentVariableKey());
+			log.info("load ApplicationConfig finished.");
+		} catch (Exception e) {
+			log.error("load ApplicationConfig err.", e);
+		}
+
 	}
 
 	/**

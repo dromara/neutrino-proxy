@@ -32,7 +32,7 @@ import fun.asgc.neutrino.core.context.NeutrinoLauncher;
  * @date: 2022/6/16
  */
 @EnableJob
-@NeutrinoApplication
+@NeutrinoApplication(environmentVariableKey = "NeutrinoProxyServer")
 public class ProxyServer {
 
 	public static void main(String[] args) {

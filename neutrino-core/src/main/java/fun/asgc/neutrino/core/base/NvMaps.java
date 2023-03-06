@@ -118,6 +118,7 @@ public final class NvMaps {
         } else if (fileType == FileTypeEnum.PROPERTIES) {
             Properties properties = new Properties();
             properties.load(in);
+            load(properties);
         } else if (fileType == FileTypeEnum.JSON) {
             String content = FileUtil.readContentAsString(in);
             JSONObject jsonObject = JSONObject.parseObject(content);
@@ -166,7 +167,7 @@ public final class NvMaps {
         }
     }
 
-    public NvMaps loadEnvironmentVariable() {
+    public NvMaps loadEnvironmentVariable(String envKey) {
         String env = System.getenv(MetaDataConstant.ENVIRONMENT_VARIABLE_KEY);
         if (StringUtil.isEmpty(env)) {
             return this;

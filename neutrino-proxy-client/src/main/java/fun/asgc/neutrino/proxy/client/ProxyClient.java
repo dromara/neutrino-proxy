@@ -30,7 +30,7 @@ import fun.asgc.neutrino.core.context.NeutrinoLauncher;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NeutrinoApplication
+@NeutrinoApplication(environmentVariableKey = "NeutrinoProxyClient")
 public class ProxyClient {
 
 	public static void main(String[] args) {

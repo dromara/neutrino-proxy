@@ -32,11 +32,12 @@ public class NvMapsTest {
         nvMaps.stageDone();
 
         // 阶段3：环境变量
-        nvMaps.loadEnvironmentVariable();
+        nvMaps.loadEnvironmentVariable("NEUTRINO_PROXY");
         nvMaps.stageDone();
 
         // 结算4：外部配置文件
-        nvMaps.loadFile(NvMapsTest.class.getResource("/aaa.json").getPath());
+//        nvMaps.loadFile(NvMapsTest.class.getResource("/aaa.json").getPath());
+        nvMaps.loadFile(NvMapsTest.class.getResource("/aaa.properties").getPath());
         nvMaps.stageDone();
 
         // 阶段5：启动参数

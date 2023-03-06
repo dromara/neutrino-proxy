@@ -24,7 +24,6 @@ import java.util.*;
  */
 public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
     private HashMap<K,K> aliasMap;
-    private HashMap<K,K> reverseAliasMap;
     private LinkedHashMap<K, V> _m;
     private HashMap<K, K> _k;
     private Locale locale;
@@ -46,7 +45,6 @@ public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
     public static <K,V> NvMap<K,V> of(NvMap<K,V> parent) {
         NvMap<K,V> nvMap = new NvMap(parent);
         nvMap.aliasMap.putAll(parent.aliasMap);
-        nvMap.reverseAliasMap.putAll(parent.reverseAliasMap);
         return nvMap;
     }
 
@@ -67,7 +65,6 @@ public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
 
     public NvMap<K,V> setAlias(K k, K alias) {
         this.aliasMap.put(convertKey(alias), convertKey(k));
-        this.reverseAliasMap.put(convertKey(k), convertKey(alias));
         return this;
     }
 
@@ -90,7 +87,6 @@ public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
         };
         this._k = new HashMap<>(initialCapacity);
         this.aliasMap = new HashMap<>(initialCapacity);
-        this.reverseAliasMap = new HashMap<>(initialCapacity);
         this.locale = (locale != null ? locale : Locale.getDefault());
     }
     
@@ -244,7 +240,6 @@ public class NvMap<K,V> implements Map<K,V> , Serializable, Cloneable {
         res._m = (LinkedHashMap<K, V>) _m.clone();
         res._k = (HashMap<K, K>) _k.clone();
         res.aliasMap = (HashMap<K, K>) aliasMap.clone();
-        res.reverseAliasMap = (HashMap<K, K>) reverseAliasMap.clone();
         res.locale = locale;
         return res;
     }

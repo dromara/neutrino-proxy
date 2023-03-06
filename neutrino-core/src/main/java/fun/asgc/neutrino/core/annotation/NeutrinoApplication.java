@@ -36,4 +36,5 @@ import java.lang.annotation.*;
 @NonIntercept
 public @interface NeutrinoApplication {
 	String[] scanBasePackages() default {};
+	String environmentVariableKey() default "";
 }
