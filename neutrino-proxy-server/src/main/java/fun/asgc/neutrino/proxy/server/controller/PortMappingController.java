@@ -21,11 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
@@ -33,6 +33,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 /**
  * 端口映射
@@ -40,20 +41,22 @@ import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
  * @date: 2022/8/8
  */
 @NonIntercept
-@RequestMapping("port-mapping")
-@RestController
+@Mapping("/port-mapping")
+@Controller
 public class PortMappingController {
-	@Autowired
+	@Inject
 	private PortMappingService portMappingService;
 
-	@GetMapping("page")
+	@Get
+	@Mapping("/page")
 	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portMappingService.page(pageQuery, req);
 	}
 
-	@PostMapping("create")
+	@Post
+	@Mapping("/create")
 	public PortMappingCreateRes create(@RequestBody PortMappingCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
@@ -64,21 +67,24 @@ public class PortMappingController {
 		return portMappingService.create(req);
 	}
 
-	@PostMapping("update")
+	@Post
+	@Mapping("/update")
 	public PortMappingUpdateRes update(@RequestBody PortMappingUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 
 		return portMappingService.update(req);
 	}
 
-	@GetMapping("detail")
+	@Get
+	@Mapping("/detail")
 	public PortMappingDetailRes detail(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
 		return portMappingService.detail(id);
 	}
 
-	@PostMapping("update/enable-status")
+	@Post
+	@Mapping("/update/enable-status")
 	public PortMappingUpdateEnableStatusRes updateEnableStatus(@RequestBody PortMappingUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -87,7 +93,8 @@ public class PortMappingController {
 		return portMappingService.updateEnableStatus(req);
 	}
 
-	@PostMapping("delete")
+	@Post
+	@Mapping("/delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 

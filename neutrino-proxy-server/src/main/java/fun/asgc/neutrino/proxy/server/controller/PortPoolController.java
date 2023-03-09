@@ -21,11 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
@@ -35,6 +34,7 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.service.PortPoolService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -43,27 +43,29 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
-@NonIntercept
-@RequestMapping("port-pool")
-@RestController
+@Mapping("/port-pool")
+@Controller
 public class PortPoolController {
-	@Autowired
+	@Inject
 	private PortPoolService portPoolService;
 
-	@GetMapping("page")
+	@Get
+	@Mapping("/page")
 	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portPoolService.page(pageQuery, req);
 	}
 
-	@GetMapping("list")
+	@Get
+	@Mapping("/list")
 	public List<PortPoolListRes> list(PortPoolListReq req) {
 		return portPoolService.list(req);
 	}
 
 	@OnlyAdmin
-	@PostMapping("create")
+	@Post
+	@Mapping("/create")
 	public PortPoolCreateRes create(@RequestBody PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getPort(), "port");
@@ -72,7 +74,8 @@ public class PortPoolController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("update/enable-status")
+	@Post
+	@Mapping("/update/enable-status")
 	public PortPoolUpdateEnableStatusRes updateEnableStatus(@RequestBody PortPoolUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -82,7 +85,8 @@ public class PortPoolController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("delete")
+	@Post
+	@Mapping("/delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 

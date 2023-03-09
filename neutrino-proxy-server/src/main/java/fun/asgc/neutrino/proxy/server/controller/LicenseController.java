@@ -21,11 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
@@ -34,6 +33,7 @@ import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -42,28 +42,28 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@NonIntercept
-@RequestMapping("license")
-@RestController
+@Mapping("/license")
+@Controller
 public class LicenseController {
-
-	@Autowired
+	@Inject
 	private LicenseService licenseService;
 
-	@GetMapping("page")
+	@Get
+	@Mapping("/page")
 	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return licenseService.page(pageQuery, req);
 	}
 
-	@GetMapping("list")
+	@Mapping("/list")
 	public List<LicenseListRes> list(LicenseListReq req) {
 		return licenseService.list(req);
 	}
 
 	@OnlyAdmin
-	@PostMapping("create")
+	@Post
+	@Mapping("/create")
 	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -73,7 +73,8 @@ public class LicenseController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("update")
+	@Post
+	@Mapping("/update")
 	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -82,7 +83,8 @@ public class LicenseController {
 		return licenseService.update(req);
 	}
 
-	@GetMapping("detail")
+	@Post
+	@Mapping("/detail")
 	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
@@ -90,7 +92,8 @@ public class LicenseController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("update/enable-status")
+	@Post
+	@Mapping("/update/enable-status")
 	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -100,7 +103,8 @@ public class LicenseController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("delete")
+	@Post
+	@Mapping("/delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
@@ -108,7 +112,8 @@ public class LicenseController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("reset")
+	@Post
+	@Mapping("/reset")
 	public void reset(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 

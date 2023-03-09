@@ -18,13 +18,13 @@ neutrino:
       key-store-password: 123456
       key-manager-password: 123456
       jks-path: classpath:/test.jks
-  data:
-    db:
-      type: sqlite
-      url: jdbc:sqlite:data.db
-      driver-class: org.sqlite.JDBC
-      username:
-      password:
+#  data:
+#    db:
+#      type: sqlite
+#      url: jdbc:sqlite:data.db
+#      driver-class: org.sqlite.JDBC
+#      username:
+#      password:
 
 #添加MIME印射（如果有需要？）
 #是否启用静态文件服务。（可不配，默认为启用）

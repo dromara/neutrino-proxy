@@ -21,32 +21,31 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.GetMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
 import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
 import fun.asgc.neutrino.proxy.server.service.ClientConnectRecordService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.annotation.Mapping;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/11/26
  */
 @Slf4j
-@NonIntercept
-@RequestMapping("client-connect-record")
-@RestController
+@Mapping("/client-connect-record")
+@Controller
 public class ClientConnectRecordController {
-    @Autowired
+    @Inject
     private ClientConnectRecordService clientConnectRecordService;
 
-    @GetMapping("page")
+    @Get
+    @Mapping("/page")
     public Page<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return clientConnectRecordService.page(pageQuery, req);

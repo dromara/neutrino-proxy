@@ -21,11 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
+import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
@@ -36,6 +35,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -44,35 +44,38 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
-@NonIntercept
-@RequestMapping("user")
-@RestController
+@Mapping("/user")
+@Controller
 public class UserController {
-	@Autowired
+	@Inject
 	private UserService userService;
-	@Autowired
+	@Inject
 	private UserMapper userMapper;
 
-	@GetMapping("page")
+	@Get
+	@Mapping("/page")
 	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return userService.page(pageQuery, req);
 	}
 
-	@GetMapping("list")
+	@Get
+	@Mapping("/list")
 	public List<UserListRes> list(UserListReq req) {
 
 		return userService.list(req);
 	}
 
-	@GetMapping("info")
+	@Get
+	@Mapping("/info")
 	public UserInfoRes info(UserInfoReq req) {
 		return userService.info(req);
 	}
 
 	@OnlyAdmin
-	@PostMapping("update/enable-status")
+	@Post
+	@Mapping("/update/enable-status")
 	public UserUpdateEnableStatusRes updateEnableStatus(@RequestBody UserUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -82,7 +85,8 @@ public class UserController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("create")
+	@Post
+	@Mapping("/create")
 	public UserCreateRes create(@RequestBody UserCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -92,7 +96,8 @@ public class UserController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("update")
+	@Post
+	@Mapping("/update")
 	public UserUpdateRes update(@RequestBody UserUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -103,7 +108,8 @@ public class UserController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("update/password")
+	@Post
+	@Mapping("/update/password")
 	public UserUpdatePasswordRes updatePassword(@RequestBody UserUpdatePasswordReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -113,7 +119,8 @@ public class UserController {
 		return userService.updatePassword(req);
 	}
 
-	@PostMapping("current-user/update/password")
+	@Post
+	@Mapping("/current-user/update/password")
 	public UserUpdatePasswordRes currentUserUpdatePassword(@RequestBody UserUpdatePasswordReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getOldLoginPassword(), "oldLoginPassword");
@@ -129,7 +136,8 @@ public class UserController {
 	}
 
 	@OnlyAdmin
-	@PostMapping("delete")
+	@Post
+	@Mapping("/delete")
 	public void delete(@RequestParam("id") Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 

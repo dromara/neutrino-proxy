@@ -21,32 +21,35 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-import org.noear.solon.annotation.Controller;
-import org.noear.solon.annotation.Inject;
-import org.noear.solon.annotation.Mapping;
-import org.noear.solon.annotation.Post;
+import org.noear.solon.annotation.*;
+import org.noear.solon.core.handle.Context;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
-@NonIntercept
 @Controller
 public class IndexController {
 	@Inject
 	private UserService userService;
 
 	@Authorization(login = false)
+	@Get
+	@Mapping("/")
+	public void home(Context ctx) {
+		ctx.forward("/index.html");
+	}
+
+	@Authorization(login = false)
 	@Post
-	@Mapping("login")
+	@Mapping("/login")
 	public LoginRes login(@RequestBody LoginReq req) {
 		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
@@ -55,7 +58,7 @@ public class IndexController {
 	}
 
 	@Post
-	@Mapping("logout")
+	@Mapping("/logout")
 	public void logout() {
 		userService.logout();
 	}
