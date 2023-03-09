@@ -23,7 +23,6 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 
 /**
  *
@@ -32,6 +31,6 @@ import fun.asgc.neutrino.core.db.mapper.SqlMapper;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserConnectRecordMapper extends SqlMapper {
+public interface UserConnectRecordMapper {
 
 }

@@ -22,21 +22,19 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.core.ProxyMessageHandler;
 import io.netty.channel.ChannelHandlerContext;
+import org.noear.solon.annotation.Component;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.HEARTBEAT)
 @Component
 public class ProxyMessageHeartbeatHandler implements ProxyMessageHandler {

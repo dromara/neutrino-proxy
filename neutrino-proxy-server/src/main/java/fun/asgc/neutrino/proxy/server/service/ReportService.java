@@ -21,9 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
@@ -32,17 +29,17 @@ import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
 import fun.asgc.neutrino.proxy.server.dal.UserReportMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/12/23
  */
 @Slf4j
-@NonIntercept
 @Component
 public class ReportService {
-
-    @Autowired
+    @Inject
     private UserReportMapper userReportMapper;
 
     /**

@@ -22,7 +22,6 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.annotation.*;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
@@ -40,6 +39,9 @@ import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.Lifecycle;
 
 import java.util.*;
 import java.util.function.Function;
@@ -50,15 +52,14 @@ import java.util.stream.Collectors;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@NonIntercept
 @Component
-public class LicenseService {
+public class LicenseService implements Lifecycle {
 
-	@Autowired
+	@Inject
 	private LicenseMapper licenseMapper;
-	@Autowired
+	@Inject
 	private UserMapper userMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
@@ -209,9 +210,16 @@ public class LicenseService {
 	/**
 	 * 服务端项目停止、启动时，更新在线状态为离线
 	 */
-	@Init
-	@Destroy
-	public void destroy() {
+	@Override
+	public void start() throws Throwable {
+		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+	}
+
+	/**
+	 * 服务端项目停止、启动时，更新在线状态为离线
+	 */
+	@Override
+	public void stop() throws Throwable {
 		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 	}
 }

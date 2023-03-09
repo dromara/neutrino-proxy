@@ -25,7 +25,6 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.*;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
@@ -41,7 +40,7 @@ import java.util.List;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface PortPoolMapper extends SqlMapper {
+public interface PortPoolMapper {
 
 	@ResultType(PortPoolListRes.class)
 	@Select("select * from port_pool")

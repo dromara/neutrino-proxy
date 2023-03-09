@@ -21,13 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
@@ -36,14 +33,8 @@ import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import java.util.Date;
 import java.util.List;
 
-/**
- *
- * @author: aoshiguchen
- * @date: 2022/9/5
- */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface JobInfoMapper extends SqlMapper {
+
+public interface JobInfoMapper {
 
     @ResultType(JobInfoListRes.class)
     @Select("select * from job_info")

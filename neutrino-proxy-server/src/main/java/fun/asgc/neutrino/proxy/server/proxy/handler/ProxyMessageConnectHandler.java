@@ -22,10 +22,7 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -37,20 +34,20 @@ import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.CONNECT)
 @Component
 public class ProxyMessageConnectHandler implements ProxyMessageHandler {
-
-	@Autowired
+	@Inject
 	private LicenseService licenseService;
-	@Autowired
+	@Inject
 	private UserService userService;
 
 	@Override

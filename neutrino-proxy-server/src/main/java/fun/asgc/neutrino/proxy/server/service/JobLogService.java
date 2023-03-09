@@ -21,21 +21,18 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.quartz.IJobCallback;
 import fun.asgc.neutrino.core.quartz.JobInfo;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 
@@ -45,10 +42,9 @@ import java.util.Date;
  * @date: 2022/9/4
  */
 @Slf4j
-@NonIntercept
 @Component
 public class JobLogService implements IJobCallback {
-	@Autowired
+	@Inject
 	private JobLogMapper jobLogMapper;
 
 	@Override

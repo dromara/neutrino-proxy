@@ -21,9 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
@@ -32,6 +29,8 @@ import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.List;
 import java.util.Map;
@@ -44,12 +43,11 @@ import java.util.stream.Collectors;
  * @author: aoshiguchen
  * @date: 2022/10/20
  */
-@NonIntercept
 @Component
 public class UserLoginRecordService {
-    @Autowired
+    @Inject
     private UserLoginRecordMapper userLoginRecordMapper;
-    @Autowired
+    @Inject
     private UserMapper userMapper;
 
     public Page<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {

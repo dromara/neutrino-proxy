@@ -23,9 +23,6 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -49,6 +46,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.net.BindException;
 import java.util.List;
@@ -60,22 +59,21 @@ import java.util.stream.Collectors;
  * @date: 2023/2/5
  */
 @Slf4j
-@NonIntercept
 @Component
 public class VisitorChannelService {
-    @Autowired("serverBossGroup")
+    @Inject("serverBossGroup")
     private NioEventLoopGroup serverBossGroup;
-    @Autowired("serverWorkerGroup")
+    @Inject("serverWorkerGroup")
     private NioEventLoopGroup serverWorkerGroup;
-    @Autowired
+    @Inject
     private ProxyMutualService proxyMutualService;
-    @Autowired
+    @Inject
     private UserMapper userMapper;
-    @Autowired
+    @Inject
     private LicenseMapper licenseMapper;
-    @Autowired
+    @Inject
     private PortMappingMapper portMappingMapper;
-    @Autowired
+    @Inject
     private PortPoolMapper portPoolMapper;
 
     /**

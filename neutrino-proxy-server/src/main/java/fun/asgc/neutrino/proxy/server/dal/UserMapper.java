@@ -25,7 +25,6 @@ import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.*;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
@@ -42,7 +41,7 @@ import java.util.Set;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserMapper extends SqlMapper {
+public interface UserMapper {
 
 	/**
 	 * 根据登录名查询用户记录

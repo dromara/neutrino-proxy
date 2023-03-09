@@ -21,19 +21,22 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.HttpUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.web.context.HttpContextHolder;
 import fun.asgc.neutrino.core.web.context.HttpRequestWrapper;
 import fun.asgc.neutrino.core.web.context.HttpResponseWrapper;
 import fun.asgc.neutrino.core.web.interceptor.HandlerInterceptor;
-import fun.asgc.neutrino.proxy.server.base.rest.*;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContext;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import org.noear.solon.Solon;
 
 import java.lang.reflect.Method;
 
@@ -56,7 +59,7 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 			if (StringUtil.isEmpty(authorize)) {
 				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
 			}
-			UserDO userDO = BeanManager.getBean(UserService.class).findByToken(authorize);
+			UserDO userDO = Solon.context().getBean(UserService.class).findByToken(authorize);
 			if (null == userDO) {
 				throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
 			}
@@ -71,7 +74,7 @@ public class BaseAuthInterceptor implements HandlerInterceptor {
 			systemContext.setUser(userDO);
 
 			// token续期
-			BeanManager.getBean(UserService.class).updateTokenExpirationTime(authorize);
+			Solon.context().getBean(UserService.class).updateTokenExpirationTime(authorize);
 		}
 
 		return true;

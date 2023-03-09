@@ -21,9 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.base.proxy;
 
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.Value;
 import lombok.Data;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  * 服务端代理配置
@@ -31,48 +31,37 @@ import lombok.Data;
  * @date: 2022/6/16
  */
 @Data
-@Configuration(prefix = "neutrino.proxy")
+@Component
 public class ProxyConfig {
 	/**
 	 * 传输协议相关配置
 	 */
+	@Inject("${neutrino.proxy.protocol}")
 	private Protocol protocol;
 	/**
 	 * 服务端配置
 	 */
+	@Inject("${neutrino.proxy.server}")
 	private Server server;
 
 	@Data
 	public static class Protocol {
-		@Value("max-frame-length")
 		private Integer maxFrameLength;
-		@Value("length-field-offset")
 		private Integer lengthFieldOffset;
-		@Value("length-field-length")
 		private Integer lengthFieldLength;
-		@Value("initial-bytes-to-strip")
 		private Integer initialBytesToStrip;
-		@Value("length-adjustment")
 		private Integer lengthAdjustment;
-		@Value("read-idle-time")
 		private Integer readIdleTime;
-		@Value("write-idle-time")
 		private Integer writeIdleTime;
-		@Value("all-idle-time-seconds")
 		private Integer allIdleTimeSeconds;
 	}
 
 	@Data
 	public static class Server {
-		@Value("port")
 		private Integer port;
-		@Value("ssl-port")
 		private Integer sslPort;
-		@Value("key-store-password")
 		private String keyStorePassword;
-		@Value("key-manager-password")
 		private String keyManagerPassword;
-		@Value("jks-path")
 		private String jksPath;
 	}
 

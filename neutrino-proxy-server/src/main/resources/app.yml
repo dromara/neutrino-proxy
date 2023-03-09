@@ -1,15 +1,7 @@
-neutrino:
-  application:
-    name: neutrino-proxy-server
-  http:
-    enable: true
-    port: 8888
-    context-path: /
-    max-content-length-desc: 128K
-    static-resource:
-      locations:
-        - "neutrino-proxy-admin/dist/"
+server:
+  port: 8081
 
+neutrino:
   proxy:
     protocol:
       max-frame-length: 2097152
@@ -31,8 +23,15 @@ neutrino:
       type: sqlite
       url: jdbc:sqlite:data.db
       driver-class: org.sqlite.JDBC
-#      type: mysql
-#      url: jdbc:mysql://103.163.47.16:3306/neutrino-proxy?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useAffectedRows=true&useSSL=false
-#      driver-class: com.mysql.jdbc.Driver
-#      username: "******"
-#      password: "******"
+      username:
+      password:
+
+#添加MIME印射（如果有需要？）
+#是否启用静态文件服务。（可不配，默认为启用）
+solon.staticfiles.enable: true
+#静态文件的304缓存时长。（可不配，默认为10分钟）
+solon.staticfiles.maxAge: 600
+#添加静态目录映射。（按需选择）#v1.11.0 后支持
+solon.staticfiles.mappings:
+  - path: "/"
+    repository: "./neutrino-proxy-admin/dist/" #2.添加资源路径（仓库只能是目录）

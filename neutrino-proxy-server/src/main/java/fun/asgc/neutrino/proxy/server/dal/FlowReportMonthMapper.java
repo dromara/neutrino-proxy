@@ -21,22 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMonthDO;
 
-/**
- * @author: aoshiguchen
- * @date: 2022/10/28
- */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface FlowReportMonthMapper extends SqlMapper {
+
+public interface FlowReportMonthMapper {
     @Select("select * from flow_report_month where license_id = :licenseId and date_str = :dateStr")
     FlowReportMonthDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
 

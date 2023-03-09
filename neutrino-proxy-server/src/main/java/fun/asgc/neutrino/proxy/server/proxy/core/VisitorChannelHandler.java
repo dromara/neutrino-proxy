@@ -22,7 +22,6 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
@@ -34,6 +33,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.noear.solon.Solon;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,7 +72,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
             // 增加流量计数
             VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-            BeanManager.getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
+            Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         }
     }
 

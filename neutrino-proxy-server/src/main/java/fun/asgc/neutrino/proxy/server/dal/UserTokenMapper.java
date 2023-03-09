@@ -26,7 +26,6 @@ import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 
 import java.util.Date;
@@ -38,7 +37,7 @@ import java.util.Date;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserTokenMapper extends SqlMapper {
+public interface UserTokenMapper {
 	/**
 	 * 新增用户token
 	 * 支持注解 + xml配置2种方式

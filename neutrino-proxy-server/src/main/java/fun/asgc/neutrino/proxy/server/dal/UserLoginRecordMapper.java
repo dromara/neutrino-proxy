@@ -26,7 +26,6 @@ import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
@@ -39,7 +38,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserLoginRecordMapper extends SqlMapper {
+public interface UserLoginRecordMapper {
 	/**
 	 * 新增用户登录日志
 	 * @param userLoginRecord

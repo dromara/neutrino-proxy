@@ -22,10 +22,7 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
@@ -36,13 +33,14 @@ import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import org.noear.solon.Solon;
+import org.noear.solon.annotation.Component;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.TRANSFER)
 @Component
 public class ProxyMessageTransferHandler implements ProxyMessageHandler {
@@ -57,7 +55,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 
 			// 增加流量计数
 			VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-			BeanManager.getBean(FlowReportService.class).addReadByte(visitorChannelAttachInfo.getLicenseId(), proxyMessage.getData().length);
+			Solon.context().getBean(FlowReportService.class).addReadByte(visitorChannelAttachInfo.getLicenseId(), proxyMessage.getData().length);
 		}
 	}
 

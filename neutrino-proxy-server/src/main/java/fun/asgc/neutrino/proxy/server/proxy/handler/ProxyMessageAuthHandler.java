@@ -22,10 +22,7 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Match;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.core.*;
@@ -43,6 +40,8 @@ import fun.asgc.neutrino.proxy.server.util.ProxyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 
@@ -52,27 +51,26 @@ import java.util.Date;
  * @date: 2022/6/16
  */
 @Slf4j
-@NonIntercept
 @Match(type = Constants.ProxyDataTypeName.AUTH)
 @Component
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {
-	@Autowired
+	@Inject
 	private ProxyConfig proxyConfig;
-	@Autowired
+	@Inject
 	private LicenseService licenseService;
-	@Autowired
+	@Inject
 	private UserService userService;
-	@Autowired
+	@Inject
 	private PortMappingService portMappingService;
-	@Autowired
+	@Inject
 	private ProxyMutualService proxyMutualService;
-	@Autowired
+	@Inject
 	private FlowReportService flowReportService;
-	@Autowired
+	@Inject
 	private ClientConnectRecordService clientConnectRecordService;
-	@Autowired
+	@Inject
 	private LicenseMapper licenseMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	@Override

@@ -21,9 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.DateUtil;
@@ -41,6 +38,8 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -52,17 +51,16 @@ import java.util.UUID;
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
-@NonIntercept
 @Component
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
-	@Autowired
+	@Inject
 	private UserMapper userMapper;
-	@Autowired
+	@Inject
 	private UserTokenMapper userTokenMapper;
-	@Autowired
+	@Inject
 	private UserLoginRecordMapper userLoginRecordMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	public LoginRes login(LoginReq req) {

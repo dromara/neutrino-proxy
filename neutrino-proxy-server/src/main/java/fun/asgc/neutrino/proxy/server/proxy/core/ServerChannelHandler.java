@@ -23,7 +23,6 @@
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
 import fun.asgc.neutrino.core.base.Dispatcher;
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
@@ -38,6 +37,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.Solon;
 
 import java.util.Date;
 
@@ -51,7 +51,7 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
 
     public ServerChannelHandler() {
-        dispatcher = BeanManager.getBean(Dispatcher.class);
+        dispatcher = Solon.context().getBean(Dispatcher.class);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
         } else {
             CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
             if (null != cmdChannelAttachInfo) {
-                BeanManager.getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
-                BeanManager.getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
+                Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
+                Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
                         .setIp(ChannelUtil.getIP(ctx.channel()))
                         .setLicenseId(cmdChannelAttachInfo.getLicenseId())
                         .setType(ClientConnectTypeEnum.DISCONNECT.getType())

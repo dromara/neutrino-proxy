@@ -21,10 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.util.LockUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date: 2022/10/26
  */
 @Slf4j
-@NonIntercept
 @Component
 public class FlowReportService {
     private Map<Integer/*licenseId*/, AtomicInteger/*writeByte*/> writeByteMap = new HashMap<>();

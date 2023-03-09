@@ -22,24 +22,29 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.google.common.collect.Lists;
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.quartz.IJobSource;
 import fun.asgc.neutrino.core.quartz.JobExecutor;
 import fun.asgc.neutrino.core.quartz.JobInfo;
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateRes;
 import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.Solon;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
@@ -50,11 +55,9 @@ import java.util.List;
  * @date: 2022/9/5
  */
 @Slf4j
-@NonIntercept
 @Component
 public class JobInfoService implements IJobSource {
-
-    @Autowired
+    @Inject
     private JobInfoMapper jobInfoMapper;
 
     public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
@@ -73,7 +76,7 @@ public class JobInfoService implements IJobSource {
         ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
         jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
         if (EnableStatusEnum.ENABLE.getStatus().equals(req.getEnable())) {
-            BeanManager.getBean(JobExecutor.class).add(new JobInfo()
+            Solon.context().getBean(JobExecutor.class).add(new JobInfo()
                     .setId(String.valueOf(jobInfoDO.getId()))
                     .setName(jobInfoDO.getHandler())
                     .setDesc(jobInfoDO.getDesc())
@@ -82,13 +85,13 @@ public class JobInfoService implements IJobSource {
                     .setEnable(true)
             );
         } else {
-            BeanManager.getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
+            Solon.context().getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
         }
         return new JobInfoUpdateEnableStatusRes();
     }
 
     public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
-        BeanManager.getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
+        Solon.context().getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
         return new JobInfoExecuteRes();
     }
 

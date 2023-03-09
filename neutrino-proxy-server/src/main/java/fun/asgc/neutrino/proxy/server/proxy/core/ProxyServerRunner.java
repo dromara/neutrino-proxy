@@ -22,12 +22,6 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Bean;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.context.ApplicationRunner;
-import fun.asgc.neutrino.core.context.Environment;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.proxy.core.ProxyMessageDecoder;
 import fun.asgc.neutrino.proxy.core.ProxyMessageEncoder;
@@ -41,8 +35,15 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.event.AppLoadEndEvent;
+import org.noear.solon.core.event.EventListener;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
 import java.io.InputStream;
 import java.security.KeyStore;
 
@@ -52,24 +53,29 @@ import java.security.KeyStore;
  * @date: 2022/6/16
  */
 @Slf4j
-@NonIntercept
 @Component
-public class ProxyServerRunner implements ApplicationRunner {
-	@Autowired
+public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
+	@Inject
 	private ProxyConfig proxyConfig;
-	@Autowired("serverBossGroup")
+	@Inject("serverBossGroup")
 	private NioEventLoopGroup serverBossGroup;
-	@Autowired("serverWorkerGroup")
+	@Inject("serverWorkerGroup")
 	private NioEventLoopGroup serverWorkerGroup;
-	@Autowired
-	private Environment environment;
-
+	@Inject("${neutrino.proxy.server.port}")
+	private Integer port;
+	@Inject("${neutrino.proxy.server.ssl-port}")
+	private Integer sslPort;
+	@Inject("${neutrino.proxy.server.jks-path}")
+	private String jksPath;
+	@Inject("${neutrino.proxy.server.key-store-password}")
+	private String keyStorePassword;
+	@Inject("${neutrino.proxy.server.key-manager-password}")
+	private String keyManagerPassword;
 	@Override
-	public void run(String[] args) {
+	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
 		startProxyServer();
 		startProxyServerForSSL();
 	}
-
 	/**
 	 * 启动代理服务
 	 */
@@ -83,7 +89,6 @@ public class ProxyServerRunner implements ApplicationRunner {
 			}
 		});
 		try {
-			Integer port = environment.getMainArgsForInteger("neutrino.proxy.server.port", proxyConfig.getServer().getPort());
 			bootstrap.bind(port).sync();
 			log.info("代理服务启动，端口：{}", port);
 		} catch (Exception e) {
@@ -92,7 +97,6 @@ public class ProxyServerRunner implements ApplicationRunner {
 	}
 
 	private void startProxyServerForSSL() {
-		Integer sslPort = environment.getMainArgsForInteger("neutrino.proxy.server.ssl-port", proxyConfig.getServer().getSslPort());
 		if (null == sslPort) {
 			return;
 		}
@@ -115,15 +119,12 @@ public class ProxyServerRunner implements ApplicationRunner {
 
 	private ChannelHandler createSslHandler() {
 		try {
-			String jksPath = environment.getMainArgsForString("neutrino.proxy.server.jks-path", proxyConfig.getServer().getJksPath());
 			InputStream jksInputStream = FileUtil.getInputStream(jksPath);
 			SSLContext serverContext = SSLContext.getInstance("TLS");
 			final KeyStore ks = KeyStore.getInstance("JKS");
 
-			String keyStorePassword = environment.getMainArgsForString("neutrino.proxy.server.key-store-password", proxyConfig.getServer().getKeyStorePassword());
 			ks.load(jksInputStream, keyStorePassword.toCharArray());
 			final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			String keyManagerPassword = environment.getMainArgsForString("neutrino.proxy.server.key-manager-password", proxyConfig.getServer().getKeyManagerPassword());
 			kmf.init(ks, keyManagerPassword.toCharArray());
 			TrustManager[] trustManagers = null;
 
@@ -148,15 +149,5 @@ public class ProxyServerRunner implements ApplicationRunner {
 		ch.pipeline().addLast(new ProxyMessageEncoder());
 		ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
 		ch.pipeline().addLast(new ServerChannelHandler());
-	}
-
-	@Bean
-	public NioEventLoopGroup serverBossGroup() {
-		return new NioEventLoopGroup();
-	}
-
-	@Bean
-	public NioEventLoopGroup serverWorkerGroup() {
-		return new NioEventLoopGroup();
 	}
 }

@@ -21,11 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import fun.asgc.neutrino.core.annotation.Configuration;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.annotation.Value;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import lombok.Data;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  * sqlite数据库配置
@@ -33,35 +32,33 @@ import lombok.Data;
  * @date: 2022/7/31
  */
 @Data
-@NonIntercept
-@Configuration(prefix = "neutrino.data.db")
+@Component
 public class DbConfig {
 	/**
 	 * 数据库类型
 	 * {@link DbTypeEnum}
 	 */
-	@Value("type")
+	@Inject("${neutrino.data.db.type}")
 	private String type;
 	/**
 	 * 连接url
 	 */
-	@Value("url")
+	@Inject("${neutrino.data.db.url}")
 	private String url;
 	/**
 	 * 驱动类
 	 */
-	@Value("driver-class")
+	@Inject("${neutrino.data.db.driver-class}")
 	private String driverClass;
 
 	/**
 	 * 用户名
 	 */
-	@Value("username")
+	@Inject("${neutrino.data.db.username}")
 	private String username;
-
 	/**
 	 * 密码
 	 */
-	@Value("password")
+	@Inject("${neutrino.data.db.password}")
 	private String password;
 }

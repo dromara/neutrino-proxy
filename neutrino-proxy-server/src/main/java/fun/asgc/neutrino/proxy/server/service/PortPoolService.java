@@ -21,9 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -37,6 +34,8 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusR
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
@@ -46,13 +45,12 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
-@NonIntercept
 @Component
 public class PortPoolService {
 
-	@Autowired
+	@Inject
 	private PortPoolMapper portPoolMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {

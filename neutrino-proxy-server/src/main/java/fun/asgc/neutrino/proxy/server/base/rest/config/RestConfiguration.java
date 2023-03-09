@@ -22,10 +22,11 @@
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.base.Ordered;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
+import org.noear.solon.annotation.Bean;
+import org.noear.solon.annotation.Configuration;
+import org.noear.solon.annotation.Inject;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 
@@ -36,13 +37,12 @@ import javax.sql.DataSource;
  *author: aoshiguchen
  * @date: 2022/8/1
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
-@Component
+@Configuration
 public class RestConfiguration {
-	@Autowired
+	@Inject
 	private DbConfig dbConfig;
 
-	@Bean
+	@Bean("dataSource")
 	public DataSource dataSource() {
 		DbTypeEnum dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
 		if (DbTypeEnum.SQLITE == dbTypeEnum) {
@@ -68,8 +68,8 @@ public class RestConfiguration {
 	}
 
 	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(dataSource());
+	public JdbcTemplate jdbcTemplate(@Inject("dataSource") DataSource dataSource) {
+		return new JdbcTemplate(dataSource);
 	}
 
 }
