@@ -52,3 +52,6 @@
 通过`ProxyChannel`向服务端发送`Transfer`指令，并携带响应数据。
 - 5.4、服务端通过`ProxyChannel`收到来自客户端的`Transfer`指令，找到`ProxyChannel`绑定的`VisitorChannel`，
 通过`VisitorChannel`向用户端写入响应数据。
+
+# 请求流程图
+![流程图](../assets/flowchart.jpg)
