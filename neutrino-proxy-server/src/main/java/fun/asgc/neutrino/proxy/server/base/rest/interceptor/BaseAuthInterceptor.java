@@ -7,6 +7,7 @@ import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.core.handle.Action;
@@ -67,6 +68,18 @@ public class BaseAuthInterceptor implements RouterInterceptor {
         SystemContextHolder.remove();
         if (result instanceof ResponseBody) {
             return result;
+        }
+        if (result instanceof ServiceException) {
+            ServiceException exception = (ServiceException) result;
+            return new ResponseBody<>()
+                    .setCode(exception.getCode())
+                    .setMsg(exception.getMsg());
+        }
+        if (result instanceof Throwable) {
+            new ResponseBody<>()
+                    .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
+                    .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())
+                    .setStack(ExceptionUtils.getStackTrace((Throwable) result));
         }
         return new ResponseBody<>()
                 .setCode(0)
