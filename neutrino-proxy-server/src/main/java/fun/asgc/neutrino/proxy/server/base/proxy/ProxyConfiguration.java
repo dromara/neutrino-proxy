@@ -42,11 +42,8 @@ import java.util.List;
  */
 @Configuration
 public class ProxyConfiguration {
-    @Inject
-    private AopContext aopContext;
-
     @Bean
-    public void dispatcher() {
+    public void dispatcher(@Inject AopContext aopContext) {
         aopContext.lifecycle(() -> {
             List<ProxyMessageHandler> list = aopContext.getBeansOfType(ProxyMessageHandler.class);
             Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("消息调度器", list,
