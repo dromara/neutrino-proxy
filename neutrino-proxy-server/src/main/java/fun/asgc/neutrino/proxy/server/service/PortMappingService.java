@@ -199,7 +199,6 @@ public class PortMappingService implements Lifecycle {
 		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
 		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
-			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 
