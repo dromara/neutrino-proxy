@@ -19,25 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.job;
+package fun.asgc.neutrino.proxy.server.base.quartz;
 
-import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
-import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
-import lombok.extern.slf4j.Slf4j;
-import org.noear.solon.annotation.Component;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Slf4j
-@Component
-@JobHandler(name = "DemoJob", cron = "0/10 * * * * ?", param = "{\"a\":1}")
-public class DemoJob implements IJobHandler {
-
-	@Override
-	public void execute(String param) throws Exception {
-		System.out.println("DemoJob execute param:" + param);
-	}
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JobHandler {
+	String name();
+	String desc() default "";
+	String cron();
+	String param() default "";
 }

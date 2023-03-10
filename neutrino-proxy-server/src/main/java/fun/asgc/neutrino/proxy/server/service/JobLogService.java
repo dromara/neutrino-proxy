@@ -23,8 +23,8 @@ package fun.asgc.neutrino.proxy.server.service;
 
 import fun.asgc.neutrino.core.db.page.Page;
 import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.quartz.IJobCallback;
-import fun.asgc.neutrino.core.quartz.JobInfo;
+import fun.asgc.neutrino.proxy.server.base.quartz.IJobCallback;
+import fun.asgc.neutrino.proxy.server.base.quartz.JobInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;

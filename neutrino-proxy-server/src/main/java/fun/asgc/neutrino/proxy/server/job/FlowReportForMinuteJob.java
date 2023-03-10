@@ -21,19 +21,18 @@
  */
 package fun.asgc.neutrino.proxy.server.job;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.quartz.IJobHandler;
-import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
+import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
 import fun.asgc.neutrino.proxy.server.dal.FlowReportMinuteMapper;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.service.FlowReportService;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.*;
 import java.util.function.Function;
@@ -45,16 +44,15 @@ import java.util.stream.Collectors;
  * @date: 2022/10/24
  */
 @Slf4j
-@NonIntercept
 @Component
 @JobHandler(name = "FlowReportForMinuteJob", cron = "0 */1 * * * ?", param = "")
 public class FlowReportForMinuteJob implements IJobHandler {
 
-    @Autowired
+    @Inject
     private FlowReportService flowReportService;
-    @Autowired
+    @Inject
     private LicenseMapper licenseMapper;
-    @Autowired
+    @Inject
     private FlowReportMinuteMapper flowReportMinuteMapper;
 
     @Override

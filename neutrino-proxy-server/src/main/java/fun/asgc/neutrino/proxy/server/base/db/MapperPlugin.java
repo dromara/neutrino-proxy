@@ -1,4 +1,4 @@
-package fun.asgc.neutrino.proxy.server.db;
+package fun.asgc.neutrino.proxy.server.base.db;
 
 import fun.asgc.neutrino.core.aop.Aop;
 import fun.asgc.neutrino.proxy.server.dal.*;

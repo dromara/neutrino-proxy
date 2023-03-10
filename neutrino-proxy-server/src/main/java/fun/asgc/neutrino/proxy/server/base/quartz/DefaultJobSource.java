@@ -19,25 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.job;
+package fun.asgc.neutrino.proxy.server.base.quartz;
 
-import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
-import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
-import lombok.extern.slf4j.Slf4j;
-import org.noear.solon.annotation.Component;
+import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.util.BeanManager;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
+
+import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Slf4j
-@Component
-@JobHandler(name = "DemoJob", cron = "0/10 * * * * ?", param = "{\"a\":1}")
-public class DemoJob implements IJobHandler {
+public class DefaultJobSource implements IJobSource {
 
 	@Override
-	public void execute(String param) throws Exception {
-		System.out.println("DemoJob execute param:" + param);
+	public List<JobInfo> sourceList() {
+		List<IJobHandler> jobHandlerList = BeanManager.getBeanListBySuperClass(IJobHandler.class);
+		if (CollectionUtil.isEmpty(jobHandlerList)) {
+			return Lists.newArrayList();
+		}
+		List<JobInfo> jobInfoList = Lists.newArrayList();
+		for (IJobHandler jobHandler : jobHandlerList) {
+			JobHandler handler = jobHandler.getClass().getAnnotation(JobHandler.class);
+			if (null == handler || StringUtil.isEmpty(handler.name()) || StringUtil.isEmpty(handler.cron())) {
+				continue;
+			}
+			jobInfoList.add(new JobInfo()
+				.setId(handler.name())
+				.setName(handler.name())
+				.setDesc(handler.desc())
+				.setCron(handler.cron())
+				.setParam(handler.param())
+				.setEnable(true)
+			);
+		}
+		return jobInfoList;
 	}
+
 }

@@ -21,23 +21,25 @@
  */
 package fun.asgc.neutrino.proxy.server.base.rest.config;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Bean;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.quartz.JobExecutor;
+import fun.asgc.neutrino.proxy.server.base.quartz.JobExecutor;
 import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
+import org.noear.solon.annotation.Bean;
+import org.noear.solon.annotation.Configuration;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.event.AppLoadEndEvent;
+import org.noear.solon.core.event.EventBus;
 
 /**
  * 定时任务配置
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Component
+@Configuration
 public class JobConfig {
-	@Autowired
+	@Inject
 	private JobLogService jobLogService;
-	@Autowired
+	@Inject
 	private JobInfoService jobInfoService;
 
 	@Bean
@@ -45,6 +47,7 @@ public class JobConfig {
 		JobExecutor executor = new JobExecutor();
 		executor.setJobSource(jobInfoService);
 		executor.setJobCallback(jobLogService);
+		EventBus.subscribe(AppLoadEndEvent.class, executor);
 		return executor;
 	}
 }

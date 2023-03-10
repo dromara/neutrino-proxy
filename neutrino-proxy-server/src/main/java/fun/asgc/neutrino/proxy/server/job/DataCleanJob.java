@@ -22,17 +22,16 @@
 package fun.asgc.neutrino.proxy.server.job;
 
 import com.alibaba.fastjson.JSONObject;
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.quartz.IJobHandler;
-import fun.asgc.neutrino.core.quartz.annotation.JobHandler;
 import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
+import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
 import fun.asgc.neutrino.proxy.server.dal.DataCleanMapper;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,11 +43,10 @@ import java.util.Date;
  * @date: 2022/9/17
  */
 @Slf4j
-@NonIntercept
 @Component
 @JobHandler(name = "DataCleanJob", cron = "0 0 1 * * ?")
 public class DataCleanJob implements IJobHandler {
-    @Autowired
+    @Inject
     private DataCleanMapper dataCleanMapper;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
