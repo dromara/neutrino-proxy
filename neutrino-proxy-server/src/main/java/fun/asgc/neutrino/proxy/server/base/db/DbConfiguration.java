@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Bean;
@@ -46,11 +45,6 @@ public class DbConfiguration {
         }
 
         return null;
-    }
-
-    @Bean
-    public JdbcTemplate jdbcTemplate(@Inject("db") DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
     }
 
     @Bean
