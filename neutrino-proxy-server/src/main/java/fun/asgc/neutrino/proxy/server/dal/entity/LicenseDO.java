@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
@@ -50,6 +51,7 @@ public class LicenseDO {
 	/**
 	 * licenseKey
 	 */
+	@TableField("`key`")
 	private String key;
 	/**
 	 * 用户ID

@@ -22,7 +22,7 @@
 package fun.asgc.neutrino.proxy.server.base.db;
 
 import com.google.common.collect.Lists;
-import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import com.jfinal.plugin.activerecord.Db;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
@@ -48,9 +48,12 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping", "job_info");
 	@Inject
 	private DbConfig dbConfig;
-	@Inject
-	private JdbcTemplate jdbcTemplate;
 	private DbTypeEnum dbTypeEnum;
+//	@Inject
+//	private JdbcTemplate jdbcTemplate;
+//	@Inject
+//	private DataSource dataSource;
+
 
 	@Init
 	public void init() throws Throwable {
@@ -84,7 +87,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 			sql += "\r\n" + line.trim();
 			if (sql.endsWith(";")) {
 				log.debug("初始化数据库表 sql:{}", sql);
-				jdbcTemplate.update(sql);
+				Db.update(sql);
 				sql = "";
 			}
 		}
@@ -101,7 +104,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		for (String tableName : initDataTableNameList) {
 			// 表里没有数据的时候，才进行初始化操作
 
-			int count = jdbcTemplate.queryForInt(String.format("select count(1) from `%s`", tableName));
+			int count = Db.queryInt(String.format("select count(1) from `%s`", tableName));
 			if (count > 0) {
 				continue;
 			}
@@ -117,7 +120,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 				sql += "\r\n" + line.trim();
 				if (sql.endsWith(";")) {
 					log.debug("初始化数据[table={}] sql:{}", tableName, sql);
-					jdbcTemplate.update(sql);
+					Db.update(sql);
 					sql = "";
 				}
 			}
