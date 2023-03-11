@@ -1,34 +1,10 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-package fun.asgc.neutrino.proxy.server.base.quartz;
+package fun.asgc.solon.extend.job.impl;
 
-import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.base.CustomThreadFactory;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.noear.snack.core.utils.StringUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import fun.asgc.solon.extend.job.*;
+import fun.asgc.solon.extend.job.annotation.JobHandler;
 import org.noear.solon.Solon;
-import org.noear.solon.core.event.AppLoadEndEvent;
-import org.noear.solon.core.event.EventListener;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -45,31 +21,21 @@ import java.util.concurrent.TimeUnit;
  * @author: aoshiguchen
  * @date: 2022/9/4
  */
-@Slf4j
-public class JobExecutor implements IJobExecutor, EventListener<AppLoadEndEvent> {
+public class JobExecutor implements IJobExecutor {
 	private IJobSource jobSource;
 	private ThreadPoolExecutor threadPoolExecutor;
 	private Map<String, JobInfo> jobInfoMap = new ConcurrentHashMap<>();
 	private SchedulerFactory schedulerFactory;
 	private Scheduler scheduler;
 	private Map<String, IJobHandler> jobHandlerMap = new ConcurrentHashMap<>();
-	private Set<String> runJobSet = Sets.newHashSet();
+	private Set<String> runJobSet = CollectionUtil.newHashSet();
 	private IJobCallback jobCallback;
 	private Map<String, TriggerKey> triggerKeyMap = new ConcurrentHashMap<>();
 
-	@Override
-	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-		start();
-	}
-
 	public void start() {
-		Boolean enableJob = Solon.cfg().getBool("neutrino.job.enable", false);
-		if (!enableJob || null == jobSource) {
-			return;
-		}
 		if (null == threadPoolExecutor) {
 			threadPoolExecutor = new ThreadPoolExecutor(5, 20, 10L, TimeUnit.SECONDS,
-					new LinkedBlockingQueue<>(), new CustomThreadFactory("DefaultJobPool"));
+					new LinkedBlockingQueue<>(), new CustomThreadFactory("SolonJob"));
 		}
 
 		List<IJobHandler> jobHandlerList = Solon.context().getBeansOfType(IJobHandler.class);
@@ -88,7 +54,7 @@ public class JobExecutor implements IJobExecutor, EventListener<AppLoadEndEvent>
 			this.scheduler = schedulerFactory.getScheduler();
 			this.init();
 		} catch (Exception e){
-			throw new JobException("job初始化异常");
+			throw new RuntimeException("job初始化异常");
 		}
 	}
 
@@ -105,7 +71,7 @@ public class JobExecutor implements IJobExecutor, EventListener<AppLoadEndEvent>
 	}
 
 	@Override
-	public void init() throws JobException {
+	public void init() throws Exception {
 		List<JobInfo> jobInfoList = jobSource.sourceList();
 		if (CollectionUtil.isEmpty(jobInfoList)) {
 			return;
@@ -114,13 +80,12 @@ public class JobExecutor implements IJobExecutor, EventListener<AppLoadEndEvent>
 		for (JobInfo jobInfo : jobInfoList) {
 			add(jobInfo);
 		}
-		log.info("Job初始化完成.");
 	}
 
 	@Override
-	public void add(JobInfo jobInfo) throws JobException {
-		if (null == jobInfo || StringUtil.isEmpty(jobInfo.getId()) || StringUtil.isEmpty(jobInfo.getName()) ||
-				StringUtil.isEmpty(jobInfo.getCron())) {
+	public void add(JobInfo jobInfo) {
+		if (null == jobInfo || StrUtil.isEmpty(jobInfo.getId()) || StrUtil.isEmpty(jobInfo.getName()) ||
+				StrUtil.isEmpty(jobInfo.getCron())) {
 			return;
 		}
 		synchronized (jobInfo.getId()) {

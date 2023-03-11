@@ -23,12 +23,12 @@ package fun.asgc.neutrino.proxy.server.job;
 
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.DateUtil;
-import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
-import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
 import fun.asgc.neutrino.proxy.server.dal.*;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportDayDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMonthDO;
 import fun.asgc.neutrino.proxy.server.service.FlowReportService;
+import fun.asgc.solon.extend.job.IJobHandler;
+import fun.asgc.solon.extend.job.annotation.JobHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
