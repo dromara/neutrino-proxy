@@ -25,6 +25,25 @@
             <version>2.2.1</version>
         </dependency>
         <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>mybatis-pagehelper-solon-plugin</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+        <!--orika-->
+        <dependency>
+            <groupId>ma.glasnost.orika</groupId>
+            <artifactId>orika-core</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>fun.asgc</groupId>
+            <artifactId>orika-solon-plugin</artifactId>
+            <version>2.2.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../_solon_plugin/orika-solon-plugin/pom.xml</systemPath>
+        </dependency>
+
+        <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>

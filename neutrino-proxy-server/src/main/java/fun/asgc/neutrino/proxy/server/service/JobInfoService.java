@@ -21,10 +21,13 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.quartz.IJobSource;
 import fun.asgc.neutrino.proxy.server.base.quartz.JobExecutor;
 import fun.asgc.neutrino.proxy.server.base.quartz.JobInfo;
@@ -42,6 +45,7 @@ import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFactory;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -58,12 +62,17 @@ import java.util.List;
 @Component
 public class JobInfoService implements IJobSource {
     @Inject
+    private MapperFactory mapperFactory;
+    @Inject
     private JobInfoMapper jobInfoMapper;
 
-    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
-        Page<JobInfoListRes> page = Page.create(pageQuery);
-        jobInfoMapper.page(page, req);
-        return page;
+    public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+        Page<JobInfoListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        List<JobInfoDO> list = jobInfoMapper.selectList(new LambdaQueryWrapper<JobInfoDO>()
+                .orderByAsc(JobInfoDO::getId)
+        );
+        List<JobInfoListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, JobInfoListRes.class);
+        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public List<JobInfoDO> findList() {

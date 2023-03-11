@@ -21,18 +21,20 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-
-public interface FlowReportMinuteMapper {
+@Mapper
+public interface FlowReportMinuteMapper extends BaseMapper<FlowReportMinuteDO> {
     @Select("select * from flow_report_minute where license_id = :licenseId and date = :date")
     FlowReportMinuteDO findOne(@Param("licenseId") Integer licenseId, @Param("date") String date);
 

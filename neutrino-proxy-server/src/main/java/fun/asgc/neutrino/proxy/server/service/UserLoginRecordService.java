@@ -21,14 +21,20 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
+import ma.glasnost.orika.MapperFactory;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -46,24 +52,33 @@ import java.util.stream.Collectors;
 @Component
 public class UserLoginRecordService {
     @Inject
+    private MapperFactory mapperFactory;
+    @Inject
     private UserLoginRecordMapper userLoginRecordMapper;
     @Inject
     private UserMapper userMapper;
 
-    public Page<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
-        Page<UserLoginRecordListRes> page = Page.create(pageQuery);
-        userLoginRecordMapper.page(page, req);
-        if (!CollectionUtil.isEmpty(page.getRecords())) {
-            Set<Integer> userIds = page.getRecords().stream().map(UserLoginRecordListRes::getUserId).collect(Collectors.toSet());
+    public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
+        Page<UserLoginRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        List<UserLoginRecordDO> list = userLoginRecordMapper.selectList(new LambdaQueryWrapper<UserLoginRecordDO>()
+                .orderByDesc(UserLoginRecordDO::getCreateTime)
+        );
+        List<UserLoginRecordListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, UserLoginRecordListRes.class);
+        if (CollectionUtils.isEmpty(list)) {
+            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        }
+
+        if (!CollectionUtil.isEmpty(respList)) {
+            Set<Integer> userIds = respList.stream().map(UserLoginRecordListRes::getUserId).collect(Collectors.toSet());
             List<UserDO> userList = userMapper.findByIds(userIds);
             Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-            for (UserLoginRecordListRes item : page.getRecords()) {
+            for (UserLoginRecordListRes item : respList) {
                 UserDO userDO = userMap.get(item.getUserId());
                 if (null != userDO) {
                     item.setUserName(userDO.getName());
                 }
             }
         }
-        return page;
+        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 }

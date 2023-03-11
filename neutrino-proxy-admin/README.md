@@ -62,7 +62,7 @@ You need to install [node](http://nodejs.org/) and [git](https://git-scm.com/) l
 - Dynamic breadcrumb
 - I18n
 - Customizable theme
-- Tags-view(Tab page Support right-click operation)
+- Tags-view(Tab pageInfo Support right-click operation)
 - Rich text editor
 - Markdown editor
 - JSON editor
@@ -73,7 +73,7 @@ You need to install [node](http://nodejs.org/) and [git](https://git-scm.com/) l
 - Mock data
 - Echarts
 - Clipboard
-- 401/404 error page
+- 401/404 error pageInfo
 - Error log
 - Export excel
 - Export zip

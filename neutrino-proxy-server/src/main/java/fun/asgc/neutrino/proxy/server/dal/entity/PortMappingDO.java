@@ -21,6 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import fun.asgc.neutrino.core.db.annotation.Id;
 import fun.asgc.neutrino.core.db.annotation.Table;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
@@ -39,8 +41,10 @@ import java.util.Date;
 @Accessors(chain = true)
 @Data
 @Table("port_mapping")
+@TableName("port_mapping")
 public class PortMappingDO {
 	@Id
+	@TableId
 	private Integer id;
 	/**
 	 * licenseId

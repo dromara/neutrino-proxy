@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
@@ -79,7 +79,7 @@ public class ReportController {
      */
     @Get
     @Mapping("/user/flow-report/page")
-    public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
+    public PageInfo<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
         return reportService.userFlowReportPage(pageQuery, req);
@@ -93,7 +93,7 @@ public class ReportController {
      */
     @Get
     @Mapping("/license/flow-report/page")
-    public Page<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
+    public PageInfo<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
         return reportService.licenseFlowReportPage(pageQuery, req);

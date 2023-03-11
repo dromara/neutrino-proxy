@@ -21,10 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
@@ -43,6 +47,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import ma.glasnost.orika.MapperFactory;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
@@ -62,6 +67,8 @@ import java.util.stream.Collectors;
 @Component
 public class PortMappingService implements Lifecycle {
 	@Inject
+	private MapperFactory mapperFactory;
+	@Inject
 	private PortMappingMapper portMappingMapper;
 	@Inject
 	private LicenseMapper licenseMapper;
@@ -72,25 +79,25 @@ public class PortMappingService implements Lifecycle {
 	@Inject
 	private VisitorChannelService visitorChannelService;
 
-	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
-		Page<PortMappingListRes> page = Page.create(pageQuery);
-		portMappingMapper.page(page, req);
-		if (CollectionUtil.isEmpty(page.getRecords())) {
-			return page;
+	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
+		Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<PortMappingDO> list = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
+				.orderByAsc(PortMappingDO::getId)
+		);
+		List<PortMappingListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, PortMappingListRes.class);
+		if (CollectionUtils.isEmpty(list)) {
+			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 		}
-		Set<Integer> licenseIds = page.getRecords().stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
-		if (CollectionUtil.isEmpty(licenseIds)) {
-			return page;
-		}
+		Set<Integer> licenseIds = respList.stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
 		List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
 		if (CollectionUtil.isEmpty(licenseList)) {
-			return page;
+			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 		}
 		Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
 		List<UserDO> userList = userMapper.findByIds(userIds);
 		Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
 		Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-		page.getRecords().forEach(item -> {
+		respList.forEach(item -> {
 			LicenseDO license = licenseMap.get(item.getLicenseId());
 			if (null == license) {
 				return;
@@ -103,7 +110,7 @@ public class PortMappingService implements Lifecycle {
 			}
 			item.setUserName(user.getName());
 		});
-		return page;
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 	public PortMappingCreateRes create(PortMappingCreateReq req) {

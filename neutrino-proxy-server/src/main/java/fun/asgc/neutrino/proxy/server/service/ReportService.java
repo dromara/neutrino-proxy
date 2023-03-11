@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
@@ -48,7 +48,7 @@ public class ReportService {
      * @param req
      * @return
      */
-    public Page<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
+    public PageInfo<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
         // TODO
         return null;
     }
@@ -59,7 +59,7 @@ public class ReportService {
      * @param req
      * @return
      */
-    public Page<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
+    public PageInfo<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
         // TODO
         return null;
     }

@@ -21,6 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
@@ -28,10 +31,11 @@ import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -44,14 +48,15 @@ import java.util.Set;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface LicenseMapper {
+@Mapper
+public interface LicenseMapper extends BaseMapper<LicenseDO> {
 
 	/**
 	 * 查询license分页
-	 * @param page
+	 * @param pageInfo
 	 * @param req
 	 */
-	void page(Page page, LicenseListReq req);
+	void page(PageInfo pageInfo, LicenseListReq req);
 
 	@ResultType(LicenseListRes.class)
 	@Select("select * from license where enable = 1")
@@ -75,7 +80,13 @@ public interface LicenseMapper {
 	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
 
 	@Update("update `license` set is_online = :isOnline, update_time = :updateTime where id = :id")
-	void updateOnlineStatus(@Param("id") Integer id, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default void updateOnlineStatus(@Param("id") Integer id, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.eq(LicenseDO::getId, id)
+				.set(LicenseDO::getIsOnline, isOnline)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
 	@Update("update `license` set is_online = :isOnline, update_time = :updateTime")
 	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
@@ -94,7 +105,9 @@ public interface LicenseMapper {
 
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where id in (:ids)")
-	List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids);
+	default List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids) {
+		return selectBatchIds(ids);
+	}
 
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where user_id = :userId and name =:name limit 0,1")
@@ -105,5 +118,9 @@ public interface LicenseMapper {
 	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name, @Param("excludeIds") Set<Integer> excludeIds);
 
 	@Select("select * from `license` where `key` = ?")
-	LicenseDO findByKey(String licenseKey);
+	default LicenseDO findByKey(String licenseKey) {
+		return selectOne(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getKey, licenseKey)
+		);
+	}
 }

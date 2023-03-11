@@ -22,10 +22,10 @@
 package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
@@ -49,7 +49,7 @@ public class PortMappingController {
 
 	@Get
 	@Mapping("/page")
-	public Page<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
+	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portMappingService.page(pageQuery, req);

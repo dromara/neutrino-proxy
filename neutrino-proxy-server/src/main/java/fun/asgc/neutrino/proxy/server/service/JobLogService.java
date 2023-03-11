@@ -21,8 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.quartz.IJobCallback;
 import fun.asgc.neutrino.proxy.server.base.quartz.JobInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
@@ -30,11 +33,13 @@ import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -44,6 +49,8 @@ import java.util.Date;
 @Slf4j
 @Component
 public class JobLogService implements IJobCallback {
+	@Inject
+	private MapperFactory mapperFactory;
 	@Inject
 	private JobLogMapper jobLogMapper;
 
@@ -70,15 +77,14 @@ public class JobLogService implements IJobCallback {
 		);
 	}
 
-	public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
-		Page<JobLogListRes> page = Page.create(pageQuery);
-
-		if(req.getJobId() != null && req.getJobId() > 0){
-			jobLogMapper.pageByJobId(page, req);
-		} else {
-			jobLogMapper.page(page, req);
-		}
-		return page;
+	public PageInfo<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+		Page<JobLogListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<JobLogDO> list = jobLogMapper.selectList(new LambdaQueryWrapper<JobLogDO>()
+				.eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
+				.orderByDesc(JobLogDO::getId)
+		);
+		List<JobLogListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, JobLogListRes.class);
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 }

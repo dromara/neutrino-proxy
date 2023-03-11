@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace = "fun.asgc.neutrino.proxy.server.dal.LicenseMapper">
 
-    <select id="page" resultType="fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes">
+    <select id="pageInfo" resultType="fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes">
         select * from `license`
     </select>
 

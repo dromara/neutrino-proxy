@@ -1,9 +1,14 @@
 package fun.asgc.neutrino.proxy.server.base.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
@@ -19,7 +24,7 @@ import javax.sql.DataSource;
 @Configuration
 public class DbConfiguration {
 
-    @Bean(value = "dataSource", typed = true)
+    @Bean(value = "db", typed = true)
     public DataSource dataSource(@Inject DbConfig dbConfig) {
         DbTypeEnum dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
         if (DbTypeEnum.SQLITE == dbTypeEnum) {
@@ -45,7 +50,25 @@ public class DbConfiguration {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(@Inject("dataSource") DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(@Inject("db") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
+
+    @Bean
+    public void db1_ext(@Db("db") GlobalConfig globalConfig) {
+        MetaObjectHandler metaObjectHandler = new MetaObjectHandlerImpl();
+        globalConfig.setMetaObjectHandler(metaObjectHandler);
+    }
+
+    @Bean
+    public void db1_ext2(@Db("db") MybatisConfiguration config){
+        config.getTypeHandlerRegistry().register("fun.asgc.neutrino.proxy.server.dal");
+        config.setDefaultEnumTypeHandler(null);
+    }
+
+    @Bean
+    public MybatisSqlSessionFactoryBuilder factoryBuilderNew(){
+        return new MybatisSqlSessionFactoryBuilderImpl();
+    }
+
 }

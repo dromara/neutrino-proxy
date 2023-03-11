@@ -19,11 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.core.db.page;
+package fun.asgc.neutrino.proxy.server.base.page;
 
 import lombok.Data;
 
-import java.util.List;
+import java.io.Serializable;
 
 /**
  *
@@ -31,20 +31,13 @@ import java.util.List;
  * @date: 2022/8/6
  */
 @Data
-public class Page<T> extends PageQuery {
+public class PageQuery implements Serializable {
 	/**
-	 * 数据总数
+	 * 当前页
 	 */
-	private Long total;
+	private int current = 1;
 	/**
-	 * 结果数据
+	 * 分页大小
 	 */
-	private List<T> records;
-
-	public static <T> Page<T> create(PageQuery pageQuery) {
-		Page page = new Page();
-		page.setPageSize(pageQuery.getPageSize());
-		page.setCurrentPage(pageQuery.getCurrentPage());
-		return page;
-	}
+	private int size = 10;
 }

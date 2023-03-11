@@ -27,7 +27,7 @@ import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.db.mapper.SqlParser;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.Assert;
@@ -71,14 +71,14 @@ public class SqlMapperInterceptor implements Interceptor {
 					res = jdbcTemplate.queryForListByMap(resultComponentType, sql, (Map)params);
 				}
 			} else {
-				if (Page.class.isAssignableFrom(inv.getTargetMethod().getParameters()[0].getType())) {
+				if (PageInfo.class.isAssignableFrom(inv.getTargetMethod().getParameters()[0].getType())) {
 					// 分页查询 TODO 此处暂时临时处理，假设后面的参数是一个DO对象
-					Page page = (Page) inv.getArgs()[0];
-					int offset = (page.getCurrentPage() - 1) * page.getPageSize();
+					PageInfo pageInfo = (PageInfo) inv.getArgs()[0];
+					int offset = (pageInfo.getCurrent() - 1) * pageInfo.getSize();
 					long total = jdbcTemplate.queryForLongByModel(String.format("select count(1) from (%s) T", sql), inv.getArgs()[1]);
-					List resultList = jdbcTemplate.queryForListByModel(resultComponentType, String.format("%s limit %s,%s", sql, offset, page.getPageSize()), inv.getArgs()[1]);
-					page.setTotal(total);
-					page.setRecords(resultList);
+					List resultList = jdbcTemplate.queryForListByModel(resultComponentType, String.format("%s limit %s,%s", sql, offset, pageInfo.getSize()), inv.getArgs()[1]);
+					pageInfo.setTotal(total);
+					pageInfo.setRecords(resultList);
 				} else {
 					Object params = getParams(inv);
 					if (null == params || params.getClass().isArray()) {

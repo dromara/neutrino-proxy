@@ -47,12 +47,12 @@
     </el-table>
     <div class="pagination-end" v-if="isPagination">
       <el-pagination
-        :hide-on-single-page="false"
+        :hide-on-single-pageInfo="false"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="PaginationData.currentPage"
-        :page-sizes="[10, 20, 50, 100]"
-        :page-size="PaginationData.pageSize"
+        :current-pageInfo="PaginationData.currentPage"
+        :pageInfo-sizes="[10, 20, 50, 100]"
+        :pageInfo-size="PaginationData.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="PaginationData.total"
       >

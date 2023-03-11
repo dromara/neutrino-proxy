@@ -37,3 +37,15 @@ solon.staticfiles.maxAge: 600
 solon.staticfiles.mappings:
   - path: "/"
     repository: "./neutrino-proxy-admin/dist/" #2.添加资源路径（仓库只能是目录）
+
+mybatis.db:
+  typeAliases:    #支持包名 或 类名（大写开头 或 *）//支持 ** 或 * 占位符
+    - "fun.asgc.neutrino.proxy.server.dal.entity"
+  mappers:        #支持包名 或 类名（大写开头 或 *）或 xml（.xml结尾）//支持 ** 或 * 占位符
+    - "classpath:mapper/*.xml"
+    - "fun.asgc.neutrino.proxy.server.dal"
+  configuration:   #扩展配置（要与 MybatisConfiguration 类的属性一一对应）
+    cacheEnabled: false
+    mapUnderscoreToCamelCase: true
+  globalConfig:    #全局配置（要与 GlobalConfig 类的属性一一对应）
+    banner: true

@@ -21,7 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import fun.asgc.neutrino.core.db.annotation.Table;
 import lombok.Data;
 import lombok.ToString;
@@ -38,8 +39,9 @@ import java.util.Date;
 @Accessors(chain = true)
 @Data
 @Table("job_log")
+@TableName("job_log")
 public class JobLogDO {
-	@Autowired
+	@TableId
 	private Integer id;
 	private Integer jobId;
 	private String handler;

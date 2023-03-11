@@ -51,8 +51,8 @@
       </el-table-column>
     </el-table>
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.currentPage"
-                     :page-sizes="[10,20,30, 50]" :page-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-pageInfo.sync="listQuery.currentPage"
+                     :pageInfo-sizes="[10,20,30, 50]" :pageInfo-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -171,15 +171,15 @@
         })
       },
       handleFilter() {
-        this.listQuery.currentPage = 1
+        this.listQuery.current = 1
         this.getList()
       },
       handleSizeChange(val) {
-        this.listQuery.pageSize = val
+        this.listQuery.size = val
         this.getList()
       },
       handleCurrentChange(val) {
-        this.listQuery.currentPage = val
+        this.listQuery.current = val
         this.getList()
       },
       handleModifyStatus(row, enable) {

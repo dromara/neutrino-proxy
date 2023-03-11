@@ -21,10 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
@@ -51,7 +51,7 @@ public class PortPoolController {
 
 	@Get
 	@Mapping("/page")
-	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
+	public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portPoolService.page(pageQuery, req);

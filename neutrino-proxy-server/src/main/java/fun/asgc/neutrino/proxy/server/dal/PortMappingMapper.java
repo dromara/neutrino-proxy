@@ -21,6 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
@@ -28,10 +31,12 @@ import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -44,11 +49,12 @@ import java.util.Set;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface PortMappingMapper {
+@Mapper
+public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 
 	@ResultType(PortMappingListRes.class)
 	@Select("select * from port_mapping")
-	void page(Page page, PortMappingListReq req);
+	void page(PageInfo pageInfo, PortMappingListReq req);
 
 	void add(PortMappingDO portMappingDO);
 
@@ -71,7 +77,12 @@ public interface PortMappingMapper {
 
 	@ResultType(PortMappingDO.class)
 	@Select("select * from port_mapping where license_id = ? and enable = 1")
-	List<PortMappingDO> findEnableListByLicenseId(Integer licenseId);
+	default List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
+		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getLicenseId, licenseId)
+				.eq(PortMappingDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+		);
+	}
 
 	@ResultType(PortMappingDO.class)
 	@Select("select * from port_mapping where server_port = :serverPort")
@@ -82,7 +93,14 @@ public interface PortMappingMapper {
 	List<PortMappingDO> findListByLicenseId(Integer licenseId);
 
 	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId and server_port = :serverPort")
-	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getLicenseId, licenseId)
+				.eq(PortMappingDO::getServerPort, serverPort)
+				.set(PortMappingDO::getIsOnline, isOnline)
+				.set(PortMappingDO::getUpdateTime, updateTime)
+		);
+	}
 
 	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId")
 	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);

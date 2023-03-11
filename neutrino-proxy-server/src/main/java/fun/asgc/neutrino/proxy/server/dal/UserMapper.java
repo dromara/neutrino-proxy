@@ -21,14 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.*;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.UserListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -41,7 +44,8 @@ import java.util.Set;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserMapper {
+@Mapper
+public interface UserMapper extends BaseMapper<UserDO> {
 
 	/**
 	 * 根据登录名查询用户记录
@@ -49,7 +53,12 @@ public interface UserMapper {
 	 * @return
 	 */
 	@Select("select * from user where login_name = ?")
-	UserDO findByLoginName(String loginName);
+	default UserDO findByLoginName(String loginName) {
+		return selectOne(new LambdaQueryWrapper<UserDO>()
+				.eq(UserDO::getLoginName, loginName)
+				.last("limit 1")
+		);
+	}
 
 	/**
 	 * 根据id查询单条记录
@@ -57,15 +66,19 @@ public interface UserMapper {
 	 * @return
 	 */
 	@Select("select * from user where id = ?")
-	UserDO findById(Integer id);
+	default UserDO findById(Integer id) {
+		return selectById(id);
+	}
 
 	@ResultType(UserDO.class)
 	@Select("select * from user where id in (:ids)")
-	List<UserDO> findByIds(@Param("ids") Set<Integer> ids);
+	default List<UserDO> findByIds(@Param("ids") Set<Integer> ids) {
+		return selectBatchIds(ids);
+	}
 
 	@ResultType(UserListRes.class)
 	@Select("select * from user")
-	void page(Page page, UserListReq req);
+	void page(PageInfo pageInfo, UserListReq req);
 
 	@ResultType(UserListRes.class)
 	@Select("select * from user where enable = 1")

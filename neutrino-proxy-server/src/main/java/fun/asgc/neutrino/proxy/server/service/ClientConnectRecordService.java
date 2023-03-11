@@ -21,9 +21,13 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
@@ -34,6 +38,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFactory;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -51,6 +56,8 @@ import java.util.stream.Collectors;
 @Component
 public class ClientConnectRecordService {
     @Inject
+    private MapperFactory mapperFactory;
+    @Inject
     private ClientConnectRecordMapper clientConnectRecordMapper;
     @Inject
     private LicenseMapper licenseMapper;
@@ -58,29 +65,29 @@ public class ClientConnectRecordService {
     private UserMapper userMapper;
 
     public void add(ClientConnectRecordDO clientConnectRecordDO) {
-        clientConnectRecordMapper.add(clientConnectRecordDO);
+        clientConnectRecordMapper.insert(clientConnectRecordDO);
     }
 
-    public Page<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
-        Page<ClientConnectRecordListRes> page = Page.create(pageQuery);
-        clientConnectRecordMapper.page(page, req);
-        if (CollectionUtil.isEmpty(page.getRecords())) {
-            return page;
+    public PageInfo<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
+        Page<ClientConnectRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        List<ClientConnectRecordDO> list = clientConnectRecordMapper.selectList(new LambdaQueryWrapper<ClientConnectRecordDO>()
+                .orderByDesc(ClientConnectRecordDO::getId)
+        );
+        List<ClientConnectRecordListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, ClientConnectRecordListRes.class);
+        if (CollectionUtils.isEmpty(list)) {
+            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
-        Set<Integer> licenseIds = page.getRecords().stream().map(ClientConnectRecordListRes::getLicenseId).collect(Collectors.toSet());
-        if (CollectionUtil.isEmpty(licenseIds)) {
-            return page;
-        }
+        Set<Integer> licenseIds = respList.stream().map(ClientConnectRecordListRes::getLicenseId).collect(Collectors.toSet());
         List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
         if (CollectionUtil.isEmpty(licenseList)) {
-            return page;
+            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
         Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
         List<UserDO> userList = userMapper.findByIds(userIds);
         Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
         Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         boolean isAdmin = SystemContextHolder.isAdmin();
-        page.getRecords().forEach(item -> {
+        respList.forEach(item -> {
             LicenseDO license = licenseMap.get(item.getLicenseId());
             if (null == license) {
                 return;
@@ -97,6 +104,6 @@ public class ClientConnectRecordService {
                 item.setMsg("******");
             }
         });
-        return page;
+        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 }

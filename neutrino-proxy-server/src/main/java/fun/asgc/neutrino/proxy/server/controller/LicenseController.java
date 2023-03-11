@@ -21,10 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.core.web.annotation.RequestParam;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
@@ -50,7 +50,7 @@ public class LicenseController {
 
 	@Get
 	@Mapping("/page")
-	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+	public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return licenseService.page(pageQuery, req);

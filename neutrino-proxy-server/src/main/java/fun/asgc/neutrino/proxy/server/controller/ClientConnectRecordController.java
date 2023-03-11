@@ -21,8 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
 import fun.asgc.neutrino.proxy.server.service.ClientConnectRecordService;
@@ -46,7 +46,7 @@ public class ClientConnectRecordController {
 
     @Get
     @Mapping("/page")
-    public Page<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
+    public PageInfo<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return clientConnectRecordService.page(pageQuery, req);
     }

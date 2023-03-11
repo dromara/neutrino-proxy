@@ -21,8 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
@@ -47,7 +47,7 @@ public class JobLogController {
 
     @Get
     @Mapping("/page")
-    public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+    public PageInfo<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return jobLogService.page(pageQuery, req);
     }

@@ -21,8 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.service.UserLoginRecordService;
@@ -44,7 +44,7 @@ public class UserLoginRecordController {
 
     @Get
     @Mapping("/page")
-    public Page<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
+    public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
         return userLoginRecordService.page(pageQuery, req);

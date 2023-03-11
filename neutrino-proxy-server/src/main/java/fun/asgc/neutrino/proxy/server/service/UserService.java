@@ -21,9 +21,12 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -38,6 +41,8 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -55,12 +60,14 @@ import java.util.UUID;
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
 	@Inject
+	private MapperFactory mapperFactory;
+	@Db
 	private UserMapper userMapper;
-	@Inject
+	@Db
 	private UserTokenMapper userTokenMapper;
-	@Inject
+	@Db
 	private UserLoginRecordMapper userLoginRecordMapper;
-	@Inject
+	@Db
 	private VisitorChannelService visitorChannelService;
 
 	public LoginRes login(LoginReq req) {
@@ -77,7 +84,7 @@ public class UserService {
 		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);
 
 		// 缓存token
-		userTokenMapper.add(new UserTokenDO()
+		userTokenMapper.insert(new UserTokenDO()
 			.setToken(token)
 			.setUserId(userDO.getId())
 			.setExpirationTime(expirationTime)
@@ -86,7 +93,7 @@ public class UserService {
 		);
 
 		// 新增用户登录日志
-		userLoginRecordMapper.add(new UserLoginRecordDO()
+		userLoginRecordMapper.insert(new UserLoginRecordDO()
 			.setUserId(userDO.getId())
 			.setIp(SystemContextHolder.getIp())
 			.setToken(token)
@@ -132,10 +139,13 @@ public class UserService {
 		userTokenMapper.updateTokenExpirationTime(token, expirationTime);
 	}
 
-	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
-		Page<UserListRes> page = Page.create(pageQuery);
-		userMapper.page(page, req);
-		return page;
+	public PageInfo<UserListRes> page(PageQuery pageQuery, UserListReq req) {
+		Page<UserListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<UserDO> list = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
+				.orderByAsc(UserDO::getId)
+		);
+		List<UserListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, UserListRes.class);
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 	public List<UserListRes> list(UserListReq req) {

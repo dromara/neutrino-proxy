@@ -1,0 +1,14 @@
+<!--<mapper namespace = "fun.asgc.neutrino.proxy.server.dal.UserReportMapper">-->
+
+<!--    <select id="userFlowReportPage" resultType="fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes">-->
+<!--        SELECT-->
+<!--        u.id AS userId,-->
+<!--        u.NAME AS userName,-->
+<!--        IFNULL( SUM( frm.write_bytes ), 0 ) AS historyWriteBytes,-->
+<!--        IFNULL( SUM( frm.read_bytes ), 0 ) AS historyReadBytes-->
+<!--        FROM `user` u-->
+<!--        LEFT JOIN flow_report_month frm ON u.id = frm.user_id-->
+<!--        GROUP BY u.id-->
+<!--    </select>-->
+
+<!--</mapper>-->

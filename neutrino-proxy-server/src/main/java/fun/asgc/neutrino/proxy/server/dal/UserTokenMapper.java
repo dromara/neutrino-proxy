@@ -21,12 +21,16 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Delete;
 import fun.asgc.neutrino.core.db.annotation.Update;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 
@@ -37,7 +41,8 @@ import java.util.Date;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserTokenMapper {
+@Mapper
+public interface UserTokenMapper extends BaseMapper<UserTokenDO> {
 	/**
 	 * 新增用户token
 	 * 支持注解 + xml配置2种方式
@@ -55,7 +60,12 @@ public interface UserTokenMapper {
 	 * @return
 	 */
 //	@Select("select * from user_token where token = ? and expiration_time > ?")
-	UserTokenDO findByAvailableToken(String token, Date date);
+	default UserTokenDO findByAvailableToken(String token, Date date) {
+		return selectOne(new LambdaQueryWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getToken, token)
+				.gt(UserTokenDO::getExpirationTime, date)
+		);
+	}
 
 	/**
 	 * 根据token删除记录
@@ -65,7 +75,12 @@ public interface UserTokenMapper {
 	void deleteByToken(String token);
 
 	@Update("update user_token set expiration_time = :expirationTime where token = :token")
-	void updateTokenExpirationTime(@Param("token") String token, @Param("expirationTime") Date expirationTime);
+	default void updateTokenExpirationTime(@Param("token") String token, @Param("expirationTime") Date expirationTime) {
+		update(null, new LambdaUpdateWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getToken, token)
+				.set(UserTokenDO::getExpirationTime, expirationTime)
+		);
+	}
 
 	/**
 	 * 根据userId删除token

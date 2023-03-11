@@ -21,34 +21,23 @@
  */
 package fun.asgc.neutrino.core.db.page;
 
+import lombok.Data;
+
+import java.io.Serializable;
+
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-public class PageQuery {
+@Data
+public class PageQuery implements Serializable {
 	/**
 	 * 当前页
 	 */
-	private int currentPage = 1;
+	private int current = 1;
 	/**
 	 * 分页大小
 	 */
-	private int pageSize = 10;
-
-	public int getCurrentPage() {
-		return currentPage;
-	}
-
-	public void setCurrentPage(int currentPage) {
-		this.currentPage = currentPage;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+	private int size = 10;
 }

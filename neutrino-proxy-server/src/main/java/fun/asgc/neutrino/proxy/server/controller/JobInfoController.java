@@ -21,9 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
 import fun.asgc.neutrino.core.web.annotation.RequestBody;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
@@ -55,7 +55,7 @@ public class JobInfoController {
 
     @Get
     @Mapping("/page")
-    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+    public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return jobInfoService.page(pageQuery, req);
     }

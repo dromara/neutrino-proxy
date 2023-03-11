@@ -21,24 +21,26 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
 
-
-public interface JobInfoMapper {
+@Mapper
+public interface JobInfoMapper extends BaseMapper<JobInfoDO> {
 
     @ResultType(JobInfoListRes.class)
     @Select("select * from job_info")
-    void page(Page page, JobInfoListReq req);
+    void page(PageInfo pageInfo, JobInfoListReq req);
 
     @Select("select * from job_info where id = ?")
     JobInfoDO findById(Integer id);

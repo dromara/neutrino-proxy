@@ -21,14 +21,16 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.*;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -40,11 +42,12 @@ import java.util.List;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface PortPoolMapper {
+@Mapper
+public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
 
 	@ResultType(PortPoolListRes.class)
 	@Select("select * from port_pool")
-	void page(Page<PortPoolListRes> page, PortPoolListReq req);
+	void page(PageInfo<PortPoolListRes> pageInfo, PortPoolListReq req);
 
 	@ResultType(PortPoolListRes.class)
 	@Select("select * from port_pool where enable = 1")

@@ -21,15 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.aop.Intercept;
 import fun.asgc.neutrino.core.db.annotation.Insert;
 import fun.asgc.neutrino.core.db.annotation.ResultType;
 import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.page.Page;
+import fun.asgc.neutrino.core.db.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  *
@@ -38,7 +40,8 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
  */
 @Intercept(ignoreGlobal = true)
 @Component
-public interface UserLoginRecordMapper {
+@Mapper
+public interface UserLoginRecordMapper extends BaseMapper<UserLoginRecordDO> {
 	/**
 	 * 新增用户登录日志
 	 * @param userLoginRecord
@@ -49,5 +52,5 @@ public interface UserLoginRecordMapper {
 
 	@ResultType(UserLoginRecordListRes.class)
 	@Select("select * from user_login_record order by create_time desc")
-	void page(Page page, UserLoginRecordListReq req);
+	void page(PageInfo pageInfo, UserLoginRecordListReq req);
 }
