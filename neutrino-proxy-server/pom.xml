@@ -35,7 +35,7 @@
             <artifactId>activerecord-solon-plugin</artifactId>
             <version>2.2.1</version>
         </dependency>
-        <!--orika-->
+        <!--orika orika-solon-plugin用户，server端没直接用，为何这里需要引入？-->
         <dependency>
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>
@@ -56,7 +56,7 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../_solon_plugin/job-solon-plugin/pom.xml</systemPath>
         </dependency>
-        <!--hutool-->
+        <!--hutool job-solon-plugin用了，server端没用，为什么这里必须要引入？-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
