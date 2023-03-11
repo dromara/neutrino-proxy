@@ -22,10 +22,9 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.handler;
 
-import fun.asgc.neutrino.core.annotation.Match;
-import fun.asgc.neutrino.core.util.ChannelUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import cn.hutool.core.util.StrUtil;
 import fun.asgc.neutrino.proxy.core.*;
+import fun.asgc.neutrino.proxy.core.dispatcher.Match;
 import fun.asgc.neutrino.proxy.server.base.proxy.ProxyConfig;
 import fun.asgc.neutrino.proxy.server.constant.ClientConnectTypeEnum;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -43,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
+import java.net.InetSocketAddress;
 import java.util.Date;
 
 /**
@@ -75,11 +75,11 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-		String ip = ChannelUtil.getIP(ctx.channel());
+		String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 		Date now = new Date();
 
 		String licenseKey = proxyMessage.getInfo();
-		if (StringUtil.isEmpty(licenseKey)) {
+		if (StrUtil.isEmpty(licenseKey)) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)

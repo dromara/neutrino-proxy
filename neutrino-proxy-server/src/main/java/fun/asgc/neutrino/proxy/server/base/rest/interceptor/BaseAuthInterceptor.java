@@ -1,6 +1,6 @@
 package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
-import fun.asgc.neutrino.core.util.StringUtil;
+import cn.hutool.core.util.StrUtil;
 import fun.asgc.neutrino.proxy.server.base.rest.*;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
@@ -39,7 +39,7 @@ public class BaseAuthInterceptor implements RouterInterceptor {
         Authorization authorization = targetMethod.getAnnotation(Authorization.class);
         if (null == authorization || authorization.login()) {
             String authorize = ctx.header("Authorize");
-            if (StringUtil.isEmpty(authorize)) {
+            if (StrUtil.isEmpty(authorize)) {
                 throw ServiceException.create(ExceptionConstant.USER_NOT_LOGIN);
             }
             UserDO userDO = Solon.context().getBean(UserService.class).findByToken(authorize);

@@ -22,11 +22,11 @@
 
 package fun.asgc.neutrino.proxy.client.core;
 
-import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import fun.asgc.neutrino.proxy.core.dispatcher.Dispatcher;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;

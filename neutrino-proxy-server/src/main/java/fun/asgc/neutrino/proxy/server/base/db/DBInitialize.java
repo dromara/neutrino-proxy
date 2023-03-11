@@ -21,12 +21,12 @@
  */
 package fun.asgc.neutrino.proxy.server.base.db;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.jfinal.plugin.activerecord.Db;
-import fun.asgc.neutrino.core.util.Assert;
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.proxy.core.util.Assert;
+import fun.asgc.neutrino.proxy.core.util.FileUtil;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
@@ -81,7 +81,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		}
 		String sql = "";
 		for (String line : lines) {
-			if (StringUtil.isEmpty(line) || StringUtil.isEmpty(line.trim()) || line.trim().startsWith("#")) {
+			if (StrUtil.isEmpty(line) || StrUtil.isEmpty(line.trim()) || line.trim().startsWith("#")) {
 				continue;
 			}
 			sql += "\r\n" + line.trim();
@@ -114,7 +114,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 			}
 			String sql = "";
 			for (String line : lines) {
-				if (StringUtil.isEmpty(line) || StringUtil.isEmpty(line.trim()) || line.trim().startsWith("#")) {
+				if (StrUtil.isEmpty(line) || StrUtil.isEmpty(line.trim()) || line.trim().startsWith("#")) {
 					continue;
 				}
 				sql += "\r\n" + line.trim();

@@ -56,12 +56,6 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../_solon_plugin/job-solon-plugin/pom.xml</systemPath>
         </dependency>
-        <!--hutool -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-core</artifactId>
-            <version>5.8.15</version>
-        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>cn.hutool</groupId>-->
 <!--            <artifactId>hutool-db</artifactId>-->

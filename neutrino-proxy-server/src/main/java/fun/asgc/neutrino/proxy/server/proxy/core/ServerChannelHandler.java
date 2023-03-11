@@ -22,10 +22,9 @@
 
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.core.base.Dispatcher;
-import fun.asgc.neutrino.core.util.ChannelUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import fun.asgc.neutrino.proxy.core.dispatcher.Dispatcher;
 import fun.asgc.neutrino.proxy.server.constant.ClientConnectTypeEnum;
 import fun.asgc.neutrino.proxy.server.constant.SuccessCodeEnum;
 import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
@@ -39,6 +38,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.Solon;
 
+import java.net.InetSocketAddress;
 import java.util.Date;
 
 /**
@@ -89,7 +89,7 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             if (null != cmdChannelAttachInfo) {
                 Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
                 Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
-                        .setIp(ChannelUtil.getIP(ctx.channel()))
+                        .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
                         .setLicenseId(cmdChannelAttachInfo.getLicenseId())
                         .setType(ClientConnectTypeEnum.DISCONNECT.getType())
                         .setMsg("")

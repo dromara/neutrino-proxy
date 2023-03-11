@@ -24,13 +24,13 @@ package fun.asgc.neutrino.proxy.client.config;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Order;
-import fun.asgc.neutrino.core.base.DefaultDispatcher;
-import fun.asgc.neutrino.core.base.Dispatcher;
 import fun.asgc.neutrino.core.base.Ordered;
 import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.core.ProxyDataTypeEnum;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.core.ProxyMessageHandler;
+import fun.asgc.neutrino.proxy.core.dispatcher.DefaultDispatcher;
+import fun.asgc.neutrino.proxy.core.dispatcher.Dispatcher;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

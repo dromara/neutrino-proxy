@@ -14,10 +14,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>fun.asgc.neutrino</groupId>
-            <artifactId>neutrino-core</artifactId>
-            <version>${revision}</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
         </dependency>
+        <!--hutool -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.8.15</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>fun.asgc.neutrino</groupId>-->
+<!--            <artifactId>neutrino-core</artifactId>-->
+<!--            <version>${revision}</version>-->
+<!--        </dependency>-->
     </dependencies>
 
 </project>

@@ -21,8 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.job;
 
-import fun.asgc.neutrino.core.util.CollectionUtil;
-import fun.asgc.neutrino.core.util.DateUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import fun.asgc.neutrino.proxy.core.util.DateUtil;
 import fun.asgc.neutrino.proxy.server.dal.FlowReportDayMapper;
 import fun.asgc.neutrino.proxy.server.dal.FlowReportHourMapper;
 import fun.asgc.neutrino.proxy.server.dal.FlowReportMinuteMapper;

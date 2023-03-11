@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.util.LockUtil;
+import fun.asgc.neutrino.proxy.core.util.LockUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
 

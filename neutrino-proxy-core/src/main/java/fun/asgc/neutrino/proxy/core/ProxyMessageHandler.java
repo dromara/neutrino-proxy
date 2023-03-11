@@ -22,7 +22,7 @@
 
 package fun.asgc.neutrino.proxy.core;
 
-import fun.asgc.neutrino.core.base.Handler;
+import fun.asgc.neutrino.proxy.core.dispatcher.Handler;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
