@@ -22,15 +22,20 @@
 package fun.asgc.neutrino.proxy.server.base.db;
 
 import com.google.common.collect.Lists;
-import fun.asgc.neutrino.core.db.template.JdbcTemplate;
-import fun.asgc.neutrino.core.util.*;
+import fun.asgc.neutrino.core.util.Assert;
+import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.core.util.FileUtil;
+import fun.asgc.neutrino.core.util.StringUtil;
+import fun.asgc.neutrino.proxy.server.base.db.template.JdbcTemplate;
 import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
+
 import java.util.List;
 
 /**
@@ -46,11 +51,10 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	private DbConfig dbConfig;
 	@Inject
 	private JdbcTemplate jdbcTemplate;
-
 	private DbTypeEnum dbTypeEnum;
 
-	@Override
-	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
+	@Init
+	public void init() throws Throwable {
 		Assert.notNull(dbConfig.getType(), "neutrino.data.db.type不能为空!");
 		dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
 		Assert.notNull(dbTypeEnum, "neutrino.data.db.type取值异常!");
@@ -58,6 +62,11 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		log.info("{}数据库初始化...", dbConfig.getType());
 		initDBStructure();
 		initDBData();
+	}
+
+	@Override
+	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
+		// TODO 该事件有50%的概率不触发
 	}
 
 	/**
@@ -92,6 +101,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		}
 		for (String tableName : initDataTableNameList) {
 			// 表里没有数据的时候，才进行初始化操作
+
 			int count = jdbcTemplate.queryForInt(String.format("select count(1) from `%s`", tableName));
 			if (count > 0) {
 				continue;
@@ -114,43 +124,4 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 			}
 		}
 	}
-
-//	/**
-//	 * 获取jdbcTemplate实例
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	private JdbcTemplate getJdbcTemplate() throws Exception {
-//		return LockUtil.doubleCheckProcess(
-//			() -> null == jdbcTemplate,
-//			DBInitialize2.class,
-//			() -> {
-//				if (DbTypeEnum.SQLITE == dbTypeEnum) {
-//					//建立一个数据库名data.db的连接，如果不存在就在当前目录下创建之
-//					DriverManager.getConnection(dbConfig.getUrl());
-//					// 创建数据源
-//					SQLiteDataSource dataSource = new SQLiteDataSource();
-//					dataSource.setUrl(dbConfig.getUrl());
-//					dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
-//					// 创建jdbcTemplate
-//					jdbcTemplate = new JdbcTemplate(dataSource);
-//				} else if (DbTypeEnum.MYSQL == dbTypeEnum) {
-//					DruidDataSource dataSource = new DruidDataSource();
-//					dataSource.setDriverClassName(dbConfig.getDriverClass());
-//					dataSource.setUrl(dbConfig.getUrl());
-//					dataSource.setInitialSize(5);
-//					dataSource.setMinIdle(5);
-//					dataSource.setMaxActive(20);
-//					dataSource.setMaxWait(60000);
-//					dataSource.setPoolPreparedStatements(true);
-//					dataSource.setUsername(dbConfig.getUsername());
-//					dataSource.setPassword(dbConfig.getPassword());
-//
-//					// 创建jdbcTemplate
-//					jdbcTemplate = new JdbcTemplate(dataSource);
-//				}
-//			},
-//			() -> jdbcTemplate
-//		);
-//	}
 }

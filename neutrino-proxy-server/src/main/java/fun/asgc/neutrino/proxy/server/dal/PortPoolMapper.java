@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Param;
@@ -63,7 +64,11 @@ public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
 	void delete(Integer id);
 
 	@Select("select * from port_pool where port = ? limit 0,1")
-	PortPoolDO findByPort(Integer port);
+	default PortPoolDO findByPort(Integer port) {
+		return this.selectOne(new LambdaQueryWrapper<PortPoolDO>()
+				.eq(PortPoolDO::getPort, port)
+		);
+	}
 
 	@Select("select * from port_pool where id = ?")
 	PortPoolDO findById(Integer id);

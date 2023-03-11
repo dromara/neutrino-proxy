@@ -9,13 +9,6 @@
     <packaging>pom</packaging>
     <version>${revision}</version>
 
-    <parent>
-        <groupId>org.noear</groupId>
-        <artifactId>solon-parent</artifactId>
-        <version>2.2.1</version>
-        <relativePath />
-    </parent>
-
     <modules>
         <module>neutrino-core</module>
         <module>neutrino-proxy-core</module>

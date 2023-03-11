@@ -149,8 +149,11 @@ public class UserService {
 	}
 
 	public List<UserListRes> list(UserListReq req) {
-		List<UserListRes> list = userMapper.list();
-		return list;
+		List<UserDO> userDOList = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
+				.eq(UserDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+				.orderByAsc(UserDO::getId)
+		);
+		return mapperFactory.getMapperFacade().mapAsList(userDOList, UserListRes.class);
 	}
 
 	public UserInfoRes info(UserInfoReq req) {

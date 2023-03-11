@@ -19,62 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal.entity;
+package fun.asgc.neutrino.proxy.server.base.db.template;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
-import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
-import lombok.Data;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-
-import java.util.Date;
+import java.sql.SQLException;
 
 /**
- * 许可证
  * @author: aoshiguchen
- * @date: 2022/8/6
+ * @date: 2022/6/27
  */
-@ToString
-@Accessors(chain = true)
-@Data
-@Table("license")
-@TableName("license")
-public class LicenseDO {
-	@Id
-	@TableId(type = IdType.AUTO)
-	private Integer id;
+public interface JdbcCallback<T> {
+
 	/**
-	 * 名称
+	 * 执行
+	 * @return
 	 */
-	private String name;
-	/**
-	 * licenseKey
-	 */
-	private String key;
-	/**
-	 * 用户ID
-	 */
-	private Integer userId;
-	/**
-	 * 是否在线
-	 * {@link OnlineStatusEnum}
-	 */
-	private Integer isOnline;
-	/**
-	 * 启用状态
-	 * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
-	 */
-	private Integer enable;
-	/**
-	 * 创建时间
-	 */
-	private Date createTime;
-	/**
-	 * 更新时间
-	 */
-	private Date updateTime;
+	T execute() throws SQLException;
+
 }

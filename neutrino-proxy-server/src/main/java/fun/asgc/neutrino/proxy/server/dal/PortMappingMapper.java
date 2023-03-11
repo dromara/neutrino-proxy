@@ -90,7 +90,11 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 
 	@ResultType(PortMappingDO.class)
 	@Select("select * from port_mapping where license_id = ?")
-	List<PortMappingDO> findListByLicenseId(Integer licenseId);
+	default List<PortMappingDO> findListByLicenseId(Integer licenseId) {
+		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getLicenseId, licenseId)
+		);
+	}
 
 	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId and server_port = :serverPort")
 	default void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime) {

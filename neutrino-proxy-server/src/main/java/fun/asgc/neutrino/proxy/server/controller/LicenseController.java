@@ -21,8 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
@@ -64,7 +62,7 @@ public class LicenseController {
 	@OnlyAdmin
 	@Post
 	@Mapping("/create")
-	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
+	public LicenseCreateRes create(LicenseCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
 		ParamCheckUtil.checkNotNull(req.getUserId(), "userId");
@@ -75,7 +73,7 @@ public class LicenseController {
 	@OnlyAdmin
 	@Post
 	@Mapping("/update")
-	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
+	public LicenseUpdateRes update(LicenseUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -85,7 +83,7 @@ public class LicenseController {
 
 	@Post
 	@Mapping("/detail")
-	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
+	public LicenseDetailRes detail(Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
 		return licenseService.detail(id);
@@ -94,7 +92,7 @@ public class LicenseController {
 	@OnlyAdmin
 	@Post
 	@Mapping("/update/enable-status")
-	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
+	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
@@ -105,7 +103,7 @@ public class LicenseController {
 	@OnlyAdmin
 	@Post
 	@Mapping("/delete")
-	public void delete(@RequestParam("id") Integer id) {
+	public void delete(Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
 		licenseService.delete(id);
@@ -114,7 +112,7 @@ public class LicenseController {
 	@OnlyAdmin
 	@Post
 	@Mapping("/reset")
-	public void reset(@RequestParam("id") Integer id) {
+	public void reset(Integer id) {
 		ParamCheckUtil.checkNotNull(id, "id");
 
 		licenseService.reset(id);

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import fun.asgc.neutrino.core.db.template.JdbcTemplate;
+import fun.asgc.neutrino.proxy.server.base.db.template.JdbcTemplate;
 import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import org.apache.ibatis.solon.annotation.Db;

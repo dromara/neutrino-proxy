@@ -98,7 +98,9 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
 	void delete(Integer id);
 
 	@Select("select * from `license` where id = ?")
-	LicenseDO findById(Integer id);
+	default LicenseDO findById(Integer id) {
+		return this.selectById(id);
+	}
 
 	@Update("update `license` set name = :name, update_time = :updateTime where id = :id")
 	void update(@Param("id") Integer id, @Param("name") String name, @Param("updateTime") Date updateTime);
@@ -111,7 +113,13 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
 
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where user_id = :userId and name =:name limit 0,1")
-	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name);
+	default LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name) {
+		return this.selectOne(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getUserId, userId)
+				.eq(LicenseDO::getName, name)
+				.last("limit 1")
+		);
+	}
 
 	@ResultType(LicenseDO.class)
 	@Select("select * from `license` where user_id = :userId and name =:name and id not in (:excludeIds) limit 0,1")

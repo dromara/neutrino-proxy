@@ -18,6 +18,7 @@
         <dependency>
             <groupId>org.noear</groupId>
             <artifactId>solon-api</artifactId>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.noear</groupId>
@@ -42,7 +43,11 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../_solon_plugin/orika-solon-plugin/pom.xml</systemPath>
         </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>cn.hutool</groupId>-->
+<!--            <artifactId>hutool-db</artifactId>-->
+<!--            <version>5.8.15</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-proxy-core</artifactId>

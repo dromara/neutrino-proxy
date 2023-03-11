@@ -121,7 +121,7 @@ public class LicenseService implements Lifecycle {
 		String key = UUID.randomUUID().toString().replaceAll("-", "");
 		Date now = new Date();
 
-		licenseMapper.add(new LicenseDO()
+		licenseMapper.insert(new LicenseDO()
 			.setName(req.getName())
 			.setKey(key)
 			.setUserId(req.getUserId())
@@ -184,7 +184,7 @@ public class LicenseService implements Lifecycle {
 	 * @param id
 	 */
 	public void delete(Integer id) {
-		licenseMapper.delete(id);
+		licenseMapper.deleteById(id);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByLicenseId(id, EnableStatusEnum.DISABLE.getStatus());
 	}
