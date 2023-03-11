@@ -39,6 +39,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -57,11 +58,11 @@ import java.util.stream.Collectors;
 public class ClientConnectRecordService {
     @Inject
     private MapperFactory mapperFactory;
-    @Inject
+    @Db
     private ClientConnectRecordMapper clientConnectRecordMapper;
-    @Inject
+    @Db
     private LicenseMapper licenseMapper;
-    @Inject
+    @Db
     private UserMapper userMapper;
 
     public void add(ClientConnectRecordDO clientConnectRecordDO) {

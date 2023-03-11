@@ -21,12 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportHourDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -35,17 +31,23 @@ import java.util.List;
 
 @Mapper
 public interface FlowReportHourMapper extends BaseMapper<FlowReportHourDO> {
-    @Select("select * from flow_report_hour where license_id = :licenseId and date_str = :dateStr")
-    FlowReportHourDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
+    default void clean(Date date) {
+        this.delete(new LambdaQueryWrapper<FlowReportHourDO>()
+                .lt(FlowReportHourDO::getCreateTime, date)
+        );
+    }
 
-    @Insert("insert into flow_report_hour(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
-    void add(FlowReportHourDO flowReportHourDO);
+    default void deleteByDateStr(String dateStr) {
+        this.delete(new LambdaQueryWrapper<FlowReportHourDO>()
+                .eq(FlowReportHourDO::getDateStr, dateStr)
+        );
+    }
 
-    @Delete("delete from flow_report_hour where date_str = :dateStr")
-    void deleteByDateStr(@Param("dateStr") String dateStr);
-
-    @ResultType(FlowReportHourDO.class)
-    @Select("select * from flow_report_hour where date >= :startDate and date <= :endDate")
-    List<FlowReportHourDO> findListByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    default List<FlowReportHourDO> findListByDateRange(Date startDate, Date endDate) {
+        return this.selectList(new LambdaQueryWrapper<FlowReportHourDO>()
+                .ge(FlowReportHourDO::getDateStr, startDate)
+                .le(FlowReportHourDO::getDateStr, endDate)
+        );
+    }
 
 }

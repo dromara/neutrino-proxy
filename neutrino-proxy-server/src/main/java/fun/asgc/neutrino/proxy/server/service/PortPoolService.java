@@ -38,6 +38,7 @@ import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -53,7 +54,7 @@ import java.util.List;
 public class PortPoolService {
 	@Inject
 	private MapperFactory mapperFactory;
-	@Inject
+	@Db
 	private PortPoolMapper portPoolMapper;
 	@Inject
 	private VisitorChannelService visitorChannelService;
@@ -68,7 +69,10 @@ public class PortPoolService {
 	}
 
 	public List<PortPoolListRes> list(PortPoolListReq req) {
-		return portPoolMapper.list();
+		List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
+				.eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+		);
+		return mapperFactory.getMapperFacade().mapAsList(list, PortPoolListRes.class);
 	}
 
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
@@ -77,7 +81,7 @@ public class PortPoolService {
 
 		Date now = new Date();
 
-		portPoolMapper.add(new PortPoolDO()
+		portPoolMapper.insert(new PortPoolDO()
 			.setPort(req.getPort())
 			.setEnable(EnableStatusEnum.ENABLE.getStatus())
 			.setCreateTime(now)
@@ -104,7 +108,7 @@ public class PortPoolService {
 		PortPoolDO portPoolDO = portPoolMapper.findById(id);
 		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
 
-		portPoolMapper.delete(id);
+		portPoolMapper.deleteById(id);
 
 		// 更新visitorChannel
 		visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());

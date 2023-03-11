@@ -27,10 +27,8 @@ import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
 import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
-import fun.asgc.neutrino.proxy.server.dal.UserReportMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 /**
  * @author: aoshiguchen
@@ -39,8 +37,6 @@ import org.noear.solon.annotation.Inject;
 @Slf4j
 @Component
 public class ReportService {
-    @Inject
-    private UserReportMapper userReportMapper;
 
     /**
      * 用户流量报表分页

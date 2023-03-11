@@ -21,12 +21,8 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportDayDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -35,16 +31,22 @@ import java.util.List;
 
 @Mapper
 public interface FlowReportDayMapper extends BaseMapper<FlowReportDayDO> {
-    @Select("select * from flow_report_day where license_id = :licenseId and date_str = :dateStr")
-    FlowReportDayDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
+    default void clean(Date date) {
+        this.delete(new LambdaQueryWrapper<FlowReportDayDO>()
+                .lt(FlowReportDayDO::getCreateTime, date)
+        );
+    }
 
-    @Insert("insert into flow_report_day(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
-    void add(FlowReportDayDO flowReportDayDO);
+    default void deleteByDateStr(String dateStr) {
+        this.delete(new LambdaQueryWrapper<FlowReportDayDO>()
+                .eq(FlowReportDayDO::getDateStr, dateStr)
+        );
+    }
 
-    @Delete("delete from flow_report_day where date_str = :dateStr")
-    void deleteByDateStr(@Param("dateStr") String dateStr);
-
-    @ResultType(FlowReportDayDO.class)
-    @Select("select * from flow_report_day where date >= :startDate and date <= :endDate")
-    List<FlowReportDayDO> findListByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    default List<FlowReportDayDO> findListByDateRange(Date startDate, Date endDate) {
+        return this.selectList(new LambdaQueryWrapper<FlowReportDayDO>()
+                .le(FlowReportDayDO::getDate, startDate)
+                .gt(FlowReportDayDO::getDate, endDate)
+        );
+    }
 }

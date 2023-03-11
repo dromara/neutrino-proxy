@@ -21,7 +21,6 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
 import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
@@ -50,7 +49,7 @@ public class IndexController {
 	@Authorization(login = false)
 	@Post
 	@Mapping("/login")
-	public LoginRes login(@RequestBody LoginReq req) {
+	public LoginRes login(LoginReq req) {
 		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
 

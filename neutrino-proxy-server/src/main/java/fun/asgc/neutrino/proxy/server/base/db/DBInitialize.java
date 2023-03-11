@@ -22,12 +22,11 @@
 package fun.asgc.neutrino.proxy.server.base.db;
 
 import com.google.common.collect.Lists;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.core.util.FileUtil;
 import fun.asgc.neutrino.core.util.StringUtil;
-import fun.asgc.neutrino.proxy.server.base.db.template.JdbcTemplate;
-import fun.asgc.neutrino.proxy.server.base.rest.config.DbConfig;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;

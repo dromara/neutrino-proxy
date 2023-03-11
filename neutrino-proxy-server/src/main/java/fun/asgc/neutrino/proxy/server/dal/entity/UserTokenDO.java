@@ -21,10 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -39,12 +38,10 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("user_token")
 @TableName("user_token")
 public class UserTokenDO {
 
-	@Id
-	@TableId
+	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
 	 * token

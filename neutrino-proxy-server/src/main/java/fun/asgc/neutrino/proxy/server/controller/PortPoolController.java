@@ -21,12 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortPoolDeleteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolCreateRes;
@@ -63,20 +62,20 @@ public class PortPoolController {
 		return portPoolService.list(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/create")
-	public PortPoolCreateRes create(@RequestBody PortPoolCreateReq req) {
+	@Authorization(onlyAdmin = true)
+	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getPort(), "port");
 
 		return portPoolService.create(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update/enable-status")
-	public PortPoolUpdateEnableStatusRes updateEnableStatus(@RequestBody PortPoolUpdateEnableStatusReq req) {
+	@Authorization(onlyAdmin = true)
+	public PortPoolUpdateEnableStatusRes updateEnableStatus(PortPoolUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
@@ -84,12 +83,13 @@ public class PortPoolController {
 		return portPoolService.updateEnableStatus(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/delete")
-	public void delete(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Authorization(onlyAdmin = true)
+	public void delete(PortPoolDeleteReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		portPoolService.delete(id);
+		portPoolService.delete(req.getId());
 	}
 }

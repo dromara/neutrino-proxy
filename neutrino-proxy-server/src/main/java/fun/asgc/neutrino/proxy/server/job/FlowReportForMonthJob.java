@@ -94,7 +94,7 @@ public class FlowReportForMonthJob implements IJobHandler {
         }
 
         for (FlowReportMonthDO item : map.values()) {
-            flowReportMonthMapper.add(item);
+            flowReportMonthMapper.insert(item);
         }
     }
 

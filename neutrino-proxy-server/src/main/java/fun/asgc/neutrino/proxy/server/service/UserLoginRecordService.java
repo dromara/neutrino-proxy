@@ -35,6 +35,7 @@ import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -53,9 +54,9 @@ import java.util.stream.Collectors;
 public class UserLoginRecordService {
     @Inject
     private MapperFactory mapperFactory;
-    @Inject
+    @Db
     private UserLoginRecordMapper userLoginRecordMapper;
-    @Inject
+    @Db
     private UserMapper userMapper;
 
     public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {

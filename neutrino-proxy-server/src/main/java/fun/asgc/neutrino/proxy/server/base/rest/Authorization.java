@@ -35,4 +35,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface Authorization {
 	boolean login() default true;
+
+	boolean onlyAdmin() default false;
 }

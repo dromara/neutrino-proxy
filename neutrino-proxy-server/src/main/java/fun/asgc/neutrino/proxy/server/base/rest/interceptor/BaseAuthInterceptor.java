@@ -2,7 +2,6 @@ package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.proxy.server.base.rest.*;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
@@ -35,7 +34,7 @@ public class BaseAuthInterceptor implements RouterInterceptor {
 
         SystemContext systemContext = new SystemContext();
         SystemContextHolder.set(systemContext);
-        systemContext.setIp(ctx.ip());
+        systemContext.setIp(ctx.realIp());
 
         Authorization authorization = targetMethod.getAnnotation(Authorization.class);
         if (null == authorization || authorization.login()) {
@@ -50,7 +49,7 @@ public class BaseAuthInterceptor implements RouterInterceptor {
             if (EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
                 throw ServiceException.create(ExceptionConstant.USER_DISABLE);
             }
-            if (targetMethod.isAnnotationPresent(OnlyAdmin.class) && !userDO.getLoginName().equals("admin")) {
+            if (null != authorization && authorization.onlyAdmin() && !userDO.getLoginName().equals("admin")) {
                 throw ServiceException.create(ExceptionConstant.NO_PERMISSION_VISIT);
             }
 

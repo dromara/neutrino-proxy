@@ -21,9 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -37,10 +37,9 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("flow_report_hour")
+@TableName("flow_report_hour")
 public class FlowReportHourDO {
-    @Id
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id;
     /**
      * 用户ID

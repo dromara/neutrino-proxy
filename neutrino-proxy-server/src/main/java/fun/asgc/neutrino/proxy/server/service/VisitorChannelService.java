@@ -46,6 +46,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -67,13 +68,13 @@ public class VisitorChannelService {
     private NioEventLoopGroup serverWorkerGroup;
     @Inject
     private ProxyMutualService proxyMutualService;
-    @Inject
+    @Db
     private UserMapper userMapper;
-    @Inject
+    @Db
     private LicenseMapper licenseMapper;
-    @Inject
+    @Db
     private PortMappingMapper portMappingMapper;
-    @Inject
+    @Db
     private PortPoolMapper portPoolMapper;
 
     /**

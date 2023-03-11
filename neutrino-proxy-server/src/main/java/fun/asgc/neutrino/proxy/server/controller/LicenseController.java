@@ -23,11 +23,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
@@ -59,9 +56,9 @@ public class LicenseController {
 		return licenseService.list(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/create")
+	@Authorization(onlyAdmin = true)
 	public LicenseCreateRes create(LicenseCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -70,9 +67,9 @@ public class LicenseController {
 		return licenseService.create(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update")
+	@Authorization(onlyAdmin = true)
 	public LicenseUpdateRes update(LicenseUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -83,15 +80,16 @@ public class LicenseController {
 
 	@Post
 	@Mapping("/detail")
-	public LicenseDetailRes detail(Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	public LicenseDetailRes detail(LicenseDetailReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		return licenseService.detail(id);
+		return licenseService.detail(req.getId());
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update/enable-status")
+	@Authorization(onlyAdmin = true)
 	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
@@ -100,22 +98,24 @@ public class LicenseController {
 		return licenseService.updateEnableStatus(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/delete")
-	public void delete(Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Authorization(onlyAdmin = true)
+	public void delete(LicenseDeleteReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		licenseService.delete(id);
+		licenseService.delete(req.getId());
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/reset")
-	public void reset(Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Authorization(onlyAdmin = true)
+	public void reset(LicenseResetReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		licenseService.reset(id);
+		licenseService.reset(req.getId());
 	}
 
 }

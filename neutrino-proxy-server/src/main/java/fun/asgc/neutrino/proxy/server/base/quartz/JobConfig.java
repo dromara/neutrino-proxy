@@ -19,20 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.base.db.template;
+package fun.asgc.neutrino.proxy.server.base.quartz;
 
-import java.sql.SQLException;
+import fun.asgc.neutrino.proxy.server.service.JobInfoService;
+import fun.asgc.neutrino.proxy.server.service.JobLogService;
+import org.noear.solon.annotation.Bean;
+import org.noear.solon.annotation.Configuration;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.event.AppLoadEndEvent;
+import org.noear.solon.core.event.EventBus;
 
 /**
+ * 定时任务配置
  * @author: aoshiguchen
- * @date: 2022/6/27
+ * @date: 2022/9/4
  */
-public interface JdbcCallback<T> {
+@Configuration
+public class JobConfig {
 
-	/**
-	 * 执行
-	 * @return
-	 */
-	T execute() throws SQLException;
-
+	@Bean
+	public JobExecutor jobExecutor(@Inject JobLogService jobLogService, @Inject JobInfoService jobInfoService) {
+		JobExecutor executor = new JobExecutor();
+		executor.setJobSource(jobInfoService);
+		executor.setJobCallback(jobLogService);
+		EventBus.subscribe(AppLoadEndEvent.class, executor);
+		return executor;
+	}
 }

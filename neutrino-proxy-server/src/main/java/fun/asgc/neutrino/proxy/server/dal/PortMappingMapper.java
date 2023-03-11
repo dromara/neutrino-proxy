@@ -24,17 +24,8 @@ package fun.asgc.neutrino.proxy.server.dal;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.page.PageInfo;
+import fun.asgc.neutrino.core.util.CollectionUtil;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -47,36 +38,29 @@ import java.util.Set;
  * @author: aoshiguchen
  * @date: 2022/8/8
  */
-@Intercept(ignoreGlobal = true)
-@Component
 @Mapper
 public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 
-	@ResultType(PortMappingListRes.class)
-	@Select("select * from port_mapping")
-	void page(PageInfo pageInfo, PortMappingListReq req);
+	default PortMappingDO findById(Integer id) {
+		return this.selectById(id);
+	}
 
-	void add(PortMappingDO portMappingDO);
+	default void updateEnableStatus(Integer id, Integer enable, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getId, id)
+				.set(PortMappingDO::getEnable, enable)
+				.set(PortMappingDO::getUpdateTime, updateTime)
+		);
+	}
 
-	void update(PortMappingDO portMappingDO);
+	default PortMappingDO findByPort(Integer port, Set<Integer> excludeIds) {
+		return this.selectOne(new LambdaQueryWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getServerPort, port)
+				.notIn(!CollectionUtil.isEmpty(excludeIds), PortMappingDO::getId, excludeIds)
+				.last("limit 1")
+		);
+	}
 
-	@Select("select * from port_mapping where id = ?")
-	PortMappingDO findById(Integer id);
-
-	@Update("update `port_mapping` set enable = :enable,update_time = :updateTime where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
-
-	@Delete("delete from `port_mapping` where id = ?")
-	void delete(Integer id);
-
-	@Select("select * from port_mapping where server_port = ?")
-	PortMappingDO findByPort(Integer port);
-
-	@Select("select * from port_mapping where server_port = :port and id not in (:excludeIds)")
-	PortMappingDO findByPort(@Param("port") Integer port, @Param("excludeIds") Set<Integer> excludeIds);
-
-	@ResultType(PortMappingDO.class)
-	@Select("select * from port_mapping where license_id = ? and enable = 1")
 	default List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
 		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getLicenseId, licenseId)
@@ -84,20 +68,19 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 		);
 	}
 
-	@ResultType(PortMappingDO.class)
-	@Select("select * from port_mapping where server_port = :serverPort")
-	List<PortMappingDO> findListByServerPort(@Param("serverPort") Integer serverPort);
+	default List<PortMappingDO> findListByServerPort(Integer serverPort) {
+		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getServerPort, serverPort)
+		);
+	}
 
-	@ResultType(PortMappingDO.class)
-	@Select("select * from port_mapping where license_id = ?")
 	default List<PortMappingDO> findListByLicenseId(Integer licenseId) {
 		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getLicenseId, licenseId)
 		);
 	}
 
-	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId and server_port = :serverPort")
-	default void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("serverPort") Integer serverPort, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime) {
+	default void updateOnlineStatus(Integer licenseId,Integer serverPort, Integer isOnline, Date updateTime) {
 		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getLicenseId, licenseId)
 				.eq(PortMappingDO::getServerPort, serverPort)
@@ -106,9 +89,18 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 		);
 	}
 
-	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime where license_id = :licenseId")
-	void updateOnlineStatus(@Param("licenseId") Integer licenseId, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default void updateOnlineStatus(Integer licenseId, Integer isOnline, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getLicenseId, licenseId)
+				.set(PortMappingDO::getIsOnline, isOnline)
+				.set(PortMappingDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@Update("update `port_mapping` set is_online = :isOnline,update_time = :updateTime")
-	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default void updateOnlineStatus(Integer isOnline, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
+				.set(PortMappingDO::getIsOnline, isOnline)
+				.set(PortMappingDO::getUpdateTime, updateTime)
+		);
+	}
 }

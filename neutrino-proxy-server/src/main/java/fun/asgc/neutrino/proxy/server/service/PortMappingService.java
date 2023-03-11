@@ -48,6 +48,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
@@ -68,13 +69,13 @@ import java.util.stream.Collectors;
 public class PortMappingService implements Lifecycle {
 	@Inject
 	private MapperFactory mapperFactory;
-	@Inject
+	@Db
 	private PortMappingMapper portMappingMapper;
-	@Inject
+	@Db
 	private LicenseMapper licenseMapper;
-	@Inject
+	@Db
 	private UserMapper userMapper;
-	@Inject
+	@Db
 	private PortPoolMapper portPoolMapper;
 	@Inject
 	private VisitorChannelService visitorChannelService;
@@ -122,7 +123,7 @@ public class PortMappingService implements Lifecycle {
 		}
 		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
 		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort()), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
 
 
 		Date now = new Date();
@@ -135,7 +136,7 @@ public class PortMappingService implements Lifecycle {
 		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
 		portMappingDO.setCreateTime(now);
 		portMappingDO.setUpdateTime(now);
-		portMappingMapper.add(portMappingDO);
+		portMappingMapper.insert(portMappingDO);
 		// 更新VisitorChannel
 		visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
 		return new PortMappingCreateRes();
@@ -164,7 +165,7 @@ public class PortMappingService implements Lifecycle {
 		portMappingDO.setClientPort(req.getClientPort());
 		portMappingDO.setUpdateTime(new Date());
 		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-		portMappingMapper.update(portMappingDO);
+		portMappingMapper.updateById(portMappingDO);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
 		return new PortMappingUpdateRes();
@@ -232,7 +233,7 @@ public class PortMappingService implements Lifecycle {
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 
-		portMappingMapper.delete(id);
+		portMappingMapper.deleteById(id);
 
 		// 更新VisitorChannel
 		visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);

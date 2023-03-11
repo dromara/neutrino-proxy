@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.core.util.DateUtil;
@@ -67,7 +68,7 @@ public class UserService {
 	private UserTokenMapper userTokenMapper;
 	@Db
 	private UserLoginRecordMapper userLoginRecordMapper;
-	@Db
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	public LoginRes login(LoginReq req) {
@@ -111,7 +112,7 @@ public class UserService {
 		userTokenMapper.deleteByToken(SystemContextHolder.getToken());
 
 		// 新增用户登录日志
-		userLoginRecordMapper.add(new UserLoginRecordDO()
+		userLoginRecordMapper.insert(new UserLoginRecordDO()
 			.setUserId(SystemContextHolder.getUser().getId())
 			.setIp(SystemContextHolder.getIp())
 			.setToken(SystemContextHolder.getToken())
@@ -181,8 +182,6 @@ public class UserService {
 	}
 
 	public UserCreateRes create(UserCreateReq req) {
-
-
 		Date now = new Date();
 		UserDO userDO = new UserDO();
 		userDO.setName(req.getName());
@@ -191,18 +190,17 @@ public class UserService {
 		userDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
 		userDO.setCreateTime(now);
 		userDO.setUpdateTime(now);
-		userMapper.add(userDO);
-
+		userMapper.insert(userDO);
 		return new UserCreateRes();
 	}
 
 	public UserUpdateRes update(UserUpdateReq req) {
-		UserDO userDO = new UserDO();
-		userDO.setId(req.getId());
-		userDO.setName(req.getName());
-		userDO.setLoginName(req.getLoginName());
-		userDO.setUpdateTime(new Date());
-		userMapper.update(userDO);
+		userMapper.update(null, new LambdaUpdateWrapper<UserDO>()
+				.eq(UserDO::getId, req.getId())
+				.set(UserDO::getName, req.getName())
+				.set(UserDO::getLoginName, req.getLoginName())
+				.set(UserDO::getUpdateTime, new Date())
+		);
 		return new UserUpdateRes();
 	}
 
@@ -221,7 +219,7 @@ public class UserService {
 	}
 
 	public void delete(Integer id) {
-		userMapper.delete(id);
+		userMapper.deleteById(id);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByUserId(id, EnableStatusEnum.DISABLE.getStatus());
 	}

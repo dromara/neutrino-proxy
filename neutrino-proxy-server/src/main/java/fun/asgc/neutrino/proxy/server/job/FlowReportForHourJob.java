@@ -92,7 +92,7 @@ public class FlowReportForHourJob implements IJobHandler {
         }
 
         for (FlowReportHourDO item : map.values()) {
-            flowReportHourMapper.add(item);
+            flowReportHourMapper.insert(item);
         }
     }
 

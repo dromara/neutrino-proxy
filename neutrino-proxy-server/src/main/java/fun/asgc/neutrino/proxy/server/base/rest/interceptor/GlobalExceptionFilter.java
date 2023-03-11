@@ -3,6 +3,7 @@ package fun.asgc.neutrino.proxy.server.base.rest.interceptor;
 import fun.asgc.neutrino.proxy.server.base.rest.ResponseBody;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.core.handle.Context;
@@ -13,6 +14,7 @@ import org.noear.solon.core.handle.FilterChain;
  * @author: aoshiguchen
  * @date: 2023/3/9
  */
+@Slf4j
 @Component
 public class GlobalExceptionFilter implements Filter {
 
@@ -21,6 +23,7 @@ public class GlobalExceptionFilter implements Filter {
         try {
             chain.doFilter(ctx);
         } catch (Throwable e) {
+            log.error("全局异常", e);
             if (e instanceof ServiceException) {
                 ServiceException serviceException = (ServiceException)e;
                 ctx.render(new ResponseBody<>()

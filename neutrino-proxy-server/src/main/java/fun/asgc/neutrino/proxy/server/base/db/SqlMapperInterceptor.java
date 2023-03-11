@@ -28,11 +28,11 @@ import fun.asgc.neutrino.core.aop.Invocation;
 import fun.asgc.neutrino.core.aop.interceptor.Interceptor;
 import fun.asgc.neutrino.core.db.mapper.SqlParser;
 import fun.asgc.neutrino.core.db.page.PageInfo;
+import fun.asgc.neutrino.core.db.template.JdbcTemplate;
 import fun.asgc.neutrino.core.util.ArrayUtil;
 import fun.asgc.neutrino.core.util.Assert;
 import fun.asgc.neutrino.core.util.StringUtil;
 import fun.asgc.neutrino.core.util.TypeUtil;
-import fun.asgc.neutrino.proxy.server.base.db.template.JdbcTemplate;
 import org.noear.solon.Solon;
 
 import java.lang.reflect.Parameter;

@@ -21,12 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
-import fun.asgc.neutrino.core.web.annotation.RequestParam;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
@@ -73,10 +71,10 @@ public class UserController {
 		return userService.info(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update/enable-status")
-	public UserUpdateEnableStatusRes updateEnableStatus(@RequestBody UserUpdateEnableStatusReq req) {
+	@Authorization(onlyAdmin = true)
+	public UserUpdateEnableStatusRes updateEnableStatus(UserUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
@@ -84,10 +82,10 @@ public class UserController {
 		return userService.updateEnableStatus(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/create")
-	public UserCreateRes create(@RequestBody UserCreateReq req) {
+	@Authorization(onlyAdmin = true)
+	public UserCreateRes create(UserCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
 		ParamCheckUtil.checkNotEmpty(req.getLoginName(), "loginName");
@@ -95,10 +93,10 @@ public class UserController {
 		return userService.create(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update")
-	public UserUpdateRes update(@RequestBody UserUpdateReq req) {
+	@Authorization(onlyAdmin = true)
+	public UserUpdateRes update(UserUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -107,10 +105,10 @@ public class UserController {
 		return userService.update(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/update/password")
-	public UserUpdatePasswordRes updatePassword(@RequestBody UserUpdatePasswordReq req) {
+	@Authorization(onlyAdmin = true)
+	public UserUpdatePasswordRes updatePassword(UserUpdatePasswordReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
@@ -121,7 +119,7 @@ public class UserController {
 
 	@Post
 	@Mapping("/current-user/update/password")
-	public UserUpdatePasswordRes currentUserUpdatePassword(@RequestBody UserUpdatePasswordReq req) {
+	public UserUpdatePasswordRes currentUserUpdatePassword(UserUpdatePasswordReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getOldLoginPassword(), "oldLoginPassword");
 		ParamCheckUtil.checkNotEmpty(req.getLoginPassword(), "loginPassword");
@@ -135,12 +133,13 @@ public class UserController {
 		return userService.updatePassword(req);
 	}
 
-	@OnlyAdmin
 	@Post
 	@Mapping("/delete")
-	public void delete(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Authorization(onlyAdmin = true)
+	public void delete(UserDeleteReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		userService.delete(id);
+		userService.delete(req.getId());
 	}
 }

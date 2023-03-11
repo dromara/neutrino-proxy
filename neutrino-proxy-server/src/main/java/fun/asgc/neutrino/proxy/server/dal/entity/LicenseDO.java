@@ -24,8 +24,6 @@ package fun.asgc.neutrino.proxy.server.dal.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
@@ -41,10 +39,8 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("license")
 @TableName("license")
 public class LicenseDO {
-	@Id
 	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**

@@ -21,22 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.Select;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMonthDO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface FlowReportMonthMapper extends BaseMapper<FlowReportMonthDO> {
-    @Select("select * from flow_report_month where license_id = :licenseId and date_str = :dateStr")
-    FlowReportMonthDO findOne(@Param("licenseId") Integer licenseId, @Param("dateStr") String dateStr);
 
-    @Insert("insert into flow_report_month(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
-    void add(FlowReportMonthDO flowReportMonthDO);
-
-    @Delete("delete from flow_report_month where date_str = :dateStr")
-    void deleteByDateStr(@Param("dateStr") String dateStr);
+    default void deleteByDateStr(String dateStr) {
+        this.delete(new LambdaQueryWrapper<FlowReportMonthDO>()
+                .eq(FlowReportMonthDO::getDateStr, dateStr)
+        );
+    }
 }

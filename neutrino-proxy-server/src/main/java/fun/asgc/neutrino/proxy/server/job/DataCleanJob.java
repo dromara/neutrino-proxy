@@ -22,16 +22,16 @@
 package fun.asgc.neutrino.proxy.server.job;
 
 import com.alibaba.fastjson.JSONObject;
+import fun.asgc.neutrino.core.annotation.Autowired;
 import fun.asgc.neutrino.core.util.DateUtil;
 import fun.asgc.neutrino.proxy.server.base.quartz.IJobHandler;
 import fun.asgc.neutrino.proxy.server.base.quartz.JobHandler;
-import fun.asgc.neutrino.proxy.server.dal.DataCleanMapper;
+import fun.asgc.neutrino.proxy.server.dal.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,9 +46,6 @@ import java.util.Date;
 @Component
 @JobHandler(name = "DataCleanJob", cron = "0 0 1 * * ?")
 public class DataCleanJob implements IJobHandler {
-    @Inject
-    private DataCleanMapper dataCleanMapper;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
      * Job日志保存天数
      */
@@ -74,6 +71,19 @@ public class DataCleanJob implements IJobHandler {
      * 流量统计天报表记录保留天数
      */
     private static final Integer FLOW_DAY_REPORT_KEEP_DAYS = 400;
+    @Autowired
+    private JobLogMapper jobLogMapper;
+    @Autowired
+    private UserLoginRecordMapper userLoginRecordMapper;
+    @Autowired
+    private ClientConnectRecordMapper clientConnectRecordMapper;
+    @Autowired
+    private FlowReportMinuteMapper flowReportMinuteMapper;
+    @Autowired
+    private FlowReportHourMapper flowReportHourMapper;
+    @Autowired
+    private FlowReportDayMapper flowReportDayMapper;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void execute(String s) throws Exception {
@@ -82,37 +92,37 @@ public class DataCleanJob implements IJobHandler {
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
             log.info("清理调度管理日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanJobLog(date);
+            jobLogMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getUserLoginRecordKeepDays());
             log.info("清理用户登录日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanUserLoginRecord(date);
+            userLoginRecordMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getClientConnectRecordKeepDays());
             log.info("清理客户端连接日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanClientConnectRecord(date);
+            clientConnectRecordMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowMinuteReportKeepDays());
             log.info("清理流通统计分钟报表日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanFlowMinuteReport(date);
+            flowReportMinuteMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowHourReportKeepDays());
             log.info("清理流通统计小时报表日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanFlowHourReport(date);
+            flowReportHourMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowDayReportKeepDays());
             log.info("清理流通统计日报表日志 date:{}", sdf.format(date));
-            dataCleanMapper.cleanFlowDayReport(date);
+            flowReportDayMapper.clean(date);
         }
     }
 

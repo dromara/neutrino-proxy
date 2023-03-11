@@ -26,8 +26,8 @@ import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 
@@ -39,9 +39,9 @@ import java.util.Date;
 @Slf4j
 @Component
 public class ProxyMutualService {
-	@Inject
+	@Db
 	private PortMappingMapper portMappingMapper;
-	@Inject
+	@Db
 	private LicenseMapper licenseMapper;
 
 	/**

@@ -30,5 +30,5 @@ import lombok.Data;
  */
 @Data
 public class PortMappingDetailReq {
-
+    private Integer id;
 }

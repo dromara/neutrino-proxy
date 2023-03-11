@@ -35,6 +35,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -51,7 +52,7 @@ import java.util.List;
 public class JobLogService implements IJobCallback {
 	@Inject
 	private MapperFactory mapperFactory;
-	@Inject
+	@Db
 	private JobLogMapper jobLogMapper;
 
 	@Override
@@ -66,7 +67,7 @@ public class JobLogService implements IJobCallback {
 			msg = "执行异常:\r\n" + ExceptionUtils.getStackTrace(throwable);
 			code = -1;
 		}
-		jobLogMapper.add(new JobLogDO()
+		jobLogMapper.insert(new JobLogDO()
 				.setJobId(Integer.valueOf(jobInfo.getId()))
 				.setHandler(jobInfo.getName())
 				.setParam(param)

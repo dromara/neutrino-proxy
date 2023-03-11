@@ -46,6 +46,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFactory;
+import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -63,7 +64,7 @@ import java.util.List;
 public class JobInfoService implements IJobSource {
     @Inject
     private MapperFactory mapperFactory;
-    @Inject
+    @Db
     private JobInfoMapper jobInfoMapper;
 
     public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
@@ -137,7 +138,7 @@ public class JobInfoService implements IJobSource {
         jobInfo.setParam(req.getParam());
         jobInfo.setUpdateTime(new Date());
 
-        jobInfoMapper.update( jobInfo);
+        jobInfoMapper.updateById(jobInfo);
         return new JobInfoUpdateRes();
     }
 }

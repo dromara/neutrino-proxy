@@ -1,7 +1,0 @@
-<!--<mapper namespace = "fun.asgc.neutrino.proxy.server.dal.ClientConnectRecordMapper">-->
-
-<!--    <update id="add">-->
-<!--        insert into client_connect_record(`ip`,`license_id`,`type`, `msg`, `code`, `err`, `create_time`)-->
-<!--        values(:ip,:licenseId,:type,:msg,:code,:err,:createTime)-->
-<!--    </update>-->
-<!--</mapper>-->

@@ -19,18 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package fun.asgc.neutrino.proxy.server.dal;
+package fun.asgc.neutrino.proxy.server.base.db;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
+import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
+import lombok.Data;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
- *
+ * sqlite数据库配置
  * @author: aoshiguchen
- * @date: 2022/8/31
+ * @date: 2022/7/31
  */
-@Intercept(ignoreGlobal = true)
+@Data
 @Component
-public interface UserConnectRecordMapper {
+public class DbConfig {
+	/**
+	 * 数据库类型
+	 * {@link DbTypeEnum}
+	 */
+	@Inject("${neutrino.data.db.type}")
+	private String type;
+	/**
+	 * 连接url
+	 */
+	@Inject("${neutrino.data.db.url}")
+	private String url;
+	/**
+	 * 驱动类
+	 */
+	@Inject("${neutrino.data.db.driver-class}")
+	private String driverClass;
 
+	/**
+	 * 用户名
+	 */
+	@Inject("${neutrino.data.db.username}")
+	private String username;
+	/**
+	 * 密码
+	 */
+	@Inject("${neutrino.data.db.password}")
+	private String password;
 }

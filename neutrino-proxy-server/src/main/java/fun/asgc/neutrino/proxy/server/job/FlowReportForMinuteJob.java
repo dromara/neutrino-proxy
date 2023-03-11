@@ -84,7 +84,7 @@ public class FlowReportForMinuteJob implements IJobHandler {
             flowReportMinuteDO.setDate(date);
             flowReportMinuteDO.setDateStr(dateStr);
             flowReportMinuteDO.setCreateTime(now);
-            flowReportMinuteMapper.add(flowReportMinuteDO);
+            flowReportMinuteMapper.insert(flowReportMinuteDO);
         }
     }
 }

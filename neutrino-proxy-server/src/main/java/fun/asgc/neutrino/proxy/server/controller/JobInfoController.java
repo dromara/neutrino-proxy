@@ -21,10 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.web.annotation.RequestBody;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
@@ -66,20 +65,20 @@ public class JobInfoController {
         return jobInfoService.findList();
     }
 
-    @OnlyAdmin
     @Post
     @Mapping("/update/enable-status")
-    public JobInfoUpdateEnableStatusRes updateEnableStatus(@RequestBody JobInfoUpdateEnableStatusReq req) {
+    @Authorization(onlyAdmin = true)
+    public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
         ParamCheckUtil.checkNotNull(req.getId(), "id");
         ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
         return jobInfoService.updateEnableStatus(req);
     }
 
-    @OnlyAdmin
     @Post
-    @Mapping("execute")
-    public JobInfoExecuteRes execute(@RequestBody JobInfoExecuteReq req) {
+    @Mapping("/execute")
+    @Authorization(onlyAdmin = true)
+    public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
         ParamCheckUtil.checkNotNull(req.getId(), "id");
 
@@ -87,8 +86,8 @@ public class JobInfoController {
     }
 
     @Post
-    @Mapping("update")
-    public JobInfoUpdateRes update(@RequestBody JobInfoUpdateReq req) {
+    @Mapping("/update")
+    public JobInfoUpdateRes update(JobInfoUpdateReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
 
         return jobInfoService.update(req);

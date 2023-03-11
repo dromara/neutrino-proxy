@@ -12,10 +12,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -30,7 +29,6 @@ import java.util.Date;
 @ToString
 @Data
 @Accessors(chain = true)
-@Table("user_login_record")
 @TableName("user_login_record")
 public class UserLoginRecordDO {
 	/**
@@ -42,8 +40,7 @@ public class UserLoginRecordDO {
 	 */
 	public static final Integer TYPE_LOGOUT = 2;
 
-	@Id
-	@TableId
+	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
 	 * 用户ID

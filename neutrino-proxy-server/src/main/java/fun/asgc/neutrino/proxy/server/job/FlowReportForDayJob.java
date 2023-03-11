@@ -95,7 +95,7 @@ public class FlowReportForDayJob implements IJobHandler {
         }
 
         for (FlowReportDayDO item : map.values()) {
-            flowReportDayMapper.add(item);
+            flowReportDayMapper.insert(item);
         }
     }
 
