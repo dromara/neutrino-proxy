@@ -56,7 +56,7 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../_solon_plugin/job-solon-plugin/pom.xml</systemPath>
         </dependency>
-        <!--hutool job-solon-plugin用了，server端没用，为什么这里必须要引入？-->
+        <!--hutool -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
