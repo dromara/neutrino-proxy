@@ -17,7 +17,6 @@
     <version>${revision}</version>
 
     <modules>
-        <module>neutrino-core</module>
         <module>neutrino-proxy-core</module>
         <module>neutrino-proxy-client</module>
         <module>neutrino-proxy-server</module>
