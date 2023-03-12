@@ -49,11 +49,6 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	@Inject
 	private DbConfig dbConfig;
 	private DbTypeEnum dbTypeEnum;
-//	@Inject
-//	private JdbcTemplate jdbcTemplate;
-//	@Inject
-//	private DataSource dataSource;
-
 
 	@Init
 	public void init() throws Throwable {

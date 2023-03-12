@@ -6,6 +6,7 @@ import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
@@ -21,12 +22,14 @@ import java.lang.reflect.Method;
  * @author: aoshiguchen
  * @date: 2023/3/9
  */
+@Slf4j
 @Component
 public class BaseAuthInterceptor implements RouterInterceptor {
 
     @Override
     public void doIntercept(Context ctx, Handler mainHandler, RouterInterceptorChain chain) throws Throwable {
         if (!(mainHandler instanceof Action)) {
+            chain.doIntercept(ctx, mainHandler);
             return;
         }
         Action action = (Action) mainHandler;
@@ -64,18 +67,20 @@ public class BaseAuthInterceptor implements RouterInterceptor {
 
     @Override
     public Object postResult(Context ctx, Object result) throws Throwable {
-        SystemContextHolder.remove();
+//        SystemContextHolder.remove();
         if (result instanceof ResponseBody) {
             return result;
         }
-        if (result instanceof ServiceException) {
-            ServiceException exception = (ServiceException) result;
-            return new ResponseBody<>()
-                    .setCode(exception.getCode())
-                    .setMsg(exception.getMsg());
-        }
+
         if (result instanceof Throwable) {
-            new ResponseBody<>()
+            log.error("全局异常", (Throwable) result);
+            if (result instanceof ServiceException) {
+                ServiceException exception = (ServiceException) result;
+                return new ResponseBody<>()
+                        .setCode(exception.getCode())
+                        .setMsg(exception.getMsg());
+            }
+            return new ResponseBody<>()
                     .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
                     .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())
                     .setStack(ExceptionUtils.getStackTrace((Throwable) result));
