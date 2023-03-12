@@ -48,6 +48,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	private static List<String> initDataTableNameList = Lists.newArrayList("user", "license", "port_pool", "port_mapping", "job_info");
 	@Inject
 	private DbConfig dbConfig;
+
 	private DbTypeEnum dbTypeEnum;
 
 	@Init
@@ -91,6 +92,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 
 	/**
 	 * 初始化数据
+	 *
 	 * @throws Exception
 	 */
 	private void initDBData() throws Exception {

@@ -11,6 +11,7 @@ import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.AopContext;
+import org.noear.solon.core.bean.LifecycleBean;
 
 import java.util.List;
 
@@ -20,16 +21,19 @@ import java.util.List;
  * @date: 2022/10/8
  */
 @Configuration
-public class ProxyConfiguration {
-    @Bean
-    public void dispatcher(@Inject AopContext aopContext) {
-        aopContext.lifecycle(() -> {
-            List<ProxyMessageHandler> list = aopContext.getBeansOfType(ProxyMessageHandler.class);
-            Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("消息调度器", list,
-                    proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ?
-                            null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
-            aopContext.wrapAndPut(Dispatcher.class, dispatcher);
-        });
+public class ProxyConfiguration implements LifecycleBean {
+    @Inject
+    AopContext aopContext;
+
+    @Override
+    public void start() throws Throwable {
+        List<ProxyMessageHandler> list = aopContext.getBeansOfType(ProxyMessageHandler.class);
+
+        Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("消息调度器", list,
+                proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ?
+                        null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
+
+        aopContext.wrapAndPut(Dispatcher.class, dispatcher);
     }
 
     @Bean("serverBossGroup")
@@ -41,4 +45,5 @@ public class ProxyConfiguration {
     public NioEventLoopGroup serverWorkerGroup() {
         return new NioEventLoopGroup();
     }
+
 }

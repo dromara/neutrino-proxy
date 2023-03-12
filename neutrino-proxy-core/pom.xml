@@ -21,7 +21,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>5.8.15</version>
+            <version>${hutool.ver}</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>fun.asgc.neutrino</groupId>-->

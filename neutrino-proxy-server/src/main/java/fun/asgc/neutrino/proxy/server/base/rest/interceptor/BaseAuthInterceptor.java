@@ -74,17 +74,20 @@ public class BaseAuthInterceptor implements RouterInterceptor {
 
         if (result instanceof Throwable) {
             log.error("全局异常", (Throwable) result);
+
             if (result instanceof ServiceException) {
                 ServiceException exception = (ServiceException) result;
                 return new ResponseBody<>()
                         .setCode(exception.getCode())
                         .setMsg(exception.getMsg());
             }
+
             return new ResponseBody<>()
                     .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
                     .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())
                     .setStack(ExceptionUtils.getStackTrace((Throwable) result));
         }
+
         return new ResponseBody<>()
                 .setCode(0)
                 .setData(result);

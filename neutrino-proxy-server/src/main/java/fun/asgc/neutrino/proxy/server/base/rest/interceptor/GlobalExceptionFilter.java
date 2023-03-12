@@ -24,13 +24,15 @@ public class GlobalExceptionFilter implements Filter {
             chain.doFilter(ctx);
         } catch (Throwable e) {
             log.error("全局异常", e);
+
             if (e instanceof ServiceException) {
-                ServiceException serviceException = (ServiceException)e;
+                ServiceException serviceException = (ServiceException) e;
                 ctx.render(new ResponseBody<>()
                         .setCode(serviceException.getCode())
                         .setMsg(serviceException.getMsg()));
                 return;
             }
+
             ctx.render(new ResponseBody<>()
                     .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
                     .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())

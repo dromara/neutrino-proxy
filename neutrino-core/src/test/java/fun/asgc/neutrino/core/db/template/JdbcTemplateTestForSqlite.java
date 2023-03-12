@@ -21,8 +21,7 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import com.google.common.collect.Sets;
+import com.zaxxer.hikari.HikariDataSource;
 import fun.asgc.neutrino.core.db.annotation.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -41,9 +40,9 @@ public class JdbcTemplateTestForSqlite {
 	private JdbcTemplate jdbcTemplate;
 
 	{
-		DruidDataSource dataSource = new DruidDataSource();
+		HikariDataSource dataSource = new HikariDataSource();
 //		dataSource.setUrl("jdbc:sqlite:" + JdbcTemplateTestForSqlite.class.getResource("/sqlite.db").getPath());
-		dataSource.setUrl("jdbc:sqlite:../data.db");
+		dataSource.setJdbcUrl("jdbc:sqlite:../data.db");
 		dataSource.setDriverClassName("org.sqlite.JDBC");
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
