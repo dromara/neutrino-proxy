@@ -26,17 +26,18 @@ public class VisitLogInterceptor implements RouterInterceptor {
         }
 
         Date startTime = new Date();
-
-        chain.doIntercept(ctx, mainHandler);
-
-        Date now = new Date();
-        long elapsedTime = now.getTime() - startTime.getTime();
-        log.info("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\n请求体参数:{}\n响应结果:{}\n客户端IP:{}\n",
-                ctx.method(), ctx.path(), getElapsedTimeStr(elapsedTime),
-                JSONObject.toJSONString(ctx.paramMap()),
-                JSONObject.toJSONString(JSONObject.toJSONString(ctx.result)),
-                ctx.realIp()
-        );
+        try {
+            chain.doIntercept(ctx, mainHandler);
+        } finally {
+            Date now = new Date();
+            long elapsedTime = now.getTime() - startTime.getTime();
+            log.info("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\n请求体参数:{}\n响应结果:{}\n客户端IP:{}\n",
+                    ctx.method(), ctx.path(), getElapsedTimeStr(elapsedTime),
+                    JSONObject.toJSONString(ctx.paramMap()),
+                    JSONObject.toJSONString(JSONObject.toJSONString(ctx.result)),
+                    ctx.realIp()
+            );
+        }
     }
 
     /**

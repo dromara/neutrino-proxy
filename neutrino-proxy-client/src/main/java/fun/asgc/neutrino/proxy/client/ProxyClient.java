@@ -1,18 +1,16 @@
 package fun.asgc.neutrino.proxy.client;
 
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import org.noear.solon.Solon;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NeutrinoApplication(environmentVariableKey = "NeutrinoProxyClient")
 public class ProxyClient {
 
 	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyClient.class, args);
+		Solon.start(ProxyClient.class, args);
 	}
 
 }

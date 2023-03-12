@@ -30,32 +30,18 @@
             <groupId>org.noear</groupId>
             <artifactId>activerecord-solon-plugin</artifactId>
         </dependency>
-        <!--orika orika-solon-plugin用户，server端没直接用，为何这里需要引入？-->
-        <dependency>
-            <groupId>ma.glasnost.orika</groupId>
-            <artifactId>orika-core</artifactId>
-            <version>1.5.4</version>
-        </dependency>
+        <!--orika-->
         <dependency>
             <groupId>fun.asgc</groupId>
             <artifactId>orika-solon-plugin</artifactId>
             <version>2.2.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../_solon_plugin/orika-solon-plugin/pom.xml</systemPath>
         </dependency>
         <!--job-->
         <dependency>
             <groupId>fun.asgc</groupId>
             <artifactId>job-solon-plugin</artifactId>
             <version>2.2.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../_solon_plugin/job-solon-plugin/pom.xml</systemPath>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>cn.hutool</groupId>-->
-<!--            <artifactId>hutool-db</artifactId>-->
-<!--            <version>5.8.15</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-proxy-core</artifactId>

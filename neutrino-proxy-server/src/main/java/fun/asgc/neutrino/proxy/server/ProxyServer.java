@@ -2,7 +2,6 @@ package fun.asgc.neutrino.proxy.server;
 
 import fun.asgc.solon.extend.job.annotation.EnableJob;
 import org.noear.solon.Solon;
-import org.noear.solon.annotation.Controller;
 import org.noear.solon.annotation.SolonMain;
 import org.noear.solon.web.cors.CrossFilter;
 
