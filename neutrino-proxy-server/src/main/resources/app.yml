@@ -25,8 +25,6 @@ neutrino:
       driver-class: org.sqlite.JDBC
       username:
       password:
-  job:
-    enable: true
 
 #添加MIME印射（如果有需要？）
 #是否启用静态文件服务。（可不配，默认为启用）

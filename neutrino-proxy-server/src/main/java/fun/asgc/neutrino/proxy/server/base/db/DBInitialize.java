@@ -64,6 +64,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	@Override
 	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
 		// TODO 该事件有50%的概率不触发
+		System.out.println("11");
 	}
 
 	/**

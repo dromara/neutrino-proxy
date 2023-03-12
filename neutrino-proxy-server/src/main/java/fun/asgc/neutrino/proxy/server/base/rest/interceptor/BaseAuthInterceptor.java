@@ -67,7 +67,7 @@ public class BaseAuthInterceptor implements RouterInterceptor {
 
     @Override
     public Object postResult(Context ctx, Object result) throws Throwable {
-//        SystemContextHolder.remove();
+        SystemContextHolder.remove();
         if (result instanceof ResponseBody) {
             return result;
         }
