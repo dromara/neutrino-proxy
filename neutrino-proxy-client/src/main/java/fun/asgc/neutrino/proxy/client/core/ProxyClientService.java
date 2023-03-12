@@ -1,37 +1,12 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package fun.asgc.neutrino.proxy.client.core;
 
-import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.base.CustomThreadFactory;
-import fun.asgc.neutrino.core.context.Environment;
-import fun.asgc.neutrino.core.util.FileUtil;
-import fun.asgc.neutrino.core.util.StringUtil;
+import cn.hutool.core.util.StrUtil;
 import fun.asgc.neutrino.proxy.client.config.ProxyConfig;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.core.ProxyMessageDecoder;
 import fun.asgc.neutrino.proxy.core.ProxyMessageEncoder;
+import fun.asgc.neutrino.proxy.core.util.FileUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -40,6 +15,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.Solon;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
+import org.noear.solon.annotation.Inject;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -57,18 +36,14 @@ import java.util.concurrent.TimeUnit;
  * @date: 2022/6/16
  */
 @Slf4j
-@NonIntercept
 @Component
 public class ProxyClientService {
-	@Autowired
+	@Inject
 	private ProxyConfig proxyConfig;
-	@Autowired("bootstrap")
-	private static Bootstrap bootstrap;
-	@Autowired("realServerBootstrap")
-	private static Bootstrap realServerBootstrap;
-	private static NioEventLoopGroup workerGroup;
-	@Autowired
-	private Environment environment;
+	@Inject("bootstrap")
+	private Bootstrap bootstrap;
+	@Inject("realServerBootstrap")
+	private Bootstrap realServerBootstrap;
 	private volatile Channel channel;
 	/**
 	 * 重连间隔（秒）
@@ -91,7 +66,7 @@ public class ProxyClientService {
 	public void init() {
 		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 0, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-		workerGroup = new NioEventLoopGroup();
+		NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 		realServerBootstrap.group(workerGroup);
 		realServerBootstrap.channel(NioSocketChannel.class);
 		realServerBootstrap.handler(new ChannelInitializer<SocketChannel>() {
@@ -120,20 +95,39 @@ public class ProxyClientService {
 				ch.pipeline().addLast(new ClientChannelHandler());
 			}
 		});
+		this.start();
 	}
 
 	public void start() {
-		if (StringUtil.isEmpty(proxyConfig.getLicenseKey())) {
+		if (StrUtil.isEmpty(proxyConfig.getClient().getServerIp())) {
+			log.error("not found server-ip config.");
+			Solon.stop();
+			return;
+		}
+		if (null == proxyConfig.getClient().getServerPort()) {
+			log.error("not found server-port config.");
+			Solon.stop();
+			return;
+		}
+		if (null != proxyConfig.getClient().getSslEnable() && proxyConfig.getClient().getSslEnable()
+			&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
+			log.error("not found jks-path config.");
+			Solon.stop();
+			return;
+		}
+		if (StrUtil.isEmpty(proxyConfig.getClient().getLicenseKey())) {
+			log.error("not found license-key config.");
+			Solon.stop();
 			return;
 		}
 		if (null == channel || !channel.isActive()) {
 			try {
 				connectProxyServer();
 			} catch (Exception e) {
-				log.error("启动异常", e);
+				log.error("client start error", e);
 			}
 		} else {
-			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
+			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
 		}
 	}
 
@@ -150,7 +144,7 @@ public class ProxyClientService {
 						channel = future.channel();
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
-						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getLicenseKey()));
+						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
 						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 
 						reconnectServiceEnable = true;
@@ -198,15 +192,5 @@ public class ProxyClientService {
 		} catch (Exception e) {
 			log.error("重连异常", e);
 		}
-	}
-
-	@Bean
-	public Bootstrap bootstrap() {
-		return new Bootstrap();
-	}
-
-	@Bean
-	public Bootstrap realServerBootstrap() {
-		return new Bootstrap();
 	}
 }

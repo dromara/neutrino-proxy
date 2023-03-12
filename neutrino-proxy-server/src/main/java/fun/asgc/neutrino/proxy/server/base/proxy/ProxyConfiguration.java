@@ -7,6 +7,7 @@ import fun.asgc.neutrino.proxy.core.dispatcher.DefaultDispatcher;
 import fun.asgc.neutrino.proxy.core.dispatcher.Dispatcher;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.noear.solon.Solon;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
@@ -22,18 +23,15 @@ import java.util.List;
  */
 @Configuration
 public class ProxyConfiguration implements LifecycleBean {
-    @Inject
-    AopContext aopContext;
 
     @Override
     public void start() throws Throwable {
-        List<ProxyMessageHandler> list = aopContext.getBeansOfType(ProxyMessageHandler.class);
-
+        List<ProxyMessageHandler> list = Solon.context().getBeansOfType(ProxyMessageHandler.class);
         Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("消息调度器", list,
                 proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ?
                         null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
 
-        aopContext.wrapAndPut(Dispatcher.class, dispatcher);
+        Solon.context().wrapAndPut(Dispatcher.class, dispatcher);
     }
 
     @Bean("serverBossGroup")

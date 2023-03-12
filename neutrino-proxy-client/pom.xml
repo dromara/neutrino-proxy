@@ -14,11 +14,11 @@
     <artifactId>neutrino-proxy-client</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>fun.asgc.neutrino</groupId>
-            <artifactId>neutrino-core</artifactId>
-            <version>${revision}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>fun.asgc.neutrino</groupId>-->
+<!--            <artifactId>neutrino-core</artifactId>-->
+<!--            <version>${revision}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
