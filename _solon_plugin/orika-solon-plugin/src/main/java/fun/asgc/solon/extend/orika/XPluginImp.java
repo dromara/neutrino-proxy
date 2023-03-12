@@ -2,6 +2,7 @@ package fun.asgc.solon.extend.orika;
 
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.Mapper;
+import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.ClassMapBuilder;
@@ -27,7 +28,7 @@ public class XPluginImp implements Plugin {
             factory.registerClassMap((ClassMapBuilder<? extends Object, ? extends Object>) bw.raw());
         });
         context.wrapAndPut(MapperFactory.class, factory);
-        context.beanScan("fun.asgc.solon.extend.orika");
+        context.wrapAndPut(MapperFacade.class, factory.getMapperFacade());
     }
 
 }
