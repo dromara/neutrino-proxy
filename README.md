@@ -7,7 +7,9 @@
 </p>
 
 # 1、简介
-中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
+- 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。
+- 技术栈：Solon、MybatisPlus
+- 遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 
 # 2、名称由来
 中微子，是轻子的一种，是组成自然界的最基本的粒子之一。它十分微小、不带电，可自由穿过地球，以接近光速运动，与其他物质的相互作用十分微弱，号称宇宙间的“隐身人”。
@@ -25,7 +27,6 @@
 
 # 4、项目结构
 - neutrino-proxy 
-    - neutrino-core     与代理无关的基础封装
     - neutrino-proxy-core       与代理相关的公共常量、编解码器
     - neutrino-proxy-client     代理客户端项目
     - neutrino-proxy-server     代理服务端项目
@@ -63,14 +64,16 @@ proxy:
     # 证书存放路径，若不想打进jar包，可不带classpath:前缀
     jks-path: classpath:/test.jks 
   data:
-    # 数据库配置（不用动，项目自动会自动初始化）
-    sqlite:
+    # 数据库配置（支持mysql）
+      type: sqlite
       url: jdbc:sqlite:data.db
       driver-class: org.sqlite.JDBC
+      username:
+      password:
 ```
 
 ## 5.3、启动服务端
-> fun.asgc.neutrino.proxy.server.ProxyServer
+> java -jar neutrino-proxy-server.jar
 
 ## 5.4、修改客户端配置
 ```yml
@@ -98,16 +101,26 @@ proxy:
     server-port: 9000
     # 是否启用ssl，启用则必须配置ssl相关参数
     ssl-enable: false
-    # 获取license提示间隔（秒）
-    obtain-license-interval: 5
 ```
 ## 5.5、代理示意图
 ![代理流程](assets/neutrino-proxy-process.jpg)
 
 ## 5.6、启动客户端
-> fun.asgc.neutrino.proxy.client.ProxyClient
-默认情况下，客户端会加载当前目录下的.neutrino-proxy.license里的license，可通过命令行参数指定，如：java -jar neutrino-proxy-client.jar license=xxx
-若启动参数未指定license，且是首次启动（当前目录下未缓存license），则需要根据命令行提示输入正确的license, 输入完成后完成连接，可在服务端管理页面控制端口转发，参见[2、运行示例](#2)
+### 5.6.1、启动参数直接指定配置
+> java -jar neutrino-proxy-client.jar serverIp=localhost serverPort=9000 licenseKey=b0a907332b474b25897c4dcb31fc7eb6
+
+### 5.6.2、启动参数指定外部配置文件
+> java -jar neutrino-proxy-client.jar config=app.properties
+
+配置文件格式如下：
+```
+neutrino.proxy.client.server-ip=localhost
+neutrino.proxy.client.server-port=9002
+neutrino.proxy.client.ssl-enable=true
+neutrino.proxy.client.key-store-password=123456
+neutrino.proxy.client.jks-path=classpath:/test.jks
+neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
+```
 
 ## 5.7、Docker快速启动
 ```shell script
@@ -135,7 +148,92 @@ proxy:
 - 微信: yuyunshize
 - Gitee: https://gitee.com/asgc/neutrino-proxy
 
-# 10、特别鸣谢
-* [JetBrains](https://www.jetbrains.com?from=RedisFront)
+#  ❤️ 感谢
+* [Solon](https://gitee.com/noear/solon?from=NeutrinoProxy)
+* [Hutool](https://hutool.cn?from=NeutrinoProxy)
+* [JetBrains](https://www.jetbrains.com?from=NeutrinoProxy)
 
 ![JenBrains logo](assets/jetbrains.svg)
+
+# 📚 Dromara 成员项目
+
+<p align="center">
+<a href="https://gitee.com/dromara/TLog" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/tlog2.png" alt="一个轻量级的分布式日志标记追踪神器，10分钟即可接入，自动对日志打标签完成微服务的链路追踪" width="15%">
+</a>
+<a href="https://gitee.com/dromara/liteFlow" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/liteflow.png" alt="轻量，快速，稳定，可编排的组件式流程引擎" width="15%">
+</a>
+<a href="https://hutool.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hutool.jpg" alt="小而全的Java工具类库，使Java拥有函数式语言般的优雅，让Java语言也可以“甜甜的”。" width="15%">
+</a>
+<a href="https://sa-token.dev33.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/sa-token.png" alt="一个轻量级 java 权限认证框架，让鉴权变得简单、优雅！" width="15%">
+</a>
+<a href="https://gitee.com/dromara/hmily" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hmily.png" alt="高性能一站式分布式事务解决方案。" width="15%">
+</a>
+<a href="https://gitee.com/dromara/Raincat" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/raincat.png" alt="强一致性分布式事务解决方案。" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://gitee.com/dromara/myth" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/myth.png" alt="可靠消息分布式事务解决方案。" width="15%">
+</a>
+<a href="https://cubic.jiagoujishu.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/cubic.png" alt="一站式问题定位平台，以agent的方式无侵入接入应用，完整集成arthas功能模块，致力于应用级监控，帮助开发人员快速定位问题" width="15%">
+</a>
+<a href="https://maxkey.top/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/maxkey.png" alt="业界领先的身份管理和认证产品" width="15%">
+</a>
+<a href="http://forest.dtflyx.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/forest-logo.png" alt="Forest能够帮助您使用更简单的方式编写Java的HTTP客户端" width="15%">
+</a>
+<a href="https://jpom.io/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/jpom.png" alt="一款简而轻的低侵入式在线构建、自动部署、日常运维、项目监控软件" width="15%">
+</a>
+<a href="https://su.usthe.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/sureness.png" alt="面向 REST API 的高性能认证鉴权框架" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://easy-es.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/easy-es2.png" alt="傻瓜级ElasticSearch搜索引擎ORM框架" width="15%">
+</a>
+<a href="https://gitee.com/dromara/northstar" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/northstar_logo.png" alt="Northstar盈富量化交易平台" width="15%">
+</a>
+<a href="https://hertzbeat.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hertzbeat_brand.jpg" alt="易用友好的云监控系统" width="15%">
+</a>
+<a href="https://plugins.sheng90.wang/fast-request/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/fast-request.gif" alt="Idea 版 Postman，为简化调试API而生" width="15%">
+</a>
+<a href="https://www.jeesuite.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/mendmix.png" alt="开源分布式云原生架构一站式解决方案" width="15%">
+</a>
+<a href="https://gitee.com/dromara/koalas-rpc" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/koalas-rpc2.png" alt="企业生产级百亿日PV高可用可拓展的RPC框架。" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://async.sizegang.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/gobrs-async.png" alt="配置极简功能强大的异步任务动态编排框架" width="15%">
+</a>
+<a href="https://dynamictp.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dynamic-tp.png" alt="基于配置中心的轻量级动态可监控线程池" width="15%">
+</a>
+<a href="https://www.x-easypdf.cn" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/x-easypdf.png" alt="一个用搭积木的方式构建pdf的框架（基于pdfbox）" width="15%">
+</a>
+<a href="http://dromara.gitee.io/image-combiner" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/image-combiner.png" alt="一个专门用于图片合成的工具，没有很复杂的功能，简单实用，却不失强大" width="15%">
+</a>
+<a href="https://www.herodotus.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dante-cloud2.png" alt="Dante-Cloud 是一款企业级微服务架构和服务能力开发平台。" width="15%">
+</a>
+<a href="https://dromara.org/zh/projects/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dromara.png" alt="让每一位开源爱好者，体会到开源的快乐。" width="15%">
+</a>
+</p>
