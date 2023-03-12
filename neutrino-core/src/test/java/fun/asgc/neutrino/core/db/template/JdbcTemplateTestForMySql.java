@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.core.db.template;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import fun.asgc.neutrino.core.db.annotation.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -42,8 +42,8 @@ public class JdbcTemplateTestForMySql {
 	private JdbcTemplate jdbcTemplate;
 
 	{
-		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
+		HikariDataSource dataSource = new HikariDataSource();
+		dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
 		dataSource.setUsername("root");
 		dataSource.setPassword("YWasgc@10520");
 		jdbcTemplate = new JdbcTemplate(dataSource);

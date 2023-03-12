@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.core.db.mapper;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import fun.asgc.neutrino.core.annotation.Bean;
 import fun.asgc.neutrino.core.annotation.Component;
 import fun.asgc.neutrino.core.annotation.Order;
@@ -38,8 +38,8 @@ public class Configuration {
 
 	@Bean
 	public JdbcTemplate jdbcTemplate() {
-		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
+		HikariDataSource dataSource = new HikariDataSource();
+		dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
 		dataSource.setUsername("root");
 		dataSource.setPassword("YWasgc@10520");
 		return new JdbcTemplate(dataSource);

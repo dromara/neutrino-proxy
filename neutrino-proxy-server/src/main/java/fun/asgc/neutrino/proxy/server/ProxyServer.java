@@ -3,6 +3,7 @@ package fun.asgc.neutrino.proxy.server;
 import fun.asgc.solon.extend.job.annotation.EnableJob;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.SolonMain;
 import org.noear.solon.web.cors.CrossFilter;
 
 /**
@@ -11,7 +12,7 @@ import org.noear.solon.web.cors.CrossFilter;
  * @date: 2022/6/16
  */
 @EnableJob
-@Controller
+@SolonMain
 public class ProxyServer {
 
 	public static void main(String[] args) {

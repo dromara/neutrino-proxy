@@ -21,7 +21,7 @@
  */
 package fun.asgc.neutrino.core.db.dao;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import fun.asgc.neutrino.core.db.annotation.Column;
 import fun.asgc.neutrino.core.db.annotation.Id;
 import lombok.Data;
@@ -29,6 +29,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.junit.Test;
 
+import javax.activation.DataSource;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -39,12 +40,12 @@ import java.util.List;
  * @date: 2022/6/28
  */
 public class DaoTest {
-	private DruidDataSource dataSource;
+	private HikariDataSource dataSource;
 	private DBType dbType;
 
 	{
-		dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
+		dataSource = new HikariDataSource();
+		dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/test1?useUnicode=true&characterEncoding=utf8");
 		dataSource.setUsername("root");
 		dataSource.setPassword("YWasgc@10520");
 		dbType = DBType.MYSQL;

@@ -1,10 +1,10 @@
 package fun.asgc.neutrino.proxy.server.base.db;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.zaxxer.hikari.HikariDataSource;
 import fun.asgc.neutrino.proxy.server.constant.DbTypeEnum;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Bean;
@@ -31,14 +31,17 @@ public class DbConfiguration {
             dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
             return dataSource;
         } else if (DbTypeEnum.MYSQL == dbTypeEnum) {
-            DruidDataSource dataSource = new DruidDataSource();
+            HikariDataSource dataSource = new HikariDataSource();
             dataSource.setDriverClassName(dbConfig.getDriverClass());
-            dataSource.setUrl(dbConfig.getUrl());
-            dataSource.setInitialSize(5);
-            dataSource.setMinIdle(5);
-            dataSource.setMaxActive(20);
-            dataSource.setMaxWait(60000);
-            dataSource.setPoolPreparedStatements(true);
+            dataSource.setJdbcUrl(dbConfig.getUrl());
+            dataSource.setMinimumIdle(5);
+            dataSource.setMaximumPoolSize(20);
+            dataSource.setMaxLifetime(60000);
+//            dataSource.setInitialSize(5);
+//            dataSource.setMinIdle(5);
+//            dataSource.setMaxActive(20);
+//            dataSource.setMaxWait(60000);
+//            dataSource.setPoolPreparedStatements(true);
             dataSource.setUsername(dbConfig.getUsername());
             dataSource.setPassword(dbConfig.getPassword());
             return dataSource;
