@@ -17,15 +17,14 @@ public class XPluginImp implements Plugin {
     @Override
     public void start(AopContext context) throws Throwable {
         DefaultMapperFactory factory = new DefaultMapperFactory.Builder().build();
-
-        context.subWrapsOfType(CustomConverter.class, bw -> {
-            factory.getConverterFactory().registerConverter(bw.raw());
+        context.subBeansOfType(CustomConverter.class, bean -> {
+            factory.getConverterFactory().registerConverter(bean);
         });
-        context.subWrapsOfType(Mapper.class, bw -> {
-            factory.registerMapper(bw.raw());
+        context.subBeansOfType(Mapper.class, bean -> {
+            factory.registerMapper(bean);
         });
-        context.subWrapsOfType(ClassMapBuilder.class, bw -> {
-            factory.registerClassMap((ClassMapBuilder<? extends Object, ? extends Object>) bw.raw());
+        context.subBeansOfType(ClassMapBuilder.class, bean -> {
+            factory.registerClassMap((ClassMapBuilder<? extends Object, ? extends Object>) bean);
         });
         context.wrapAndPut(MapperFactory.class, factory);
         context.wrapAndPut(MapperFacade.class, factory.getMapperFacade());
