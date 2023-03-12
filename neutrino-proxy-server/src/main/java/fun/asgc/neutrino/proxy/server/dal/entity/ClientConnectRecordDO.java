@@ -1,7 +1,8 @@
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -15,9 +16,9 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("client_connect_record")
+@TableName("client_connect_record")
 public class ClientConnectRecordDO {
-    @Id
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private String ip;
     private Integer licenseId;

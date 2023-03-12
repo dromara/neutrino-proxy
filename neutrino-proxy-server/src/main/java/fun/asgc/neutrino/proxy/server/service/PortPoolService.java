@@ -21,11 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
@@ -37,6 +37,10 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusR
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
@@ -46,23 +50,29 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
-@NonIntercept
 @Component
 public class PortPoolService {
-
-	@Autowired
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
 	private PortPoolMapper portPoolMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
-	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
-		Page<PortPoolListRes> page = Page.create(pageQuery);
-		portPoolMapper.page(page, req);
-		return page;
+	public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
+		Page<PortPoolListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
+				.orderByAsc(PortPoolDO::getId)
+		);
+		List<PortPoolListRes> respList = mapperFacade.mapAsList(list, PortPoolListRes.class);
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 	public List<PortPoolListRes> list(PortPoolListReq req) {
-		return portPoolMapper.list();
+		List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
+				.eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+		);
+		return mapperFacade.mapAsList(list, PortPoolListRes.class);
 	}
 
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
@@ -71,7 +81,7 @@ public class PortPoolService {
 
 		Date now = new Date();
 
-		portPoolMapper.add(new PortPoolDO()
+		portPoolMapper.insert(new PortPoolDO()
 			.setPort(req.getPort())
 			.setEnable(EnableStatusEnum.ENABLE.getStatus())
 			.setCreateTime(now)
@@ -98,7 +108,7 @@ public class PortPoolService {
 		PortPoolDO portPoolDO = portPoolMapper.findById(id);
 		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
 
-		portPoolMapper.delete(id);
+		portPoolMapper.deleteById(id);
 
 		// 更新visitorChannel
 		visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());

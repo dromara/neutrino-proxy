@@ -1,26 +1,21 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.Date;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/11/23
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface ClientConnectRecordMapper extends SqlMapper {
-
-    void add(ClientConnectRecordDO clientConnectRecordDO);
-
-    @ResultType(ClientConnectRecordListRes.class)
-    @Select("select * from client_connect_record order by id desc")
-    void page(Page page, ClientConnectRecordListReq req);
+@Mapper
+public interface ClientConnectRecordMapper extends BaseMapper<ClientConnectRecordDO> {
+    default void clean(Date date) {
+        this.delete(new LambdaQueryWrapper<ClientConnectRecordDO>()
+                .lt(ClientConnectRecordDO::getCreateTime, date)
+        );
+    }
 }

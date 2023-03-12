@@ -1,40 +1,38 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package fun.asgc.neutrino.proxy.client;
 
-import fun.asgc.neutrino.core.annotation.NeutrinoApplication;
-import fun.asgc.neutrino.core.context.NeutrinoLauncher;
+import cn.hutool.core.util.StrUtil;
+import org.noear.solon.Solon;
+import org.noear.solon.SolonApp;
+import org.noear.solon.annotation.SolonMain;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
-@NeutrinoApplication
+@SolonMain
 public class ProxyClient {
 
 	public static void main(String[] args) {
-		NeutrinoLauncher.run(ProxyClient.class, args);
+		Solon.start(ProxyClient.class, args, app -> {
+			setAlias("neutrino.proxy.client.serverIp", "serverIp");
+			setAlias("neutrino.proxy.client.serverPort", "serverPort");
+			setAlias("neutrino.proxy.client.sslEnable", "sslEnable");
+			setAlias("neutrino.proxy.client.jksPath", "jksPath");
+			setAlias("neutrino.proxy.client.keyStorePassword", "keyStorePassword");
+			setAlias("neutrino.proxy.client.licenseKey", "licenseKey");
+		});
 	}
 
+	/**
+	 * 别名处理，支持较短的启动参数名
+	 * @param key
+	 * @param alias
+	 */
+	private static void setAlias(String key, String alias) {
+		String val = Solon.cfg().argx().get(alias);
+		if (StrUtil.isNotBlank(val)) {
+			Solon.cfg().put(key, val);
+		}
+	}
 }

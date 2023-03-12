@@ -1,29 +1,6 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package fun.asgc.neutrino.proxy.server.proxy.core;
 
-import fun.asgc.neutrino.core.util.BeanManager;
-import fun.asgc.neutrino.core.util.StringUtil;
+import cn.hutool.core.util.StrUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
 import fun.asgc.neutrino.proxy.server.proxy.domain.VisitorChannelAttachInfo;
@@ -34,6 +11,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.noear.solon.Solon;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
@@ -72,7 +50,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
             // 增加流量计数
             VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-            BeanManager.getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
+            Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         }
     }
 
@@ -88,7 +66,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
             String visitorId = newVisitorId();
             String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
-            if (StringUtil.isEmpty(lanInfo)) {
+            if (StrUtil.isEmpty(lanInfo)) {
                 ctx.channel().close();
             } else {
                 // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态

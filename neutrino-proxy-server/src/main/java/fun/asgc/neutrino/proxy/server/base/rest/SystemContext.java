@@ -24,6 +24,7 @@ package fun.asgc.neutrino.proxy.server.base.rest;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.noear.solon.core.handle.Action;
 
 import java.util.Date;
 
@@ -51,4 +52,5 @@ public class SystemContext {
 	 * 接收请求时间
 	 */
 	private Date receiveTime;
+	private Action action;
 }

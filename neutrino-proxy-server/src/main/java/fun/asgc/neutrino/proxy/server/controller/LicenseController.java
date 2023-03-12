@@ -21,19 +21,14 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.LicenseService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -42,29 +37,29 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@NonIntercept
-@RequestMapping("license")
-@RestController
+@Mapping("/license")
+@Controller
 public class LicenseController {
-
-	@Autowired
+	@Inject
 	private LicenseService licenseService;
 
-	@GetMapping("page")
-	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+	@Get
+	@Mapping("/page")
+	public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return licenseService.page(pageQuery, req);
 	}
 
-	@GetMapping("list")
+	@Mapping("/list")
 	public List<LicenseListRes> list(LicenseListReq req) {
 		return licenseService.list(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("create")
-	public LicenseCreateRes create(@RequestBody LicenseCreateReq req) {
+	@Post
+	@Mapping("/create")
+	@Authorization(onlyAdmin = true)
+	public LicenseCreateRes create(LicenseCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
 		ParamCheckUtil.checkNotNull(req.getUserId(), "userId");
@@ -72,9 +67,10 @@ public class LicenseController {
 		return licenseService.create(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("update")
-	public LicenseUpdateRes update(@RequestBody LicenseUpdateReq req) {
+	@Post
+	@Mapping("/update")
+	@Authorization(onlyAdmin = true)
+	public LicenseUpdateRes update(LicenseUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
@@ -82,16 +78,19 @@ public class LicenseController {
 		return licenseService.update(req);
 	}
 
-	@GetMapping("detail")
-	public LicenseDetailRes detail(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Post
+	@Mapping("/detail")
+	public LicenseDetailRes detail(LicenseDetailReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		return licenseService.detail(id);
+		return licenseService.detail(req.getId());
 	}
 
-	@OnlyAdmin
-	@PostMapping("update/enable-status")
-	public LicenseUpdateEnableStatusRes updateEnableStatus(@RequestBody LicenseUpdateEnableStatusReq req) {
+	@Post
+	@Mapping("/update/enable-status")
+	@Authorization(onlyAdmin = true)
+	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
@@ -99,20 +98,24 @@ public class LicenseController {
 		return licenseService.updateEnableStatus(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("delete")
-	public void delete(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Post
+	@Mapping("/delete")
+	@Authorization(onlyAdmin = true)
+	public void delete(LicenseDeleteReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		licenseService.delete(id);
+		licenseService.delete(req.getId());
 	}
 
-	@OnlyAdmin
-	@PostMapping("reset")
-	public void reset(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Post
+	@Mapping("/reset")
+	@Authorization(onlyAdmin = true)
+	public void reset(LicenseResetReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		licenseService.reset(id);
+		licenseService.reset(req.getId());
 	}
 
 }

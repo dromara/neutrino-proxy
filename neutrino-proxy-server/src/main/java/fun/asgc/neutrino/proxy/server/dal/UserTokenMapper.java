@@ -21,13 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 
@@ -36,17 +34,8 @@ import java.util.Date;
  * @author: aoshiguchen
  * @date: 2022/8/1
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface UserTokenMapper extends SqlMapper {
-	/**
-	 * 新增用户token
-	 * 支持注解 + xml配置2种方式
-	 * @param userToken
-	 * @return
-	 */
-//	@Insert("insert into `user_token`(`token`,`user_id`,`expiration_time`,`create_time`,`update_time`) values (:token,:userId,:expirationTime,:createTime,:updateTime)")
-	int  add(UserTokenDO userToken);
+@Mapper
+public interface UserTokenMapper extends BaseMapper<UserTokenDO> {
 
 	/**
 	 * 根据token查询单条记录
@@ -55,23 +44,37 @@ public interface UserTokenMapper extends SqlMapper {
 	 * @param time
 	 * @return
 	 */
-//	@Select("select * from user_token where token = ? and expiration_time > ?")
-	UserTokenDO findByAvailableToken(String token, Date date);
+	default UserTokenDO findByAvailableToken(String token, Date date) {
+		return selectOne(new LambdaQueryWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getToken, token)
+				.gt(UserTokenDO::getExpirationTime, date)
+		);
+	}
 
 	/**
 	 * 根据token删除记录
 	 * @param token
 	 */
-	@Delete("delete from user_token where token = ?")
-	void deleteByToken(String token);
+	default void deleteByToken(String token) {
+		this.delete(new LambdaQueryWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getToken, token)
+		);
+	}
 
-	@Update("update user_token set expiration_time = :expirationTime where token = :token")
-	void updateTokenExpirationTime(@Param("token") String token, @Param("expirationTime") Date expirationTime);
+	default void updateTokenExpirationTime(String token, Date expirationTime) {
+		this.update(null, new LambdaUpdateWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getToken, token)
+				.set(UserTokenDO::getExpirationTime, expirationTime)
+		);
+	}
 
 	/**
 	 * 根据userId删除token
 	 * @param userId
 	 */
-	@Delete("delete from user_token where user_id = ?")
-	void deleteByUserId(Integer userId);
+	default void deleteByUserId(Integer userId) {
+		this.delete(new LambdaQueryWrapper<UserTokenDO>()
+				.eq(UserTokenDO::getUserId, userId)
+		);
+	}
 }

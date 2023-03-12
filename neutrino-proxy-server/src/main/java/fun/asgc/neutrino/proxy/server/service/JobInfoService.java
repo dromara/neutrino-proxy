@@ -1,45 +1,34 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package fun.asgc.neutrino.proxy.server.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.quartz.IJobSource;
-import fun.asgc.neutrino.core.quartz.JobExecutor;
-import fun.asgc.neutrino.core.quartz.JobInfo;
-import fun.asgc.neutrino.core.util.BeanManager;
-import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateRes;
 import fun.asgc.neutrino.proxy.server.dal.JobInfoMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import fun.asgc.solon.extend.job.IJobSource;
+import fun.asgc.solon.extend.job.JobInfo;
+import fun.asgc.solon.extend.job.impl.JobExecutor;
 import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.Solon;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
@@ -50,17 +39,20 @@ import java.util.List;
  * @date: 2022/9/5
  */
 @Slf4j
-@NonIntercept
 @Component
 public class JobInfoService implements IJobSource {
-
-    @Autowired
+    @Inject
+    private MapperFacade mapperFacade;
+    @Db
     private JobInfoMapper jobInfoMapper;
 
-    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
-        Page<JobInfoListRes> page = Page.create(pageQuery);
-        jobInfoMapper.page(page, req);
-        return page;
+    public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+        Page<JobInfoListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        List<JobInfoDO> list = jobInfoMapper.selectList(new LambdaQueryWrapper<JobInfoDO>()
+                .orderByAsc(JobInfoDO::getId)
+        );
+        List<JobInfoListRes> respList = mapperFacade.mapAsList(list, JobInfoListRes.class);
+        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public List<JobInfoDO> findList() {
@@ -73,7 +65,7 @@ public class JobInfoService implements IJobSource {
         ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
         jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
         if (EnableStatusEnum.ENABLE.getStatus().equals(req.getEnable())) {
-            BeanManager.getBean(JobExecutor.class).add(new JobInfo()
+            Solon.context().getBean(JobExecutor.class).add(new JobInfo()
                     .setId(String.valueOf(jobInfoDO.getId()))
                     .setName(jobInfoDO.getHandler())
                     .setDesc(jobInfoDO.getDesc())
@@ -82,13 +74,13 @@ public class JobInfoService implements IJobSource {
                     .setEnable(true)
             );
         } else {
-            BeanManager.getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
+            Solon.context().getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
         }
         return new JobInfoUpdateEnableStatusRes();
     }
 
     public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
-        BeanManager.getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
+        Solon.context().getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
         return new JobInfoExecuteRes();
     }
 
@@ -125,7 +117,7 @@ public class JobInfoService implements IJobSource {
         jobInfo.setParam(req.getParam());
         jobInfo.setUpdateTime(new Date());
 
-        jobInfoMapper.update( jobInfo);
+        jobInfoMapper.updateById(jobInfo);
         return new JobInfoUpdateRes();
     }
 }

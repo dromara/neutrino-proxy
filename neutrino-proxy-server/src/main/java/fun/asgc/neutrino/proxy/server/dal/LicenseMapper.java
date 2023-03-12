@@ -21,18 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Delete;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.annotation.Update;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseListRes;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -43,68 +36,86 @@ import java.util.Set;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface LicenseMapper extends SqlMapper {
+@Mapper
+public interface LicenseMapper extends BaseMapper<LicenseDO> {
 
-	/**
-	 * 查询license分页
-	 * @param page
-	 * @param req
-	 */
-	void page(Page page, LicenseListReq req);
+	default List<LicenseDO> listAll() {
+		return this.selectList(new LambdaQueryWrapper<>());
+	}
 
-	@ResultType(LicenseListRes.class)
-	@Select("select * from license where enable = 1")
-	List<LicenseListRes> list();
+	default List<LicenseDO> listByUserId(Integer userId) {
+		return this.selectList(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getUserId, userId)
+		);
+	}
 
-	@ResultType(LicenseDO.class)
-	@Select("select * from license")
-	List<LicenseDO> listAll();
+	default void updateEnableStatus(Integer id, Integer enable, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.eq(LicenseDO::getId, id)
+				.set(LicenseDO::getEnable, enable)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@ResultType(LicenseDO.class)
-	@Select("select * from `license` where user_id = :userId")
-	List<LicenseDO> listByUserId(@Param("userId") Integer userId);
+	default void updateOnlineStatus(Integer id, Integer isOnline, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.eq(LicenseDO::getId, id)
+				.set(LicenseDO::getIsOnline, isOnline)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
-	/**
-	 * 新增license
-	 * @param license
-	 */
-	int add(LicenseDO license);
+	default void updateOnlineStatus(Integer isOnline, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.set(LicenseDO::getIsOnline, updateTime)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@Update("update `license` set enable = :enable, update_time = :updateTime where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
+	default void reset(Integer id, String key, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.eq(LicenseDO::getId, id)
+				.set(LicenseDO::getKey, key)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@Update("update `license` set is_online = :isOnline, update_time = :updateTime where id = :id")
-	void updateOnlineStatus(@Param("id") Integer id, @Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default LicenseDO findById(Integer id) {
+		return this.selectById(id);
+	}
 
-	@Update("update `license` set is_online = :isOnline, update_time = :updateTime")
-	void updateOnlineStatus(@Param("isOnline") Integer isOnline, @Param("updateTime") Date updateTime);
+	default void update(Integer id, String name, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<LicenseDO>()
+				.eq(LicenseDO::getId, id)
+				.set(LicenseDO::getName, name)
+				.set(LicenseDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@Update("update `license` set `key` = :key,update_time = :updateTime where id = :id")
-	void reset(@Param("id") Integer id, @Param("key") String key, @Param("updateTime") Date updateTime);
+	default List<LicenseDO> findByIds(Set<Integer> ids) {
+		return selectBatchIds(ids);
+	}
 
-	@Delete("delete from `license` where id = ?")
-	void delete(Integer id);
+	default LicenseDO checkRepeat(Integer userId, String name) {
+		return this.selectOne(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getUserId, userId)
+				.eq(LicenseDO::getName, name)
+				.last("limit 1")
+		);
+	}
 
-	@Select("select * from `license` where id = ?")
-	LicenseDO findById(Integer id);
+	default LicenseDO checkRepeat(Integer userId, String name, Set<Integer> excludeIds) {
+		return this.selectOne(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getUserId, userId)
+				.eq(LicenseDO::getName, name)
+				.notIn(LicenseDO::getId, excludeIds)
+				.last("limit 1")
+		);
+	}
 
-	@Update("update `license` set name = :name, update_time = :updateTime where id = :id")
-	void update(@Param("id") Integer id, @Param("name") String name, @Param("updateTime") Date updateTime);
-
-	@ResultType(LicenseDO.class)
-	@Select("select * from `license` where id in (:ids)")
-	List<LicenseDO> findByIds(@Param("ids")Set<Integer> ids);
-
-	@ResultType(LicenseDO.class)
-	@Select("select * from `license` where user_id = :userId and name =:name limit 0,1")
-	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name);
-
-	@ResultType(LicenseDO.class)
-	@Select("select * from `license` where user_id = :userId and name =:name and id not in (:excludeIds) limit 0,1")
-	LicenseDO checkRepeat(@Param("userId") Integer userId, @Param("name") String name, @Param("excludeIds") Set<Integer> excludeIds);
-
-	@Select("select * from `license` where `key` = ?")
-	LicenseDO findByKey(String licenseKey);
+	default LicenseDO findByKey(String licenseKey) {
+		return selectOne(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getKey, licenseKey)
+		);
+	}
 }

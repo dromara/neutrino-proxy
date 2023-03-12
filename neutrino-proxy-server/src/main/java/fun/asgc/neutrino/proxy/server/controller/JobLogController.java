@@ -21,16 +21,17 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.annotation.Mapping;
 
 /**
  *
@@ -38,15 +39,15 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2022/9/25
  */
 @Slf4j
-@NonIntercept
-@RequestMapping("job-log")
-@RestController
+@Mapping("/job-log")
+@Controller
 public class JobLogController {
-    @Autowired
+    @Inject
     private JobLogService jobLogService;
 
-    @GetMapping("page")
-    public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+    @Get
+    @Mapping("/page")
+    public PageInfo<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return jobLogService.page(pageQuery, req);
     }

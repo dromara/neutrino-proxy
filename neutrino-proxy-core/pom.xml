@@ -14,9 +14,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>fun.asgc.neutrino</groupId>
-            <artifactId>neutrino-core</artifactId>
-            <version>${revision}</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <!--hutool -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool.ver}</version>
+        </dependency>
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 

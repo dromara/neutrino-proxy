@@ -21,37 +21,35 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.FlowReportMinuteDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author: aoshiguchen
- * @date: 2022/10/24
- */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface FlowReportMinuteMapper extends SqlMapper {
-    @Select("select * from flow_report_minute where license_id = :licenseId and date = :date")
-    FlowReportMinuteDO findOne(@Param("licenseId") Integer licenseId, @Param("date") String date);
+@Mapper
+public interface FlowReportMinuteMapper extends BaseMapper<FlowReportMinuteDO> {
+    default void clean(Date date) {
+        this.delete(new LambdaQueryWrapper<FlowReportMinuteDO>()
+                .lt(FlowReportMinuteDO::getCreateTime, date)
+        );
+    }
 
-    @ResultType(FlowReportMinuteDO.class)
-    @Select("select * from flow_report_minute where license_id in (:licenseIds) and date = :date")
-    List<FlowReportMinuteDO> findList(@Param("licenseIds") Set<Integer> licenseIds, @Param("date") String date);
+    default List<FlowReportMinuteDO> findList(Set<Integer> licenseIds, String date) {
+        return this.selectList(new LambdaQueryWrapper<FlowReportMinuteDO>()
+                .in(FlowReportMinuteDO::getLicenseId, licenseIds)
+                .eq(FlowReportMinuteDO::getDate, date)
+        );
+    }
 
-    @ResultType(FlowReportMinuteDO.class)
-    @Select("select * from flow_report_minute where date >= :startDate and date <= :endDate")
-    List<FlowReportMinuteDO> findListByDateRange(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    default List<FlowReportMinuteDO> findListByDateRange(Date startDate, Date endDate) {
+        return this.selectList(new LambdaQueryWrapper<FlowReportMinuteDO>()
+                .ge(FlowReportMinuteDO::getDate, startDate)
+                .le(FlowReportMinuteDO::getDate, endDate)
+        );
+    }
 
-    @Insert("insert into flow_report_minute(`user_id`,`license_id`,`write_bytes`,`read_bytes`,`date`,`date_str`,`create_time`) values(:userId,:licenseId,:writeBytes,:readBytes,:date,:dateStr,:createTime)")
-    void add(FlowReportMinuteDO flowReportMinuteDO);
 }

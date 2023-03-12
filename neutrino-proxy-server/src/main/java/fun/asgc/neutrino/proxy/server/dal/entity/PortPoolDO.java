@@ -21,8 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -37,9 +38,9 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("port_pool")
+@TableName("port_pool")
 public class PortPoolDO {
-	@Id
+	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
 	 * 端口

@@ -21,8 +21,10 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
@@ -38,9 +40,9 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @Data
-@Table("license")
+@TableName("license")
 public class LicenseDO {
-	@Id
+	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
 	 * 名称
@@ -49,6 +51,7 @@ public class LicenseDO {
 	/**
 	 * licenseKey
 	 */
+	@TableField("`key`")
 	private String key;
 	/**
 	 * 用户ID

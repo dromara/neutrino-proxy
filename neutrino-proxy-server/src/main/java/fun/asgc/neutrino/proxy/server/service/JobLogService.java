@@ -21,23 +21,26 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.quartz.IJobCallback;
-import fun.asgc.neutrino.core.quartz.JobInfo;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.dal.JobLogMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
+import fun.asgc.solon.extend.job.IJobCallback;
+import fun.asgc.solon.extend.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -45,10 +48,11 @@ import java.util.Date;
  * @date: 2022/9/4
  */
 @Slf4j
-@NonIntercept
 @Component
 public class JobLogService implements IJobCallback {
-	@Autowired
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
 	private JobLogMapper jobLogMapper;
 
 	@Override
@@ -63,7 +67,7 @@ public class JobLogService implements IJobCallback {
 			msg = "执行异常:\r\n" + ExceptionUtils.getStackTrace(throwable);
 			code = -1;
 		}
-		jobLogMapper.add(new JobLogDO()
+		jobLogMapper.insert(new JobLogDO()
 				.setJobId(Integer.valueOf(jobInfo.getId()))
 				.setHandler(jobInfo.getName())
 				.setParam(param)
@@ -74,15 +78,14 @@ public class JobLogService implements IJobCallback {
 		);
 	}
 
-	public Page<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
-		Page<JobLogListRes> page = Page.create(pageQuery);
-
-		if(req.getJobId() != null && req.getJobId() > 0){
-			jobLogMapper.pageByJobId(page, req);
-		} else {
-			jobLogMapper.page(page, req);
-		}
-		return page;
+	public PageInfo<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
+		Page<JobLogListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<JobLogDO> list = jobLogMapper.selectList(new LambdaQueryWrapper<JobLogDO>()
+				.eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
+				.orderByDesc(JobLogDO::getId)
+		);
+		List<JobLogListRes> respList = mapperFacade.mapAsList(list, JobLogListRes.class);
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 }

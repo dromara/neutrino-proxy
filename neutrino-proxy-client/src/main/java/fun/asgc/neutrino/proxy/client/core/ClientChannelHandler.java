@@ -1,38 +1,16 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package fun.asgc.neutrino.proxy.client.core;
 
-import fun.asgc.neutrino.core.base.Dispatcher;
-import fun.asgc.neutrino.core.util.BeanManager;
 import fun.asgc.neutrino.proxy.client.util.ProxyUtil;
 import fun.asgc.neutrino.proxy.core.Constants;
 import fun.asgc.neutrino.proxy.core.ProxyMessage;
+import fun.asgc.neutrino.proxy.core.dispatcher.Dispatcher;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.Solon;
 
 /**
  * 处理与服务端之间的数据传输
@@ -42,19 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
 
-    private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
-
-
-    public ClientChannelHandler() {
-        dispatcher = BeanManager.getBean(Dispatcher.class);
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
             log.info("recieved proxy message, type is {}", proxyMessage.getType());
         }
-        dispatcher.dispatch(ctx, proxyMessage);
+        Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }
 
     @Override

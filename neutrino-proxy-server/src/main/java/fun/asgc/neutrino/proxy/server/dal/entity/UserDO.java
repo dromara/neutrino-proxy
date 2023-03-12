@@ -21,8 +21,9 @@
  */
 package fun.asgc.neutrino.proxy.server.dal.entity;
 
-import fun.asgc.neutrino.core.db.annotation.Id;
-import fun.asgc.neutrino.core.db.annotation.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 
@@ -35,9 +36,9 @@ import java.util.Date;
  */
 @ToString
 @Data
-@Table("user")
+@TableName("user")
 public class UserDO {
-	@Id
+	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
 	 * 用户名

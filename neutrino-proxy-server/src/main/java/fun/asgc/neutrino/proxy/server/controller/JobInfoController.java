@@ -21,18 +21,22 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoExecuteReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.JobInfoUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoExecuteRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.res.JobInfoUpdateRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
 import fun.asgc.neutrino.proxy.server.service.JobInfoService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -42,44 +46,48 @@ import java.util.List;
  * @date: 2022/9/5
  */
 @Slf4j
-@NonIntercept
-@RequestMapping("job-info")
-@RestController
+@Mapping("/job-info")
+@Controller
 public class JobInfoController {
-    @Autowired
+    @Inject
     private JobInfoService jobInfoService;
 
-    @GetMapping("page")
-    public Page<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
+    @Get
+    @Mapping("/page")
+    public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return jobInfoService.page(pageQuery, req);
     }
 
-    @GetMapping("findList")
+    @Get
+    @Mapping("/findList")
     public List<JobInfoDO> findList() {
         return jobInfoService.findList();
     }
 
-    @OnlyAdmin
-    @PostMapping("update/enable-status")
-    public JobInfoUpdateEnableStatusRes updateEnableStatus(@RequestBody JobInfoUpdateEnableStatusReq req) {
+    @Post
+    @Mapping("/update/enable-status")
+    @Authorization(onlyAdmin = true)
+    public JobInfoUpdateEnableStatusRes updateEnableStatus(JobInfoUpdateEnableStatusReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
         ParamCheckUtil.checkNotNull(req.getId(), "id");
         ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
         return jobInfoService.updateEnableStatus(req);
     }
 
-    @OnlyAdmin
-    @PostMapping("execute")
-    public JobInfoExecuteRes execute(@RequestBody JobInfoExecuteReq req) {
+    @Post
+    @Mapping("/execute")
+    @Authorization(onlyAdmin = true)
+    public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
         ParamCheckUtil.checkNotNull(req.getId(), "id");
 
         return jobInfoService.execute(req);
     }
 
-    @PostMapping("update")
-    public JobInfoUpdateRes update(@RequestBody JobInfoUpdateReq req) {
+    @Post
+    @Mapping("/update")
+    public JobInfoUpdateRes update(JobInfoUpdateReq req) {
         ParamCheckUtil.checkNotNull(req, "req");
 
         return jobInfoService.update(req);

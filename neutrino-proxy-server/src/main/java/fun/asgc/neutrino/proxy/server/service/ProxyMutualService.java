@@ -21,14 +21,13 @@
  */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.proxy.domain.CmdChannelAttachInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.annotation.Component;
 
 import java.util.Date;
 
@@ -38,12 +37,11 @@ import java.util.Date;
  * @date: 2022/9/3
  */
 @Slf4j
-@NonIntercept
 @Component
 public class ProxyMutualService {
-	@Autowired
+	@Db
 	private PortMappingMapper portMappingMapper;
-	@Autowired
+	@Db
 	private LicenseMapper licenseMapper;
 
 	/**

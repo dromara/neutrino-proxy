@@ -1,31 +1,13 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package fun.asgc.neutrino.proxy.server.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
-import fun.asgc.neutrino.core.annotation.*;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.util.CollectionUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
@@ -40,6 +22,11 @@ import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.Lifecycle;
 
 import java.util.*;
 import java.util.function.Function;
@@ -50,25 +37,31 @@ import java.util.stream.Collectors;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
-@NonIntercept
 @Component
-public class LicenseService {
-
-	@Autowired
+public class LicenseService implements Lifecycle {
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
 	private LicenseMapper licenseMapper;
-	@Autowired
+	@Db
 	private UserMapper userMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
-	public Page<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
-		Page<LicenseListRes> page = Page.create(pageQuery);
-		licenseMapper.page(page, req);
-		if (!CollectionUtil.isEmpty(page.getRecords())) {
-			Set<Integer> userIds = page.getRecords().stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
+	public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
+		Page<LicenseListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
+				.orderByAsc(LicenseDO::getId)
+		);
+		List<LicenseListRes> respList = mapperFacade.mapAsList(list, LicenseListRes.class);
+		if (CollectionUtils.isEmpty(list)) {
+			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+		}
+		if (!CollectionUtil.isEmpty(respList)) {
+			Set<Integer> userIds = respList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
 			List<UserDO> userList = userMapper.findByIds(userIds);
 			Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-			for (LicenseListRes item : page.getRecords()) {
+			for (LicenseListRes item : respList) {
 				UserDO userDO = userMap.get(item.getUserId());
 				if (null != userDO) {
 					item.setUserName(userDO.getName());
@@ -76,11 +69,14 @@ public class LicenseService {
 				item.setKey(desensitization(item.getUserId(), item.getKey()));
 			}
 		}
-		return page;
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 	public List<LicenseListRes> list(LicenseListReq req) {
-		List<LicenseListRes> licenseList = licenseMapper.list();
+		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+		);
+		List<LicenseListRes> licenseList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (!CollectionUtil.isEmpty(licenseList)) {
 			Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
 			List<UserDO> userList = userMapper.findByIds(userIds);
@@ -108,7 +104,7 @@ public class LicenseService {
 		String key = UUID.randomUUID().toString().replaceAll("-", "");
 		Date now = new Date();
 
-		licenseMapper.add(new LicenseDO()
+		licenseMapper.insert(new LicenseDO()
 			.setName(req.getName())
 			.setKey(key)
 			.setUserId(req.getUserId())
@@ -171,7 +167,7 @@ public class LicenseService {
 	 * @param id
 	 */
 	public void delete(Integer id) {
-		licenseMapper.delete(id);
+		licenseMapper.deleteById(id);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByLicenseId(id, EnableStatusEnum.DISABLE.getStatus());
 	}
@@ -209,9 +205,16 @@ public class LicenseService {
 	/**
 	 * 服务端项目停止、启动时，更新在线状态为离线
 	 */
-	@Init
-	@Destroy
-	public void destroy() {
+	@Override
+	public void start() throws Throwable {
+		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+	}
+
+	/**
+	 * 服务端项目停止、启动时，更新在线状态为离线
+	 */
+	@Override
+	public void stop() throws Throwable {
 		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 	}
 }

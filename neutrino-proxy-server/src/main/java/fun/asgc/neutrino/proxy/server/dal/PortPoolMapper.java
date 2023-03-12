@@ -21,48 +21,36 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.*;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface PortPoolMapper extends SqlMapper {
+@Mapper
+public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
+	default void updateEnableStatus(Integer id, Integer enable, Date updateTime) {
+		this.update(null, new LambdaUpdateWrapper<PortPoolDO>()
+				.eq(PortPoolDO::getId, id)
+				.set(PortPoolDO::getEnable, enable)
+				.set(PortPoolDO::getUpdateTime, updateTime)
+		);
+	}
 
-	@ResultType(PortPoolListRes.class)
-	@Select("select * from port_pool")
-	void page(Page<PortPoolListRes> page, PortPoolListReq req);
+	default PortPoolDO findByPort(Integer port) {
+		return this.selectOne(new LambdaQueryWrapper<PortPoolDO>()
+				.eq(PortPoolDO::getPort, port)
+		);
+	}
 
-	@ResultType(PortPoolListRes.class)
-	@Select("select * from port_pool where enable = 1")
-	List<PortPoolListRes> list();
-
-	@Insert("insert into port_pool(`port`,`enable`,`create_time`,`update_time`) values(:port,:enable,:createTime,:updateTime)")
-	void add(PortPoolDO portPool);
-
-	@Update("update `port_pool` set enable = :enable, update_time = :updateTime where id = :id")
-	void updateEnableStatus(@Param("id") Integer id, @Param("enable") Integer enable, @Param("updateTime") Date updateTime);
-
-	@Delete("delete from `port_pool` where id = ?")
-	void delete(Integer id);
-
-	@Select("select * from port_pool where port = ? limit 0,1")
-	PortPoolDO findByPort(Integer port);
-
-	@Select("select * from port_pool where id = ?")
-	PortPoolDO findById(Integer id);
+	default PortPoolDO findById(Integer id) {
+		return this.selectById(id);
+	}
 }

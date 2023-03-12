@@ -1,0 +1,49 @@
+server:
+  port: 8888
+
+neutrino:
+  proxy:
+    protocol:
+      max-frame-length: 2097152
+      length-field-offset: 0
+      length-field-length: 4
+      initial-bytes-to-strip: 0
+      length-adjustment: 0
+      read-idle-time: 40
+      write-idle-time: 10
+      all-idle-time-seconds: 0
+    server:
+      port: 9000
+      ssl-port: 9002
+      key-store-password: 123456
+      key-manager-password: 123456
+      jks-path: classpath:/test.jks
+  data:
+    db:
+      type: sqlite
+      url: jdbc:sqlite:data.db
+      driver-class: org.sqlite.JDBC
+      username:
+      password:
+
+#添加MIME印射（如果有需要？）
+#是否启用静态文件服务。（可不配，默认为启用）
+solon.staticfiles.enable: true
+#静态文件的304缓存时长。（可不配，默认为10分钟）
+solon.staticfiles.maxAge: 600
+#添加静态目录映射。（按需选择）#v1.11.0 后支持
+solon.staticfiles.mappings:
+  - path: "/"
+    repository: "./neutrino-proxy-admin/dist/" #2.添加资源路径（仓库只能是目录）
+
+mybatis.db:
+  typeAliases:    #支持包名 或 类名（大写开头 或 *）//支持 ** 或 * 占位符
+    - "fun.asgc.neutrino.proxy.server.dal.entity"
+  mappers:        #支持包名 或 类名（大写开头 或 *）或 xml（.xml结尾）//支持 ** 或 * 占位符
+    - "classpath:mapper/*.xml"
+    - "fun.asgc.neutrino.proxy.server.dal"
+  configuration:   #扩展配置（要与 MybatisConfiguration 类的属性一一对应）
+    cacheEnabled: false
+    mapUnderscoreToCamelCase: true
+  globalConfig:    #全局配置（要与 GlobalConfig 类的属性一一对应）
+    banner: true

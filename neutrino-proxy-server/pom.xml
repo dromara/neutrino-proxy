@@ -13,8 +13,35 @@
 
     <artifactId>neutrino-proxy-server</artifactId>
 
-
     <dependencies>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>mybatis-plus-solon-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>mybatis-pagehelper-solon-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>activerecord-solon-plugin</artifactId>
+        </dependency>
+        <!--orika-->
+        <dependency>
+            <groupId>fun.asgc</groupId>
+            <artifactId>orika-solon-plugin</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <!--job-->
+        <dependency>
+            <groupId>fun.asgc</groupId>
+            <artifactId>job-solon-plugin</artifactId>
+            <version>2.2.2</version>
+        </dependency>
         <dependency>
             <groupId>fun.asgc.neutrino</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
@@ -23,17 +50,14 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.39.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.24</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.29</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
         </dependency>
     </dependencies>
 

@@ -21,13 +21,11 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.*;
-import fun.asgc.neutrino.proxy.server.base.rest.annotation.OnlyAdmin;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.PortPoolDeleteReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolCreateRes;
@@ -35,6 +33,7 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
 import fun.asgc.neutrino.proxy.server.service.PortPoolService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
 
@@ -43,37 +42,40 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
-@NonIntercept
-@RequestMapping("port-pool")
-@RestController
+@Mapping("/port-pool")
+@Controller
 public class PortPoolController {
-	@Autowired
+	@Inject
 	private PortPoolService portPoolService;
 
-	@GetMapping("page")
-	public Page<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
+	@Get
+	@Mapping("/page")
+	public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portPoolService.page(pageQuery, req);
 	}
 
-	@GetMapping("list")
+	@Get
+	@Mapping("/list")
 	public List<PortPoolListRes> list(PortPoolListReq req) {
 		return portPoolService.list(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("create")
-	public PortPoolCreateRes create(@RequestBody PortPoolCreateReq req) {
+	@Post
+	@Mapping("/create")
+	@Authorization(onlyAdmin = true)
+	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getPort(), "port");
 
 		return portPoolService.create(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("update/enable-status")
-	public PortPoolUpdateEnableStatusRes updateEnableStatus(@RequestBody PortPoolUpdateEnableStatusReq req) {
+	@Post
+	@Mapping("/update/enable-status")
+	@Authorization(onlyAdmin = true)
+	public PortPoolUpdateEnableStatusRes updateEnableStatus(PortPoolUpdateEnableStatusReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
@@ -81,11 +83,13 @@ public class PortPoolController {
 		return portPoolService.updateEnableStatus(req);
 	}
 
-	@OnlyAdmin
-	@PostMapping("delete")
-	public void delete(@RequestParam("id") Integer id) {
-		ParamCheckUtil.checkNotNull(id, "id");
+	@Post
+	@Mapping("/delete")
+	@Authorization(onlyAdmin = true)
+	public void delete(PortPoolDeleteReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
-		portPoolService.delete(id);
+		portPoolService.delete(req.getId());
 	}
 }

@@ -1,8 +1,0 @@
-<mapper namespace = "fun.asgc.neutrino.proxy.server.dal.JobInfoMapper">
-
-    <update id="update">
-        update `job_info`
-        set cron = :cron,desc = :desc,alarm_email=:alarmEmail,alarm_ding=:alarmDing,param=:param,update_time=:updateTime
-        where id =:id
-    </update>
-</mapper>

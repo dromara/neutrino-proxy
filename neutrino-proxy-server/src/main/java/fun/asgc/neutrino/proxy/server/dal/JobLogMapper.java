@@ -21,39 +21,25 @@
  */
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.Param;
-import fun.asgc.neutrino.core.aop.Intercept;
-import fun.asgc.neutrino.core.db.annotation.Insert;
-import fun.asgc.neutrino.core.db.annotation.ResultType;
-import fun.asgc.neutrino.core.db.annotation.Select;
-import fun.asgc.neutrino.core.db.mapper.SqlMapper;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.proxy.server.controller.req.JobInfoListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobInfoListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
-import fun.asgc.neutrino.proxy.server.dal.entity.JobInfoDO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.Date;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/9/5
  */
-@Intercept(ignoreGlobal = true)
-@Component
-public interface JobLogMapper extends SqlMapper {
+@Mapper
+public interface JobLogMapper extends BaseMapper<JobLogDO> {
 
-    @Insert("insert into job_log(`job_id`,`handler`,`param`,`code`,`msg`,`alarm_status`,`create_time`) values(:jobId,:handler,:param,:code,:msg,:alarmStatus,:createTime)")
-    void add(JobLogDO jobLog);
-
-    @ResultType(JobLogListRes.class)
-    @Select("select * from job_log order by create_time desc")
-    void page(Page page, JobLogListReq req);
-
-    @ResultType(JobLogListRes.class)
-    @Select("select * from job_log where job_id = :jobId order by create_time desc")
-    void pageByJobId(Page page, JobLogListReq req);
+    default void clean(Date date) {
+        this.delete(new LambdaQueryWrapper<JobLogDO>()
+                .lt(JobLogDO::getCreateTime, date)
+        );
+    }
 
 }

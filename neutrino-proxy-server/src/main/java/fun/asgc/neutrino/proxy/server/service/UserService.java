@@ -1,32 +1,12 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package fun.asgc.neutrino.proxy.server.service;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.Component;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.util.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import fun.asgc.neutrino.proxy.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
@@ -41,6 +21,10 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -52,17 +36,18 @@ import java.util.UUID;
  * @author: aoshiguchen
  * @date: 2022/7/31
  */
-@NonIntercept
 @Component
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
-	@Autowired
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
 	private UserMapper userMapper;
-	@Autowired
+	@Db
 	private UserTokenMapper userTokenMapper;
-	@Autowired
+	@Db
 	private UserLoginRecordMapper userLoginRecordMapper;
-	@Autowired
+	@Inject
 	private VisitorChannelService visitorChannelService;
 
 	public LoginRes login(LoginReq req) {
@@ -79,7 +64,7 @@ public class UserService {
 		Date expirationTime = DateUtil.addDate(now, Calendar.HOUR, 1);
 
 		// 缓存token
-		userTokenMapper.add(new UserTokenDO()
+		userTokenMapper.insert(new UserTokenDO()
 			.setToken(token)
 			.setUserId(userDO.getId())
 			.setExpirationTime(expirationTime)
@@ -88,7 +73,7 @@ public class UserService {
 		);
 
 		// 新增用户登录日志
-		userLoginRecordMapper.add(new UserLoginRecordDO()
+		userLoginRecordMapper.insert(new UserLoginRecordDO()
 			.setUserId(userDO.getId())
 			.setIp(SystemContextHolder.getIp())
 			.setToken(token)
@@ -106,7 +91,7 @@ public class UserService {
 		userTokenMapper.deleteByToken(SystemContextHolder.getToken());
 
 		// 新增用户登录日志
-		userLoginRecordMapper.add(new UserLoginRecordDO()
+		userLoginRecordMapper.insert(new UserLoginRecordDO()
 			.setUserId(SystemContextHolder.getUser().getId())
 			.setIp(SystemContextHolder.getIp())
 			.setToken(SystemContextHolder.getToken())
@@ -134,15 +119,21 @@ public class UserService {
 		userTokenMapper.updateTokenExpirationTime(token, expirationTime);
 	}
 
-	public Page<UserListRes> page(PageQuery pageQuery, UserListReq req) {
-		Page<UserListRes> page = Page.create(pageQuery);
-		userMapper.page(page, req);
-		return page;
+	public PageInfo<UserListRes> page(PageQuery pageQuery, UserListReq req) {
+		Page<UserListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+		List<UserDO> list = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
+				.orderByAsc(UserDO::getId)
+		);
+		List<UserListRes> respList = mapperFacade.mapAsList(list, UserListRes.class);
+		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
 	public List<UserListRes> list(UserListReq req) {
-		List<UserListRes> list = userMapper.list();
-		return list;
+		List<UserDO> userDOList = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
+				.eq(UserDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+				.orderByAsc(UserDO::getId)
+		);
+		return mapperFacade.mapAsList(userDOList, UserListRes.class);
 	}
 
 	public UserInfoRes info(UserInfoReq req) {
@@ -170,8 +161,6 @@ public class UserService {
 	}
 
 	public UserCreateRes create(UserCreateReq req) {
-
-
 		Date now = new Date();
 		UserDO userDO = new UserDO();
 		userDO.setName(req.getName());
@@ -180,18 +169,17 @@ public class UserService {
 		userDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
 		userDO.setCreateTime(now);
 		userDO.setUpdateTime(now);
-		userMapper.add(userDO);
-
+		userMapper.insert(userDO);
 		return new UserCreateRes();
 	}
 
 	public UserUpdateRes update(UserUpdateReq req) {
-		UserDO userDO = new UserDO();
-		userDO.setId(req.getId());
-		userDO.setName(req.getName());
-		userDO.setLoginName(req.getLoginName());
-		userDO.setUpdateTime(new Date());
-		userMapper.update(userDO);
+		userMapper.update(null, new LambdaUpdateWrapper<UserDO>()
+				.eq(UserDO::getId, req.getId())
+				.set(UserDO::getName, req.getName())
+				.set(UserDO::getLoginName, req.getLoginName())
+				.set(UserDO::getUpdateTime, new Date())
+		);
 		return new UserUpdateRes();
 	}
 
@@ -210,7 +198,7 @@ public class UserService {
 	}
 
 	public void delete(Integer id) {
-		userMapper.delete(id);
+		userMapper.deleteById(id);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByUserId(id, EnableStatusEnum.DISABLE.getStatus());
 	}

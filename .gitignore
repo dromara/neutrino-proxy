@@ -49,3 +49,5 @@ hs_err_pid*
 **/*.log
 **/gifs/
 **/deploy/
+
+**/app-**.yml

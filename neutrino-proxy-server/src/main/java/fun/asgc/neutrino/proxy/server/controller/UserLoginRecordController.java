@@ -21,31 +21,30 @@
  */
 package fun.asgc.neutrino.proxy.server.controller;
 
-import fun.asgc.neutrino.core.annotation.Autowired;
-import fun.asgc.neutrino.core.annotation.NonIntercept;
-import fun.asgc.neutrino.core.db.page.Page;
-import fun.asgc.neutrino.core.db.page.PageQuery;
-import fun.asgc.neutrino.core.web.annotation.GetMapping;
-import fun.asgc.neutrino.core.web.annotation.RequestMapping;
-import fun.asgc.neutrino.core.web.annotation.RestController;
+import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
+import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
 import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.service.UserLoginRecordService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.annotation.Mapping;
 
 /**
  * @author: aoshiguchen
  * @date: 2022/10/20
  */
-@NonIntercept
-@RequestMapping("user-login-record")
-@RestController
+@Mapping("/user-login-record")
+@Controller
 public class UserLoginRecordController {
-    @Autowired
+    @Inject
     private UserLoginRecordService userLoginRecordService;
 
-    @GetMapping("page")
-    public Page<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
+    @Get
+    @Mapping("/page")
+    public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
         return userLoginRecordService.page(pageQuery, req);

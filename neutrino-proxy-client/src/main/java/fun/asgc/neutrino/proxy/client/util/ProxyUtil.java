@@ -31,6 +31,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.util.AttributeKey;
+import org.noear.solon.Solon;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -62,15 +63,13 @@ public class ProxyUtil {
 			return;
 		}
 
-		bootstrap.connect(ProxyConfig.instance.getClient().getServerIp(), ProxyConfig.instance.getClient().getServerPort()).addListener(new ChannelFutureListener() {
-
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
-				if (future.isSuccess()) {
-					borrowListener.success(future.channel());
-				} else {
-					borrowListener.error(future.cause());
-				}
+		String serverIp = Solon.cfg().get("neutrino.proxy.client.server-ip");
+		Integer serverPort = Solon.cfg().getInt("neutrino.proxy.client.server-port", 9000);
+		bootstrap.connect(serverIp, serverPort).addListener((ChannelFutureListener) future -> {
+			if (future.isSuccess()) {
+				borrowListener.success(future.channel());
+			} else {
+				borrowListener.error(future.cause());
 			}
 		});
 	}
