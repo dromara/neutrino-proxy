@@ -33,7 +33,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.JobLogDO;
 import fun.asgc.solon.extend.job.IJobCallback;
 import fun.asgc.solon.extend.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
@@ -51,7 +51,7 @@ import java.util.List;
 @Component
 public class JobLogService implements IJobCallback {
 	@Inject
-	private MapperFactory mapperFactory;
+	private MapperFacade mapperFacade;
 	@Db
 	private JobLogMapper jobLogMapper;
 
@@ -84,7 +84,7 @@ public class JobLogService implements IJobCallback {
 				.eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
 				.orderByDesc(JobLogDO::getId)
 		);
-		List<JobLogListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, JobLogListRes.class);
+		List<JobLogListRes> respList = mapperFacade.mapAsList(list, JobLogListRes.class);
 		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 

@@ -37,7 +37,7 @@ import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusR
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -53,7 +53,7 @@ import java.util.List;
 @Component
 public class PortPoolService {
 	@Inject
-	private MapperFactory mapperFactory;
+	private MapperFacade mapperFacade;
 	@Db
 	private PortPoolMapper portPoolMapper;
 	@Inject
@@ -64,7 +64,7 @@ public class PortPoolService {
 		List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
 				.orderByAsc(PortPoolDO::getId)
 		);
-		List<PortPoolListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, PortPoolListRes.class);
+		List<PortPoolListRes> respList = mapperFacade.mapAsList(list, PortPoolListRes.class);
 		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
@@ -72,7 +72,7 @@ public class PortPoolService {
 		List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
 				.eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
 		);
-		return mapperFactory.getMapperFacade().mapAsList(list, PortPoolListRes.class);
+		return mapperFacade.mapAsList(list, PortPoolListRes.class);
 	}
 
 	public PortPoolCreateRes create(PortPoolCreateReq req) {

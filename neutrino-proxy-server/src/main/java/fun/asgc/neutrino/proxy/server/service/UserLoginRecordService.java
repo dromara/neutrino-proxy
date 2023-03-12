@@ -13,7 +13,7 @@ import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserLoginRecordService {
     @Inject
-    private MapperFactory mapperFactory;
+    private MapperFacade mapperFacade;
     @Db
     private UserLoginRecordMapper userLoginRecordMapper;
     @Db
@@ -43,7 +43,7 @@ public class UserLoginRecordService {
         List<UserLoginRecordDO> list = userLoginRecordMapper.selectList(new LambdaQueryWrapper<UserLoginRecordDO>()
                 .orderByDesc(UserLoginRecordDO::getCreateTime)
         );
-        List<UserLoginRecordListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, UserLoginRecordListRes.class);
+        List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(list, UserLoginRecordListRes.class);
         if (CollectionUtils.isEmpty(list)) {
             return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }

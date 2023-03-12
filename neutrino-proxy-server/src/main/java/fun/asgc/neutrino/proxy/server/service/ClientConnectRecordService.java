@@ -17,7 +17,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.ClientConnectRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Component
 public class ClientConnectRecordService {
     @Inject
-    private MapperFactory mapperFactory;
+    private MapperFacade mapperFacade;
     @Db
     private ClientConnectRecordMapper clientConnectRecordMapper;
     @Db
@@ -53,7 +53,7 @@ public class ClientConnectRecordService {
         List<ClientConnectRecordDO> list = clientConnectRecordMapper.selectList(new LambdaQueryWrapper<ClientConnectRecordDO>()
                 .orderByDesc(ClientConnectRecordDO::getId)
         );
-        List<ClientConnectRecordListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, ClientConnectRecordListRes.class);
+        List<ClientConnectRecordListRes> respList = mapperFacade.mapAsList(list, ClientConnectRecordListRes.class);
         if (CollectionUtils.isEmpty(list)) {
             return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }

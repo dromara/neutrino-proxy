@@ -22,7 +22,7 @@ import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Component
 public class LicenseService implements Lifecycle {
 	@Inject
-	private MapperFactory mapperFactory;
+	private MapperFacade mapperFacade;
 	@Db
 	private LicenseMapper licenseMapper;
 	@Db
@@ -53,7 +53,7 @@ public class LicenseService implements Lifecycle {
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
 				.orderByAsc(LicenseDO::getId)
 		);
-		List<LicenseListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, LicenseListRes.class);
+		List<LicenseListRes> respList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (CollectionUtils.isEmpty(list)) {
 			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 		}
@@ -76,7 +76,7 @@ public class LicenseService implements Lifecycle {
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
 				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
 		);
-		List<LicenseListRes> licenseList = mapperFactory.getMapperFacade().mapAsList(list, LicenseListRes.class);
+		List<LicenseListRes> licenseList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (!CollectionUtil.isEmpty(licenseList)) {
 			Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
 			List<UserDO> userList = userMapper.findByIds(userIds);

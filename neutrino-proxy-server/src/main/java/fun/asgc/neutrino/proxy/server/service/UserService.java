@@ -21,7 +21,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserLoginRecordDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserTokenDO;
 import fun.asgc.neutrino.proxy.server.util.Md5Util;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -40,7 +40,7 @@ import java.util.UUID;
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
 	@Inject
-	private MapperFactory mapperFactory;
+	private MapperFacade mapperFacade;
 	@Db
 	private UserMapper userMapper;
 	@Db
@@ -124,7 +124,7 @@ public class UserService {
 		List<UserDO> list = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
 				.orderByAsc(UserDO::getId)
 		);
-		List<UserListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, UserListRes.class);
+		List<UserListRes> respList = mapperFacade.mapAsList(list, UserListRes.class);
 		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
@@ -133,7 +133,7 @@ public class UserService {
 				.eq(UserDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
 				.orderByAsc(UserDO::getId)
 		);
-		return mapperFactory.getMapperFacade().mapAsList(userDOList, UserListRes.class);
+		return mapperFacade.mapAsList(userDOList, UserListRes.class);
 	}
 
 	public UserInfoRes info(UserInfoReq req) {

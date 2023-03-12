@@ -26,7 +26,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @Component
 public class PortMappingService implements Lifecycle {
 	@Inject
-	private MapperFactory mapperFactory;
+	private MapperFacade mapperFacade;
 	@Db
 	private PortMappingMapper portMappingMapper;
 	@Db
@@ -64,7 +64,7 @@ public class PortMappingService implements Lifecycle {
 		List<PortMappingDO> list = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
 				.orderByAsc(PortMappingDO::getId)
 		);
-		List<PortMappingListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, PortMappingListRes.class);
+		List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
 		if (CollectionUtils.isEmpty(list)) {
 			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 		}

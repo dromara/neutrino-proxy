@@ -24,7 +24,7 @@ import fun.asgc.solon.extend.job.IJobSource;
 import fun.asgc.solon.extend.job.JobInfo;
 import fun.asgc.solon.extend.job.impl.JobExecutor;
 import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
@@ -42,7 +42,7 @@ import java.util.List;
 @Component
 public class JobInfoService implements IJobSource {
     @Inject
-    private MapperFactory mapperFactory;
+    private MapperFacade mapperFacade;
     @Db
     private JobInfoMapper jobInfoMapper;
 
@@ -51,7 +51,7 @@ public class JobInfoService implements IJobSource {
         List<JobInfoDO> list = jobInfoMapper.selectList(new LambdaQueryWrapper<JobInfoDO>()
                 .orderByAsc(JobInfoDO::getId)
         );
-        List<JobInfoListRes> respList = mapperFactory.getMapperFacade().mapAsList(list, JobInfoListRes.class);
+        List<JobInfoListRes> respList = mapperFacade.mapAsList(list, JobInfoListRes.class);
         return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
