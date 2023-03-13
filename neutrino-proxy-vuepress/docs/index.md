@@ -1,7 +1,8 @@
 ---
 home: true
+
 heroImage: /img/logo.png
-heroText: Neutrino-Proxy
+heroText: Neutrino-Proxy1
 tagline: 🚀一个基于 netty 的、开源的 java 内网穿透项目
 actionText: 开始使用 →
 actionLink: /pages/a2f161/
