@@ -13,6 +13,7 @@ neutrino:
       write-idle-time: 8
       all-idle-time-seconds: 0
     client:
+      thread-count: 50
       key-store-password: 123456
       jks-path: classpath:/test.jks
       server-ip: localhost

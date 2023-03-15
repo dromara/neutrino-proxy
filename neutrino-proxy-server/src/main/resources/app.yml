@@ -13,6 +13,8 @@ neutrino:
       write-idle-time: 10
       all-idle-time-seconds: 0
     server:
+      boss-thread-count: 10
+      work-thread-count: 60
       port: 9000
       ssl-port: 9002
       key-store-password: 123456
