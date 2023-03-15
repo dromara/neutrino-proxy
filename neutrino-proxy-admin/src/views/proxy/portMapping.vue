@@ -293,7 +293,7 @@
           licenseId: undefined,
           licenseName: undefined,
           serverPort: undefined,
-          clientIp: undefined,
+          clientIp: '127.0.0.1',
           clientPort: undefined
         }
       },
