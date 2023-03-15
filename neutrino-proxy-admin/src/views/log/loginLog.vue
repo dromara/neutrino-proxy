@@ -28,8 +28,8 @@
       </el-table-column>
     </el-table>
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-pageInfo.sync="listQuery.currentPage"
-                     :pageInfo-sizes="[10,20,30, 50]" :pageInfo-size="listQuery.pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-pageInfo.sync="listQuery.current"
+                     :pageInfo-sizes="[10,20,30, 50]" :pageInfo-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </div>
@@ -51,8 +51,8 @@ export default {
       total: null,
       listLoading: false,
       listQuery: {
-        currentPage: 1,
-        pageSize: 10,
+        current: 1,
+        size: 10,
         jobId: undefined
       }
     }
