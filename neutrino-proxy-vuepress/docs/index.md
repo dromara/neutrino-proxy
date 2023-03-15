@@ -81,26 +81,21 @@ postList: none
 <br/>
 
 ## 🎉上新推荐
-* `v1.12.x`
-  - 新增配置项`pageStyle`，用于切换页面的风格样式，可选`卡片`、 `线条`风格。[详情](/pages/a20ce8/#pagestyle)
-  - 新增配置项`bodyBgImgInterval`，用于在设置了多张背景大图时修改大图切换的时间间隔。[详情](/pages/a20ce8/#bodybgimginterval)
-  - 新增配置项`defaultMode`，用于修改默认外观模式(v1.12.3)。[详情](/pages/a20ce8/#defaultmode)
-* `v1.11.x`：新增配置项`extendFrontmatter`，用于扩展自动生成front matter。[详情](/pages/a20ce8/#extendfrontmatter)
-* `v1.10.x`：新增右侧目录栏对h2~h6标题的适配，并优化了UI，[详情](/pages/8dfab5/)。
-* `v1.9.x`：新增配置文件对TypeScript的支持，参考[config.ts](https://github.com/xugaoyi/vuepress-theme-vdoing/blob/master/docs/.vuepress/config.ts)。新增[标题标记](/pages/3216b0/#titletag)。
-* `v1.8.x`：新增 Markdown中使用的组件：[代码块选项卡](/pages/197691/#代码块选项卡) 。
-* `v1.7.x`：新增 [自定义html模块](/pages/a20ce8/#自定义html模块) 配置，可用于插入广告模块。
-* `v1.6.x`：支持[`四级目录`](/pages/33d574/#级别说明)，提高[站点结构](/pages/33d574/#级别说明)可塑性。
-* `v1.5.x`：新增[`笔记`容器](/pages/d0d7eb/)，轻松插入笔记框。
-* `v1.4.x`：新增了文章内容区块的 [背景底纹配置](/pages/a20ce8/#文章内容块的背景底纹)，让你的文章看起来像笔记本的风格~
-* `v1.2.x`：这个版本对整体的UI细节做了很多优化，比如标签栏和分类栏等
-* `v1.1.x`：从这个版本开始主题新增`超好用`、`高颜值`的Markdown容器，快去 [体验](/pages/d0d7eb/) 吧~
+* `v1.7.0`：项目重构、底层框架更换为Solon。
+* `v1.6.4`：代理使用细节优化。
+  - 支持代理服务端用户（删除/禁用）、端口池（删除/禁用/启用）、License（删除/禁用/启用）、端口映射（新增/删除/禁用/启用）实时生效。
+  - 启动参数优化。
+  - 服务端静态资源服务支持缓存、gzip压缩，提升响应速度。
+* `v1.6.0`：关于日志、报表、客户端配置等相关优化。
+* `v1.5.0`：增加了服务端管理页面，用于维护license、端口映射。
+* `v1.0.0`：上线啦~&nbsp; 第一个完整版本。
 
-更多上新请查阅：[**更新日志**](https://github.com/xugaoyi/vuepress-theme-vdoing/releases)
+更多上新请查阅：[**更新日志**](https://gitee.com/dromara/neutrino-proxy/releases)
 
 <br/>
 
 <!-- ## ⚡️未来...
+* `v1.5.0`：新增配置文件对TypeScript的支持，参考[config.ts](https://github.com/xugaoyi/vuepress-theme-vdoing/blob/master/docs/.vuepress/config.ts)。新增[标题标记](/pages/3216b0/#titletag)。
 
 ::: tip
 期待 [VuePress v2.0](https://github.com/vuepress/vuepress-next) 以及 [VitePress](https://github.com/vuejs/vitepress) 的正式发布...
@@ -126,7 +121,7 @@ postList: none
 
 ## ⚡ 反馈与交流
 
-在使用过程中有任何问题和想法，请给我提 [Issue](https://github.com/xugaoyi/vuepress-theme-vdoing/issues)。
+在使用过程中有任何问题和想法，请给我提 [Issue](https://gitee.com/dromara/neutrino-proxy/issues)。
 你也可以在Issue查看别人提的问题和给出解决方案。
 
 或者加入我们的交流群：
