@@ -11,13 +11,14 @@ serverDeployDir=$deployDir"/server"
 #切到项目根目录
 cd ..
 #初始化文件夹
-rm -rf $serverDeployDir
 if [ ! -d "$deployDir" ];then
   mkdir $deployDir
 fi
 if [ ! -d "$serverDeployDir" ];then
   mkdir $serverDeployDir
 fi
+rm -rf $serverDeployDir/neutrino-proxy-server.jar
+
 #客户端打包
 mvn clean install -U -pl neutrino-proxy-server -am -Dmaven.test.skip=true
 # 拷贝到deploy目录下

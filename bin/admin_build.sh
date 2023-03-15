@@ -17,7 +17,6 @@ export NVM_DIR="$HOME/.nvm"
 
 #初始化文件夹
 cd ..
-rm -rf $adminDeployDir
 if [ ! -d "$deployDir" ];then
   mkdir $deployDir
 fi
@@ -27,6 +26,7 @@ fi
 if [ ! -d "$adminDeployDir" ];then
   mkdir $adminDeployDir
 fi
+rm -rf $adminDeployDir
 #切node版本
 nvm use $nodeVersion
 #进入admin项目目录
