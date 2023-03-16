@@ -2,7 +2,7 @@
 home: true
 
 heroImage: /img/logo.png
-heroText: Neutrino-Proxy1
+heroText: Neutrino-Proxy
 tagline: 🚀一个基于 netty 的、开源的 java 内网穿透项目
 actionText: 开始使用 →
 actionLink: /pages/a2f161/
@@ -118,7 +118,6 @@ postList: none
 :::
 
 <br/> -->
-
 ## ⚡ 反馈与交流
 
 在使用过程中有任何问题和想法，请给我提 [Issue](https://gitee.com/dromara/neutrino-proxy/issues)。
@@ -142,7 +141,21 @@ postList: none
 </table>
 <br/> 
 
-# 📚 Dromara 成员项目
+## 🧬贡献代码的步骤
+
+贡献代码注意事项：
+1. 在Gitee或者Github上fork项目到自己的repo，fork，一定要把项目fork一份。
+2. 把fork过去的项目也就是你的项目clone到你的本地
+3. 同步feature/1.7.1最新代码
+4. 修改代码
+5. 开发完成后，不忙着提PR，再拉一遍最新代码，如果有冲突、解决冲突
+6. commit后push到自己的库
+7. 登录Gitee在你首页可以看到一个 pull request 按钮，点击它，填写一些说明信息，然后提交即可。
+8. 等待维护者合并
+
+<br/>
+
+## 📚 Dromara 成员项目
 <p align="center">
 <a href="https://gitee.com/dromara/TLog" target="_blank">
 <img src="https://oss.dev33.cn/sa-token/link/tlog2.png" alt="一个轻量级的分布式日志标记追踪神器，10分钟即可接入，自动对日志打标签完成微服务的链路追踪" width="15%">
