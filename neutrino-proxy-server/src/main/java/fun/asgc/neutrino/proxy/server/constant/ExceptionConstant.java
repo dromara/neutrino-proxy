@@ -57,6 +57,10 @@ public enum ExceptionConstant {
 	// 调度管理(15000)
 	JOB_INFO_NOT_EXIST(15000, "调度管理记录不存在"),
 	SYSTEM_ERROR(500, "系统异常"),
+
+	PORT_GROUP_NAME_ALREADY_EXIST(16000,"端口分组名称[{}]已经存在"),
+	PORT_GROUP_NAME_DOES_NOT_EXIST(16001,"端口分组不存在"),
+	DEFAULT_GROUP_FORBID_DELETE(16002,"默认分组禁止删除")
 	;
 
 	private int code;

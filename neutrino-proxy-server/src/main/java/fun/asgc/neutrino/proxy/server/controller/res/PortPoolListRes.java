@@ -49,4 +49,14 @@ public class PortPoolListRes {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+	/**
+	 * 分组类型
+	 */
+	private Integer possessorType;
+
+	/**
+	 * 分组
+	 */
+	private String groupName;
 }
