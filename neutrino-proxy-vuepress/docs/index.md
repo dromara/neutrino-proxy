@@ -1,0 +1,261 @@
+---
+home: true
+
+heroImage: /img/logo.png
+heroText: Neutrino-Proxy
+tagline: 🚀一个基于 netty 的、开源的 java 内网穿透项目
+actionText: 开始使用 →
+actionLink: /pages/a2f161/
+bannerBg: none # auto => 网格纹背景(有bodyBgImg时无背景)，默认 | none => 无 | '大图地址' | background: 自定义背景样式       提示：如发现文本颜色不适应你的背景时可以到palette.styl修改$bannerTextColor变量
+
+features: # 可选的
+  - title: 安全
+    details: 内外网传输数据。
+  - title: 快速
+    details: 快速部署。
+  - title: 穿透力强
+    details: 穿透力。
+
+# 文章列表显示方式: detailed 默认，显示详细版文章列表（包括作者、分类、标签、摘要、分页等）| simple => 显示简约版文章列表（仅标题和日期）| none 不显示文章列表
+postList: none
+---
+<p align="center">
+  <a class="become-sponsor" href="/pages/1b12ed/">支持这个项目</a>
+</p>
+
+<style>
+.become-sponsor {
+  padding: 8px 20px;
+  display: inline-block;
+  color: #11a8cd;
+  border-radius: 30px;
+  box-sizing: border-box;
+  border: 1px solid #11a8cd;
+}
+</style>
+
+<br/>
+<p align="center">
+  <a href="https://www.npmjs.com/package/vuepress-theme-vdoing" target="_blank"><img src="https://img.shields.io/npm/v/vuepress-theme-vdoing" alt="npm" class="no-zoom"></a>
+  <a href="https://www.npmjs.com/package/vuepress-theme-vdoing" target="_blank"><img src="https://img.shields.io/npm/dt/vuepress-theme-vdoing" alt="npm" class="no-zoom"></a>
+  <a href="https://gitee.com/dromara/neutrino-proxy" target="_blank"><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star' class="no-zoom"></img></a>
+  <a href="https://gitee.com/dromara/neutrino-proxy" target="_blank"><img src='https://gitee.com/dromara/neutrino-proxy/badge/fork.svg?theme=dark' alt='forks' class="no-zoom"></a>
+</p>
+
+<br/>
+<!-- 注释掉
+<p align="center" style="color: #999;">
+  赞助商 (进入注册为主题作者充电)
+</p>
+
+<p align="center">
+  <a href="http://apifox.cn/a103xugaoyi" target="_blank"><img src="https://cdn.staticaly.com/gh/xugaoyi/blog-gitalk-comment@master/img/441669861566_.2bedplbm21hc.jpg" alt="npm" class="no-zoom" style="width: 300px;border-radius: 2px;"></a>
+</p>-->
+<!-- 
+## 🎖特别用户
+::: cardList 3
+```yaml
+# - name: OpenHarmony
+#   desc: 开放原子开源基金会
+#   link: https://docs.openharmony.cn/pages/000000/
+#   bgColor: '#f1f1f1'
+#   textColor: '#2A3344'
+- name: MyBatis-Plus官网
+  desc: 🚀为简化开发而生
+  link: https://baomidou.com/
+  bgColor: '#f1f1f1'
+  textColor: '#2A3344'
+- name: Deepin 社区
+  desc: Deepin 应用开发技术分享、DTK开发经验等
+  link: https://docs.deepin.org
+  bgColor: '#f1f1f1'
+  textColor: '#2A3344'
+- name: VForm官网
+  desc: 低代码表单优选方案，拖拽式设计，一键生成源码
+  link: http://www.vform666.com
+  bgColor: '#f1f1f1'
+  textColor: '#2A3344'
+```
+:::
+-->
+<br/>
+
+## 🎉上新推荐
+* `v1.7.0`：项目重构、底层框架更换为Solon。
+* `v1.6.4`：代理使用细节优化。
+  - 支持代理服务端用户（删除/禁用）、端口池（删除/禁用/启用）、License（删除/禁用/启用）、端口映射（新增/删除/禁用/启用）实时生效。
+  - 启动参数优化。
+  - 服务端静态资源服务支持缓存、gzip压缩，提升响应速度。
+* `v1.6.0`：关于日志、报表、客户端配置等相关优化。
+* `v1.5.0`：增加了服务端管理页面，用于维护license、端口映射。
+* `v1.0.0`：上线啦~&nbsp; 第一个完整版本。
+
+更多上新请查阅：[**更新日志**](https://gitee.com/dromara/neutrino-proxy/releases)
+
+<br/>
+
+<!-- ## ⚡️未来...
+* `v1.5.0`：新增配置文件对TypeScript的支持，参考[config.ts](https://github.com/xugaoyi/vuepress-theme-vdoing/blob/master/docs/.vuepress/config.ts)。新增[标题标记](/pages/3216b0/#titletag)。
+
+::: tip
+期待 [VuePress v2.0](https://github.com/vuepress/vuepress-next) 以及 [VitePress](https://github.com/vuejs/vitepress) 的正式发布...
+
+届时，VuePress 1.x 编译慢的缺点将得到极大的改善。我将会视情况把主题升级至 VuePress v2.0 或 VitePress。还希望大家多多 [:sparkling_heart:支持](/pages/1b12ed/) 哟，持续关注吧~
+::: -->
+
+<br/>
+
+<!-- ## 💎 公众号
+`有趣研究社`是本人对各种有趣的、好玩的、沙雕的创意和想法以在线小网站或者文章的形式表达出来，比如：
+- [小霸王游戏机](https://game.xugaoyi.com)
+- [爱国头像生成器](https://avatar.xugaoyi.com/)
+- [到账语音生成器](https://zfb.xugaoyi.com/)
+
+还有更多好玩的等你去探索吧~
+
+::: center
+<img src="https://fastly.jsdelivr.net/gh/xugaoyi/image_store@master/blog/qrcode.zdqv9mlfc0g.jpg"  style="width:190px;" />
+:::
+
+<br/> -->
+## ⚡ 反馈与交流
+
+在使用过程中有任何问题和想法，请给我提 [Issue](https://gitee.com/dromara/neutrino-proxy/issues)。
+你也可以在Issue查看别人提的问题和给出解决方案。
+
+或者加入我们的交流群：
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <img src="https://cdn.staticaly.com/gh/xugaoyi/blog-gitalk-comment@master/img/0.4pp7r95mdai0.jpeg" class="no-zoom" style="width:120px;margin: 10px;">
+        <p>vdoing微信群(添加我微信备注"进群")</p>
+      </td>
+      <td align="center" valign="middle">
+        <img :src="$withBase('/img/qrcode/qqq.webp')" alt="群号: 694387113" class="no-zoom" style="width:120px;margin: 10px;">
+        <p>vdoing QQ群: 694387113</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br/> 
+
+## 🧬贡献代码的步骤
+
+贡献代码注意事项：
+1. 在Gitee或者Github上fork项目到自己的repo，fork，一定要把项目fork一份。
+2. 把fork过去的项目也就是你的项目clone到你的本地
+3. 同步feature/1.7.1最新代码
+4. 修改代码
+5. 开发完成后，不忙着提PR，再拉一遍最新代码，如果有冲突、解决冲突
+6. commit后push到自己的库
+7. 登录Gitee在你首页可以看到一个 pull request 按钮，点击它，填写一些说明信息，然后提交即可。
+8. 等待维护者合并
+
+<br/>
+
+## 📚 Dromara 成员项目
+<p align="center">
+<a href="https://gitee.com/dromara/TLog" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/tlog2.png" alt="一个轻量级的分布式日志标记追踪神器，10分钟即可接入，自动对日志打标签完成微服务的链路追踪" width="15%">
+</a>
+<a href="https://gitee.com/dromara/liteFlow" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/liteflow.png" alt="轻量，快速，稳定，可编排的组件式流程引擎" width="15%">
+</a>
+<a href="https://hutool.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hutool.jpg" alt="小而全的Java工具类库，使Java拥有函数式语言般的优雅，让Java语言也可以“甜甜的”。" width="15%">
+</a>
+<a href="https://sa-token.dev33.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/sa-token.png" alt="一个轻量级 java 权限认证框架，让鉴权变得简单、优雅！" width="15%">
+</a>
+<a href="https://gitee.com/dromara/hmily" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hmily.png" alt="高性能一站式分布式事务解决方案。" width="15%">
+</a>
+<a href="https://gitee.com/dromara/Raincat" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/raincat.png" alt="强一致性分布式事务解决方案。" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://gitee.com/dromara/myth" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/myth.png" alt="可靠消息分布式事务解决方案。" width="15%">
+</a>
+<a href="https://cubic.jiagoujishu.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/cubic.png" alt="一站式问题定位平台，以agent的方式无侵入接入应用，完整集成arthas功能模块，致力于应用级监控，帮助开发人员快速定位问题" width="15%">
+</a>
+<a href="https://maxkey.top/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/maxkey.png" alt="业界领先的身份管理和认证产品" width="15%">
+</a>
+<a href="http://forest.dtflyx.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/forest-logo.png" alt="Forest能够帮助您使用更简单的方式编写Java的HTTP客户端" width="15%">
+</a>
+<a href="https://jpom.io/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/jpom.png" alt="一款简而轻的低侵入式在线构建、自动部署、日常运维、项目监控软件" width="15%">
+</a>
+<a href="https://su.usthe.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/sureness.png" alt="面向 REST API 的高性能认证鉴权框架" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://easy-es.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/easy-es2.png" alt="傻瓜级ElasticSearch搜索引擎ORM框架" width="15%">
+</a>
+<a href="https://gitee.com/dromara/northstar" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/northstar_logo.png" alt="Northstar盈富量化交易平台" width="15%">
+</a>
+<a href="https://hertzbeat.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/hertzbeat_brand.jpg" alt="易用友好的云监控系统" width="15%">
+</a>
+<a href="https://plugins.sheng90.wang/fast-request/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/fast-request.gif" alt="Idea 版 Postman，为简化调试API而生" width="15%">
+</a>
+<a href="https://www.jeesuite.com/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/mendmix.png" alt="开源分布式云原生架构一站式解决方案" width="15%">
+</a>
+<a href="https://gitee.com/dromara/koalas-rpc" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/koalas-rpc2.png" alt="企业生产级百亿日PV高可用可拓展的RPC框架。" width="15%">
+</a>
+</p>
+<p align="center">
+<a href="https://async.sizegang.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/gobrs-async.png" alt="配置极简功能强大的异步任务动态编排框架" width="15%">
+</a>
+<a href="https://dynamictp.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dynamic-tp.png" alt="基于配置中心的轻量级动态可监控线程池" width="15%">
+</a>
+<a href="https://www.x-easypdf.cn" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/x-easypdf.png" alt="一个用搭积木的方式构建pdf的框架（基于pdfbox）" width="15%">
+</a>
+<a href="http://dromara.gitee.io/image-combiner" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/image-combiner.png" alt="一个专门用于图片合成的工具，没有很复杂的功能，简单实用，却不失强大" width="15%">
+</a>
+<a href="https://www.herodotus.cn/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dante-cloud2.png" alt="Dante-Cloud 是一款企业级微服务架构和服务能力开发平台。" width="15%">
+</a>
+<a href="https://dromara.org/zh/projects/" target="_blank">
+<img src="https://oss.dev33.cn/sa-token/link/dromara.png" alt="让每一位开源爱好者，体会到开源的快乐。" width="15%">
+</a>
+</p>
+<!-- AD -->
+<div class="wwads-cn wwads-horizontal page-wwads" data-id="136"></div>
+<style>
+  .page-wwads{
+    width:100%!important;
+    min-height: 0;
+    margin: 0;
+  }
+  .page-wwads .wwads-img img{
+    width:80px!important;
+  }
+  .page-wwads .wwads-poweredby{
+    width: 40px;
+    position: absolute;
+    right: 25px;
+    bottom: 3px;
+  }
+  .wwads-content .wwads-text, .page-wwads .wwads-text{
+    height: 100%;
+    padding-top: 5px;
+    display: block;
+  }
+</style>
