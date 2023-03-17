@@ -60,7 +60,7 @@
         </el-form-item>
 
         <el-form-item  :label="$t('table.group')" prop="group">
-          <el-select style="width: 330px" class="filter-item" v-model="temp.groupId" placeholder="请选择"
+          <el-select style="width: 330px" class="filter-item" v-model="temp.groupId"
                      :disabled="dialogStatus=='update'">
             <el-option v-for="item in  portGroupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
@@ -235,6 +235,7 @@
         this.resetTemp()
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
+        this.temp.groupId = 1
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })

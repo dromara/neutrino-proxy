@@ -37,19 +37,19 @@
           <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="150">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.enable | statusFilter">{{ scope.row.enable | statusName }}</el-tag>
-        </template>
-      </el-table-column>
+<!--      <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="150">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-tag :type="scope.row.enable | statusFilter">{{ scope.row.enable | statusName }}</el-tag>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column align="center" :label="$t('table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">
-            {{ $t('table.disable') }}
-          </el-button>
-          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">
-            {{ $t('table.enable') }}
-          </el-button>
+<!--          <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">-->
+<!--            {{ $t('table.disable') }}-->
+<!--          </el-button>-->
+<!--          <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">-->
+<!--            {{ $t('table.enable') }}-->
+<!--          </el-button>-->
           <!--          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
           <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px"/>
         </template>
