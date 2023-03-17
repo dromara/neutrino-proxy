@@ -135,17 +135,17 @@ module.exports = {
         {
           iconClass: 'icon-youjian',
           title: '发邮件',
-          link: 'mailto:894072666@qq.com'
+          link: 'mailto:aoshiguchen@dromara.org'
         },
         {
-          iconClass: 'icon-github',
-          title: 'GitHub',
+          iconClass: 'icon-gitee',
+          title: 'Gitee',
           link: 'https://gitee.com/dromara/neutrino-proxy'
         },
         {
-          iconClass: 'icon-erji',
-          title: '听音乐',
-          link: 'https://music.163.com/#/playlist?id=755597173'
+          iconClass: 'icon-github',
+          title: 'Github',
+          link: 'https://github.com/aoshiguchen/neutrino-proxy'
         }
       ]
     },
