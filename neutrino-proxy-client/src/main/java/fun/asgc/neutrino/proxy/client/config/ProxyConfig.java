@@ -38,5 +38,6 @@ public class ProxyConfig {
 		private Boolean sslEnable;
 		private Integer obtainLicenseInterval;
 		private String licenseKey;
+		private Integer threadCount;
 	}
 }

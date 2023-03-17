@@ -51,7 +51,10 @@ public class LicenseService implements Lifecycle {
 	public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		Page<LicenseListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
-				.orderByAsc(LicenseDO::getId)
+						.eq(req.getUserId() != null, LicenseDO::getUserId, req.getUserId())
+						.eq(req.getIsOnline() != null, LicenseDO::getIsOnline, req.getIsOnline())
+						.eq(req.getEnable() != null, LicenseDO::getEnable, req.getEnable())
+				.orderByAsc(Arrays.asList(LicenseDO::getUserId, LicenseDO::getId))
 		);
 		List<LicenseListRes> respList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (CollectionUtils.isEmpty(list)) {

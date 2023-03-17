@@ -66,7 +66,7 @@ public class ProxyClientService {
 	public void init() {
 		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 0, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
-		NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+		NioEventLoopGroup workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
 		realServerBootstrap.group(workerGroup);
 		realServerBootstrap.channel(NioSocketChannel.class);
 		realServerBootstrap.handler(new ChannelInitializer<SocketChannel>() {

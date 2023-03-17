@@ -75,6 +75,7 @@ export const asyncRouterMap = [
     },
     children: [
       { path: 'user', component: _import('system/user'), name: 'user', meta: { title: 'user' }},
+      { path: 'portGroup', component: _import('system/portGroup'), name: 'portGroup', meta: { title: 'portGroup' }},
       { path: 'portPool', component: _import('system/portPool'), name: 'portPool', meta: { title: 'portPool' }},
       { path: 'jobManager', component: _import('system/jobManager'), name: 'jobManager', meta: { title: 'jobManager' }}
     ]

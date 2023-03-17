@@ -8,7 +8,7 @@
 
 # 1、简介
 - 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。
-- 技术栈：Solon、MybatisPlus
+- 技术栈：Solon、MybatisPlus、Netty
 - 遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 
 # 2、名称由来
@@ -147,6 +147,37 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 # 9、联系我们
 - 微信: yuyunshize
 - Gitee: https://gitee.com/asgc/neutrino-proxy
+
+# 10、贡献者列表
+<p>
+<a href="https://gitee.com/zcans" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/zcans.png" width="12%">
+</a>
+<a href="https://gitee.com/bmlt" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/jiuye.png" width="12%">
+</a>
+<a href="https://gitee.com/wangke666" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/keke.png" width="12%">
+</a>
+<a href="https://gitee.com/xue-fangming" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/aa.png" width="12%">
+</a>
+<a href="https://gitee.com/noear_admin" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/near.png" width="12%">
+</a>
+<a href="https://gitee.com/westboy" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/1679066920230.jpg" width="12%">
+</a>
+<a href="https://gitee.com/liugddx" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/liugddx.png" width="12%">
+</a>
+<a href="https://gitee.com/DianZiFaPiao" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/tan90.png" width="12%">
+</a>
+<a href="https://gitee.com/dearsny" target="_blank">
+<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/pingon.png" width="12%">
+</a>
+</p>
 
 #  ❤️ 感谢
 * [Solon](https://gitee.com/noear/solon?from=NeutrinoProxy)

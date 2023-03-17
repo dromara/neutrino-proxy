@@ -31,4 +31,6 @@ import lombok.Data;
 @Data
 public class PortPoolCreateReq {
 	private Integer port;
+
+	private Integer groupId;
 }

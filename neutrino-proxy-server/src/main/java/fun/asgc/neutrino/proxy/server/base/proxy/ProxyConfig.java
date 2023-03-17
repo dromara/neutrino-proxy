@@ -42,6 +42,8 @@ public class ProxyConfig {
 		private String keyStorePassword;
 		private String keyManagerPassword;
 		private String jksPath;
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
 	}
 
 }
