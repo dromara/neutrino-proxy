@@ -1,6 +1,15 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable>
+        <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
+      </el-select>
+      <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable>
+        <el-option v-for="item in selectObj.onlineOptions" :key="item.value" :label="item.label" :value="item.value"/>
+      </el-select>
+      <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable>
+        <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value"/>
+      </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
@@ -134,9 +143,9 @@
         listQuery: {
           current: 1,
           size: 10,
-          importance: undefined,
-          title: undefined,
-          type: undefined
+          enable: undefined,
+          isOnline: undefined,
+          userId: null
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
@@ -165,7 +174,11 @@
           userId: [{ required: true, message: '请选择用户', trigger: 'blur' }],
           name: [{ required: true, message: 'License名称不能为空', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        selectObj: {
+          statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
+          onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }]
+        }
       }
     },
     filters: {
@@ -195,8 +208,7 @@
       }
     },
     created() {
-      this.getList()
-      this.getUserList()
+      this.getDataList()
     },
     methods: {
       getList() {
@@ -210,6 +222,17 @@
       getUserList() {
         userList().then(response => {
           this.userList = response.data.data
+        })
+      },
+      getDataList() {
+        const loginName = this.$store.state.user.loginName
+        userList().then(response => {
+          this.userList = response.data.data
+          const curUser = this.userList.find((val) => val.loginName === loginName)
+          if (curUser) {
+            this.listQuery.userId = curUser.id
+          }
+          this.getList()
         })
       },
       handleFilter() {
