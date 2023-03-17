@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     KEY `I_flow_report_month_license_id` (`license_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 #端口分组
-CREATE TABLE `port_group` (
+CREATE TABLE IF NOT EXISTS `port_group` (
                               `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                               `name` varchar(255) NOT NULL COMMENT '分组名称',
                               `possessor_type` int NOT NULL DEFAULT '0' COMMENT '所有者类型 (0、全局共享 1、用户所有 2License所有) ',
