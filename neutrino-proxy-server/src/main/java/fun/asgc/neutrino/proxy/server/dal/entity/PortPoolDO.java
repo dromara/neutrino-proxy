@@ -42,6 +42,12 @@ import java.util.Date;
 public class PortPoolDO {
 	@TableId(type = IdType.AUTO)
 	private Integer id;
+
+	/**
+	 * 分组id
+	 */
+	private Integer groupId;
+
 	/**
 	 * 端口
 	 */

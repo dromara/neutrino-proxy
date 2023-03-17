@@ -17,6 +17,11 @@
           <span>{{scope.row.port}}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('table.groupName')" width="200">
+        <template slot-scope="scope">
+          <span>{{scope.row.groupName}}</span>
+        </template>
+      </el-table-column>
       <el-table-column width="200" align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
@@ -53,6 +58,15 @@
         <el-form-item :label="$t('table.port')" prop="port">
           <el-input v-model="temp.port"></el-input>
         </el-form-item>
+
+        <el-form-item  :label="$t('table.group')" prop="group">
+          <el-select style="width: 330px" class="filter-item" v-model="temp.groupId" placeholder="请选择"
+                     :disabled="dialogStatus=='update'">
+            <el-option v-for="item in  portGroupList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
@@ -75,6 +89,7 @@
 
 <script>
   import { fetchList, updateEnableStatus, createPortPool, deletePortPool } from '@/api/portPool'
+  import { portGroupList } from '@/api/portGroup'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import ButtonPopover from '../../components/Button/buttonPopover'
@@ -119,6 +134,7 @@
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
         temp: {
+          groupId: 1,
           id: undefined,
           importance: 1,
           remark: '',
@@ -133,6 +149,7 @@
           update: '编辑',
           create: '新建'
         },
+        portGroupList: [],
         dialogPvVisible: false,
         pvData: [],
         rules: {
@@ -161,7 +178,9 @@
       }
     },
     created() {
-      this.getList()
+      // eslint-disable-next-line no-sequences
+      this.getList(),
+      this.getPortGroupList()
     },
     methods: {
       getList() {
@@ -170,6 +189,11 @@
           this.list = response.data.data.records
           this.total = response.data.data.total
           this.listLoading = false
+        })
+      },
+      getPortGroupList() {
+        portGroupList().then(response => {
+          this.portGroupList = response.data.data
         })
       },
       handleFilter() {

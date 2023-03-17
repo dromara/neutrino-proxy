@@ -79,7 +79,7 @@
 <!--          </el-select>-->
 <!--        </el-form-item>-->
 
-        <el-form-item :label="$t('License')" prop="licenseId">
+        <el-form-item :label="$t('License')" prop="licenseId" >
           <DropdownTable
             v-model="temp.licenseId"
             :name.sync="temp.licenseName"
@@ -135,7 +135,7 @@
 
 <script>
   import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-  import { portPoolList } from '@/api/portPool'
+  import { portPoolList, availablePortList } from '@/api/portPool'
   import { licenseList } from '@/api/license'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -241,7 +241,7 @@
     },
     created() {
       this.getList()
-      this.getPortPoolList()
+      // this.getPortPoolList()
       this.getLicenseList()
     },
     methods: {
@@ -255,6 +255,11 @@
       },
       getPortPoolList() {
         portPoolList().then(response => {
+          this.serverPortList = response.data.data
+        })
+      },
+      getAvailablePortList(licenseId) {
+        availablePortList(licenseId).then(response => {
           this.serverPortList = response.data.data
         })
       },
@@ -356,8 +361,12 @@
         })
       },
       selectedFeeItem(row, list) {
-        this.temp.licenseId = row.id
-        this.temp.licenseName = row.name
+        if (this.temp.licenseId !== row.id) {
+          this.temp.licenseId = row.id
+          this.temp.licenseName = row.name
+          this.getAvailablePortList(row.id)
+          this.temp.serverPort = null
+        }
       },
       handleDelete(row) {
         this.$confirm('确定要删除吗？', '提示', {

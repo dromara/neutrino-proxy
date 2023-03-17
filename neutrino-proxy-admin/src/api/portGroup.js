@@ -2,31 +2,22 @@ import request from '@/utils/request'
 
 export function fetchList(query) {
   return request({
-    url: '/port-pool/page',
+    url: '/port-group/page',
     method: 'get',
     params: query
   })
 }
 
-export function portPoolList() {
+export function portGroupList() {
   return request({
-    url: '/port-pool/list',
+    url: '/port-group/list',
     method: 'get'
-  })
-}
-export function availablePortList(licenseId) {
-  return request({
-    url: '/port-pool/get-available-port-list',
-    method: 'get',
-    params: {
-      licenseId: licenseId
-    }
   })
 }
 
 export function updateEnableStatus(id, enable) {
   return request({
-    url: '/port-pool/update/enable-status',
+    url: '/port-group/update/enable-status',
     method: 'post',
     data: {
       id: id,
@@ -35,17 +26,17 @@ export function updateEnableStatus(id, enable) {
   })
 }
 
-export function createPortPool(data) {
+export function createPortGroup(data) {
   return request({
-    url: '/port-pool/create',
+    url: '/port-group/create',
     method: 'post',
     data
   })
 }
 
-export function deletePortPool(id) {
+export function deleteGroup(id) {
   return request({
-    url: '/port-pool/delete',
+    url: '/port-group/delete',
     method: 'post',
     params: {
       id: id

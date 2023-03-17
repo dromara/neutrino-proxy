@@ -24,13 +24,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolDeleteReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolCreateRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.service.PortPoolService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
@@ -68,6 +63,7 @@ public class PortPoolController {
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getPort(), "port");
+		ParamCheckUtil.checkNotNull(req.getGroupId(), "groupId");
 
 		return portPoolService.create(req);
 	}
@@ -91,5 +87,29 @@ public class PortPoolController {
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 
 		portPoolService.delete(req.getId());
+	}
+
+	@Get
+	@Mapping("/get-available-port-list")
+	public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
+		return portPoolService.getAvailablePortList(req);
+	}
+
+
+	@Get
+	@Mapping("/get-by-group")
+	public List<PortPoolListRes> portListByGroupId(String groupId) {
+		return portPoolService.portListByGroupId(groupId);
+	}
+
+	@Put
+	@Mapping("/update-group")
+	public PortPoolUpdateGroupRes updateGroup(PortPoolUpdateGroupReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getGroupId(), "groupId");
+		ParamCheckUtil.checkNotEmpty(req.getPortIdList(), "portIdList");
+		return portPoolService.updateGroup(req);
 	}
 }

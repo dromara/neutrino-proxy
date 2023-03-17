@@ -22,11 +22,16 @@ neutrino:
       jks-path: classpath:/test.jks
   data:
     db:
-      type: sqlite
-      url: jdbc:sqlite:data.db
-      driver-class: org.sqlite.JDBC
-      username:
-      password:
+#      type: sqlite
+#      url: jdbc:sqlite:data.db
+#      driver-class: org.sqlite.JDBC
+#      username:
+#      password:
+      type: mysql
+      url: jdbc:mysql://101.43.231.172:3306/neutrino-proxy?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useAffectedRows=true&useSSL=false
+      driver-class: com.mysql.jdbc.Driver
+      username: root
+      password: expect
 
 #添加MIME印射（如果有需要？）
 #是否启用静态文件服务。（可不配，默认为启用）
