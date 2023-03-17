@@ -31,4 +31,7 @@ import lombok.Data;
 @Data
 public class LicenseListReq {
 
+    private Integer userId;
+    private Integer isOnline;
+    private Integer enable;
 }
