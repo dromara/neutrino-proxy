@@ -8,6 +8,7 @@ nodeVersion=v13.12.0
 deployDir="deploy"
 serverDeployDir=$deployDir"/server"
 adminDeployDir=$serverDeployDir"/neutrino-proxy-admin"
+giteePagesDir=$deployDir"/gitee-pages"
 
 #设置nvm生效
 export NVM_DIR="$HOME/.nvm"
