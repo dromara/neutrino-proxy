@@ -9,7 +9,7 @@
                    u.`name`
                WHEN g.possessor_type = 2 THEN
                    l.`name`
-               ELSE ""
+               ELSE ''
                END possessor
     FROM port_group g
              LEFT JOIN `user` u ON g.possessor_id = u.id
