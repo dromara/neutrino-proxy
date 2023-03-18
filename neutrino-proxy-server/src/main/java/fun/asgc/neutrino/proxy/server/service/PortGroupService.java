@@ -7,6 +7,8 @@ import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
+import fun.asgc.neutrino.proxy.server.constant.Constants;
+import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.PortGroupCreateReq;
 import fun.asgc.neutrino.proxy.server.controller.req.PortGroupListReq;
@@ -54,7 +56,7 @@ public class PortGroupService {
         portGroupDO.setName(req.getName());
         portGroupDO.setPossessorType(req.getPossessorType());
         portGroupDO.setPossessorId(req.getPossessorId());
-        portGroupDO.setEnable(1);
+        portGroupDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
         portGroupDO.setCreateTime(now);
         portGroupDO.setUpdateTime(now);
         portGroupMapper.insert(portGroupDO);
@@ -85,7 +87,7 @@ public class PortGroupService {
     }
 
     public void delete(Integer id) {
-        if (id == 1) {
+        if (id == Constants.DEFAULT_PORT_GROUP_ID) {
             throw ServiceException.create(ExceptionConstant.DEFAULT_GROUP_FORBID_DELETE);
         }
         PortGroupDO portGroupDO = portGroupMapper.selectById(id);
@@ -96,7 +98,7 @@ public class PortGroupService {
         //修改绑定此分组的端口到默认分组
         portPoolMapper.update(null, Wrappers.lambdaUpdate(PortPoolDO.class)
                 .eq(PortPoolDO::getGroupId, portGroupDO.getId())
-                .set(PortPoolDO::getGroupId, 1)
+                .set(PortPoolDO::getGroupId, Constants.DEFAULT_PORT_GROUP_ID)
                 .set(PortPoolDO::getUpdateTime, new Date())
         );
     }
