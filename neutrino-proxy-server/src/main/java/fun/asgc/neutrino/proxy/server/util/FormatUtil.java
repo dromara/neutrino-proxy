@@ -34,7 +34,7 @@ public class FormatUtil {
             res *= 1024;
         }
 
-        return trimZero(String.format("%.2f", res)) + " " + SIZE_UNINTS[index];
+        return trimZero(String.format("%.2f", res)) +  SIZE_UNINTS[index];
     }
 
     private static String trimZero(String s) {
