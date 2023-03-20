@@ -56,7 +56,7 @@ public class ReportService {
         Page<LicenseFlowReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         List<LicenseFlowReportRes> list = reportMapper.licenseFLowReportList(req);
         fillLicenseFlowReport(list);
-        return PageInfo.of(list, 25L, pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     private void fillUserFlowReport(List<UserFlowReportRes> list) {
