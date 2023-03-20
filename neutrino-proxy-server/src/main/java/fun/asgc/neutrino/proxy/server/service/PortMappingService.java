@@ -32,10 +32,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -61,9 +58,11 @@ public class PortMappingService implements Lifecycle {
 
 	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+
 		List<PortMappingDO> list = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
 				.orderByAsc(PortMappingDO::getId)
 		);
+
 		List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
 		if (CollectionUtils.isEmpty(list)) {
 			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
@@ -77,6 +76,7 @@ public class PortMappingService implements Lifecycle {
 		List<UserDO> userList = userMapper.findByIds(userIds);
 		Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
 		Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+
 		respList.forEach(item -> {
 			LicenseDO license = licenseMap.get(item.getLicenseId());
 			if (null == license) {
@@ -90,6 +90,11 @@ public class PortMappingService implements Lifecycle {
 			}
 			item.setUserName(user.getName());
 		});
+		//sorted [userId asc] [licenseId asc] [createTime asc]
+		respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId)
+				.thenComparing(PortMappingListRes::getLicenseId)
+				.thenComparing(PortMappingListRes::getCreateTime))
+		.collect(Collectors.toList());
 		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 	}
 
@@ -97,7 +102,7 @@ public class PortMappingService implements Lifecycle {
 		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
 		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
 		if (!SystemContextHolder.isAdmin()) {
-			// 临时处理，如果当前用户不是管理院，则操作userId不能为1
+			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
 			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
 		}
 		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
