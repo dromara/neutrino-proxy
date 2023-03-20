@@ -17,14 +17,14 @@
         FROM `user` u
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY user_id) frm ON u.id = frm.user_id
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
-        WHERE date >= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', '01'), '%Y-%m-%d') AND date &lt;= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', day(CURDATE())), '%Y-%m-%d')
+        WHERE date >= #{curMonthBeginDate} AND date &lt;= #{curDayBeginDate}
         GROUP BY user_id) frd ON u.id = frd.user_id
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_minute
-        WHERE date >= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', day(CURDATE())), '%Y-%m-%d') AND date &lt;= STR_TO_DATE(CONCAT(YEAR(CURDATE()),'-',MONTH(CURDATE()),'-',DAY(CURDATE()), ' ',HOUR(CURTIME()),':',MINUTE(CURTIME())), "%Y-%m-%d %H:%i")
+        WHERE date >= #{curDayBeginDate} AND date &lt;= #{curDate}
         GROUP BY user_id) frm2 ON u.id = frm2.user_id
         <where>
-            <if test="req.userId != null">
-                AND u.id = #{req.userId}
+            <if test="userId != null">
+                AND u.id = #{userId}
             </if>
         </where>
         GROUP BY u.id
@@ -48,14 +48,14 @@
         LEFT JOIN `user` u ON l.user_id = u.id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY license_id) frm ON l.id = frm.license_id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
-        WHERE date >= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', '01'), '%Y-%m-%d') AND date &lt;= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', day(CURDATE())), '%Y-%m-%d')
+        WHERE date >= #{curMonthBeginDate} AND #{curDayBeginDate}
         GROUP BY license_id) frd ON l.id = frd.license_id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_minute
-        WHERE date >= STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', month(CURDATE()), '-', day(CURDATE())), '%Y-%m-%d') AND date &lt;= STR_TO_DATE(CONCAT(YEAR(CURDATE()),'-',MONTH(CURDATE()),'-',DAY(CURDATE()), ' ',HOUR(CURTIME()),':',MINUTE(CURTIME())), "%Y-%m-%d %H:%i")
+        WHERE date >= #{curDayBeginDate} AND date &lt;= #{curDate}
         GROUP BY license_id)frm2 ON l.id = frm2.license_id
         <where>
-            <if test="req.userId != null">
-                AND u.id = #{req.userId}
+            <if test="userId != null">
+                AND u.id = #{userId}
             </if>
         </where>
         GROUP BY l.id

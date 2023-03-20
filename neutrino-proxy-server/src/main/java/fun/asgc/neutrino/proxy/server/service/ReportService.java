@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
+import fun.asgc.neutrino.proxy.core.util.DateUtil;
+import fun.asgc.neutrino.proxy.server.base.db.DbConfig;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
@@ -19,6 +21,7 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,6 +35,8 @@ public class ReportService {
     private MapperFacade mapperFacade;
     @Db
     private ReportMapper reportMapper;
+    @Inject
+    private DbConfig dbConfig;
 
     /**
      * 用户流量报表分页
@@ -41,7 +46,8 @@ public class ReportService {
      */
     public PageInfo<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
         Page<UserFlowReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<UserFlowReportRes> list = reportMapper.userFlowReportList(req);
+        Date now = new Date();
+        List<UserFlowReportRes> list = reportMapper.userFlowReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillUserFlowReport(list);
         return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
@@ -54,7 +60,8 @@ public class ReportService {
      */
     public PageInfo<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
         Page<LicenseFlowReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<LicenseFlowReportRes> list = reportMapper.licenseFLowReportList(req);
+        Date now = new Date();
+        List<LicenseFlowReportRes> list = reportMapper.licenseFLowReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillLicenseFlowReport(list);
         return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }

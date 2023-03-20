@@ -7,6 +7,7 @@ import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,18 +16,16 @@ import java.util.List;
  */
 @Mapper
 public interface ReportMapper {
-
     /**
      * 基于用户维度的流量报表
-     * @param req
+     * @param userId
      * @return
      */
-    List<UserFlowReportRes> userFlowReportList(@Param("req") UserFlowReportReq req);
-
+    List<UserFlowReportRes> userFlowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
     /**
-     * 基于license维度的流量报表
-     * @param req
+     * 基于用户维度的流量报表
+     * @param userId
      * @return
      */
-    List<LicenseFlowReportRes> licenseFLowReportList(@Param("req")LicenseFlowReportReq req);
+    List<LicenseFlowReportRes> licenseFLowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
 }
