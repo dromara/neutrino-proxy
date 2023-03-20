@@ -81,6 +81,20 @@ export const asyncRouterMap = [
     ]
   },
   {
+    path: '/report',
+    component: Layout,
+    redirect: 'noredirect',
+    name: 'report',
+    meta: {
+      title: 'report',
+      icon: 'component'
+    },
+    children: [
+      { path: 'userFlowReport', component: _import('report/userFlowReport'), name: 'userFlowReport', meta: { title: 'userFlowReport' }},
+      { path: 'licenseFlowReport', component: _import('report/licenseFlowReport'), name: 'licenseFlowReport', meta: { title: 'licenseFlowReport' }}
+    ]
+  },
+  {
     path: '/log',
     component: Layout,
     redirect: 'noredirect',

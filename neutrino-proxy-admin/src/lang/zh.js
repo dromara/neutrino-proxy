@@ -56,7 +56,10 @@ export default {
     jobLog: '调度日志',
     log: '日志管理',
     loginLog: '登录日志',
-    clientConnectLog: '客户端连接日志'
+    clientConnectLog: '客户端连接日志',
+    report: '报表管理',
+    userFlowReport: '用户流量报表',
+    licenseFlowReport: 'License流量报表'
   },
   navbar: {
     logOut: '退出登录',
@@ -153,7 +156,10 @@ export default {
     msg: '消息',
     outcome: '结果',
     err: '异常信息',
-    resetKey: '重置Key'
+    resetKey: '重置Key',
+    upFlow: '上行流量',
+    downFlow: '下行流量',
+    totalFlow: '总流量'
   },
   button: {
     lookOver: '查看'

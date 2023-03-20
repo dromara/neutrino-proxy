@@ -22,6 +22,7 @@
 package fun.asgc.neutrino.proxy.server.controller.res;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -29,6 +30,7 @@ import java.util.Date;
  * @author: aoshiguchen
  * @date: 2022/12/21
  */
+@Accessors(chain = true)
 @Data
 public class LicenseFlowReportRes {
     /**
@@ -48,31 +50,27 @@ public class LicenseFlowReportRes {
      */
     private String licenseName;
     /**
-     * 写入字节数
+     * 上行流量字节数
      */
-    private Long writeBytes;
+    private Long upFlowBytes;
     /**
-     * 读取字节数
+     * 下行流量字节数
      */
-    private Long readBytes;
+    private Long downFlowBytes;
     /**
-     * 写入流量描述
+     * 总流量字节数
      */
-    private String writeFlowStr;
+    private Long totalFlowBytes;
     /**
-     * 读取流量描述
+     * 上行流量描述
      */
-    private String readFlowStr;
+    private String upFlowDesc;
     /**
-     * 流量描述
+     * 下行流量描述
      */
-    private String flowStr;
+    private String downFlowDesc;
     /**
-     * 报表时间
+     * 总流量描述
      */
-    private Date date;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
+    private String totalFlowDesc;
 }

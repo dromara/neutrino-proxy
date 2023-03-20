@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.asgc.neutrino.proxy.server.dal.ReportMapper">
+
+    <select id="userFlowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes">
+        SELECT
+        u.id AS 'userId',
+        u.name AS 'userName',
+        SUM(frm.write_bytes + frd.write_bytes + frm2.write_bytes) AS 'upFlowBytes',
+        SUM(frm.read_bytes + frd.read_bytes + frm2.read_bytes) AS 'downFlowBytes',
+        SUM(frm.write_bytes) monthWriteBytes,
+        SUM(frm.read_bytes) monthReadBytes,
+        SUM(frd.write_bytes) dayWriteBytes,
+        SUM(frd.read_bytes) dayReadBytes,
+        SUM(frm2.write_bytes) minuteWriteBytes,
+        SUM(frm2.read_bytes) minuteReadBytes
+        FROM `user` u
+        LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY user_id) frm ON u.id = frm.user_id
+        LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
+        WHERE date >= #{curMonthBeginDate} AND date &lt;= #{curDayBeginDate}
+        GROUP BY user_id) frd ON u.id = frd.user_id
+        LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_minute
+        WHERE date >= #{curDayBeginDate} AND date &lt;= #{curDate}
+        GROUP BY user_id) frm2 ON u.id = frm2.user_id
+        <where>
+            <if test="userId != null">
+                AND u.id = #{userId}
+            </if>
+        </where>
+        GROUP BY u.id
+    </select>
+
+    <select id="licenseFLowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes">
+        SELECT
+        l.id AS 'licenseId',
+        l.name AS 'licenseName',
+        u.id AS 'userId',
+        u.name AS 'userName',
+        SUM(frm.write_bytes + frd.write_bytes + frm2.write_bytes) AS 'upFlowBytes',
+        SUM(frm.read_bytes + frd.read_bytes + frm2.read_bytes) AS 'downFlowBytes',
+        SUM(frm.write_bytes) monthWriteBytes,
+        SUM(frm.read_bytes) monthReadBytes,
+        SUM(frd.write_bytes) dayWriteBytes,
+        SUM(frd.read_bytes) dayReadBytes,
+        SUM(frm2.write_bytes) minuteWriteBytes,
+        SUM(frm2.read_bytes) minuteReadBytes
+        FROM `license` l
+        LEFT JOIN `user` u ON l.user_id = u.id
+        LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY license_id) frm ON l.id = frm.license_id
+        LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
+        WHERE date >= #{curMonthBeginDate} AND #{curDayBeginDate}
+        GROUP BY license_id) frd ON l.id = frd.license_id
+        LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_minute
+        WHERE date >= #{curDayBeginDate} AND date &lt;= #{curDate}
+        GROUP BY license_id)frm2 ON l.id = frm2.license_id
+        <where>
+            <if test="userId != null">
+                AND u.id = #{userId}
+            </if>
+        </where>
+        GROUP BY l.id
+    </select>
+</mapper>

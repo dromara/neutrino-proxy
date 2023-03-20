@@ -29,5 +29,6 @@ import lombok.Data;
  */
 @Data
 public class LicenseFlowReportReq {
-
+    private Integer userId;
+    private Integer licenseId;
 }

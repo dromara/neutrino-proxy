@@ -29,5 +29,8 @@ import lombok.Data;
  */
 @Data
 public class UserFlowReportReq {
-
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 }
