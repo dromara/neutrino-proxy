@@ -12,10 +12,7 @@ import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortMappingUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
@@ -56,17 +53,18 @@ public class PortMappingService implements Lifecycle {
 	@Inject
 	private VisitorChannelService visitorChannelService;
 
+	@Inject
+	private PortPoolService portPoolService;
+
 	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
 
-		List<PortMappingDO> list = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
-				.orderByAsc(PortMappingDO::getId)
-		);
-
+		List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(req);
 		List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
 		if (CollectionUtils.isEmpty(list)) {
 			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
 		}
+
 		Set<Integer> licenseIds = respList.stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
 		List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
 		if (CollectionUtil.isEmpty(licenseList)) {

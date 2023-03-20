@@ -1,16 +1,22 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container" style="display:flex">
-        <el-select v-model="listQuery.port" placeholder="请选择用户" clearable style="margin-right:10px">
-          <el-option v-for="item in userList" :key="item.loginName" :label="item.desc" :value="item.name" />
-        </el-select>
-        <el-select v-model="listQuery.name" placeholder="请选择license" clearable style="margin-right:10px">
-          <el-option v-for="item in licenseList" :key="item.key" :label="item.desc" :value="item.name" />
-        </el-select>
-        <el-input type="text" style="width:150px;margin-right:10px" class="filter-item" placeholder="请输入内容" v-model="text" maxlength="5"
-          show-word-limit  />
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search"
-        @click="handleFilter">{{ $t('table.search') }}</el-button>
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px" @change="refrech">
+        <el-option v-for="item in userList" :key="item.loginName" :label="item.name" :value="item.id" />
+      </el-select>
+      <el-select v-model="listQuery.license" placeholder="请选择license" clearable style="margin-right:10px">
+        <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
+      </el-select>
+      <el-input v-model="listQuery.serverPort" type="text" style="width:150px;margin-right:10px" class="filter-item"
+        placeholder="请输入服务端端口" :maxlength="5" show-word-limit />
+      <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable style="width:145px;margin-right:10px">
+        <el-option v-for="item in selectObj.onlineOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
+        <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{
+        $t('table.search') }}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary"
         icon="el-icon-edit">{{ $t('table.add') }}</el-button>
     </div>
@@ -65,8 +71,8 @@
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
-          <el-button v-if="scope.row.enable == '1'" size="mini" type="danger"
-            @click="handleModifyStatus(scope.row, 2)">{{ $t('table.disable') }}</el-button>
+          <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{
+            $t('table.disable') }}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success"
             @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
           <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
@@ -93,17 +99,10 @@
         <!--          </el-select>-->
         <!--        </el-form-item>-->
 
-        <el-form-item :label="$t('License')" prop="licenseId" >
-          <DropdownTable
-            v-model="temp.licenseId"
-            :name.sync="temp.licenseName"
-            :tableData= "licenseList"
-            @selectedData="selectedFeeItem"
-            placeholder="请选择"
-            :width="280"
-            :disabled="dialogStatus==='update'"
-          />
-<!--          <DropdownTable
+        <el-form-item :label="$t('License')" prop="licenseId">
+          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseList"
+            @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
+          <!--          <DropdownTable
             :columns="countryColumns"
             :data="licenseList"
             v-model="temp.licenseId"
@@ -128,8 +127,10 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
-        <el-button v-if="dialogStatus == 'create'" type="primary" @click="createData">{{ $t('table.confirm') }}</el-button>
+        <el-button @click="
+          dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
+        <el-button v-if="dialogStatus == 'create'" type="primary" @click="createData">{{ $t('table.confirm')
+        }}</el-button>
         <el-button v-else type="primary" @click="updateData">{{ $t('table.confirm') }}</el-button>
       </div>
     </el-dialog>
@@ -148,14 +149,14 @@
 </template>
 
 <script>
-  import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-  import { portPoolList, availablePortList } from '@/api/portPool'
-  import { licenseList } from '@/api/license'
-  import { userList } from '@/api/user'
-  import waves from '@/directive/waves' // 水波纹指令
-  import { parseTime } from '@/utils'
-  import ButtonPopover from '../../components/Button/buttonPopover'
-  import DropdownTable from '../../components/Dropdown/DropdownTable'
+import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
+import { portPoolList, availablePortList } from '@/api/portPool'
+import { licenseList } from '@/api/license'
+import { userList } from '@/api/user'
+import waves from '@/directive/waves' // 水波纹指令
+import { parseTime } from '@/utils'
+import ButtonPopover from '../../components/Button/buttonPopover'
+import DropdownTable from '../../components/Dropdown/DropdownTable'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -170,246 +171,256 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
   return acc
 }, {})
 
-  export default {
-    name: 'complexTable',
-    directives: {
-      waves
-    },
-    components: {
-      DropdownTable,
-      ButtonPopover
-    },
-    data() {
-      return {
-        tableKey: 0,
-        list: null,
-        total: null,
-        listLoading: true,
-        listQuery: {
-          current: 1,
-          size: 10,
-          importance: undefined,
-          title: undefined,
-          type: undefined
-        },
-        importanceOptions: [1, 2, 3],
-        calendarTypeOptions,
-        sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-        statusOptions: ['published', 'draft', 'deleted'],
-        userList: [],
-        licenseList: [],
-        serverPortList: [],
-        showReviewer: false,
-        temp: {
-          id: undefined,
-          licenseId: undefined,
-          licenseName: undefined,
-          serverPort: undefined,
-          clientIp: undefined,
-          clientPort: undefined
-        },
-        dialogFormVisible: false,
-        dialogStatus: '',
-        textMap: {
-          update: '编辑',
-          create: '新建'
-        },
-        dialogPvVisible: false,
-        pvData: [],
-        rules: {
-          licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
-          serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
-          clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
-          clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
-        },
-        downloadLoading: false,
-        countryColumns: [
-          { prop: 'userName', label: '用户名', align: 'center' },
-          { prop: 'name', label: 'License', align: 'center' }
-        ]
+export default {
+  name: 'complexTable',
+  directives: {
+    waves
+  },
+  components: {
+    DropdownTable,
+    ButtonPopover
+  },
+  data() {
+    return {
+      tableKey: 0,
+      list: null,
+      total: null,
+      listLoading: true,
+      listQuery: {
+        current: 1,
+        size: 10,
+        importance: undefined,
+        title: undefined,
+        type: undefined,
+        userid: undefined,
+        license: undefined,
+        port: undefined,
+        isOnline: undefined,
+        enable: undefined
+
+      },
+      importanceOptions: [1, 2, 3],
+      calendarTypeOptions,
+      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
+      statusOptions: ['published', 'draft', 'deleted'],
+      userList: [],
+      licenseList: [],
+      serverPortList: [],
+      showReviewer: false,
+      temp: {
+        id: undefined,
+        licenseId: undefined,
+        licenseName: undefined,
+        serverPort: undefined,
+        clientIp: undefined,
+        clientPort: undefined
+      },
+      selectObj: {
+        statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
+        onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }]
+      },
+      dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        update: '编辑',
+        create: '新建'
+      },
+      dialogPvVisible: false,
+      pvData: [],
+      rules: {
+        licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
+        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
+        clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
+        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
+      },
+      downloadLoading: false,
+      countryColumns: [
+        { prop: 'userName', label: '用户名', align: 'center' },
+        { prop: 'name', label: 'License', align: 'center' }
+      ]
+    }
+  },
+  filters: {
+    statusName(status) {
+      const statusMap = {
+        1: '启用',
+        2: '禁用'
       }
+      return statusMap[status]
     },
-    filters: {
-      statusName(status) {
-        const statusMap = {
-          1: '启用',
-          2: '禁用'
-        }
-        return statusMap[status]
-      },
-      isOnlineName(isOnline) {
-        const isOnlineMap = {
-          1: '在线',
-          2: '离线'
-        }
-        return isOnlineMap[isOnline]
-      },
-      statusFilter(status) {
-        const statusMap = {
-          1: 'success',
-          2: 'danger'
-        }
-        return statusMap[status]
-      },
-      typeFilter(type) {
-        return calendarTypeKeyValue[type]
+    isOnlineName(isOnline) {
+      const isOnlineMap = {
+        1: '在线',
+        2: '离线'
       }
+      return isOnlineMap[isOnline]
     },
-    created() {
+    statusFilter(status) {
+      const statusMap = {
+        1: 'success',
+        2: 'danger'
+      }
+      return statusMap[status]
+    },
+    typeFilter(type) {
+      return calendarTypeKeyValue[type]
+    }
+  },
+  created() {
+    this.getDataList()
+    this.getLicenseList()
+  },
+  methods: {
+    refrech(val) {
+      this.$forceUpdate()
+    },
+    getList() {
+      this.listLoading = true
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.data.records
+        this.total = response.data.data.total
+        this.listLoading = false
+      })
+    },
+    getDataList() {
+      const loginName = this.$store.state.user.loginName
+      userList().then(response => {
+        this.userList = response.data.data
+        const curUser = this.userList.find((val) => val.loginName === loginName)
+        if (curUser) {
+          this.listQuery.userId = curUser.id
+        }
+        this.getList()
+      })
+    },
+    getPortPoolList() {
+      portPoolList().then(response => {
+        this.serverPortList = response.data.data
+      })
+    },
+    getAvailablePortList(licenseId) {
+      availablePortList(licenseId).then(response => {
+        this.serverPortList = response.data.data
+      })
+    },
+    getAllUserList() {
+      userList().then(response => {
+        this.userList = response.data.data
+      })
+    },
+    getLicenseList() {
+      licenseList().then(response => {
+        this.licenseList = response.data.data
+      })
+    },
+    handleFilter() {
+      this.listQuery.current = 1
       this.getList()
-      this.getPortPoolList()
-      this.getLicenseList()
-      this.getAllUserList()
     },
-    methods: {
-      getList() {
-        this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.data.records
-          this.total = response.data.data.total
-          this.listLoading = false
-        })
-      },
-      getPortPoolList() {
-        portPoolList().then(response => {
-          this.serverPortList = response.data.data
-        })
-      },
-      getAvailablePortList(licenseId) {
-        availablePortList(licenseId).then(response => {
-          this.serverPortList = response.data.data
-        })
-      },
-      getAllUserList() {
-        userList().then(response => {
-          this.userList = response.data.data
-        })
-      },
-      getLicenseList() {
-        licenseList().then(response => {
-          this.licenseList = response.data.data
-        })
-      },
-      handleFilter() {
-        this.listQuery.current = 1
-        this.getList()
-      },
-      handleSizeChange(val) {
-        this.listQuery.size = val
-        this.getList()
-      },
-      handleCurrentChange(val) {
-        this.listQuery.current = val
-        this.getList()
-      },
-      handleModifyStatus(row, enable) {
-        console.log('route', this.$route)
-        updateEnableStatus(row.id, enable).then(response => {
-          if (response.data.data.code === 0) {
-            this.$message({
-              message: '操作成功',
-              type: 'success'
-            })
-          }
-          this.getList()
-        })
-      },
-      resetTemp() {
-        this.temp = {
-          id: undefined,
-          licenseId: undefined,
-          licenseName: undefined,
-          serverPort: undefined,
-          clientIp: '127.0.0.1',
-          clientPort: undefined
+    handleSizeChange(val) {
+      this.listQuery.size = val
+      this.getList()
+    },
+    handleCurrentChange(val) {
+      this.listQuery.current = val
+      this.getList()
+    },
+    handleModifyStatus(row, enable) {
+      console.log('route', this.$route)
+      updateEnableStatus(row.id, enable).then(response => {
+        if (response.data.data.code === 0) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
         }
-      },
-      handleCreate() {
-        this.resetTemp()
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      createData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            createUserPortMapping(this.temp).then(response => {
-              if (response.data.code === 0) {
-                this.dialogFormVisible = false
-                this.$notify({
-                  title: '成功',
-                  message: '创建成功',
-                  type: 'success',
-                  duration: 2000
-                })
-                this.getList()
-              }
-            })
-          }
-        })
-      },
-      handleUpdate(row) {
-        this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
-        this.dialogStatus = 'update'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      updateData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            updateUserPortMapping(tempData).then(response => {
-              if (response.data.code === 0) {
-                // this.$message({
-                //   message: '操作成功',
-                //   type: 'success'
-                // })
-                this.$notify({
-                  title: '成功',
-                  message: '更新成功',
-                  type: 'success',
-                  duration: 2000
-                })
-                this.dialogFormVisible = false
-                this.getList()
-              }
-            })
-          }
-        })
-      },
-      selectedFeeItem(row, list) {
-        if (this.temp.licenseId !== row.id) {
-          this.temp.licenseId = row.id
-          this.temp.licenseName = row.name
-          this.getAvailablePortList(row.id)
-          this.temp.serverPort = null
-        }
-      },
-      handleDelete(row) {
-        this.$confirm('确定要删除吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deletePortMapping(row.id).then(response => {
+        this.getList()
+      })
+    },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        licenseId: undefined,
+        licenseName: undefined,
+        serverPort: undefined,
+        clientIp: '127.0.0.1',
+        clientPort: undefined,
+        userId: undefined
+      }
+    },
+    handleCreate() {
+      this.resetTemp()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          createUserPortMapping(this.temp).then(response => {
             if (response.data.code === 0) {
+              this.dialogFormVisible = false
               this.$notify({
                 title: '成功',
-                message: '删除成功',
+                message: '创建成功',
                 type: 'success',
                 duration: 2000
               })
               this.getList()
             }
           })
-        }).catch(() => {})
-      },
-      handleDelete2(row) {
+        }
+      })
+    },
+    handleUpdate(row) {
+      this.temp = Object.assign({}, row) // copy obj
+      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+      this.getAvailablePortList(row.licenseId)
+    },
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          updateUserPortMapping(tempData).then(response => {
+            if (response.data.code === 0) {
+              // this.$message({
+              //   message: '操作成功',
+              //   type: 'success'
+              // })
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.dialogFormVisible = false
+              this.getList()
+            }
+          })
+        }
+      })
+    },
+    selectedFeeItem(row, list) {
+      if (this.temp.licenseId !== row.id) {
+        this.temp.licenseId = row.id
+        this.temp.licenseName = row.name
+        this.getAvailablePortList(row.id)
+        this.temp.serverPort = null
+      }
+    },
+    handleDelete(row) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
         deletePortMapping(row.id).then(response => {
           if (response.data.code === 0) {
             this.$notify({
@@ -421,26 +432,40 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
             this.getList()
           }
         })
-      },
-      handleDownload() {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-          const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-          const data = this.formatJson(filterVal, this.list)
-          excel.export_json_to_excel(tHeader, data, 'table-list')
-          this.downloadLoading = false
-        })
-      },
-      formatJson(filterVal, jsonData) {
-        return jsonData.map(v => filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
-          } else {
-            return v[j]
-          }
-        }))
-      }
+      }).catch(() => { })
+    },
+    handleDelete2(row) {
+      deletePortMapping(row.id).then(response => {
+        if (response.data.code === 0) {
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
+        }
+      })
+    },
+    handleDownload() {
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
+        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const data = this.formatJson(filterVal, this.list)
+        excel.export_json_to_excel(tHeader, data, 'table-list')
+        this.downloadLoading = false
+      })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v => filterVal.map(j => {
+        if (j === 'timestamp') {
+          return parseTime(v[j])
+        } else {
+          return v[j]
+        }
+      }))
     }
   }
+}
 </script>

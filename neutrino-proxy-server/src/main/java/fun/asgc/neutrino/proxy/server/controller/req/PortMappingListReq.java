@@ -21,6 +21,7 @@
  */
 package fun.asgc.neutrino.proxy.server.controller.req;
 
+import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 
 /**
@@ -30,5 +31,27 @@ import lombok.Data;
  */
 @Data
 public class PortMappingListReq {
+    /**
+     * 用户ID
+     */
+    private Integer userId;
+    /**
+     * licenseId
+     */
+    private Integer licenseId;
+    /**
+     * 服务端口号
+     */
+    private Integer serverPort;
 
+    /**
+     * 是否在线
+     * {@link OnlineStatusEnum}
+     */
+    private Integer isOnline;
+    /**
+     * 启用状态
+     * {@link fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum}
+     */
+    private Integer enable;
 }
