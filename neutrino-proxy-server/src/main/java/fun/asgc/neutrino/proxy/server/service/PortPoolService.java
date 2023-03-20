@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2022 aoshiguchen
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,77 +22,93 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
+import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolCreateRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolUpdateEnableStatusRes;
+import fun.asgc.neutrino.proxy.server.controller.req.*;
+import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.PortGroupMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortGroupDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
 @Component
 public class PortPoolService {
-    @Inject
-    private MapperFacade mapperFacade;
-    @Db
-    private PortPoolMapper portPoolMapper;
-    @Inject
-    private VisitorChannelService visitorChannelService;
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
+	private PortPoolMapper portPoolMapper;
+	@Inject
+	private VisitorChannelService visitorChannelService;
 
     @Db
-    private PortMappingMapper portMappingMapper;
+    private PortGroupMapper portGroupMapper;
+	@Db
+	private PortMappingMapper portMappingMapper;
 
     public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
         Page<PortPoolListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>().orderByAsc(PortPoolDO::getId));
-        List<PortPoolListRes> respList = mapperFacade.mapAsList(list, PortPoolListRes.class);
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+
+        List<PortPoolListRes> list = portPoolMapper.selectResList(req);
+        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public List<PortPoolListRes> list(PortPoolListReq req) {
-        List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>().eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus()));
-
-        return mapperFacade.mapAsList(this.filterUsedPorts(list), PortPoolListRes.class);
+        List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
+                .eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+        );
+		return mapperFacade.mapAsList(this.filterUsedPorts(list), PortPoolListRes.class);
     }
+	private List<PortPoolDO> filterUsedPorts(List<PortPoolDO> list) {
+		//Gets the used ports
+		List<PortMappingDO> usePorts = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().orderByAsc(PortMappingDO::getId));
 
-    private List<PortPoolDO> filterUsedPorts(List<PortPoolDO> list) {
-        //Gets the used ports
-        List<PortMappingDO> usePorts = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().orderByAsc(PortMappingDO::getId));
+		List<Integer> serverPorts = usePorts.stream().map(item -> item.getServerPort()).collect(Collectors.toList());
 
-        List<Integer> serverPorts = usePorts.stream().map(item -> item.getServerPort()).collect(Collectors.toList());
+		return list.stream().filter(item -> !serverPorts.contains(item.getPort())).collect(Collectors.toList());
+	}
 
-        return list.stream().filter(item -> !serverPorts.contains(item.getPort())).collect(Collectors.toList());
-    }
 
-    public PortPoolCreateRes create(PortPoolCreateReq req) {
+	public PortPoolCreateRes create(PortPoolCreateReq req) {
         PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
         ParamCheckUtil.checkMustNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
+        PortGroupDO portGroupDO = portGroupMapper.selectById(req.getGroupId());
+        ParamCheckUtil.checkNotNull(portGroupDO, ExceptionConstant.PORT_GROUP_NAME_DOES_NOT_EXIST);
 
         Date now = new Date();
 
-        portPoolMapper.insert(new PortPoolDO().setPort(req.getPort()).setEnable(EnableStatusEnum.ENABLE.getStatus()).setCreateTime(now).setUpdateTime(now));
+        portPoolMapper.insert(new PortPoolDO()
+                .setPort(req.getPort())
+                .setGroupId(req.getGroupId())
+                .setEnable(EnableStatusEnum.ENABLE.getStatus())
+                .setCreateTime(now)
+                .setUpdateTime(now)
+        );
         // 更新visitorChannel
         visitorChannelService.updateVisitorChannelByPortPool(req.getPort(), EnableStatusEnum.ENABLE.getStatus());
 
@@ -120,4 +136,27 @@ public class PortPoolService {
         visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());
     }
 
+    public List<PortPoolListRes> portListByGroupId(String groupId) {
+        List<PortPoolDO> portPoolDOList = portPoolMapper.getByGroupId(groupId);
+        List<PortPoolListRes> portPoolListReList = mapperFacade.mapAsList(portPoolDOList, PortPoolListRes.class);
+        return portPoolListReList;
+    }
+
+    public PortPoolUpdateGroupRes updateGroup(PortPoolUpdateGroupReq req) {
+        PortGroupDO portGroupDO = portGroupMapper.selectById(req.getGroupId());
+        if (Objects.isNull(portGroupDO)) {
+            throw ServiceException.create(ExceptionConstant.PARAMS_INVALID);
+        }
+        portPoolMapper.update(null, Wrappers.lambdaUpdate(PortPoolDO.class)
+                .in(PortPoolDO::getId, req.getPortIdList())
+                .set(PortPoolDO::getGroupId, req.getGroupId())
+                .set(PortPoolDO::getUpdateTime, new Date())
+        );
+        return new PortPoolUpdateGroupRes();
+    }
+
+    public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+        UserDO user = SystemContextHolder.getUser();
+        return portPoolMapper.getAvailablePortList(req.getLicenseId(), user.getId());
+    }
 }

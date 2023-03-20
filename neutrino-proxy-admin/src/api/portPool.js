@@ -14,6 +14,15 @@ export function portPoolList() {
     method: 'get'
   })
 }
+export function availablePortList(licenseId) {
+  return request({
+    url: '/port-pool/get-available-port-list',
+    method: 'get',
+    params: {
+      licenseId: licenseId
+    }
+  })
+}
 
 export function updateEnableStatus(id, enable) {
   return request({

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.asgc.neutrino.proxy.server.dal.PortPoolMapper">
+
+    <select id="selectResList" resultType="fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes">
+        SELECT p.*,
+               g.possessor_type,
+               g.`name` group_name
+        FROM port_pool p
+                 LEFT JOIN port_group g ON p.group_id = g.id
+        ORDER BY p.id
+    </select>
+
+    <select id="getAvailablePortList" resultType="fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes">
+        SELECT
+            *
+        FROM
+            port_pool
+        WHERE
+            `port` NOT IN ( SELECT server_port FROM port_mapping )
+          AND group_id IN (
+            SELECT
+                id
+            FROM
+                port_group
+            WHERE
+                possessor_type = 0
+               OR ( possessor_type = 1 AND possessor_id = #{userId,jdbcType=INTEGER} )
+               OR ( possessor_type = 2 AND possessor_id = #{licenseId,jdbcType=INTEGER} )
+        )
+    </select>
+</mapper>

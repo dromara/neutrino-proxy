@@ -48,6 +48,7 @@ export default {
     user: '用户管理',
     system: '系统管理',
     portPool: '端口池管理',
+    portGroup: '端口分组管理',
     proxy: '代理配置',
     license: 'License管理',
     portMapping: '端口映射',
@@ -55,7 +56,10 @@ export default {
     jobLog: '调度日志',
     log: '日志管理',
     loginLog: '登录日志',
-    clientConnectLog: '客户端连接日志'
+    clientConnectLog: '客户端连接日志',
+    report: '报表管理',
+    userFlowReport: '用户流量报表',
+    licenseFlowReport: 'License流量报表'
   },
   navbar: {
     logOut: '退出登录',
@@ -118,6 +122,11 @@ export default {
     confirm: '确 定',
     userId: '用户ID',
     userName: '用户名',
+    group: '分组',
+    groupName: '分组名称',
+    groupPossessor: '分组所属',
+    possessorType: '所属类',
+    possessorId: '分组所属',
     license: 'License',
     createTime: '创建时间',
     updateTime: '更新时间',
@@ -147,7 +156,10 @@ export default {
     msg: '消息',
     outcome: '结果',
     err: '异常信息',
-    resetKey: '重置Key'
+    resetKey: '重置Key',
+    upFlow: '上行流量',
+    downFlow: '下行流量',
+    totalFlow: '总流量'
   },
   button: {
     lookOver: '查看'

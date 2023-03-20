@@ -27,6 +27,7 @@ CREATE INDEX IF NOT EXISTS I_user_token_expiration_time ON user_token(expiration
 #端口池
 CREATE TABLE IF NOT EXISTS `port_pool` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `group_id` INTEGER NOT NULL DEFAULT 1,
   `port` INTEGER NOT NULL,
   `enable` INTEGER(2) NOT NULL,
   `update_time` INTEGER(20) NOT NULL,
@@ -34,6 +35,16 @@ CREATE TABLE IF NOT EXISTS `port_pool` (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS I_port_pool_port ON port_pool (port ASC);
 
+#端口分组
+CREATE TABLE IF NOT EXISTS `port_group` (
+    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `possessor_type` INTEGER NOT NULL DEFAULT '0',
+    `possessor_id` INTEGER NOT NULL DEFAULT '-1',
+    `enable` INTEGER NOT NULL,
+    `create_time` datetime(3) NOT NULL,
+    `update_time` datetime(3) NOT NULL
+);
 #############################代理配置相关表#############################
 #license表
 CREATE TABLE IF NOT EXISTS `license` (
