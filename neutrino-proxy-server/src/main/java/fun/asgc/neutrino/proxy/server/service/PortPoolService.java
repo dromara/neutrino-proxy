@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2022 aoshiguchen
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,8 +34,10 @@ import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
 import fun.asgc.neutrino.proxy.server.dal.PortGroupMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortGroupDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
@@ -48,22 +50,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
 @Component
 public class PortPoolService {
-    @Inject
-    private MapperFacade mapperFacade;
-    @Db
-    private PortPoolMapper portPoolMapper;
-    @Inject
-    private VisitorChannelService visitorChannelService;
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
+	private PortPoolMapper portPoolMapper;
+	@Inject
+	private VisitorChannelService visitorChannelService;
 
     @Db
     private PortGroupMapper portGroupMapper;
+	@Db
+	private PortMappingMapper portMappingMapper;
 
     public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
         Page<PortPoolListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -76,10 +82,19 @@ public class PortPoolService {
         List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
                 .eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
         );
-        return mapperFacade.mapAsList(list, PortPoolListRes.class);
+		return mapperFacade.mapAsList(this.filterUsedPorts(list), PortPoolListRes.class);
     }
+	private List<PortPoolDO> filterUsedPorts(List<PortPoolDO> list) {
+		//Gets the used ports
+		List<PortMappingDO> usePorts = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().orderByAsc(PortMappingDO::getId));
 
-    public PortPoolCreateRes create(PortPoolCreateReq req) {
+		List<Integer> serverPorts = usePorts.stream().map(item -> item.getServerPort()).collect(Collectors.toList());
+
+		return list.stream().filter(item -> !serverPorts.contains(item.getPort())).collect(Collectors.toList());
+	}
+
+
+	public PortPoolCreateRes create(PortPoolCreateReq req) {
         PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
         ParamCheckUtil.checkMustNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
         PortGroupDO portGroupDO = portGroupMapper.selectById(req.getGroupId());
