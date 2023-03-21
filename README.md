@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://i.imgtg.com/2023/02/10/crIMY.png" width="45%">
+	<img src="assets/logo-text-vertical.png" width="45%">
 </p>
 <p align="center">
   <a href='https://gitee.com/dromara/neutrino-proxy/stargazers'><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star'></img></a>
@@ -151,35 +151,34 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 # 10、贡献者列表
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
-<img src="assets/developer/01.png" width="12%">
-</a>
-
-<a href="https://gitee.com/zcans" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/zcans.png" width="12%">
+<img src="assets/developer/zcans.png" width="12%">
 </a>
 <a href="https://gitee.com/bmlt" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/jiuye.png" width="12%">
+<img src="assets/developer/jiuye.png" width="12%">
 </a>
 <a href="https://gitee.com/wangke666" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/keke.png" width="12%">
+<img src="assets/developer/keke.png" width="12%">
 </a>
 <a href="https://gitee.com/xue-fangming" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/aa.png" width="12%">
+<img src="assets/developer/fangming.png" width="12%">
+</a>
+<a href="https://gitee.com/y0hanes" target="_blank">
+<img src="assets/developer/yohanes.png" width="12%">
 </a>
 <a href="https://gitee.com/noear_admin" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/near.png" width="12%">
+<img src="assets/developer/near.png" width="12%">
 </a>
 <a href="https://gitee.com/westboy" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/1679066920230.jpg" width="12%">
+<img src="assets/developer/westboy.jpg" width="12%">
 </a>
 <a href="https://gitee.com/liugddx" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/liugddx.png" width="12%">
+<img src="assets/developer/liugddx.png" width="12%">
 </a>
 <a href="https://gitee.com/DianZiFaPiao" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/tan90.png" width="12%">
+<img src="assets/developer/tan90.png" width="12%">
 </a>
 <a href="https://gitee.com/dearsny" target="_blank">
-<img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/pingon.png" width="12%">
+<img src="assets/developer/pingon.png" width="12%">
 </a>
 </p>
 
