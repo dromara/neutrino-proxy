@@ -56,6 +56,11 @@ public class LicenseController {
 		return licenseService.list(req);
 	}
 
+	@Mapping("/auth-list")
+	public List<LicenseListRes> queryCurUserLicense(LicenseListReq req) {
+		return licenseService.queryCurUserLicense(req);
+	}
+
 	@Post
 	@Mapping("/create")
 	@Authorization(onlyAdmin = true)

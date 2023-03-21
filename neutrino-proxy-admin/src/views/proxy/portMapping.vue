@@ -1,10 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container" style="display:flex">
-      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px" @change="refrech">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px">
         <el-option v-for="item in userList" :key="item.loginName" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.license" placeholder="请选择license" clearable style="margin-right:10px">
+      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
       <el-input v-model="listQuery.serverPort" type="text" style="width:150px;margin-right:10px" class="filter-item"
@@ -100,7 +100,7 @@
         <!--        </el-form-item>-->
 
         <el-form-item :label="$t('License')" prop="licenseId">
-          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseList"
+          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
             @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
           <!--          <DropdownTable
             :columns="countryColumns"
@@ -151,7 +151,7 @@
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
 import { portPoolList, availablePortList } from '@/api/portPool'
-import { licenseList } from '@/api/license'
+import { licenseList, licenseAuthList } from '@/api/license'
 import { userList } from '@/api/user'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
@@ -192,7 +192,7 @@ export default {
         importance: undefined,
         title: undefined,
         type: undefined,
-        userid: undefined,
+        userId: undefined,
         license: undefined,
         port: undefined,
         isOnline: undefined,
@@ -205,6 +205,7 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       userList: [],
       licenseList: [],
+      licenseAuthList: [],
       serverPortList: [],
       showReviewer: false,
       temp: {
@@ -269,11 +270,9 @@ export default {
   created() {
     this.getDataList()
     this.getLicenseList()
+    this.getLicenseAuthList()
   },
   methods: {
-    refrech(val) {
-      this.$forceUpdate()
-    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
@@ -313,6 +312,11 @@ export default {
         this.licenseList = response.data.data
       })
     },
+    getLicenseAuthList() {
+      licenseAuthList().then(response => {
+        this.licenseAuthList = response.data.data
+      })
+    },
     handleFilter() {
       this.listQuery.current = 1
       this.getList()
@@ -347,6 +351,7 @@ export default {
         clientPort: undefined,
         userId: undefined
       }
+      this.serverPortList = []
     },
     handleCreate() {
       this.resetTemp()
