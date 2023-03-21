@@ -24,6 +24,7 @@ import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
+import org.jetbrains.annotations.Nullable;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
@@ -79,6 +80,12 @@ public class LicenseService implements Lifecycle {
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
 				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
 		);
+		List<LicenseListRes> licenseList = assembleConvertLicenses(list);
+		return licenseList;
+	}
+
+	@Nullable
+	private List<LicenseListRes> assembleConvertLicenses(List<LicenseDO> list) {
 		List<LicenseListRes> licenseList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (!CollectionUtil.isEmpty(licenseList)) {
 			Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
@@ -219,5 +226,21 @@ public class LicenseService implements Lifecycle {
 	@Override
 	public void stop() throws Throwable {
 		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+	}
+
+	/**
+	 * 查询当前角色下的license，若为管理员 则返回全部license
+	 */
+	public List<LicenseListRes> queryCurUserLicense(LicenseListReq req) {
+		if(SystemContextHolder.isAdmin()){
+			return this.list(req);
+		}
+
+		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
+				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+				.eq(LicenseDO::getUserId,SystemContextHolder.getUserId())
+		);
+		List<LicenseListRes> licenseList = assembleConvertLicenses(list);
+		return licenseList;
 	}
 }
