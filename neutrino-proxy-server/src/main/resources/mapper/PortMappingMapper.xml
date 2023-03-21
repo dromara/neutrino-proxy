@@ -3,7 +3,7 @@
 <mapper namespace="fun.asgc.neutrino.proxy.server.dal.PortMappingMapper">
     
     <select id="selectPortMappingByCondition" resultType="fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO">
-        SELECT pm.* from port_mapping  pm left join license on pm.license_id = license.'id'
+        SELECT pm.* from port_mapping  pm left join license on pm.license_id = license.`id`
         <where>
             <if test="req.userId != null">
                 AND license.user_id = #{req.userId}
