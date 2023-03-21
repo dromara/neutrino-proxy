@@ -228,7 +228,8 @@
           timestamp: new Date(),
           title: '',
           status: 'published',
-          type: ''
+          type: '',
+          groupId: 1
         }
       },
       handleCreate() {
