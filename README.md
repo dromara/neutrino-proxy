@@ -151,6 +151,10 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 # 10、贡献者列表
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
+<img src="assets/developer/01.png" width="12%">
+</a>
+
+<a href="https://gitee.com/zcans" target="_blank">
 <img src="https://neutrino-proxy.oss-cn-hangzhou.aliyuncs.com/developer/zcans.png" width="12%">
 </a>
 <a href="https://gitee.com/bmlt" target="_blank">
