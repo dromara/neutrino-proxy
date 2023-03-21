@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="assets/logo-text-vertical.png" width="45%">
+	<img src="assets/logo/logo-text-vertical.png" width="45%">
 </p>
 <p align="center">
   <a href='https://gitee.com/dromara/neutrino-proxy/stargazers'><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star'></img></a>
@@ -19,11 +19,11 @@
 因此以中微子命名，寓意着中微子代理拥有中微子"安全"、"快速"、"穿透力强"的特点。
 
 # 3、运行示例
-![用户管理](assets/user-manager1.png)
-![端口池管理](assets/port-pool1.png)
-![License管理](assets/license1.png)
-![端口映射管理](assets/port-mapping1.png)
-![客户端启动示例](assets/client-run1.png)
+![用户管理](assets/run-example/user-manager1.png)
+![端口池管理](assets/run-example/port-pool1.png)
+![License管理](assets/run-example/license1.png)
+![端口映射管理](assets/run-example/port-mapping1.png)
+![客户端启动示例](assets/run-example/client-run1.png)
 
 # 4、项目结构
 - neutrino-proxy 
@@ -103,7 +103,7 @@ proxy:
     ssl-enable: false
 ```
 ## 5.5、代理示意图
-![代理流程](assets/neutrino-proxy-process.jpg)
+![代理流程](assets/run-example/neutrino-proxy-process.jpg)
 
 ## 5.6、启动客户端
 ### 5.6.1、启动参数直接指定配置
@@ -187,7 +187,7 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 * [Hutool](https://hutool.cn?from=NeutrinoProxy)
 * [JetBrains](https://www.jetbrains.com?from=NeutrinoProxy)
 
-![JenBrains logo](assets/jetbrains.svg)
+![JenBrains logo](assets/thanks/jetbrains.svg)
 
 # 📚 Dromara 成员项目
 
