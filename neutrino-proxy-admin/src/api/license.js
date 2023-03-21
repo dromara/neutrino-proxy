@@ -14,6 +14,12 @@ export function licenseList() {
     method: 'get'
   })
 }
+export function licenseAuthList() {
+  return request({
+    url: '/license/auth-list',
+    method: 'get'
+  })
+}
 
 export function createLicense(data) {
   return request({

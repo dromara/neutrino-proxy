@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
+import fun.asgc.neutrino.proxy.server.controller.req.PortMappingListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.PortMappingListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -82,4 +85,6 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 				.set(PortMappingDO::getUpdateTime, updateTime)
 		);
 	}
+
+	List<PortMappingDO> selectPortMappingByCondition(@Param("req") PortMappingListReq req);
 }

@@ -33,11 +33,11 @@ import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.controller.req.*;
 import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortGroupMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
-import fun.asgc.neutrino.proxy.server.dal.entity.PortGroupDO;
-import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
-import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.*;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
@@ -48,22 +48,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
+ *
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
 @Component
 public class PortPoolService {
-    @Inject
-    private MapperFacade mapperFacade;
-    @Db
-    private PortPoolMapper portPoolMapper;
-    @Inject
-    private VisitorChannelService visitorChannelService;
+	@Inject
+	private MapperFacade mapperFacade;
+	@Db
+	private PortPoolMapper portPoolMapper;
+	@Inject
+	private VisitorChannelService visitorChannelService;
 
     @Db
     private PortGroupMapper portGroupMapper;
+    @Db
+    private PortMappingMapper portMappingMapper;
+    @Db
+    private LicenseMapper licenseMapper;
 
     public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
         Page<PortPoolListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -76,8 +82,18 @@ public class PortPoolService {
         List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
                 .eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
         );
-        return mapperFacade.mapAsList(list, PortPoolListRes.class);
+        return mapperFacade.mapAsList(this.filterUsedPorts(list), PortPoolListRes.class);
     }
+
+    private List<PortPoolDO> filterUsedPorts(List<PortPoolDO> list) {
+        //Gets the used ports
+        List<PortMappingDO> usePorts = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().orderByAsc(PortMappingDO::getId));
+
+        List<Integer> serverPorts = usePorts.stream().map(item -> item.getServerPort()).collect(Collectors.toList());
+
+        return list.stream().filter(item -> !serverPorts.contains(item.getPort())).collect(Collectors.toList());
+    }
+
 
     public PortPoolCreateRes create(PortPoolCreateReq req) {
         PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
@@ -140,8 +156,13 @@ public class PortPoolService {
         return new PortPoolUpdateGroupRes();
     }
 
+    /**
+     * 管理员： 全局端口 + 当前选择的用户独占端口 + 当前选择license独占端口
+     * 游客：全局端口 + 当前选择用户独占端口 + 当前选择license独占端口
+     * 非管理员身份时：下拉选择license，只能选当前用户下的LICENSE
+     */
     public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
-        UserDO user = SystemContextHolder.getUser();
-        return portPoolMapper.getAvailablePortList(req.getLicenseId(), user.getId());
+        LicenseDO licenseDO = licenseMapper.queryById(req.getLicenseId());
+        return portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId());
     }
 }
