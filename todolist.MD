@@ -1,8 +1,7 @@
 # 功能点
-- [x] 用户流量报表
-  - [ ] 兼容sqlite
-- [x] License流量报表
-  - [ ] 兼容sqlite
+- [ ] 用户流量月度明细
+- [ ] License流量月度明细
+- [ ] 支持批量端口映射
 - 首页图表📈
   - 1、License在线数
   - 2、端口映射在线数
@@ -36,6 +35,7 @@
 
 # 2.x规划
 - [x] 全面重构：底层更换为Solon + Mybatis Plus
+- [ ] neutrino-proxy-solon-plugin
 - 规范协议：代理协议规范化，方便后续更好扩展、支持不同语言客户端接入
 - 端口池优化：支持为license设置独占端口。方便后续开发jetbrains插件、solon插件
 - 精细化控制：支持针对用户限速、限流
