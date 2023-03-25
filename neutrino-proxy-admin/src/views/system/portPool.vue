@@ -1,6 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.groupId" placeholder="请选择端口池分组" clearable>
+        <el-option v-for="item in portGroupList" :key="item.id" :label="item.name" :value="item.id"/>
+      </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
@@ -125,9 +128,7 @@
         listQuery: {
           current: 1,
           size: 10,
-          importance: undefined,
-          title: undefined,
-          type: undefined
+          groupId: undefined
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,

@@ -7,7 +7,12 @@
                g.possessor_type,
                g.`name` group_name
         FROM port_pool p
-                 LEFT JOIN port_group g ON p.group_id = g.id
+        LEFT JOIN port_group g ON p.group_id = g.id
+        <where>
+            <if test="req.groupId != null">
+                AND p.group_id = #{req.groupId}
+            </if>
+        </where>
         ORDER BY p.id
     </select>
 

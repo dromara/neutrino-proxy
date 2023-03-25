@@ -30,5 +30,8 @@ import lombok.Data;
  */
 @Data
 public class PortPoolListReq {
-
+    /**
+     * 分组ID
+     */
+    private Integer groupId;
 }
