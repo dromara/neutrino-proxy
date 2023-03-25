@@ -6,14 +6,14 @@
         SELECT
         u.id AS 'userId',
         u.name AS 'userName',
-        SUM(frm.write_bytes + frd.write_bytes + frm2.write_bytes) AS 'upFlowBytes',
-        SUM(frm.read_bytes + frd.read_bytes + frm2.read_bytes) AS 'downFlowBytes',
-        SUM(frm.write_bytes) monthWriteBytes,
-        SUM(frm.read_bytes) monthReadBytes,
-        SUM(frd.write_bytes) dayWriteBytes,
-        SUM(frd.read_bytes) dayReadBytes,
-        SUM(frm2.write_bytes) minuteWriteBytes,
-        SUM(frm2.read_bytes) minuteReadBytes
+        SUM(IFNULL(frm.write_bytes,0) + IFNULL(frd.write_bytes,0) + IFNULL(frm2.write_bytes,0)) AS 'upFlowBytes',
+        SUM(IFNULL(frm.read_bytes,0) + IFNULL(frd.read_bytes,0) + IFNULL(frm2.read_bytes,0)) AS 'downFlowBytes',
+        IFNULL(SUM(frm.write_bytes),0) monthWriteBytes,
+        IFNULL(SUM(frm.read_bytes),0) monthReadBytes,
+        IFNULL(SUM(frd.write_bytes),0) dayWriteBytes,
+        IFNULL(SUM(frd.read_bytes),0) dayReadBytes,
+        IFNULL(SUM(frm2.write_bytes),0) minuteWriteBytes,
+        IFNULL(SUM(frm2.read_bytes),0) minuteReadBytes
         FROM `user` u
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY user_id) frm ON u.id = frm.user_id
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
@@ -36,14 +36,14 @@
         l.name AS 'licenseName',
         u.id AS 'userId',
         u.name AS 'userName',
-        SUM(frm.write_bytes + frd.write_bytes + frm2.write_bytes) AS 'upFlowBytes',
-        SUM(frm.read_bytes + frd.read_bytes + frm2.read_bytes) AS 'downFlowBytes',
-        SUM(frm.write_bytes) monthWriteBytes,
-        SUM(frm.read_bytes) monthReadBytes,
-        SUM(frd.write_bytes) dayWriteBytes,
-        SUM(frd.read_bytes) dayReadBytes,
-        SUM(frm2.write_bytes) minuteWriteBytes,
-        SUM(frm2.read_bytes) minuteReadBytes
+        SUM(IFNULL(frm.write_bytes,0) + IFNULL(frd.write_bytes,0) + IFNULL(frm2.write_bytes,0)) AS 'upFlowBytes',
+        SUM(IFNULL(frm.read_bytes,0) + IFNULL(frd.read_bytes,0) + IFNULL(frm2.read_bytes,0)) AS 'downFlowBytes',
+        IFNULL(SUM(frm.write_bytes),0) monthWriteBytes,
+        IFNULL(SUM(frm.read_bytes),0) monthReadBytes,
+        IFNULL(SUM(frd.write_bytes),0) dayWriteBytes,
+        IFNULL(SUM(frd.read_bytes),0) dayReadBytes,
+        IFNULL(SUM(frm2.write_bytes),0) minuteWriteBytes,
+        IFNULL(SUM(frm2.read_bytes),0) minuteReadBytes
         FROM `license` l
         LEFT JOIN `user` u ON l.user_id = u.id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY license_id) frm ON l.id = frm.license_id
