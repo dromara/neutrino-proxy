@@ -41,6 +41,7 @@ public class UserLoginRecordService {
     public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
         Page<UserLoginRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         List<UserLoginRecordDO> list = userLoginRecordMapper.selectList(new LambdaQueryWrapper<UserLoginRecordDO>()
+                        .eq(null != req.getUserId(), UserLoginRecordDO::getUserId, req.getUserId())
                 .orderByDesc(UserLoginRecordDO::getCreateTime)
         );
         List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(list, UserLoginRecordListRes.class);

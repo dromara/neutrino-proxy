@@ -30,5 +30,8 @@ import lombok.Data;
  */
 @Data
 public class UserLoginRecordListReq {
-
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 }

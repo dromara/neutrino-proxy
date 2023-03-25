@@ -1,6 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px">
+        <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
+      </el-select>
       <el-button type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
     </div>
 
@@ -66,6 +69,7 @@
 
 <script>
 import { fetchList } from '@/api/clientConnectLog'
+import { licenseList } from '@/api/license'
 import waves from '@/directive/waves' // 水波纹指令
 
 export default {
@@ -85,7 +89,8 @@ export default {
         jobId: undefined
       },
       dialogVisible: false,
-      selectRow: {}
+      selectRow: {},
+      licenseList: []
     }
   },
   filters: {
@@ -112,6 +117,7 @@ export default {
     }
   },
   created() {
+    this.getLicenseList()
     this.getList()
   },
   methods: {
@@ -121,6 +127,11 @@ export default {
         this.list = response.data.data.records
         this.total = response.data.data.total
         this.listLoading = false
+      })
+    },
+    getLicenseList() {
+      licenseList().then(response => {
+        this.licenseList = response.data.data
       })
     },
     handleFilter() {

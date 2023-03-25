@@ -29,5 +29,8 @@ import lombok.Data;
  */
 @Data
 public class ClientConnectRecordListReq {
-
+    /**
+     * licenseId
+     */
+    private Integer licenseId;
 }

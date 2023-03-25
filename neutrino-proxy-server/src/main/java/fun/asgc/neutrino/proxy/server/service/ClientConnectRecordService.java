@@ -51,6 +51,7 @@ public class ClientConnectRecordService {
     public PageInfo<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
         Page<ClientConnectRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         List<ClientConnectRecordDO> list = clientConnectRecordMapper.selectList(new LambdaQueryWrapper<ClientConnectRecordDO>()
+                        .eq(null != req.getLicenseId(), ClientConnectRecordDO::getLicenseId, req.getLicenseId())
                 .orderByDesc(ClientConnectRecordDO::getId)
         );
         List<ClientConnectRecordListRes> respList = mapperFacade.mapAsList(list, ClientConnectRecordListRes.class);
