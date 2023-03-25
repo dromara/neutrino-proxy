@@ -51,6 +51,15 @@ public class PortPoolController {
 		return portPoolService.page(pageQuery, req);
 	}
 
+	@Post
+	@Mapping("/update")
+	public PortPoolUpdateRes update(PortPoolUpdateReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getGroupId(), "groupId");
+		return portPoolService.update(req);
+	}
+
 	@Get
 	@Mapping("/list")
 	public List<PortPoolListRes> list(PortPoolListReq req) {

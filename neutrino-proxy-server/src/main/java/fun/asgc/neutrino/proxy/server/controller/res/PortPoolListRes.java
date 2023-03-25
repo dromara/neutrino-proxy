@@ -62,5 +62,5 @@ public class PortPoolListRes {
 	/**
 	 * 分组ID
 	 */
-	private String groupId;
+	private Integer groupId;
 }
