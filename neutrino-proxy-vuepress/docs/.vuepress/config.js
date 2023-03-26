@@ -9,7 +9,7 @@ module.exports = {
 
     title: "中微子代理",
     description: '一个基于 netty 的、开源的 java 内网穿透项目',
-    // base: '/', // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
+    base: '/neutrino-proxy-vuepress/', // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
     head: [ // 注入到页面<head> 中的标签，格式[tagName, { attrName: attrValue }, innerHTML?]
         ['link', {rel: 'icon', href: '/img/favicon.ico'}], //favicons，资源放在public文件夹
         ['meta', {name: 'keywords', content: 'vuepress,theme,blog,vdoing'}],
@@ -101,8 +101,9 @@ module.exports = {
         ],
         sidebarDepth: 2, // 侧边栏显示深度，默认1，最大2（显示到h3标题）
         logo: '/img/logo.png', // 导航栏logo
-        repo: 'aoshiguchen/neutrino-proxy', // 导航栏右侧生成Github链接
-        // repo: 'https://gitee.com/dromara/neutrino-proxy', // 导航栏右侧生成Github链接
+        // repo: 'aoshiguchen/neutrino-proxy', // 导航栏右侧生成Github链接
+        repo: 'https://gitee.com/dromara/neutrino-proxy', // 导航栏右侧生成Github链接
+        repoLabel: 'Gitee地址',
         searchMaxSuggestions: 10, // 搜索结果显示最大数
         lastUpdated: '上次更新', // 更新的时间，及前缀文字   string | boolean (取值为git提交时间)
 
@@ -133,8 +134,8 @@ module.exports = {
         // archive: false, // 是否打开归档功能，默认true。 如打开，会做的事情有：1.自动生成归档页面（在@pages文件夹）。如关闭，则反之。
 
         author: { // 文章默认的作者信息，可在md文件中单独配置此信息 String | {name: String, href: String}
-            name: 'Evan Xu', // 必需
-            href: 'https://github.com/xugaoyi' // 可选的
+            name: '傲世孤尘', // 必需
+            href: 'https://gitee.com/dromara/neutrino-proxy' // 可选的
         },
         social: { // 社交图标，显示于博主信息栏和页脚栏
             // iconfontCssFile: '//at.alicdn.com/t/font_1678482_u4nrnp8xp6g.css', // 可选，阿里图标库在线css文件地址，对于主题没有的图标可自由添加

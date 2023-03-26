@@ -1,38 +1,17 @@
-/**
- * Copyright (c) 2022 aoshiguchen
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package fun.asgc.neutrino.proxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.ServiceException;
-import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.system.*;
+import fun.asgc.neutrino.proxy.server.controller.res.system.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortGroupMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
@@ -44,7 +23,6 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -94,6 +72,15 @@ public class PortPoolService {
         return list.stream().filter(item -> !serverPorts.contains(item.getPort())).collect(Collectors.toList());
     }
 
+    public PortPoolUpdateRes update(PortPoolUpdateReq req) {
+        portPoolMapper.update(null, new LambdaUpdateWrapper<PortPoolDO>()
+                .eq(PortPoolDO::getId, req.getId())
+                .set(PortPoolDO::getGroupId, req.getGroupId())
+                .set(PortPoolDO::getUpdateTime, new Date())
+        );
+
+        return new PortPoolUpdateRes();
+    }
 
     public PortPoolCreateRes create(PortPoolCreateReq req) {
         PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());

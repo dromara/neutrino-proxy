@@ -1,6 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.groupId" placeholder="请选择端口池分组" clearable>
+        <el-option v-for="item in portGroupList" :key="item.id" :label="item.name" :value="item.id"/>
+      </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
@@ -39,6 +42,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
 <!--          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
@@ -56,12 +60,11 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.port')" prop="port">
-          <el-input v-model="temp.port"></el-input>
+          <el-input v-model="temp.port" :disabled="dialogStatus=='update'"></el-input>
         </el-form-item>
 
         <el-form-item  :label="$t('table.group')" prop="group">
-          <el-select style="width: 330px" class="filter-item" v-model="temp.groupId"
-                     :disabled="dialogStatus=='update'">
+          <el-select style="width: 330px" class="filter-item" v-model="temp.groupId">
             <el-option v-for="item in  portGroupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -71,6 +74,7 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
+        <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
 
@@ -88,7 +92,7 @@
 </template>
 
 <script>
-  import { fetchList, updateEnableStatus, createPortPool, deletePortPool } from '@/api/portPool'
+  import { fetchList, updateEnableStatus, createPortPool, deletePortPool, updatePortPool } from '@/api/portPool'
   import { portGroupList } from '@/api/portGroup'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -124,9 +128,7 @@
         listQuery: {
           current: 1,
           size: 10,
-          importance: undefined,
-          title: undefined,
-          type: undefined
+          groupId: undefined
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
@@ -266,6 +268,25 @@
         this.dialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
+        })
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            const tempData = Object.assign({}, this.temp)
+            updatePortPool(tempData).then(response => {
+              if (response.data.code === 0) {
+                this.$notify({
+                  title: '成功',
+                  message: '更新成功',
+                  type: 'success',
+                  duration: 2000
+                })
+                this.dialogFormVisible = false
+                this.getList()
+              }
+            })
+          }
         })
       },
       handleDelete(row) {

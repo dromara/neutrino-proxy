@@ -2,8 +2,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.proxy.*;
+import fun.asgc.neutrino.proxy.server.controller.res.proxy.*;
 import fun.asgc.neutrino.proxy.server.service.PortMappingService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.apache.commons.lang3.StringUtils;

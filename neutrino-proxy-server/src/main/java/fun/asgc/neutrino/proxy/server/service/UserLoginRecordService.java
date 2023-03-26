@@ -7,8 +7,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.log.UserLoginRecordListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.log.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.UserLoginRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.UserDO;
@@ -41,6 +41,7 @@ public class UserLoginRecordService {
     public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
         Page<UserLoginRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         List<UserLoginRecordDO> list = userLoginRecordMapper.selectList(new LambdaQueryWrapper<UserLoginRecordDO>()
+                        .eq(null != req.getUserId(), UserLoginRecordDO::getUserId, req.getUserId())
                 .orderByDesc(UserLoginRecordDO::getCreateTime)
         );
         List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(list, UserLoginRecordListRes.class);

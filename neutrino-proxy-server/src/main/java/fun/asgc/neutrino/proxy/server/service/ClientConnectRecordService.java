@@ -8,8 +8,8 @@ import com.github.pagehelper.PageHelper;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
-import fun.asgc.neutrino.proxy.server.controller.req.ClientConnectRecordListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.ClientConnectRecordListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.log.ClientConnectRecordListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.log.ClientConnectRecordListRes;
 import fun.asgc.neutrino.proxy.server.dal.ClientConnectRecordMapper;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
@@ -51,6 +51,7 @@ public class ClientConnectRecordService {
     public PageInfo<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
         Page<ClientConnectRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         List<ClientConnectRecordDO> list = clientConnectRecordMapper.selectList(new LambdaQueryWrapper<ClientConnectRecordDO>()
+                        .eq(null != req.getLicenseId(), ClientConnectRecordDO::getLicenseId, req.getLicenseId())
                 .orderByDesc(ClientConnectRecordDO::getId)
         );
         List<ClientConnectRecordListRes> respList = mapperFacade.mapAsList(list, ClientConnectRecordListRes.class);

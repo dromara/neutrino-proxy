@@ -2,8 +2,8 @@ package fun.asgc.neutrino.proxy.server.dal;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import fun.asgc.neutrino.proxy.server.controller.req.PortGroupListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.PortGroupListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.system.PortGroupListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.system.PortGroupListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortGroupDO;
 import org.apache.ibatis.annotations.Mapper;
 

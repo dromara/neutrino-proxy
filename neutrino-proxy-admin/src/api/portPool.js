@@ -43,6 +43,14 @@ export function createPortPool(data) {
   })
 }
 
+export function updatePortPool(data) {
+  return request({
+    url: '/port-pool/update',
+    method: 'post',
+    data
+  })
+}
+
 export function deletePortPool(id) {
   return request({
     url: '/port-pool/delete',

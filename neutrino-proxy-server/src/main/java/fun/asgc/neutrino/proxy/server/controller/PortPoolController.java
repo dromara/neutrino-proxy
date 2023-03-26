@@ -24,8 +24,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
-import fun.asgc.neutrino.proxy.server.controller.req.*;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.system.*;
+import fun.asgc.neutrino.proxy.server.controller.res.system.*;
 import fun.asgc.neutrino.proxy.server.service.PortPoolService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
@@ -49,6 +49,15 @@ public class PortPoolController {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
 		return portPoolService.page(pageQuery, req);
+	}
+
+	@Post
+	@Mapping("/update")
+	public PortPoolUpdateRes update(PortPoolUpdateReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getId(), "id");
+		ParamCheckUtil.checkNotNull(req.getGroupId(), "groupId");
+		return portPoolService.update(req);
 	}
 
 	@Get

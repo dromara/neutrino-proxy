@@ -5,6 +5,7 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
+let that = null
 
 export default {
   props: {
@@ -22,14 +23,14 @@ export default {
     },
     height: {
       type: String,
-      default: '250px'
+      default: '220px'
     },
     data: {
       type: Object,
       default: () => {
         return {
-          upload: 90, // 上行
-          download: 100, // 下行
+          upFlowBytes: 0, // 上行
+          downFlowBytes: 0, // 下行
           text: '今日流量'
         }
       }
@@ -41,6 +42,7 @@ export default {
     }
   },
   mounted() {
+    that = this
     this.initChart()
   },
   beforeDestroy() {
@@ -57,7 +59,7 @@ export default {
       const option = {
         title: {
           text: this.data.text,
-          subtext: '上行：' + this.data.upload + '\n\n' + '下行：' + this.data.download,
+          subtext: '上行：' + this.data.upFlowDesc + '\n\n' + '下行：' + this.data.downFlowDesc + '\n\n' + '汇总：' + this.data.totalFlowDesc,
           textStyle: {
             fontSize: 18,
             fontWeight: 800,
@@ -65,7 +67,10 @@ export default {
           }
         },
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
+          formatter: function(value) {
+            return `${value.seriesName} <br/>${value.marker} : ${value.name} ${value.name === '上行' ? that.data.upFlowDesc : that.data.downFlowDesc}`
+          }
         },
         legend: {
           data: ['上行', '下行'],
@@ -77,7 +82,7 @@ export default {
             name: this.data.text,
             type: 'pie',
             radius: [45, 65],
-            center: ['50%', '58%'],
+            center: ['60%', '60%'],
             // 隐藏指示线
             labelLine: {
               normal: {
@@ -93,30 +98,30 @@ export default {
             },
             data: [
               {
-                value: this.data.upload,
+                value: this.data.upFlowBytes,
                 name: '上行',
                 lineStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 }
               },
               {
-                value: this.data.download,
+                value: this.data.downFlowBytes,
                 name: '下行',
                 lineStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 }
               }

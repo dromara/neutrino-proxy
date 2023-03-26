@@ -91,7 +91,9 @@ export const asyncRouterMap = [
     },
     children: [
       { path: 'userFlowReport', component: _import('report/userFlowReport'), name: 'userFlowReport', meta: { title: 'userFlowReport' }},
-      { path: 'licenseFlowReport', component: _import('report/licenseFlowReport'), name: 'licenseFlowReport', meta: { title: 'licenseFlowReport' }}
+      { path: 'licenseFlowReport', component: _import('report/licenseFlowReport'), name: 'licenseFlowReport', meta: { title: 'licenseFlowReport' }},
+      { path: 'userFlowMonthReport', component: _import('report/userFlowMonthReport'), name: 'userFlowMonthReport', meta: { title: 'userFlowMonthReport' }},
+      { path: 'licenseFlowMonthReport', component: _import('report/licenseFlowMonthReport'), name: 'licenseFlowMonthReport', meta: { title: 'licenseFlowMonthReport' }}
     ]
   },
   {

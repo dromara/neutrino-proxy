@@ -24,9 +24,8 @@ package fun.asgc.neutrino.proxy.server.dal;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import fun.asgc.neutrino.proxy.server.controller.req.PortPoolListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.AvailablePortListRes;
-import fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.system.PortPoolListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.system.PortPoolListRes;
 import fun.asgc.neutrino.proxy.server.dal.entity.PortPoolDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -66,7 +65,7 @@ public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
 		);
 	}
 
-	List<PortPoolListRes> selectResList(PortPoolListReq req);
+	List<PortPoolListRes> selectResList(@Param("req") PortPoolListReq req);
 
     List<PortPoolListRes> getAvailablePortList(@Param("licenseId") Integer licenseId,@Param("userId") Integer userId);
 }

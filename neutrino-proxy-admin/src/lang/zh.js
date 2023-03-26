@@ -59,7 +59,9 @@ export default {
     clientConnectLog: '客户端连接日志',
     report: '报表管理',
     userFlowReport: '用户流量报表',
-    licenseFlowReport: 'License流量报表'
+    licenseFlowReport: 'License流量报表',
+    userFlowMonthReport: '用户流量月度明细',
+    licenseFlowMonthReport: 'License流量月度明细'
   },
   navbar: {
     logOut: '退出登录',

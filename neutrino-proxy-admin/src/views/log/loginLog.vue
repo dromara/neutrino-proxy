@@ -1,6 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable>
+        <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
+      </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
     </div>
 
@@ -37,6 +40,7 @@
 
 <script>
 import { fetchList } from '@/api/loginLog'
+import { userList } from '@/api/user'
 import waves from '@/directive/waves' // 水波纹指令
 
 export default {
@@ -53,8 +57,9 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        jobId: undefined
-      }
+        userId: null
+      },
+      userList: []
     }
   },
   filters: {
@@ -98,13 +103,11 @@ export default {
   },
   created() {
     this.getList()
+    this.getDataList()
   },
   activated() {
-    if (this.$route.query.jobId) {
-      this.listQuery.jobId = this.$route.query.jobId
-      console.log(this.listQuery.jobId, this.$route.query.jobId)
-      this.getList()
-    }
+    this.getUserList()
+    this.getList()
   },
   methods: {
     getList() {
@@ -113,6 +116,22 @@ export default {
         this.list = response.data.data.records
         this.total = response.data.data.total
         this.listLoading = false
+      })
+    },
+    getUserList() {
+      userList().then(response => {
+        this.userList = response.data.data
+      })
+    },
+    getDataList() {
+      const loginName = this.$store.state.user.loginName
+      userList().then(response => {
+        this.userList = response.data.data
+        const curUser = this.userList.find((val) => val.loginName === loginName)
+        if (curUser) {
+          this.listQuery.userId = curUser.id
+        }
+        this.getList()
       })
     },
     handleFilter() {

@@ -33,7 +33,7 @@ import java.util.List;
 public interface FlowReportHourMapper extends BaseMapper<FlowReportHourDO> {
     default void clean(Date date) {
         this.delete(new LambdaQueryWrapper<FlowReportHourDO>()
-                .lt(FlowReportHourDO::getCreateTime, date)
+                .lt(FlowReportHourDO::getDate, date)
         );
     }
 

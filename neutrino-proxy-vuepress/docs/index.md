@@ -129,13 +129,15 @@ postList: none
   <tbody>
     <tr>
       <td align="center" valign="middle">
+        <img :src="$withBase('/img/qrcode/wxq.png')"  class="no-zoom" style="width:120px;margin: 10px;">
+        <p>中微子 微信群(添加我微信备注"进群")</p>
+      </td>
+<!--
+      <td align="center" valign="middle">
         <img src="https://cdn.staticaly.com/gh/xugaoyi/blog-gitalk-comment@master/img/0.4pp7r95mdai0.jpeg" class="no-zoom" style="width:120px;margin: 10px;">
         <p>vdoing微信群(添加我微信备注"进群")</p>
       </td>
-      <td align="center" valign="middle">
-        <img :src="$withBase('/img/qrcode/qqq.webp')" alt="群号: 694387113" class="no-zoom" style="width:120px;margin: 10px;">
-        <p>vdoing QQ群: 694387113</p>
-      </td>
+-->
     </tr>
   </tbody>
 </table>

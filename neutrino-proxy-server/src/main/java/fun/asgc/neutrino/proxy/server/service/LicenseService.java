@@ -12,11 +12,11 @@ import fun.asgc.neutrino.proxy.server.base.rest.SystemContextHolder;
 import fun.asgc.neutrino.proxy.server.constant.EnableStatusEnum;
 import fun.asgc.neutrino.proxy.server.constant.ExceptionConstant;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseCreateReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseListReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateEnableStatusReq;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseUpdateReq;
-import fun.asgc.neutrino.proxy.server.controller.res.*;
+import fun.asgc.neutrino.proxy.server.controller.req.proxy.LicenseCreateReq;
+import fun.asgc.neutrino.proxy.server.controller.req.proxy.LicenseListReq;
+import fun.asgc.neutrino.proxy.server.controller.req.proxy.LicenseUpdateEnableStatusReq;
+import fun.asgc.neutrino.proxy.server.controller.req.proxy.LicenseUpdateReq;
+import fun.asgc.neutrino.proxy.server.controller.res.proxy.*;
 import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
 import fun.asgc.neutrino.proxy.server.dal.UserMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
@@ -78,7 +78,7 @@ public class LicenseService implements Lifecycle {
 
 	public List<LicenseListRes> list(LicenseListReq req) {
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
-				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+				.eq(null != req.getEnable(), LicenseDO::getEnable, req.getEnable())
 		);
 		List<LicenseListRes> licenseList = assembleConvertLicenses(list);
 		return licenseList;

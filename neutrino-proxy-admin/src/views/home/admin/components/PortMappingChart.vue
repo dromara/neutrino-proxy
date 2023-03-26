@@ -18,14 +18,14 @@ export default {
     },
     height: {
       type: String,
-      default: '250px'
+      default: '220px'
     },
     data: {
       type: Object,
       default: () => {
         return {
-          onLine: 90, // 进度条最大值
-          total: 100 // 当前进度
+          onlineCount: 0, // 进度条最大值
+          totalCount: 0 // 当前进度
         }
       }
     }
@@ -52,7 +52,7 @@ export default {
       const option = {
         title: {
           text: '端口映射统计',
-          subtext: '在线数：' + this.data.onLine + '\n\n' + '离线数：' + (this.data.total - this.data.onLine),
+          subtext: '在线数量：' + this.data.onlineCount + '\n\n' + '离线数量：' + (this.data.totalCount - this.data.onlineCount) + '\n\n' + '汇总数量：' + this.data.totalCount,
           textStyle: {
             fontSize: 18,
             fontWeight: 800,
@@ -73,7 +73,7 @@ export default {
             name: '端口映射',
             type: 'pie',
             radius: [45, 65],
-            center: ['50%', '58%'],
+            center: ['60%', '60%'],
             avoidLabelOverlap: false,
             // 隐藏指示线
             labelLine: {
@@ -92,29 +92,29 @@ export default {
               // value当前进度 + 颜色
               {
                 name: '在线数',
-                value: this.data.onLine,
+                value: this.data.onlineCount,
                 lineStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 }
               },
               {
                 name: '离线数',
-                value: this.data.total - this.data.onLine,
+                value: this.data.totalCount - this.data.onlineCount,
                 lineStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 }
               }
