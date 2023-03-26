@@ -33,6 +33,7 @@ import fun.asgc.neutrino.proxy.server.service.FlowReportService;
 import fun.asgc.solon.extend.job.IJobHandler;
 import fun.asgc.solon.extend.job.annotation.JobHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -60,7 +61,7 @@ public class FlowReportForDayJob implements IJobHandler {
     @Override
     public void execute(String param) throws Exception {
         Date now = new Date();
-        String dateStr = DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -1), "yyyy-MM-dd");
+        String dateStr = getDateStr(now, param); // DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -1), "yyyy-MM-dd");
         Date date = DateUtil.parse(dateStr, "yyyy-MM-dd");
         Date startHourDate = DateUtil.getDayBegin(date);
         Date endHourDate = DateUtil.getDayEnd(date);
@@ -99,4 +100,16 @@ public class FlowReportForDayJob implements IJobHandler {
         }
     }
 
+    private String getDateStr(Date now, String params) {
+        if (StringUtils.isNotBlank(params)) {
+            try {
+                // 参数格式错误则取当前时间
+                DateUtil.parse(params, "yyyy-MM-dd");
+                return params;
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -1), "yyyy-MM-dd");
+    }
 }

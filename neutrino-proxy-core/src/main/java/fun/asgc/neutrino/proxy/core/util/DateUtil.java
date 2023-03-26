@@ -286,7 +286,7 @@ public class DateUtil {
 	public static Date getHourBegin(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
-		setCalender(calendar, calendar.get(Calendar.HOUR), 0, 0, 0);
+		setCalender(calendar, calendar.get(Calendar.HOUR_OF_DAY), 0, 0, 0);
 		return calendar.getTime();
 	}
 
@@ -298,7 +298,7 @@ public class DateUtil {
 	public static Date getHourEnd(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
-		setCalender(calendar, calendar.get(Calendar.HOUR), 59, 59, 999);
+		setCalender(calendar, calendar.get(Calendar.HOUR_OF_DAY), 59, 59, 999);
 		return calendar.getTime();
 	}
 
