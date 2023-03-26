@@ -45,8 +45,8 @@ public interface FlowReportDayMapper extends BaseMapper<FlowReportDayDO> {
 
     default List<FlowReportDayDO> findListByDateRange(Date startDate, Date endDate) {
         return this.selectList(new LambdaQueryWrapper<FlowReportDayDO>()
-                .le(FlowReportDayDO::getDate, startDate)
-                .gt(FlowReportDayDO::getDate, endDate)
+                .ge(FlowReportDayDO::getDate, startDate)
+                .le(FlowReportDayDO::getDate, endDate)
         );
     }
 }
