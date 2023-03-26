@@ -1,21 +1,27 @@
 package fun.asgc.neutrino.proxy.server.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
 import fun.asgc.neutrino.proxy.core.util.DateUtil;
 import fun.asgc.neutrino.proxy.server.base.db.DbConfig;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowMonthReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.report.UserFlowMonthReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.report.UserFlowReportReq;
-import fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowMonthReportRes;
-import fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowReportRes;
-import fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowMonthReportRes;
-import fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowReportRes;
+import fun.asgc.neutrino.proxy.server.controller.res.report.*;
+import fun.asgc.neutrino.proxy.server.dal.LicenseMapper;
+import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.dal.ReportMapper;
+import fun.asgc.neutrino.proxy.server.dal.entity.LicenseDO;
+import fun.asgc.neutrino.proxy.server.dal.entity.PortMappingDO;
+import fun.asgc.neutrino.proxy.server.service.bo.FlowBO;
+import fun.asgc.neutrino.proxy.server.service.bo.SingleDayFlowBO;
 import fun.asgc.neutrino.proxy.server.util.FormatUtil;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
@@ -23,8 +29,8 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author: aoshiguchen
@@ -37,8 +43,64 @@ public class ReportService {
     private MapperFacade mapperFacade;
     @Db
     private ReportMapper reportMapper;
+    @Db
+    private LicenseMapper licenseMapper;
+    @Db
+    private PortMappingMapper portMappingMapper;
     @Inject
     private DbConfig dbConfig;
+
+    /**
+     * 首页图表
+     * @return
+     */
+    public HomeDataView homeDataView() {
+        HomeDataView homeDataView = new HomeDataView();
+        homeDataView.setLicense(new HomeDataView.License().setTotalCount(0).setOnlineCount(0));
+        homeDataView.setPortMapping(new HomeDataView.PortMapping().setTotalCount(0).setOnlineCount(0));
+        homeDataView.setTodayFlow(new HomeDataView.TodayFlow().setUpFlowBytes(0L).setDownFlowBytes(0L));
+        homeDataView.setTotalFlow(new HomeDataView.TotalFlow().setUpFlowBytes(0L).setDownFlowBytes(0L));
+
+        // 查询license列表
+        List<LicenseDO> licenseDOList = licenseMapper.listAll();
+        if (CollectionUtil.isNotEmpty(licenseDOList)) {
+            homeDataView.getLicense().setTotalCount(licenseDOList.size());
+            homeDataView.getLicense().setOnlineCount((int)licenseDOList.stream().filter(e -> OnlineStatusEnum.ONLINE.getStatus().equals(e.getIsOnline())).count());
+        }
+        // 查询端口映射列表
+        List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<>());
+        if (CollectionUtil.isNotEmpty(portMappingDOList)) {
+            homeDataView.getPortMapping().setTotalCount(portMappingDOList.size());
+            homeDataView.getPortMapping().setOnlineCount((int)portMappingDOList.stream().filter(e -> OnlineStatusEnum.ONLINE.getStatus().equals(e.getIsOnline())).count());
+        }
+        // 今日流量
+        Date now = new Date();
+        FlowBO todayFlow = reportMapper.homeTodayFlow(DateUtil.getDayBegin(now), now);
+        homeDataView.setTodayFlow(mapperFacade.map(todayFlow, HomeDataView.TodayFlow.class));
+
+        // 总流量
+        FlowBO totalFlow = reportMapper.homeTotalFlow(DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        homeDataView.setTotalFlow(mapperFacade.map(totalFlow, HomeDataView.TotalFlow.class));
+
+        // 最近7日流量
+        List<SingleDayFlowBO> last7dFlowList = reportMapper.homeLast7dFlowList(DateUtil.getDayBegin(DateUtil.addDate(now, Calendar.DATE, -6)), DateUtil.getDayBegin(now), now);
+        homeDataView.setLast7dFlow(new HomeDataView.Last7dFlow());
+        homeDataView.getLast7dFlow().setDataList(mapperFacade.mapAsList(last7dFlowList, HomeDataView.SingleDayFlow.class));
+        // 查询统计数据
+//        homeDataView.setLast7dFlow(new HomeDataView.Last7dFlow().setDataList(Lists.newArrayList(
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-20", "yyyy-MM-dd")).setUpFlowBytes(1000L).setDownFlowBytes(20000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-21", "yyyy-MM-dd")).setUpFlowBytes(1100L).setDownFlowBytes(21000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-22", "yyyy-MM-dd")).setUpFlowBytes(1200L).setDownFlowBytes(22000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-23", "yyyy-MM-dd")).setUpFlowBytes(1300L).setDownFlowBytes(23000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-24", "yyyy-MM-dd")).setUpFlowBytes(1400L).setDownFlowBytes(24000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-25", "yyyy-MM-dd")).setUpFlowBytes(1500L).setDownFlowBytes(25000L),
+//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-26", "yyyy-MM-dd")).setUpFlowBytes(1600L).setDownFlowBytes(26000L)
+//        )));
+
+        // 数据处理
+        fillHomeDataView(homeDataView, now);
+        return homeDataView;
+    }
 
     /**
      * 用户流量报表分页
@@ -162,5 +224,137 @@ public class ReportService {
             item.setDownFlowDesc(FormatUtil.getSizeDescByByteCount(downFlowBytes));
             item.setTotalFlowDesc(FormatUtil.getSizeDescByByteCount(totalFlowBytes));
         }
+    }
+
+    private void fillHomeDataView(HomeDataView homeDataView, Date now) {
+        if (null == homeDataView) {
+            return;
+        }
+        // License
+        if (null == homeDataView.getLicense()) {
+            homeDataView.setLicense(new HomeDataView.License());
+        }
+        if (null == homeDataView.getLicense().getTotalCount()) {
+            homeDataView.getLicense().setTotalCount(0);
+        }
+        if (null == homeDataView.getLicense().getOnlineCount()) {
+            homeDataView.getLicense().setOnlineCount(0);
+        }
+        homeDataView.getLicense().setOfflineCount(homeDataView.getLicense().getTotalCount() - homeDataView.getLicense().getOnlineCount());
+
+        // PortMapping
+        if (null == homeDataView.getPortMapping()) {
+            homeDataView.setPortMapping(new HomeDataView.PortMapping());
+        }
+        if (null == homeDataView.getPortMapping().getTotalCount()) {
+            homeDataView.getPortMapping().setTotalCount(0);
+        }
+        if (null == homeDataView.getPortMapping().getOnlineCount()) {
+            homeDataView.getPortMapping().setOnlineCount(0);
+        }
+        homeDataView.getPortMapping().setOfflineCount(homeDataView.getPortMapping().getTotalCount() - homeDataView.getPortMapping().getOnlineCount());
+
+        // TodayFlow
+        if (null == homeDataView.getTodayFlow()) {
+            homeDataView.setTodayFlow(new HomeDataView.TodayFlow());
+        }
+        if (null == homeDataView.getTodayFlow().getUpFlowBytes()) {
+            homeDataView.getTodayFlow().setUpFlowBytes(0L);
+        }
+        if (null == homeDataView.getTodayFlow().getDownFlowBytes()) {
+            homeDataView.getTodayFlow().setDownFlowBytes(0L);
+        }
+        homeDataView.getTodayFlow().setTotalFlowBytes(homeDataView.getTodayFlow().getUpFlowBytes() + homeDataView.getTodayFlow().getDownFlowBytes());
+        homeDataView.getTodayFlow().setUpFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTodayFlow().getUpFlowBytes()));
+        homeDataView.getTodayFlow().setDownFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTodayFlow().getDownFlowBytes()));
+        homeDataView.getTodayFlow().setTotalFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTodayFlow().getTotalFlowBytes()));
+
+        // TotalFlow
+        if (null == homeDataView.getTotalFlow()) {
+            homeDataView.setTotalFlow(new HomeDataView.TotalFlow());
+        }
+        if (null == homeDataView.getTotalFlow().getUpFlowBytes()) {
+            homeDataView.getTotalFlow().setUpFlowBytes(0L);
+        }
+        if (null == homeDataView.getTotalFlow().getDownFlowBytes()) {
+            homeDataView.getTotalFlow().setDownFlowBytes(0L);
+        }
+        homeDataView.getTotalFlow().setTotalFlowBytes(homeDataView.getTotalFlow().getUpFlowBytes() + homeDataView.getTotalFlow().getDownFlowBytes());
+        homeDataView.getTotalFlow().setUpFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTotalFlow().getUpFlowBytes()));
+        homeDataView.getTotalFlow().setDownFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTotalFlow().getDownFlowBytes()));
+        homeDataView.getTotalFlow().setTotalFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTotalFlow().getTotalFlowBytes()));
+
+        // 最近7日流量
+        HomeDataView.Last7dFlow last7dFlow = homeDataView.getLast7dFlow();
+        if (null == last7dFlow) {
+            last7dFlow = new HomeDataView.Last7dFlow();
+            homeDataView.setLast7dFlow(last7dFlow);
+        }
+        if (null == last7dFlow.getDataList()) {
+            last7dFlow.setDataList(Collections.emptyList());
+        }
+        // 数据列表
+        Set<String> existDateStrList = new HashSet<>();
+        if (CollectionUtil.isNotEmpty(last7dFlow.getDataList())) {
+            for (HomeDataView.SingleDayFlow singleDayFlow : last7dFlow.getDataList()) {
+                if (null == singleDayFlow.getUpFlowBytes()) {
+                    singleDayFlow.setUpFlowBytes(0L);
+                }
+                if (null == singleDayFlow.getDownFlowBytes()) {
+                    singleDayFlow.setDownFlowBytes(0L);
+                }
+                singleDayFlow.setTotalFlowBytes(singleDayFlow.getUpFlowBytes() + singleDayFlow.getDownFlowBytes());
+                singleDayFlow.setUpFlowDesc(FormatUtil.getSizeDescByByteCount(singleDayFlow.getUpFlowBytes()));
+                singleDayFlow.setDownFlowDesc(FormatUtil.getSizeDescByByteCount(singleDayFlow.getDownFlowBytes()));
+                singleDayFlow.setTotalFlowDesc(FormatUtil.getSizeDescByByteCount(singleDayFlow.getTotalFlowBytes()));
+                singleDayFlow.setDateStr(DateUtil.format(singleDayFlow.getDate(), "yyyy-MM-dd"));
+                existDateStrList.add(singleDayFlow.getDateStr());
+            }
+        }
+        // 获取最近7天的日期字符串列表。防止因统计数据缺失，造成图表展示错误的问题，缺失的日期数据，自动填充0
+        List<String> dateList = DateUtil.getBetweenTimes(DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -6), "yyyy-MM-dd"), DateUtil.format(now, "yyyy-MM-dd"));
+        for (String dateStr : dateList) {
+            if (existDateStrList.contains(dateStr)) {
+                continue;
+            }
+            last7dFlow.getDataList().add(new HomeDataView.SingleDayFlow()
+                    .setDate(DateUtil.parse(dateStr, "yyyy-MM-dd"))
+                    .setDateStr(dateStr)
+                    .setUpFlowBytes(0L)
+                    .setUpFlowDesc("0B")
+                    .setDownFlowBytes(0L)
+                    .setDownFlowDesc("0B")
+                    .setTotalFlowBytes(0L)
+                    .setTotalFlowDesc("0B")
+            );
+        }
+
+        // 按日期升序
+        Collections.sort(last7dFlow.getDataList(), Comparator.comparing(HomeDataView.SingleDayFlow::getDate));
+        // x轴日期
+        last7dFlow.setXDate(last7dFlow.getDataList().stream().map(HomeDataView.SingleDayFlow::getDateStr).collect(Collectors.toList()));
+        // 图例
+        last7dFlow.setLegendData(Lists.newArrayList("上行流量", "下行流量", "总流量"));
+        // 折线图
+        List<HomeDataView.Series> seriesList = Lists.newArrayList();
+        last7dFlow.setSeriesList(seriesList);
+        // 上行流量折线
+        seriesList.add(new HomeDataView.Series()
+                .setSeriesType("line")
+                .setSeriesName(last7dFlow.getLegendData().get(0))
+                .setSeriesData(last7dFlow.getDataList().stream().map(HomeDataView.SingleDayFlow::getUpFlowBytes).collect(Collectors.toList()))
+        );
+        // 下行流量折线
+        seriesList.add(new HomeDataView.Series()
+                .setSeriesType("line")
+                .setSeriesName(last7dFlow.getLegendData().get(1))
+                .setSeriesData(last7dFlow.getDataList().stream().map(HomeDataView.SingleDayFlow::getDownFlowBytes).collect(Collectors.toList()))
+        );
+        // 总流量折线
+        seriesList.add(new HomeDataView.Series()
+                .setSeriesType("line")
+                .setSeriesName(last7dFlow.getLegendData().get(2))
+                .setSeriesData(last7dFlow.getDataList().stream().map(HomeDataView.SingleDayFlow::getTotalFlowBytes).collect(Collectors.toList()))
+        );
     }
 }

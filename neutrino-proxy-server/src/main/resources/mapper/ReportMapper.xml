@@ -190,4 +190,61 @@
         </where>
         ORDER BY T2.user_id ASC,T2.license_id,T2.date DESC
     </select>
+
+    <select id="homeTodayFlow" resultType="fun.asgc.neutrino.proxy.server.service.bo.FlowBO">
+        SELECT
+            IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+            IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_minute frm
+        WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
+    </select>
+
+    <select id="homeTotalFlow" resultType="fun.asgc.neutrino.proxy.server.service.bo.FlowBO">
+        SELECT
+        IFNULL(SUM(T.upFlowBytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(T.downFlowBytes),0) AS 'downFlowBytes'
+        FROM (
+        (
+        SELECT
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_month frm
+        ) UNION ALL (
+        SELECT
+        IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frd.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_day frd
+        WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
+        ) UNION ALL (
+        SELECT
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_minute frm
+        WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
+        )
+        ) T
+    </select>
+
+    <select id="homeLast7dFlowList" resultType="fun.asgc.neutrino.proxy.server.service.bo.SingleDayFlowBO">
+        SELECT
+        T.*
+        FROM (
+        (
+        SELECT
+        frd.date,
+        IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frd.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_day frd
+        WHERE frd.date >= #{beginDate} AND frd.date &lt;= #{curDayBeginDate}
+        GROUP BY frd.date
+        ) UNION ALL (
+        SELECT
+        #{curDayBeginDate} AS 'date',
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_minute frm
+        WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
+        )
+        ) T
+    </select>
 </mapper>
