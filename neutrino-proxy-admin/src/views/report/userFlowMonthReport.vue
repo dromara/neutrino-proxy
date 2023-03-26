@@ -49,7 +49,7 @@ import { userList } from '@/api/user'
 import waves from '@/directive/waves' // 水波纹指令
 
 export default {
-  name: 'jobLog',
+  name: 'userFlowMonthReport',
   directives: {
     waves
   },
@@ -62,7 +62,7 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        jobId: undefined
+        userId: undefined
       },
       userList: [],
       dialogVisible: false,
@@ -77,8 +77,8 @@ export default {
   },
   activated() {
     this.getUserList()
-    if (this.$route.query.jobId) {
-      this.listQuery.jobId = this.$route.query.jobId
+    if (this.$route.query.userId) {
+      this.listQuery.userId = this.$route.query.userId
       this.getList()
     }
   },

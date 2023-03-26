@@ -58,7 +58,7 @@ import waves from '@/directive/waves'
 import { licenseList } from '@/api/license'
 
 export default {
-  name: 'jobLog',
+  name: 'licenseFlowMonthReport',
   directives: {
     waves
   },
@@ -90,10 +90,13 @@ export default {
   activated() {
     this.getUserList()
     this.getLicenseList()
-    if (this.$route.query.jobId) {
-      this.listQuery.jobId = this.$route.query.jobId
-      this.getList()
+    if (this.$route.query.userId) {
+      this.listQuery.userId = this.$route.query.userId
     }
+    if (this.$route.query.licenseId) {
+      this.listQuery.licenseId = this.$route.query.licenseId
+    }
+    this.getList()
   },
   methods: {
     getList() {

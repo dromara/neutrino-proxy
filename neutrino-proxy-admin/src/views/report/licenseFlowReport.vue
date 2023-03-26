@@ -34,6 +34,11 @@
           <span>{{scope.row.totalFlowDesc}}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('table.actions')" min-width="230" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleFlowMonthReportClick(scope.row)">流量月度明细</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-pageInfo.sync="listQuery.current"
@@ -49,7 +54,7 @@ import { userList } from '@/api/user'
 import waves from '@/directive/waves'
 
 export default {
-  name: 'jobLog',
+  name: 'licenseFlowReport',
   directives: {
     waves
   },
@@ -115,6 +120,9 @@ export default {
     handleLookOver(row) {
       this.selectRow = row
       this.dialogVisible = true
+    },
+    handleFlowMonthReportClick(row) {
+      this.$router.push({ path: '/report/licenseFlowMonthReport', query: { userId: row.userId, licenseId: row.licenseId }})
     }
   }
 }

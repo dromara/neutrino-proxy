@@ -29,6 +29,12 @@
           <span>{{scope.row.totalFlowDesc}}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('table.actions')" min-width="230" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleFlowMonthReportClick(scope.row)">流量月度明细</el-button>
+          <el-button size="mini" type="text" @click="handleLicenseFlowMonthReportClick(scope.row)">License流量月度明细</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-pageInfo.sync="listQuery.current"
@@ -44,7 +50,7 @@ import { userList } from '@/api/user'
 import waves from '@/directive/waves' // 水波纹指令
 
 export default {
-  name: 'jobLog',
+  name: 'userFlowReport',
   directives: {
     waves
   },
@@ -57,7 +63,7 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        jobId: undefined
+        userId: undefined
       },
       userList: [],
       dialogVisible: false,
@@ -72,8 +78,8 @@ export default {
   },
   activated() {
     this.getUserList()
-    if (this.$route.query.jobId) {
-      this.listQuery.jobId = this.$route.query.jobId
+    if (this.$route.query.userId) {
+      this.listQuery.userId = this.$route.query.userId
       this.getList()
     }
   },
@@ -110,6 +116,12 @@ export default {
     handleLookOver(row) {
       this.selectRow = row
       this.dialogVisible = true
+    },
+    handleFlowMonthReportClick(row) {
+      this.$router.push({ path: '/report/userFlowMonthReport', query: { userId: row.userId }})
+    },
+    handleLicenseFlowMonthReportClick(row) {
+      this.$router.push({ path: '/report/licenseFlowMonthReport', query: { userId: row.userId }})
     }
   }
 }
