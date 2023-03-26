@@ -23,7 +23,7 @@ export default {
     },
     height: {
       type: String,
-      default: '250px'
+      default: '220px'
     },
     data: {
       type: Object,
@@ -82,7 +82,7 @@ export default {
             name: this.data.text,
             type: 'pie',
             radius: [45, 65],
-            center: ['50%', '58%'],
+            center: ['60%', '60%'],
             // 隐藏指示线
             labelLine: {
               normal: {
@@ -102,12 +102,12 @@ export default {
                 name: '上行',
                 lineStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#2B81B1'
+                    color: '#63b2ee'
                   }
                 }
               },
@@ -116,12 +116,12 @@ export default {
                 name: '下行',
                 lineStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 },
                 itemStyle: {
                   normal: {
-                    color: '#dbebf7'
+                    color: '#76da91'
                   }
                 }
               }

@@ -28,13 +28,13 @@ export default {
     },
     height: {
       type: String,
-      default: '450px'
+      default: '500px'
     }
   },
   data() {
     return {
       chartDom: null,
-      colorList: ['#1f92ce', '#7594fa', '#faa875']
+      colorList: ['#63b2ee', '#76da91', '#f8cb7f', '#f89588', '#7cd6cf', '#9192ab', '#7898e1', '#7898e1']
     }
   },
   mounted() {
@@ -100,8 +100,8 @@ export default {
           left: 'right'
         },
         grid: {
-          left: '2%',
-          right: '2%',
+          left: '0',
+          right: '3%',
           bottom: '2%',
           containLabel: true
         },
