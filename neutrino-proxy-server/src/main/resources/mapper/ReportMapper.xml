@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="fun.asgc.neutrino.proxy.server.dal.ReportMapper">
 
-    <select id="userFlowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes">
+    <select id="userFlowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowReportRes">
         SELECT
         u.id AS 'userId',
         u.name AS 'userName',
@@ -30,7 +30,7 @@
         GROUP BY u.id
     </select>
 
-    <select id="licenseFLowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes">
+    <select id="licenseFLowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowReportRes">
         SELECT
         l.id AS 'licenseId',
         l.name AS 'licenseName',
@@ -59,5 +59,132 @@
             </if>
         </where>
         GROUP BY l.id
+    </select>
+
+    <select id="userFlowMonthReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowMonthReportRes">
+        SELECT
+        T2.user_id,
+        u.name AS 'userName',
+        T2.date,
+        T2.upFlowBytes,
+        T2.downFlowBytes
+        FROM (
+
+        (
+        SELECT
+        frm.user_id,
+        frm.date,
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_month frm
+        GROUP BY frm.user_id,frm.date
+        )
+        UNION ALL
+        (
+        SELECT
+        T1.user_id,
+        #{curMonthBeginDate} AS 'date',
+        IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
+        FROM (
+        (
+        SELECT
+        frd.user_id,
+        frd.license_id,
+        frd.write_bytes AS 'upFlowBytes',
+        frd.read_bytes AS 'downFlowBytes',
+        frd.date
+        FROM flow_report_day frd
+        WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
+        )
+        UNION ALL
+        (
+        SELECT
+        frm.user_id,
+        frm.license_id,
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes',
+        #{curDayBeginDate} AS 'date'
+        FROM flow_report_minute frm
+        WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
+        GROUP BY frm.user_id,frm.license_id
+        )
+        ) T1
+        GROUP BY T1.user_id
+        )
+        ) T2
+        LEFT JOIN `user` u ON u.id = T2.user_id
+        <where>
+            <if test="userId != null">
+                AND u.id = #{userId}
+            </if>
+        </where>
+        ORDER BY T2.user_id ASC,T2.date DESC
+    </select>
+
+    <select id="licenseFLowMonthReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowMonthReportRes">
+        SELECT
+        T2.user_id,
+        u.name AS 'userName',
+        T2.license_id,
+        l.`name` AS 'licenseName',
+        T2.date,
+        T2.upFlowBytes,
+        T2.downFlowBytes
+        FROM (
+
+        (
+        SELECT
+        frm.user_id,
+        frm.license_id,
+        frm.date,
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        FROM flow_report_month frm
+        GROUP BY frm.user_id,frm.license_id,frm.date
+        )
+        UNION ALL
+        (
+        SELECT
+        T1.user_id,
+        T1.license_id,
+        #{curMonthBeginDate} AS 'date',
+        IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
+        FROM (
+        (
+        SELECT
+        frd.user_id,
+        frd.license_id,
+        frd.write_bytes AS 'upFlowBytes',
+        frd.read_bytes AS 'downFlowBytes',
+        frd.date
+        FROM flow_report_day frd
+        WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
+        )
+        UNION ALL
+        (
+        SELECT
+        frm.user_id,
+        frm.license_id,
+        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
+        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes',
+        #{curDayBeginDate} AS 'date'
+        FROM flow_report_minute frm
+        WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
+        GROUP BY frm.user_id,frm.license_id
+        )
+        ) T1
+        GROUP BY T1.user_id,T1.license_id
+        )
+        ) T2
+        LEFT JOIN `user` u ON u.id = T2.user_id
+        LEFT JOIN `license` l ON l.id = T2.license_id
+        <where>
+            <if test="userId != null">
+                AND u.id = #{userId}
+            </if>
+        </where>
+        ORDER BY T2.user_id ASC,T2.license_id,T2.date DESC
     </select>
 </mapper>

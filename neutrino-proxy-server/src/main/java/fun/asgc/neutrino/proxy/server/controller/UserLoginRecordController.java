@@ -23,8 +23,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.controller.req.UserLoginRecordListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.UserLoginRecordListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.log.UserLoginRecordListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.log.UserLoginRecordListRes;
 import fun.asgc.neutrino.proxy.server.service.UserLoginRecordService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.Controller;

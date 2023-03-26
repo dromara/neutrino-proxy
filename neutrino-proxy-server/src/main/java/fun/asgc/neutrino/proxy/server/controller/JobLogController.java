@@ -23,8 +23,8 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.controller.req.JobLogListReq;
-import fun.asgc.neutrino.proxy.server.controller.res.JobLogListRes;
+import fun.asgc.neutrino.proxy.server.controller.req.log.JobLogListReq;
+import fun.asgc.neutrino.proxy.server.controller.res.log.JobLogListRes;
 import fun.asgc.neutrino.proxy.server.service.JobLogService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import lombok.extern.slf4j.Slf4j;

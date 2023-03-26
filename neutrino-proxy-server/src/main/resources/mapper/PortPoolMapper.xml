@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="fun.asgc.neutrino.proxy.server.dal.PortPoolMapper">
 
-    <select id="selectResList" resultType="fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes">
+    <select id="selectResList" resultType="fun.asgc.neutrino.proxy.server.controller.res.system.PortPoolListRes">
         SELECT p.*,
                g.possessor_type,
                g.`name` group_name
@@ -16,7 +16,7 @@
         ORDER BY p.id
     </select>
 
-    <select id="getAvailablePortList" resultType="fun.asgc.neutrino.proxy.server.controller.res.PortPoolListRes">
+    <select id="getAvailablePortList" resultType="fun.asgc.neutrino.proxy.server.controller.res.system.PortPoolListRes">
         SELECT
             *
         FROM

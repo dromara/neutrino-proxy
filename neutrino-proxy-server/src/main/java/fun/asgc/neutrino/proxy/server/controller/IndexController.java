@@ -22,8 +22,8 @@
 package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.rest.Authorization;
-import fun.asgc.neutrino.proxy.server.controller.req.LoginReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LoginRes;
+import fun.asgc.neutrino.proxy.server.controller.req.system.LoginReq;
+import fun.asgc.neutrino.proxy.server.controller.res.system.LoginRes;
 import fun.asgc.neutrino.proxy.server.service.UserService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;

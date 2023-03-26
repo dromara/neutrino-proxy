@@ -1,9 +1,9 @@
 package fun.asgc.neutrino.proxy.server.dal;
 
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
+import fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowMonthReportRes;
+import fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowReportRes;
+import fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowMonthReportRes;
+import fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowReportRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -23,9 +23,22 @@ public interface ReportMapper {
      */
     List<UserFlowReportRes> userFlowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
     /**
-     * 基于用户维度的流量报表
+     * 基于License维度的流量报表
      * @param userId
      * @return
      */
     List<LicenseFlowReportRes> licenseFLowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+
+    /**
+     * 用户流量月度明细
+     * @param userId
+     * @return
+     */
+    List<UserFlowMonthReportRes> userFlowMonthReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    /**
+     * License流量月度明细
+     * @param userId
+     * @return
+     */
+    List<LicenseFlowMonthReportRes> licenseFLowMonthReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
 }

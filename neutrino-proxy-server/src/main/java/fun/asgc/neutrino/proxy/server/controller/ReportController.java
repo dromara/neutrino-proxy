@@ -2,11 +2,11 @@ package fun.asgc.neutrino.proxy.server.controller;
 
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
-import fun.asgc.neutrino.proxy.server.controller.req.LicenseFlowReportReq;
-import fun.asgc.neutrino.proxy.server.controller.req.UserFlowReportReq;
-import fun.asgc.neutrino.proxy.server.controller.res.LicenseFlowReportRes;
-import fun.asgc.neutrino.proxy.server.controller.res.ReportDataViewRes;
-import fun.asgc.neutrino.proxy.server.controller.res.UserFlowReportRes;
+import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowMonthReportReq;
+import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowReportReq;
+import fun.asgc.neutrino.proxy.server.controller.req.report.UserFlowMonthReportReq;
+import fun.asgc.neutrino.proxy.server.controller.req.report.UserFlowReportReq;
+import fun.asgc.neutrino.proxy.server.controller.res.report.*;
 import fun.asgc.neutrino.proxy.server.service.ReportService;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.Controller;
@@ -76,5 +76,33 @@ public class ReportController {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
 
         return reportService.licenseFlowReportPage(pageQuery, req);
+    }
+
+    /**
+     * 用户流量报表月度明细
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @Get
+    @Mapping("/user/flow-month-report/page")
+    public PageInfo<UserFlowMonthReportRes> userFlowMonthReportPage(PageQuery pageQuery, UserFlowMonthReportReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.userFlowMonthReportPage(pageQuery, req);
+    }
+
+    /**
+     * license流量报表月度明细
+     * @param pageQuery
+     * @param req
+     * @return
+     */
+    @Get
+    @Mapping("/license/flow-month-report/page")
+    public PageInfo<LicenseFlowMonthReportRes> licenseFlowMonthReportPage(PageQuery pageQuery, LicenseFlowMonthReportReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return reportService.licenseFlowMonthReportPage(pageQuery, req);
     }
 }
