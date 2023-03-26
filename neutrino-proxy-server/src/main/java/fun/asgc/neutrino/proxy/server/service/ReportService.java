@@ -9,6 +9,7 @@ import fun.asgc.neutrino.proxy.core.util.DateUtil;
 import fun.asgc.neutrino.proxy.server.base.db.DbConfig;
 import fun.asgc.neutrino.proxy.server.base.page.PageInfo;
 import fun.asgc.neutrino.proxy.server.base.page.PageQuery;
+import fun.asgc.neutrino.proxy.server.constant.Constants;
 import fun.asgc.neutrino.proxy.server.constant.OnlineStatusEnum;
 import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowMonthReportReq;
 import fun.asgc.neutrino.proxy.server.controller.req.report.LicenseFlowReportReq;
@@ -82,20 +83,11 @@ public class ReportService {
         FlowBO totalFlow = reportMapper.homeTotalFlow(DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         homeDataView.setTotalFlow(mapperFacade.map(totalFlow, HomeDataView.TotalFlow.class));
 
-        // 最近7日流量
-        List<SingleDayFlowBO> last7dFlowList = reportMapper.homeLast7dFlowList(DateUtil.getDayBegin(DateUtil.addDate(now, Calendar.DATE, -6)), DateUtil.getDayBegin(now), now);
+        // 最近n日流量
+        Integer days = Constants.HOME_FLOW_DAYS;
+        List<SingleDayFlowBO> last7dFlowList = reportMapper.homeLast7dFlowList(DateUtil.getDayBegin(DateUtil.addDate(now, Calendar.DATE, -(days - 1))), DateUtil.getDayBegin(now), now);
         homeDataView.setLast7dFlow(new HomeDataView.Last7dFlow());
         homeDataView.getLast7dFlow().setDataList(mapperFacade.mapAsList(last7dFlowList, HomeDataView.SingleDayFlow.class));
-        // 查询统计数据
-//        homeDataView.setLast7dFlow(new HomeDataView.Last7dFlow().setDataList(Lists.newArrayList(
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-20", "yyyy-MM-dd")).setUpFlowBytes(1000L).setDownFlowBytes(20000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-21", "yyyy-MM-dd")).setUpFlowBytes(1100L).setDownFlowBytes(21000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-22", "yyyy-MM-dd")).setUpFlowBytes(1200L).setDownFlowBytes(22000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-23", "yyyy-MM-dd")).setUpFlowBytes(1300L).setDownFlowBytes(23000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-24", "yyyy-MM-dd")).setUpFlowBytes(1400L).setDownFlowBytes(24000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-25", "yyyy-MM-dd")).setUpFlowBytes(1500L).setDownFlowBytes(25000L),
-//                new HomeDataView.SingleDayFlow().setDate(DateUtil.parse("2023-03-26", "yyyy-MM-dd")).setUpFlowBytes(1600L).setDownFlowBytes(26000L)
-//        )));
 
         // 数据处理
         fillHomeDataView(homeDataView, now);
@@ -284,7 +276,8 @@ public class ReportService {
         homeDataView.getTotalFlow().setDownFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTotalFlow().getDownFlowBytes()));
         homeDataView.getTotalFlow().setTotalFlowDesc(FormatUtil.getSizeDescByByteCount(homeDataView.getTotalFlow().getTotalFlowBytes()));
 
-        // 最近7日流量
+        // 最近N日流量
+        Integer days = Constants.HOME_FLOW_DAYS;
         HomeDataView.Last7dFlow last7dFlow = homeDataView.getLast7dFlow();
         if (null == last7dFlow) {
             last7dFlow = new HomeDataView.Last7dFlow();
@@ -312,7 +305,7 @@ public class ReportService {
             }
         }
         // 获取最近7天的日期字符串列表。防止因统计数据缺失，造成图表展示错误的问题，缺失的日期数据，自动填充0
-        List<String> dateList = DateUtil.getBetweenTimes(DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -6), "yyyy-MM-dd"), DateUtil.format(now, "yyyy-MM-dd"));
+        List<String> dateList = DateUtil.getBetweenTimes(DateUtil.format(DateUtil.addDate(now, Calendar.DATE, -(days - 1)), "yyyy-MM-dd"), DateUtil.format(now, "yyyy-MM-dd"));
         for (String dateStr : dateList) {
             if (existDateStrList.contains(dateStr)) {
                 continue;
