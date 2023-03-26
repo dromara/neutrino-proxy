@@ -30,3 +30,11 @@ export function fetchLicenseFlowMonthReportList(query) {
     params: query
   })
 }
+
+export function homeData(query) {
+  return request({
+    url: '/report/home/data-view',
+    method: 'get',
+    params: query
+  })
+}

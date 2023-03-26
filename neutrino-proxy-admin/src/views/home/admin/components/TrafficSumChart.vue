@@ -5,6 +5,8 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
+import { getSizeDescByByteCount } from '@/utils/utils'
+let that = null
 
 export default {
   props: {
@@ -32,10 +34,11 @@ export default {
   data() {
     return {
       chartDom: null,
-      colorList: ['#2B81B1', '#75ddfa', '#53a7e3', '#029fe8', '#015dae']
+      colorList: ['#1f92ce', '#7594fa', '#faa875']
     }
   },
   mounted() {
+    that = this
     this.initChart()
   },
   beforeDestroy() {
@@ -51,7 +54,7 @@ export default {
       this.myChart = echarts.init(this.chartDom)
       const seriesList = []
       const legendList = []
-      this.data.list.forEach((item, index) => {
+      this.data.list && this.data.list.forEach((item, index) => {
         seriesList.push({
           name: item.name,
           type: 'line',
@@ -71,17 +74,26 @@ export default {
             normal: {
               color: this.colorList[index]
             }
-          }
+          },
+          smooth: true
         })
         legendList.push(item.name)
       })
+
       const option = {
         title: {
-          text: this.data.text + '折线图',
+          text: this.data.text,
           subtext: this.data.subtext || ''
         },
         tooltip: {
-          trigger: 'axis'
+          trigger: 'axis',
+          formatter: function(value) {
+            let title = that.data.text + '<br/>'
+            value.forEach(item => {
+              title = title + item.marker + item.seriesName + ' : ' + that.data.list[item.seriesIndex].label[item.dataIndex] + '<br/>'
+            })
+            return title
+          }
         },
         legend: {
           data: legendList,
@@ -99,7 +111,12 @@ export default {
           data: this.data.title
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          axisLabel: {
+            formatter: function(value) {
+              return getSizeDescByByteCount(value)
+            }
+          }
         },
         series: seriesList
       }

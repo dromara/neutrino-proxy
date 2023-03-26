@@ -5,6 +5,7 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
+let that = null
 
 export default {
   props: {
@@ -28,8 +29,8 @@ export default {
       type: Object,
       default: () => {
         return {
-          upload: 90, // 上行
-          download: 100, // 下行
+          upFlowBytes: 0, // 上行
+          downFlowBytes: 0, // 下行
           text: '今日流量'
         }
       }
@@ -41,6 +42,7 @@ export default {
     }
   },
   mounted() {
+    that = this
     this.initChart()
   },
   beforeDestroy() {
@@ -57,7 +59,7 @@ export default {
       const option = {
         title: {
           text: this.data.text,
-          subtext: '上行：' + this.data.upload + '\n\n' + '下行：' + this.data.download,
+          subtext: '上行：' + this.data.upFlowDesc + '\n\n' + '下行：' + this.data.downFlowDesc + '\n\n' + '汇总：' + this.data.totalFlowDesc,
           textStyle: {
             fontSize: 18,
             fontWeight: 800,
@@ -65,7 +67,10 @@ export default {
           }
         },
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
+          formatter: function(value) {
+            return `${value.seriesName} <br/>${value.marker} : ${value.name} ${value.name === '上行' ? that.data.upFlowDesc : that.data.downFlowDesc}`
+          }
         },
         legend: {
           data: ['上行', '下行'],
@@ -93,7 +98,7 @@ export default {
             },
             data: [
               {
-                value: this.data.upload,
+                value: this.data.upFlowBytes,
                 name: '上行',
                 lineStyle: {
                   normal: {
@@ -107,7 +112,7 @@ export default {
                 }
               },
               {
-                value: this.data.download,
+                value: this.data.downFlowBytes,
                 name: '下行',
                 lineStyle: {
                   normal: {
