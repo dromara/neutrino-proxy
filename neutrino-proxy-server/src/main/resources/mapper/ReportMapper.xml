@@ -184,6 +184,9 @@
             <if test="userId != null">
                 AND u.id = #{userId}
             </if>
+            <if test="licenseId != null">
+                AND l.id = #{licenseId}
+            </if>
         </where>
         ORDER BY T2.user_id ASC,T2.license_id,T2.date DESC
     </select>

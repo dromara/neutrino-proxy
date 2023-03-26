@@ -4,6 +4,9 @@
       <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable>
         <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
       </el-select>
+      <el-select v-model="listQuery.licenseId" placeholder="请选择License" clearable>
+        <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id"/>
+      </el-select>
       <el-button type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
     </div>
 
@@ -52,6 +55,7 @@
 import { fetchLicenseFlowMonthReportList } from '@/api/report'
 import { userList } from '@/api/user'
 import waves from '@/directive/waves'
+import { licenseList } from '@/api/license'
 
 export default {
   name: 'jobLog',
@@ -67,9 +71,11 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        jobId: undefined
+        userId: undefined,
+        licenseId: undefined
       },
       userList: [],
+      licenseList: [],
       dialogVisible: false,
       selectRow: {}
     }
@@ -79,9 +85,11 @@ export default {
   created() {
     this.getList()
     this.getUserList()
+    this.getLicenseList()
   },
   activated() {
     this.getUserList()
+    this.getLicenseList()
     if (this.$route.query.jobId) {
       this.listQuery.jobId = this.$route.query.jobId
       this.getList()
@@ -99,6 +107,11 @@ export default {
     getUserList() {
       userList().then(response => {
         this.userList = response.data.data
+      })
+    },
+    getLicenseList() {
+      licenseList().then(response => {
+        this.licenseList = response.data.data
       })
     },
     handleFilter() {

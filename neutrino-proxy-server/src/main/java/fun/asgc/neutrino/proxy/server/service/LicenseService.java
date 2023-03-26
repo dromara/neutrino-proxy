@@ -78,7 +78,7 @@ public class LicenseService implements Lifecycle {
 
 	public List<LicenseListRes> list(LicenseListReq req) {
 		List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
-				.eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+				.eq(null != req.getEnable(), LicenseDO::getEnable, req.getEnable())
 		);
 		List<LicenseListRes> licenseList = assembleConvertLicenses(list);
 		return licenseList;

@@ -91,7 +91,7 @@ public class ReportService {
     public PageInfo<LicenseFlowMonthReportRes> licenseFlowMonthReportPage(PageQuery pageQuery, LicenseFlowMonthReportReq req) {
         Page<LicenseFlowMonthReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         Date now = new Date();
-        List<LicenseFlowMonthReportRes> list = reportMapper.licenseFLowMonthReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        List<LicenseFlowMonthReportRes> list = reportMapper.licenseFLowMonthReportList(req.getUserId(), req.getLicenseId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillLicenseFlowMonthReport(list);
         return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }

@@ -40,5 +40,5 @@ public interface ReportMapper {
      * @param userId
      * @return
      */
-    List<LicenseFlowMonthReportRes> licenseFLowMonthReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    List<LicenseFlowMonthReportRes> licenseFLowMonthReportList(@Param("userId") Integer userId, @Param("licenseId") Integer licenseId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
 }
