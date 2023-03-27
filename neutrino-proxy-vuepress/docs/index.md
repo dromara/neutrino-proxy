@@ -162,6 +162,17 @@ neutrino-proxy主要的源码分为两个分支，功能如下：
 
 [//]: # (- [Github issue]&#40;https://github.com/dromara/hutool/issues&#41;)
 
+### 🧬加入我们
+贡献包括但不限于以下形式：
+1. 提交issues
+2. 领取issues并开发完成，合并pr
+3. 参与issues讨论
+4. 完善项目文档
+5. 完善代码注释
+6. 新增测试代码
+7. 对现有代码进行优化（先提前沟通）
+8. 参与官网文档撰写（neutrino-proxy-vuepress）
+9. 通过博客、论坛、贴吧、公众号等方式推广中微子代理
 
 ### 🧬贡献代码的步骤
 
