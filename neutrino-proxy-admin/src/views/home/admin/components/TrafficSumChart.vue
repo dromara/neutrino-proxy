@@ -6,8 +6,6 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import { getSizeDescByByteCount } from '@/utils/utils'
-let that = null
-
 export default {
   props: {
     chartId: {
@@ -38,7 +36,6 @@ export default {
     }
   },
   mounted() {
-    that = this
     this.initChart()
   },
   beforeDestroy() {
@@ -87,10 +84,10 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          formatter: function(value) {
-            let title = that.data.text + '<br/>'
+          formatter: (value) => {
+            let title = this.data.text + '<br/>'
             value.forEach(item => {
-              title = title + item.marker + item.seriesName + ' : ' + that.data.list[item.seriesIndex].label[item.dataIndex] + '<br/>'
+              title = title + item.marker + item.seriesName + ' : ' + this.data.list[item.seriesIndex].label[item.dataIndex] + '<br/>'
             })
             return title
           }
@@ -113,7 +110,7 @@ export default {
         yAxis: {
           type: 'value',
           axisLabel: {
-            formatter: function(value) {
+            formatter: (value) => {
               return getSizeDescByByteCount(value)
             }
           }
