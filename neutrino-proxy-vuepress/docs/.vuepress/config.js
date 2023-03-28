@@ -68,34 +68,27 @@ module.exports = {
                 text: '快速使用', link: '/pages/793dcb/', items: [
                     {text: '快速上手', link: '/pages/793dcb/'},
                     {text: '目录结构', link: '/pages/2f674a/'},
-                    {text: 'Markdown 容器', link: '/pages/d0d7eb/'},
-                    {text: 'Markdown 中使用组件', link: '/pages/197691/'},
                     {
                         text: '相关文章', items: [
-                            {text: '使目录栏支持h2~h6标题', link: '/pages/8dfab5/'},
-                            {text: '如何让你的笔记更有表现力', link: '/pages/dd027d/'},
-                            {text: '批量操作front matter工具', link: '/pages/2b8e22/'},
-                            {text: '部署', link: '/pages/0fc1d2/'},
-                            {text: '关于写文章和H1标题', link: '/pages/9ae0bd/'},
-                            {text: '关于博客搭建与管理', link: '/pages/26997d/'},
-                            {text: '在线编辑和新增文章的方法', link: '/pages/c5a54d/'},
+                            {text: 'AOP', link: '/pages/8dfab5/'},
+                            {text: '代理实现中涉及的几类Channel', link: '/pages/dd027d/'},
                         ]
                     }
                 ]
             },
-            {
-                text: '常见问题', link: '/pages/a20ce8/', items: [
-                    {text: '主题配置', link: '/pages/a20ce8/'},
-                    {text: '首页配置', link: '/pages/f14bdb/'},
-                    {text: 'front matter配置', link: '/pages/3216b0/'},
-                    {text: '目录页配置', link: '/pages/54651a/'},
-                    {text: '添加摘要', link: '/pages/1cc523/'},
-                    {text: '修改主题颜色和样式', link: '/pages/f51918/'},
-                    {text: '评论栏', link: '/pages/ce175c/'},
-                ]
-            },
+            // {
+            //     text: '常见问题', link: '/pages/a20ce8/', items: [
+            //         {text: '主题配置', link: '/pages/a20ce8/'},
+            //         {text: '首页配置', link: '/pages/f14bdb/'},
+            //         {text: 'front matter配置', link: '/pages/3216b0/'},
+            //         {text: '目录页配置', link: '/pages/54651a/'},
+            //         {text: '添加摘要', link: '/pages/1cc523/'},
+            //         {text: '修改主题颜色和样式', link: '/pages/f51918/'},
+            //         {text: '评论栏', link: '/pages/ce175c/'},
+            //     ]
+            // },
             {text: '演示', link: '/pages/db78e2/'},
-            {text: '案例', link: '/pages/5d571c/'},
+            // {text: '案例', link: '/pages/5d571c/'},
             {text: '最近更新', link: '/pages/9cc27d/'},
             {text: '关于我们', link: '/pages/1b12ed/'},
         ],
