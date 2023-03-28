@@ -51,6 +51,7 @@ public enum ExceptionConstant {
 	// 端口池管理(13000)
 	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
 	PORT_NOT_EXIST(13001, "该端口在端口池中不存在"),
+	PORT_RANGE_FAIL(13002, "端口值范围为MIN-MAX"),
 	// 端口映射管理(14000)
 	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
 	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),

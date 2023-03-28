@@ -71,7 +71,7 @@ public class PortPoolController {
 	@Authorization(onlyAdmin = true)
 	public PortPoolCreateRes create(PortPoolCreateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
-		ParamCheckUtil.checkNotNull(req.getPort(), "port");
+		ParamCheckUtil.checkNotEmpty(req.getPort(), "port");
 		ParamCheckUtil.checkNotNull(req.getGroupId(), "groupId");
 
 		return portPoolService.create(req);

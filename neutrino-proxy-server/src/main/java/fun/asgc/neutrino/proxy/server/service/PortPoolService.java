@@ -18,7 +18,9 @@ import fun.asgc.neutrino.proxy.server.dal.PortMappingMapper;
 import fun.asgc.neutrino.proxy.server.dal.PortPoolMapper;
 import fun.asgc.neutrino.proxy.server.dal.entity.*;
 import fun.asgc.neutrino.proxy.server.util.ParamCheckUtil;
+import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -26,13 +28,17 @@ import org.noear.solon.annotation.Inject;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static fun.asgc.neutrino.proxy.server.constant.ExceptionConstant.*;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
+@Slf4j
 @Component
 public class PortPoolService {
 	@Inject
@@ -83,23 +89,38 @@ public class PortPoolService {
     }
 
     public PortPoolCreateRes create(PortPoolCreateReq req) {
-        PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(req.getPort());
-        ParamCheckUtil.checkMustNull(oldPortPoolDO, ExceptionConstant.PORT_CANNOT_REPEAT);
-        PortGroupDO portGroupDO = portGroupMapper.selectById(req.getGroupId());
-        ParamCheckUtil.checkNotNull(portGroupDO, ExceptionConstant.PORT_GROUP_NAME_DOES_NOT_EXIST);
-
-        Date now = new Date();
-
-        portPoolMapper.insert(new PortPoolDO()
-                .setPort(req.getPort())
-                .setGroupId(req.getGroupId())
-                .setEnable(EnableStatusEnum.ENABLE.getStatus())
-                .setCreateTime(now)
-                .setUpdateTime(now)
-        );
-        // 更新visitorChannel
-        visitorChannelService.updateVisitorChannelByPortPool(req.getPort(), EnableStatusEnum.ENABLE.getStatus());
-
+        Consumer<Integer> consumer = port -> {
+            PortPoolDO oldPortPoolDO = portPoolMapper.findByPort(port);
+            ParamCheckUtil.checkMustNull(oldPortPoolDO, PORT_CANNOT_REPEAT);
+            PortGroupDO portGroupDO = portGroupMapper.selectById(req.getGroupId());
+            ParamCheckUtil.checkNotNull(portGroupDO, PORT_GROUP_NAME_DOES_NOT_EXIST);
+            Date now = new Date();
+            portPoolMapper.insert(new PortPoolDO()
+                    .setPort(port)
+                    .setGroupId(req.getGroupId())
+                    .setEnable(EnableStatusEnum.ENABLE.getStatus())
+                    .setCreateTime(now)
+                    .setUpdateTime(now)
+            );
+            // 更新visitorChannel
+            visitorChannelService.updateVisitorChannelByPortPool(port, EnableStatusEnum.ENABLE.getStatus());
+        };
+        String[] portArr = StringUtils.split(req.getPort(), "-");
+        if(portArr.length == 1){
+            Integer port = Integer.valueOf(portArr[0]);
+            consumer.accept(port);
+        }else if(portArr.length == 2){
+            int min = Integer.parseInt(portArr[0]),max = Integer.parseInt(portArr[1]);
+            for (int i = min; i <= max; i++) {
+                try {
+                    consumer.accept(i);
+                } catch (Exception e) {
+                    log.warn("bulk add port err:{}",e.getMessage());
+                }
+            }
+        }else{
+            throw ServiceException.create(PORT_RANGE_FAIL);
+        }
         return new PortPoolCreateRes();
     }
 
