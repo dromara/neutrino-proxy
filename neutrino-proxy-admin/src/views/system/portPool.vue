@@ -60,7 +60,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.port')" prop="port">
-          <el-input v-model="temp.port" :disabled="dialogStatus=='update'"></el-input>
+          <el-input :placeholder="$t('table.portOrRange')" v-model="temp.port" :disabled="dialogStatus=='update'"></el-input>
         </el-form-item>
 
         <el-form-item  :label="$t('table.group')" prop="group">
@@ -92,13 +92,13 @@
 </template>
 
 <script>
-  import { fetchList, updateEnableStatus, createPortPool, deletePortPool, updatePortPool } from '@/api/portPool'
-  import { portGroupList } from '@/api/portGroup'
-  import waves from '@/directive/waves' // 水波纹指令
-  import { parseTime } from '@/utils'
-  import ButtonPopover from '../../components/Button/buttonPopover'
+import {createPortPool, deletePortPool, fetchList, updateEnableStatus, updatePortPool} from '@/api/portPool'
+import {portGroupList} from '@/api/portGroup'
+import waves from '@/directive/waves' // 水波纹指令
+import {parseTime} from '@/utils'
+import ButtonPopover from '../../components/Button/buttonPopover'
 
-  const calendarTypeOptions = [
+const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
     { key: 'US', display_name: 'USA' },
     { key: 'JP', display_name: 'Japan' },
