@@ -70,7 +70,6 @@
         T2.downFlowBytes
         FROM (
 
-        (
         SELECT
         frm.user_id,
         frm.date,
@@ -78,16 +77,16 @@
         IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_month frm
         GROUP BY frm.user_id,frm.date
-        )
+
         UNION ALL
-        (
+
         SELECT
         T1.user_id,
         #{curMonthBeginDate} AS 'date',
         IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
         IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
         FROM (
-        (
+
         SELECT
         frd.user_id,
         frd.license_id,
@@ -96,9 +95,9 @@
         frd.date
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
-        )
+
         UNION ALL
-        (
+
         SELECT
         frm.user_id,
         frm.license_id,
@@ -108,10 +107,10 @@
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
         GROUP BY frm.user_id,frm.license_id
-        )
+
         ) T1
         GROUP BY T1.user_id
-        )
+
         ) T2
         LEFT JOIN `user` u ON u.id = T2.user_id
         <where>
@@ -133,7 +132,6 @@
         T2.downFlowBytes
         FROM (
 
-        (
         SELECT
         frm.user_id,
         frm.license_id,
@@ -142,9 +140,9 @@
         IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_month frm
         GROUP BY frm.user_id,frm.license_id,frm.date
-        )
+
         UNION ALL
-        (
+
         SELECT
         T1.user_id,
         T1.license_id,
@@ -152,7 +150,7 @@
         IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
         IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
         FROM (
-        (
+
         SELECT
         frd.user_id,
         frd.license_id,
@@ -161,9 +159,9 @@
         frd.date
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
-        )
+
         UNION ALL
-        (
+
         SELECT
         frm.user_id,
         frm.license_id,
@@ -173,10 +171,10 @@
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
         GROUP BY frm.user_id,frm.license_id
-        )
+
         ) T1
         GROUP BY T1.user_id,T1.license_id
-        )
+
         ) T2
         LEFT JOIN `user` u ON u.id = T2.user_id
         LEFT JOIN `license` l ON l.id = T2.license_id
@@ -204,24 +202,27 @@
         IFNULL(SUM(T.upFlowBytes),0) AS 'upFlowBytes',
         IFNULL(SUM(T.downFlowBytes),0) AS 'downFlowBytes'
         FROM (
-        (
+
         SELECT
         IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
         IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_month frm
-        ) UNION ALL (
+        UNION ALL
+
         SELECT
         IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
         IFNULL(SUM(frd.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
-        ) UNION ALL (
+
+        UNION ALL
+
         SELECT
         IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
         IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
-        )
+
         ) T
     </select>
 
@@ -229,7 +230,7 @@
         SELECT
         T.*
         FROM (
-        (
+
         SELECT
         frd.date,
         IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
@@ -237,14 +238,16 @@
         FROM flow_report_day frd
         WHERE frd.date >= #{beginDate} AND frd.date &lt;= #{curDayBeginDate}
         GROUP BY frd.date
-        ) UNION ALL (
+
+        UNION ALL
+
         SELECT
         #{curDayBeginDate} AS 'date',
         IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
         IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
-        )
+
         ) T
     </select>
 </mapper>
