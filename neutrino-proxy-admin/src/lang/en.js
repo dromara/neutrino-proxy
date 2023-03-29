@@ -102,7 +102,8 @@ export default {
     draft: 'Draft',
     delete: 'Delete',
     cancel: 'Cancel',
-    confirm: 'Confirm'
+    confirm: 'Confirm',
+    portOrRange: 'example: 3306 or 1000-2000'
   },
   errorLog: {
     tips: 'Please click the bug icon in the upper right corner',
