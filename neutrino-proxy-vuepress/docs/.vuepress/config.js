@@ -9,7 +9,7 @@ module.exports = {
 
     title: "中微子代理",
     description: '一个基于 netty 的、开源的 java 内网穿透项目',
-    base: '/neutrino-proxy-vuepress/', // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
+    base: '/neutrino-proxy/', // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
     head: [ // 注入到页面<head> 中的标签，格式[tagName, { attrName: attrValue }, innerHTML?]
         ['link', {rel: 'icon', href: '/img/favicon.ico'}], //favicons，资源放在public文件夹
         ['meta', {name: 'keywords', content: 'vuepress,theme,blog,vdoing'}],
