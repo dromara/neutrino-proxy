@@ -42,9 +42,7 @@ postList: none
 
 <br/>
 <p align="center">
-  <a href="https://www.npmjs.com/package/vuepress-theme-vdoing" target="_blank"><img src="https://img.shields.io/npm/v/vuepress-theme-vdoing" alt="npm" class="no-zoom"></a>
-  <a href="https://www.npmjs.com/package/vuepress-theme-vdoing" target="_blank"><img src="https://img.shields.io/npm/dt/vuepress-theme-vdoing" alt="npm" class="no-zoom"></a>
-  <a href="https://gitee.com/dromara/neutrino-proxy" target="_blank"><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star' class="no-zoom"></img></a>
+  <a href="https://gitee.com/dromara/neutrino-proxy" target="_blank"><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star' class="no-zoom"></a>
   <a href="https://gitee.com/dromara/neutrino-proxy" target="_blank"><img src='https://gitee.com/dromara/neutrino-proxy/badge/fork.svg?theme=dark' alt='forks' class="no-zoom"></a>
 </p>
 
@@ -149,17 +147,6 @@ postList: none
 </table>
 <br/> 
 
-## 🏗️添砖加瓦
-
-### 🎋分支说明
-
-neutrino-proxy主要的源码分为两个分支，功能如下：
-
-| 分支 | 作用                                                          |
-|---|---------------------------------------------------------------|
-| master | 主分支，不接收任何pr或修改 |
-| feature/1.7.1 | 开发分支，默认为下个版本的SNAPSHOT版本，接受修改或pr                 |
-
 ### 🐞提供bug反馈或建议
 
 提交问题反馈请说明正在使用环境以及相关问题
@@ -167,30 +154,6 @@ neutrino-proxy主要的源码分为两个分支，功能如下：
 - [Gitee issue](https://gitee.com/dromara/neutrino-proxy/issues)
 
 [//]: # (- [Github issue]&#40;https://github.com/dromara/hutool/issues&#41;)
-
-### 🧬加入我们
-贡献包括但不限于以下形式：
-1. 提交issues
-2. 领取issues并开发完成，合并pr
-3. 参与issues讨论
-4. 完善项目文档
-5. 完善代码注释
-6. 新增测试代码
-7. 对现有代码进行优化（先提前沟通）
-8. 参与官网文档撰写（neutrino-proxy-vuepress）
-9. 通过博客、论坛、贴吧、公众号等方式推广中微子代理
-
-### 🧬贡献代码的步骤
-
-贡献代码注意事项：
-1. 在Gitee或者Github上fork项目到自己的repo，fork，一定要把项目fork一份。
-2. 把fork过去的项目也就是你的项目clone到你的本地
-3. 同步feature/1.7.1最新代码
-4. 修改代码
-5. 开发完成后，不忙着提PR，再拉一遍最新代码，如果有冲突、解决冲突
-6. commit后push到自己的库
-7. 登录Gitee在你首页可以看到一个 pull request 按钮，点击它，填写一些说明信息，然后提交即可。
-8. 等待维护者合并
 
 <br/>
 

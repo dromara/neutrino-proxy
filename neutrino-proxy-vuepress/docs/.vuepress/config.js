@@ -67,6 +67,7 @@ module.exports = {
             {
                 text: '快速使用', link: '/pages/793dcb/', items: [
                     {text: '快速上手', link: '/pages/793dcb/'},
+                    {text: '管理后台使用指南', link: '/pages/793dcc/'},
                     {text: '目录结构', link: '/pages/2f674a/'},
                     {
                         text: '相关文章', items: [
@@ -89,7 +90,12 @@ module.exports = {
             // },
             {text: '演示', link: '/pages/db78e2/'},
             // {text: '案例', link: '/pages/5d571c/'},
-            {text: '最近更新', link: '/pages/9cc27d/'},
+              {
+                text: '最近更新', link: '/pages/9cc27d/', items: [
+                  { text: '最近更新', link: '/pages/9cc27d/' },
+                  { text: '如何贡献', link: '/pages/69a632/' },
+                ]
+              },
             {text: '关于我们', link: '/pages/1b12ed/'},
         ],
         sidebarDepth: 2, // 侧边栏显示深度，默认1，最大2（显示到h3标题）
