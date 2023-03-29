@@ -26,7 +26,7 @@ features: # 可选的
 postList: none
 ---
 <p align="center">
-  <a class="become-sponsor" href="/pages/1b12ed/">支持这个项目</a>
+  <a class="become-sponsor" href="https://gitee.com/dromara/neutrino-proxy">支持这个项目</a>
 </p>
 
 <style>
