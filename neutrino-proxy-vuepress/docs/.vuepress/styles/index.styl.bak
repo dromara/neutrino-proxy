@@ -1,25 +1,24 @@
-.home-wrapper .banner .banner-conent .hero h1{
-  font-size 2.8rem!important
-}
+// .home-wrapper .banner .banner-conent .hero h1{
+//   font-size 2.8rem!important
+// }
+// // 文档中适配
+// table
+//   width auto
+// .page >*:not(.footer),.card-box
+//   box-shadow: none!important
 
-// 文档中适配
-table
-  width auto
-.page >*:not(.footer),.card-box
-  box-shadow: none!important
-
-.page
-  @media (min-width $contentWidth + 80)
-    padding-top $navbarHeight!important
-.home-wrapper .banner .banner-conent
-  padding 0 2.9rem
-  box-sizing border-box
-.home-wrapper .banner .slide-banner .slide-banner-wrapper .slide-item a
-  h2
-    margin-top 2rem
-    font-size 1.2rem!important
-  p
-    padding 0 1rem
+// .page
+//   @media (min-width $contentWidth + 80)
+//     padding-top $navbarHeight!important
+// .home-wrapper .banner .banner-conent
+//   padding 0 2.9rem
+//   box-sizing border-box
+// .home-wrapper .banner .slide-banner .slide-banner-wrapper .slide-item a
+//   h2
+//     margin-top 2rem
+//     font-size 1.2rem!important
+//   p
+//     padding 0 1rem
 
 // 评论区颜色重置
 .gt-container
