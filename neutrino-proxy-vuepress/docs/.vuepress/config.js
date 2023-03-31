@@ -14,6 +14,7 @@ module.exports = {
         ['link', {rel: 'icon', href: '/img/favicon.ico'}], //favicons，资源放在public文件夹
         ['meta', {name: 'keywords', content: 'vuepress,theme,blog,vdoing'}],
         ['meta', {name: 'theme-color', content: '#11a8cd'}], // 移动浏览器主题颜色
+        ['meta', {name: 'referrer', content: 'no-referrer-when-downgrade'}],  //统计在 Chrome 85 版本中，为了保护用户的隐私，默认的 Referrer Policy 则变成了 strict-origin-when-cross-origin
 
         // ['meta', { name: 'wwads-cn-verify', content: '6c4b761a28b734fe93831e3fb400ce87' }], // 广告相关，你可以去掉
         // ['script', { src: 'https://cdn.wwads.cn/js/makemoney.js', type: 'text/javascript' }], // 广告相关，你可以去掉
@@ -126,7 +127,7 @@ module.exports = {
         [
             'vuepress-plugin-baidu-tongji', // 百度统计
             {
-                hm: baiduCode || '01293bffa6c3962016c08ba685c79d78'
+                hm: baiduCode || 'f5901e55fecee5322d9f613841c717b8'
             }
         ],
 
