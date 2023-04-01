@@ -40,10 +40,10 @@ solon.staticfiles.mappings:
 
 mybatis.db:
   typeAliases:    #支持包名 或 类名（大写开头 或 *）//支持 ** 或 * 占位符
-    - "fun.asgc.neutrino.proxy.server.dal.entity"
+    - "org.dromara.neutrinoproxy.server.dal.entity"
   mappers:        #支持包名 或 类名（大写开头 或 *）或 xml（.xml结尾）//支持 ** 或 * 占位符
     - "classpath:mapper/*.xml"
-    - "fun.asgc.neutrino.proxy.server.dal"
+    - "org.dromara.neutrinoproxy.server.dal"
   configuration:   #扩展配置（要与 MybatisConfiguration 类的属性一一对应）
     cacheEnabled: false
     mapUnderscoreToCamelCase: true

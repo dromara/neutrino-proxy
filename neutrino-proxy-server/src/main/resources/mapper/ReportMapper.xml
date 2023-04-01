@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="fun.asgc.neutrino.proxy.server.dal.ReportMapper">
+<mapper namespace="org.dromara.neutrinoproxy.server.dal.ReportMapper">
 
-    <select id="userFlowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowReportRes">
+    <select id="userFlowReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.UserFlowReportRes">
         SELECT
         u.id AS 'userId',
         u.name AS 'userName',
@@ -30,7 +30,7 @@
         GROUP BY u.id
     </select>
 
-    <select id="licenseFLowReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowReportRes">
+    <select id="licenseFLowReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowReportRes">
         SELECT
         l.id AS 'licenseId',
         l.name AS 'licenseName',
@@ -61,7 +61,7 @@
         GROUP BY l.id
     </select>
 
-    <select id="userFlowMonthReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.UserFlowMonthReportRes">
+    <select id="userFlowMonthReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.UserFlowMonthReportRes">
         SELECT
         T2.user_id,
         u.name AS 'userName',
@@ -121,7 +121,7 @@
         ORDER BY T2.user_id ASC,T2.date DESC
     </select>
 
-    <select id="licenseFLowMonthReportList" resultType="fun.asgc.neutrino.proxy.server.controller.res.report.LicenseFlowMonthReportRes">
+    <select id="licenseFLowMonthReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowMonthReportRes">
         SELECT
         T2.user_id,
         u.name AS 'userName',
@@ -189,7 +189,7 @@
         ORDER BY T2.user_id ASC,T2.license_id,T2.date DESC
     </select>
 
-    <select id="homeTodayFlow" resultType="fun.asgc.neutrino.proxy.server.service.bo.FlowBO">
+    <select id="homeTodayFlow" resultType="org.dromara.neutrinoproxy.server.service.bo.FlowBO">
         SELECT
             IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
             IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
@@ -197,7 +197,7 @@
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
     </select>
 
-    <select id="homeTotalFlow" resultType="fun.asgc.neutrino.proxy.server.service.bo.FlowBO">
+    <select id="homeTotalFlow" resultType="org.dromara.neutrinoproxy.server.service.bo.FlowBO">
         SELECT
         IFNULL(SUM(T.upFlowBytes),0) AS 'upFlowBytes',
         IFNULL(SUM(T.downFlowBytes),0) AS 'downFlowBytes'
@@ -226,7 +226,7 @@
         ) T
     </select>
 
-    <select id="homeLast7dFlowList" resultType="fun.asgc.neutrino.proxy.server.service.bo.SingleDayFlowBO">
+    <select id="homeLast7dFlowList" resultType="org.dromara.neutrinoproxy.server.service.bo.SingleDayFlowBO">
         SELECT
         T.*
         FROM (
