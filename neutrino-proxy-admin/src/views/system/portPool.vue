@@ -92,10 +92,10 @@
 </template>
 
 <script>
-import {createPortPool, deletePortPool, fetchList, updateEnableStatus, updatePortPool} from '@/api/portPool'
-import {portGroupList} from '@/api/portGroup'
+import { createPortPool, deletePortPool, fetchList, updateEnableStatus, updatePortPool } from '@/api/portPool'
+import { portGroupList } from '@/api/portGroup'
 import waves from '@/directive/waves' // 水波纹指令
-import {parseTime} from '@/utils'
+import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
 
 const calendarTypeOptions = [
