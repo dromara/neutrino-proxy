@@ -53,3 +53,5 @@ hs_err_pid*
 **/app-**.yml
 
 **/memo/**
+
+neutrino-proxy-vuepress/deploy.sh

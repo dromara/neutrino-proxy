@@ -136,6 +136,7 @@ export default {
     enable: '启用',
     loginName: '登录名',
     port: '端口',
+    portOrRange: '端口或范围,如: 3306或1000-2000',
     licenseName: 'License名称',
     licenseKey: 'License Key',
     isOnline: '在线状态',

@@ -5,7 +5,6 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
-let that = null
 
 export default {
   props: {
@@ -42,7 +41,6 @@ export default {
     }
   },
   mounted() {
-    that = this
     this.initChart()
   },
   beforeDestroy() {
@@ -68,8 +66,8 @@ export default {
         },
         tooltip: {
           trigger: 'item',
-          formatter: function(value) {
-            return `${value.seriesName} <br/>${value.marker} : ${value.name} ${value.name === '上行' ? that.data.upFlowDesc : that.data.downFlowDesc}`
+          formatter: (value) => {
+            return `${value.seriesName} <br/>${value.marker} : ${value.name} ${value.name === '上行' ? this.data.upFlowDesc : this.data.downFlowDesc}`
           }
         },
         legend: {

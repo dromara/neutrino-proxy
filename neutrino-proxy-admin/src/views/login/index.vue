@@ -27,9 +27,9 @@
 
       <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">{{$t('login.logIn')}}</el-button>
 
-      <div class="tips">
-        <span>{{$t('login.username')}} : visitor</span>
-        <span>{{$t('login.password')}} : 123456</span>
+      <div class="tips" v-if="user_name && user_pwd">
+        <span>{{$t('login.username')}} : {{ user_name }}</span>
+        <span>{{$t('login.password')}} : {{ user_pwd }}</span>
       </div>
 
     </el-form>
@@ -60,8 +60,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'visitor',
-        password: '123456'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -69,7 +69,9 @@ export default {
       },
       passwordType: 'password',
       loading: false,
-      showDialog: false
+      showDialog: false,
+      user_name: undefined,
+      user_pwd: undefined
     }
   },
   methods: {
@@ -113,6 +115,14 @@ export default {
       //     this.$router.push({ path: '/' })
       //   })
       // }
+    }
+  },
+  mounted() {
+    if (process.env.USER_NAME) {
+      this.user_name = process.env.USER_NAME
+      this.user_pwd = process.env.USER_PWD
+      this.loginForm.username = process.env.USER_NAME
+      this.loginForm.password = process.env.USER_PWD
     }
   },
   created() {

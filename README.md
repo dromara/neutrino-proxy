@@ -180,6 +180,9 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 <a href="https://gitee.com/dearsny" target="_blank">
 <img src="assets/developer/pingon.png" width="12%">
 </a>
+<a href="https://gitee.com/ixxxk" target="_blank">
+<img src="assets/developer/tany.png" width="12%">
+</a>
 </p>
 
 #  ❤️ 感谢
