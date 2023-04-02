@@ -49,6 +49,7 @@ export default {
     system: '系统管理',
     portPool: '端口池管理',
     portGroup: '端口分组管理',
+    protocal: '协议管理',
     proxy: '代理配置',
     license: 'License管理',
     portMapping: '端口映射',
@@ -162,7 +163,10 @@ export default {
     resetKey: '重置Key',
     upFlow: '上行流量',
     downFlow: '下行流量',
-    totalFlow: '总流量'
+    totalFlow: '总流量',
+    protocalName: '协议',
+    supportStatus: '支持状态',
+    domainName: '域名'
   },
   button: {
     lookOver: '查看'

@@ -37,6 +37,10 @@ public class PortMappingListReq {
      */
     private Integer userId;
     /**
+     * 协议
+     */
+    private String protocal;
+    /**
      * licenseId
      */
     private Integer licenseId;

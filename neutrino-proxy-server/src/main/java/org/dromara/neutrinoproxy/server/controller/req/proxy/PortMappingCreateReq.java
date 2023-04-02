@@ -35,6 +35,14 @@ public class PortMappingCreateReq {
 	 */
 	private Integer licenseId;
 	/**
+	 * 协议
+	 */
+	private String protocal;
+	/**
+	 * 子域名
+	 */
+	private String subdomain;
+	/**
 	 * 服务端端口
 	 */
 	private Integer serverPort;

@@ -7,6 +7,9 @@
       <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
+      <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px">
+        <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name" :disabled="!item.enable"/>
+      </el-select>
       <el-input v-model="listQuery.serverPort" type="text" style="width:150px;margin-right:10px" class="filter-item"
         placeholder="请输入服务端端口" :maxlength="5" show-word-limit />
       <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable style="width:145px;margin-right:10px">
@@ -33,17 +36,27 @@
           <span>{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.licenseName')" width="150">
+      <el-table-column align="center" :label="$t('table.licenseName')" width="130">
         <template slot-scope="scope">
           <span>{{ scope.row.licenseName }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.serverPort')" width="200">
+      <el-table-column align="center" :label="$t('table.protocalName')" width="100">
+        <template slot-scope="scope">
+          <span>{{ scope.row.protocal }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.domainName')" width="200">
+        <template slot-scope="scope">
+          <span>{{ scope.row.domain }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.serverPort')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.serverPort }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.proxyClient')" width="200">
+      <el-table-column align="center" :label="$t('table.proxyClient')" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.clientIp }}:{{ scope.row.clientPort }}</span>
         </template>
@@ -113,6 +126,12 @@
             style="width: 280px"
           />-->
         </el-form-item>
+        <el-form-item :label="$t('协议')" prop="protocal">
+          <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
+            <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name" :disabled="!item.enable">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
             <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
@@ -124,6 +143,11 @@
         </el-form-item>
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('域名')" prop="subdomain" v-if="temp.protocal === 'HTTP'">
+          <el-input v-model="temp.subdomain">
+            <template slot="append">.{{domainName}}</template>
+          </el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -152,7 +176,9 @@
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
 import { portPoolList, availablePortList } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
+import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
+import { domainNameBindInfo } from '@/api/domain'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
@@ -205,8 +231,10 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       userList: [],
       licenseList: [],
+      protocalList: [],
       licenseAuthList: [],
       serverPortList: [],
+      domainName: '',
       showReviewer: false,
       temp: {
         id: undefined,
@@ -214,7 +242,8 @@ export default {
         licenseName: undefined,
         serverPort: undefined,
         clientIp: undefined,
-        clientPort: undefined
+        clientPort: undefined,
+        protocal: undefined
       },
       selectObj: {
         statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
@@ -268,9 +297,11 @@ export default {
     }
   },
   created() {
+    this.getDomainNameBindInfo()
     this.getDataList()
     this.getLicenseList()
     this.getLicenseAuthList()
+    this.getProtocalList()
   },
   methods: {
     getList() {
@@ -292,6 +323,11 @@ export default {
         this.getList()
       })
     },
+    getDomainNameBindInfo() {
+      domainNameBindInfo().then(response => {
+        this.domainName = response.data.data
+      })
+    },
     getPortPoolList() {
       portPoolList().then(response => {
         this.serverPortList = response.data.data
@@ -310,6 +346,11 @@ export default {
     getLicenseList() {
       licenseList().then(response => {
         this.licenseList = response.data.data
+      })
+    },
+    getProtocalList() {
+      protocalList().then(response => {
+        this.protocalList = response.data.data
       })
     },
     getLicenseAuthList() {

@@ -44,6 +44,7 @@ public class ProxyConfig {
 		private String jksPath;
 		private Integer bossThreadCount;
 		private Integer workThreadCount;
+		private String domainName;
 	}
 
 }

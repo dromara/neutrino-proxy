@@ -1,8 +1,10 @@
 package org.dromara.neutrinoproxy.server.proxy.core;
 
 import cn.hutool.core.util.StrUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
@@ -14,44 +16,42 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.noear.solon.Solon;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
-
-    private static AtomicLong visitorIdProducer = new AtomicLong(0);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-
         // 当出现异常就关闭连接
         ctx.close();
+        log.error("VisitorChannel error", cause);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-
         // 通知代理客户端
         Channel visitorChannel = ctx.channel();
         Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
-        if (proxyChannel == null) {
 
+        if (null == proxyChannel) {
             // 该端口还没有代理客户端
             ctx.channel().close();
-        } else {
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
-            proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
-
-            // 增加流量计数
-            VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-            Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
+            return;
         }
+        // 转发代理数据
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.readBytes(bytes);
+        String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
+        proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
+
+        // 增加流量计数
+        VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
+        Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
     }
 
     @Override
@@ -60,22 +60,25 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
-        if (cmdChannel == null) {
+        if (null == cmdChannel) {
             // 该端口还没有代理客户端
             ctx.channel().close();
-        } else {
-            String visitorId = newVisitorId();
-            String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
-            if (StrUtil.isEmpty(lanInfo)) {
-                ctx.channel().close();
-            } else {
-                // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
-                visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
-
-                ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel, sa.getPort());
-                cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
-            }
+            return;
         }
+
+        // 根据代理服务端端口，获取被代理客户端局域网连接信息
+        String lanInfo = ProxyUtil.getClientLanInfoByServerPort(sa.getPort());
+        if (StrUtil.isEmpty(lanInfo)) {
+            ctx.channel().close();
+            return;
+        }
+
+        // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
+        visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
+
+        String visitorId = ProxyUtil.newVisitorId();
+        ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel, sa.getPort());
+        cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
 
         super.channelActive(ctx);
     }
@@ -84,8 +87,8 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
         // 通知代理客户端
-        Channel userChannel = ctx.channel();
-        InetSocketAddress sa = (InetSocketAddress) userChannel.localAddress();
+        Channel visitorChannel = ctx.channel();
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         if (cmdChannel == null) {
@@ -95,10 +98,13 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         } else {
 
             // 用户连接断开，从控制连接中移除
-            String userId = ProxyUtil.getVisitorIdByChannel(userChannel);
-            ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, userId);
+            String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
+            ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, visitorId);
 
-            Channel proxyChannel = userChannel.attr(Constants.NEXT_CHANNEL).get();
+            // 删除代理附加对象
+            ProxyUtil.remoteProxyConnectAttachment(visitorId);
+
+            Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
             if (proxyChannel != null && proxyChannel.isActive()) {
                 proxyChannel.attr(Constants.NEXT_CHANNEL).remove();
                 proxyChannel.attr(Constants.LICENSE_ID).remove();
@@ -106,7 +112,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
 
                 proxyChannel.config().setOption(ChannelOption.AUTO_READ, true);
                 // 通知客户端，用户连接已经断开
-                proxyChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(userId));
+                proxyChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(visitorId));
             }
         }
 
@@ -134,12 +140,4 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         super.channelWritabilityChanged(ctx);
     }
 
-    /**
-     * 为访问者连接产生ID
-     *
-     * @return
-     */
-    private static String newVisitorId() {
-        return String.valueOf(visitorIdProducer.incrementAndGet());
-    }
 }

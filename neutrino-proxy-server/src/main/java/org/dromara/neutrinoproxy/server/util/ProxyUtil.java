@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Sets;
 import org.dromara.neutrinoproxy.core.ChannelAttribute;
 import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import io.netty.channel.Channel;
@@ -12,6 +13,7 @@ import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -47,6 +49,18 @@ public class ProxyUtil {
 	 * cmdChannelAttachInfo.getUserChannelMap() 读写锁
 	 */
 	private static final ReadWriteLock userChannelMapLock = new ReentrantReadWriteLock();
+	/**
+	 * 访问者ID生成器
+	 */
+	private static AtomicLong visitorIdProducer = new AtomicLong(0);
+	/**
+	 * 代理 - connect附加映射
+	 */
+	private static Map<String, ProxyAttachment> proxyConnectAttachmentMap = new HashMap<>();
+	/**
+	 * 子域名 - 服务端端口映射
+	 */
+	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
 
 	/**
 	 * 初始化代理信息
@@ -277,5 +291,66 @@ public class ProxyUtil {
 			return null;
 		}
 		return channel.attr(CHANNEL_ATTR_KEY).get().get("attachInfo");
+	}
+
+	/**
+	 * 为访问者连接产生ID
+	 *
+	 * @return
+	 */
+	public static String newVisitorId() {
+		return String.valueOf(visitorIdProducer.incrementAndGet());
+	}
+
+	/**
+	 * 添加代理附加对象
+	 * @param visitorId
+	 * @param proxyAttachment
+	 */
+	public static void addProxyConnectAttachment(String visitorId, ProxyAttachment proxyAttachment) {
+		proxyConnectAttachmentMap.put(visitorId, proxyAttachment);
+	}
+
+	/**
+	 * 获取代理附加对象
+	 * @param visitorId
+	 * @return
+	 */
+	public static ProxyAttachment getProxyConnectAttachment(String visitorId) {
+		return proxyConnectAttachmentMap.get(visitorId);
+	}
+
+	/**
+	 * 删除代理附加对象
+	 * @param visitorId
+	 */
+	public static void remoteProxyConnectAttachment(String visitorId) {
+		proxyConnectAttachmentMap.remove(visitorId);
+	}
+
+	/**
+	 * 设置子域名到服务端端口的映射
+	 * @param subdomain
+	 * @param serverPort
+	 */
+	public static void setSubdomainToServerPort(String subdomain, Integer serverPort) {
+		subdomainToServerPort.put(subdomain, serverPort);
+	}
+
+	/**
+	 * 删除子域名到服务端端口的映射
+	 * @param subdomain
+	 */
+	public static void removeSubdomainToServerPort(String subdomain) {
+		subdomainToServerPort.remove(subdomain);
+	}
+
+	/**
+	 * 根据子域名获取外网端口
+	 * @param subdomain
+	 * @return
+	 */
+	public static Integer getServerPortBySubdomain(String subdomain) {
+		return subdomainToServerPort.get(subdomain);
 	}
 }

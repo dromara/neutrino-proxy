@@ -2,6 +2,8 @@ package org.dromara.neutrinoproxy.server.controller;
 
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
+import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
@@ -37,9 +39,16 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
 		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
 		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
+		ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
 		if (StringUtils.isBlank(req.getClientIp())) {
 			// 没传客户端ip，默认为127.0.0.1
 			req.setClientIp("127.0.0.1");
+		}
+		NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
+		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
+		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
+			// 目前仅HTTP支持绑定域名
+			req.setSubdomain("");
 		}
 
 		return portMappingService.create(req);
@@ -49,6 +58,20 @@ public class PortMappingController {
 	@Mapping("/update")
 	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
+		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
+		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
+		ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
+		if (StringUtils.isBlank(req.getClientIp())) {
+			// 没传客户端ip，默认为127.0.0.1
+			req.setClientIp("127.0.0.1");
+		}
+		NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
+		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
+		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
+			// 目前仅HTTP支持绑定域名
+			req.setSubdomain("");
+		}
 
 		return portMappingService.update(req);
 	}

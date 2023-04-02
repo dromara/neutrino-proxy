@@ -69,6 +69,8 @@ CREATE TABLE IF NOT EXISTS `license` (
 CREATE TABLE IF NOT EXISTS `port_mapping` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `license_id` int NOT NULL COMMENT 'licenseID',
+    `protocal` varchar(10) NOT NULL DEFAULT 'TCP' COMMENT '协议',
+    `subdomain` varchar(50) DEFAULT NULL COMMENT '子域名（仅HTTP时有效）',
     `server_port` int NOT NULL COMMENT '服务端端口',
     `client_ip` varchar(20) NOT NULL COMMENT '客户端IP',
     `client_port` int NOT NULL COMMENT '客户端端口',

@@ -22,6 +22,7 @@
 package org.dromara.neutrinoproxy.server.controller.res.system;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -30,6 +31,7 @@ import java.util.Date;
  * @author: aoshiguchen
  * @date: 2022/8/7
  */
+@Accessors(chain = true)
 @Data
 public class PortPoolListRes {
 	private Integer id;

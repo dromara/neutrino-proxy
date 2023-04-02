@@ -20,6 +20,9 @@
             <if test="req.enable != null">
                 AND pm.enable = #{req.enable}
             </if>
+            <if test="req.protocal != null and req.protocal != ''">
+                AND pm.protocal = #{req.protocal}
+            </if>
         </where>
         order by pm.id asc
     </select>
