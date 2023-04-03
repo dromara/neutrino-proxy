@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
+import org.noear.solon.core.bean.LifecycleBean;
 
 import java.util.*;
 import java.util.function.Function;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * @date: 2022/8/6
  */
 @Component
-public class LicenseService implements Lifecycle {
+public class LicenseService implements LifecycleBean {
 	@Inject
 	private MapperFacade mapperFacade;
 	@Db

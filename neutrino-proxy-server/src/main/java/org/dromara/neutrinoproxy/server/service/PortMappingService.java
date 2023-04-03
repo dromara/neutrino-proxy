@@ -36,6 +36,7 @@ import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
+import org.noear.solon.core.bean.LifecycleBean;
 
 import java.util.*;
 import java.util.function.Function;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
  * @date: 2022/8/8
  */
 @Component
-public class PortMappingService implements Lifecycle {
+public class PortMappingService implements LifecycleBean {
 	@Inject
 	private MapperFacade mapperFacade;
 	@Db
@@ -174,6 +175,11 @@ public class PortMappingService implements Lifecycle {
 		portMappingMapper.updateById(portMappingDO);
 		// 更新VisitorChannel
 		visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
+		// 删除老的域名映射
+		if (NetworkProtocolEnum.HTTP.getDesc().equals(oldPortMappingDO.getProtocal()) &&
+			StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
+			ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
+		}
 		// 更新域名映射
 		if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
 				StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
