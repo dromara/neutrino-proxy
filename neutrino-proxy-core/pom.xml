@@ -21,7 +21,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-            <version>${hutool.ver}</version>
+            <version>${hutool.version}</version>
         </dependency>
         <!--lombok-->
         <dependency>
