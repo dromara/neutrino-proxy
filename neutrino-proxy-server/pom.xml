@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>neutrino-proxy</artifactId>
-        <groupId>fun.asgc.neutrino</groupId>
+        <artifactId>neutrino-proxy-parent</artifactId>
+        <groupId>org.dromara.neutrino-proxy</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -43,7 +43,7 @@
             <version>2.2.2</version>
         </dependency>
         <dependency>
-            <groupId>fun.asgc.neutrino</groupId>
+            <groupId>org.dromara.neutrino-proxy</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -83,16 +83,16 @@
 <!--    </build>-->
 
     <build>
-<!--        <resources>-->
-<!--            <resource>-->
-<!--                <directory>${project.basedir}/src/main/resources</directory>-->
-<!--                <filtering>false</filtering>-->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
 
-<!--                <excludes>-->
-<!--                    <exclude>app-*.yml</exclude>-->
-<!--                </excludes>-->
-<!--            </resource>-->
-<!--        </resources>-->
+                <excludes>
+                    <exclude>app-*.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>

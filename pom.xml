@@ -11,8 +11,8 @@
         <relativePath />
     </parent>
 
-    <groupId>fun.asgc.neutrino</groupId>
-    <artifactId>neutrino-proxy</artifactId>
+    <groupId>org.dromara.neutrino-proxy</groupId>
+    <artifactId>neutrino-proxy-parent</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
 

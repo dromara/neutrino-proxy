@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>neutrino-proxy</artifactId>
-        <groupId>fun.asgc.neutrino</groupId>
+        <artifactId>neutrino-proxy-parent</artifactId>
+        <groupId>org.dromara.neutrino-proxy</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -14,13 +14,8 @@
     <artifactId>neutrino-proxy-client</artifactId>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>fun.asgc.neutrino</groupId>-->
-<!--            <artifactId>neutrino-core</artifactId>-->
-<!--            <version>${revision}</version>-->
-<!--        </dependency>-->
         <dependency>
-            <groupId>fun.asgc.neutrino</groupId>
+            <groupId>org.dromara.neutrino-proxy</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>
         </dependency>
