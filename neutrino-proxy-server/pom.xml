@@ -64,7 +64,16 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
 
+                <excludes>
+                    <exclude>app-*.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <!-- 配置打包插件（并打包成胖包） -->
             <plugin>
