@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
+import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
@@ -34,6 +35,7 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
 import org.noear.solon.core.bean.LifecycleBean;
@@ -66,6 +68,8 @@ public class PortMappingService implements LifecycleBean {
 	private PortPoolService portPoolService;
 	@Inject
 	private ProxyConfig proxyConfig;
+	@Inject
+	private DBInitialize dbInitialize;
 
 	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -274,8 +278,8 @@ public class PortMappingService implements LifecycleBean {
 	/**
 	 * 服务端项目停止、启动时，更新在线状态为离线
 	 */
-	@Override
-	public void start() throws Throwable {
+	@Init
+	public void init() {
 		portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
 		// 未配置域名，则不需要处理域名映射逻辑
@@ -295,6 +299,11 @@ public class PortMappingService implements LifecycleBean {
 			}
 			ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
 		});
+	}
+
+	@Override
+	public void start() throws Throwable {
+
 	}
 
 	/**

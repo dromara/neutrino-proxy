@@ -20,6 +20,8 @@ neutrino:
       key-store-password: 123456
       key-manager-password: 123456
       jks-path: classpath:/test.jks
+      # 如果不配置，则不支持代理http
+      domain-name:
   data:
     db:
       type: sqlite

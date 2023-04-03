@@ -72,7 +72,7 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
 
     default void updateOnlineStatus(Integer isOnline, Date updateTime) {
         this.update(null, new LambdaUpdateWrapper<LicenseDO>()
-                .set(LicenseDO::getIsOnline, updateTime)
+                .set(LicenseDO::getIsOnline, isOnline)
                 .set(LicenseDO::getUpdateTime, updateTime)
         );
     }

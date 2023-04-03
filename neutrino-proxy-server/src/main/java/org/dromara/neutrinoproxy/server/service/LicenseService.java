@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
+import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
@@ -27,6 +28,7 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
 import org.jetbrains.annotations.Nullable;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.Lifecycle;
 import org.noear.solon.core.bean.LifecycleBean;
@@ -50,6 +52,8 @@ public class LicenseService implements LifecycleBean {
 	private UserMapper userMapper;
 	@Inject
 	private VisitorChannelService visitorChannelService;
+	@Inject
+	private DBInitialize dbInitialize;
 
 	public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
 		Page<LicenseListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -217,9 +221,15 @@ public class LicenseService implements LifecycleBean {
 	/**
 	 * 服务端项目停止、启动时，更新在线状态为离线
 	 */
+	@Init
+	public void init() {
+		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+	}
+
+
 	@Override
 	public void start() throws Throwable {
-		licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+
 	}
 
 	/**

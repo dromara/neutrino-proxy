@@ -1,7 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.core;
 
 import cn.hutool.core.util.StrUtil;
-import com.sun.deploy.net.proxy.ProxyType;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
