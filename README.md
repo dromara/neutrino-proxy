@@ -103,7 +103,7 @@ proxy:
     ssl-enable: false
 ```
 ## 5.5、代理示意图
-![代理流程](assets/run-example/neutrino-proxy-process.jpg)
+![代理流程](assets/design/neutrino-proxy-process.jpg)
 
 ## 5.6、启动客户端
 ### 5.6.1、启动参数直接指定配置

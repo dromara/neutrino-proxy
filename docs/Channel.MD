@@ -54,4 +54,4 @@
 通过`VisitorChannel`向用户端写入响应数据。
 
 # 请求流程图
-![流程图](../assets/flowchart.jpg)
+![流程图](../assets/design/flowchart.jpg)
