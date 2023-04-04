@@ -11,6 +11,8 @@ bannerBg: none # auto => 网格纹背景(有bodyBgImg时无背景)，默认 | no
 features: # 可选的
   - title: 流量监控
     details: 首页图表、报表管理多维度流量监控。全方位掌握实时、历史代理数据。
+  - title: 域名映射
+    details: HTTP代理绑定子域名，开发调试三方回调更方便。
   - title: 用户/License
     details: 支持多用户、多客户端使用。后台禁用实时生效。
   - title: 端口池
@@ -19,8 +21,8 @@ features: # 可选的
     details: 新增、编辑、删除、禁用实时生效。
   - title: Docker
     details: 服务端支持Docker一键部署。
-  - title: SSL证书
-    details: 支持SSL，保护您的信息安全。
+#  - title: SSL证书
+#    details: 支持SSL，保护您的信息安全。
 
 # 文章列表显示方式: detailed 默认，显示详细版文章列表（包括作者、分类、标签、摘要、分页等）| simple => 显示简约版文章列表（仅标题和日期）| none 不显示文章列表
 postList: none
