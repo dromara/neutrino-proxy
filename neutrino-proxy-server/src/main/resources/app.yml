@@ -20,7 +20,7 @@ neutrino:
       key-store-password: 123456
       key-manager-password: 123456
       jks-path: classpath:/test.jks
-      # 如果不配置，则不支持代理http
+      # 如果不配置，则不支持域名映射
       domain-name:
   data:
     db:
