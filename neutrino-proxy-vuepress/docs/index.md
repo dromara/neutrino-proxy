@@ -129,24 +129,11 @@ postList: none
 你也可以在Issue查看别人提的问题和给出解决方案。
 
 或者加入我们的交流群：
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <img :src="$withBase('/img/qrcode/wxq.png')"  class="no-zoom" style="width:120px;margin: 10px;">
-        <p>中微子 微信群(添加我微信备注"进群")</p>
-      </td>
-<!--
-      <td align="center" valign="middle">
-        <img src="https://cdn.staticaly.com/gh/xugaoyi/blog-gitalk-comment@master/img/0.4pp7r95mdai0.jpeg" class="no-zoom" style="width:120px;margin: 10px;">
-        <p>vdoing微信群(添加我微信备注"进群")</p>
-      </td>
--->
-    </tr>
-  </tbody>
-</table>
-<br/> 
+<div align="center">
+    <img :src="$withBase('/img/qrcode/wxq.png')"  class="no-zoom" style="width:200px;margin: 10px;">
+    <p>中微子 微信群(添加我微信备注"进群")</p>
+</div>
+<br/>
 
 <!--
 ### 🐞提供bug反馈或建议
