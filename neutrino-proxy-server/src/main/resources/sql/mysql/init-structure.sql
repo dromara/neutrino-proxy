@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `I_user_login_name` (`login_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #用户token表
 CREATE TABLE IF NOT EXISTS `user_token` (
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `user_token` (
     KEY `I_user_token_user_id` (`user_id`),
     KEY `I_user_token_token` (`token`),
     KEY `I_user_token_expiration_time` (`expiration_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #端口池
 CREATE TABLE IF NOT EXISTS `port_pool` (
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `port_pool` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `I_port_pool_port` (`port`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #端口分组
 CREATE TABLE IF NOT EXISTS `port_group` (
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `port_group` (
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='端口分组';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 #############################代理配置相关表#############################
 #license表
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `license` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`) USING BTREE,
     KEY `I_license_key` (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #端口映射表
 CREATE TABLE IF NOT EXISTS `port_mapping` (
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `I_port_mapping_server_port` (`server_port`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #############################日志管理相关表#############################
 #用户登录记录表
 CREATE TABLE IF NOT EXISTS `user_login_record` (
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `user_login_record` (
     `type` int NOT NULL COMMENT '类型（1、登录 2、登出）',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #客户端连接记录表
 CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `client_connect_record` (
     `err` text DEFAULT NULL COMMENT '异常信息',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #############################调度管理相关表#############################
 #触发器信息表
 CREATE TABLE IF NOT EXISTS `job_info` (
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `job_info` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `I_job_info_handler` (`handler`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #触发器日志表
 CREATE TABLE IF NOT EXISTS `job_log` (
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `job_log` (
     PRIMARY KEY (`id`) USING BTREE,
     KEY `I_job_log_create_time` (`create_time`) USING BTREE,
     KEY `I_job_log_code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #############################报表管理相关表#############################
 #流量统计报表-分钟(保留24小时)
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_minute` (
     KEY `I_flow_report_minute_date` (`date`) USING BTREE,
     KEY `I_flow_report_minute_user_id` (`user_id`),
     KEY `I_flow_report_minute_license_id` (`license_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #流量统计报表-小时(保留60天)
 CREATE TABLE IF NOT EXISTS `flow_report_hour` (
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_hour` (
     KEY `I_flow_report_hour_date` (`date`) USING BTREE,
     KEY `I_flow_report_hour_user_id` (`user_id`),
     KEY `I_flow_report_hour_license_id` (`license_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #流量统计报表-天(保留1年)
 CREATE TABLE IF NOT EXISTS `flow_report_day` (
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `flow_report_day` (
     KEY `I_flow_report_day_date` (`date`) USING BTREE,
     KEY `I_flow_report_day_user_id` (`user_id`),
     KEY `I_flow_report_day_license_id` (`license_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 #流量统计报表-月(全量保留)
 CREATE TABLE IF NOT EXISTS `flow_report_month` (
@@ -203,4 +203,4 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     KEY `I_flow_report_month_date` (`date`) USING BTREE,
     KEY `I_flow_report_month_user_id` (`user_id`),
     KEY `I_flow_report_month_license_id` (`license_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
