@@ -4,7 +4,7 @@ server:
 neutrino:
   proxy:
     protocol:
-      max-frame-length: ${MAX_FRAME_LENGTH:2097152}
+      max-frame-length: 2097152
       length-field-offset: 0
       length-field-length: 4
       initial-bytes-to-strip: 0
@@ -15,20 +15,20 @@ neutrino:
     server:
       boss-thread-count: 10
       work-thread-count: 60
-      port: ${OPEN_PORT:9000}
-      ssl-port: ${SSL_PORT:9002}
-      key-store-password: ${STORE_PASS:123456}
-      key-manager-password: ${MGR_PASS:123456}
-      jks-path: ${JKS_PATH:classpath:/test.jks}
-      # 如果不配置，则不支持代理http
-      domain-name: ${DOMAIN_NAME:}
+      port: 9000
+      ssl-port: 9002
+      key-store-password: 123456
+      key-manager-password: 123456
+      jks-path: classpath:/test.jks
+      # 如果不配置，则不支持域名映射
+      domain-name:
   data:
     db:
-      type: ${DB_TYPE:sqlite}
-      url: ${DB_URL:jdbc:sqlite:data.db}
-      driver-class: ${DB_DRIVER:org.sqlite.JDBC}
-      username: ${DB_USER:}
-      password: ${DB_PASSWORD:}
+      type: sqlite
+      url: jdbc:sqlite:data.db
+      driver-class: org.sqlite.JDBC
+      username:
+      password:
 
 #添加MIME印射（如果有需要？）
 #是否启用静态文件服务。（可不配，默认为启用）
