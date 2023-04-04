@@ -184,7 +184,7 @@ neutrino.proxy.client.license-key=b0a907332b474b25897c4dcb31fc7eb6
 <img src="assets/developer/tany.png" width="12%">
 </a>
 <a href="https://gitee.com/zoo-plus" target="_blank">
-<img src="assets/developer/zoo-plus.png.png" width="12%">
+<img src="assets/developer/zoo-plus.png" width="12%">
 </a>
 </p>
 
