@@ -135,16 +135,28 @@ postList: none
 </div>
 <br/>
 
+<h2 id="🌈特别赞助"><a href="#🌈特别赞助" class="header-anchor">#</a> 🌈特别赞助</h2>
+<p align="center">等待有缘人赞助</p>
 <!--
-### 🐞提供bug反馈或建议
-
-提交问题反馈请说明正在使用环境以及相关问题
-
-- [Gitee issue](https://gitee.com/dromara/neutrino-proxy/issues)
-
-[//]: # (- [Github issue]&#40;https://github.com/dromara/hutool/issues&#41;)
-
-<br/>
+<div class="cardListContainer"><div class="card-list"><a href="https://datayi.cn/w/nPN4JJe9" target="_blank" class="card-item row-3" style="background-color:#102863;--random-color:#102863;color:#FFFFFF;"><img src="/images/friends/ad/postcat.png" class="no-zoom"> <div><p class="name">Postcat</p> <p class="desc">开源 API 管理工具，接口文档、接口测试、Mock...</p></div></a> <a href="https://gitee.com/dromara/MaxKey" target="_blank" class="card-item row-3" style="background-color:#9ed3e5;--random-color:#9ed3e5;color:#1f2328;"><img src="/images/friends/ad/maxkey.png" class="no-zoom"> <div><p class="name">MaxKey</p> <p class="desc"><br>业界领先的单点登录</p></div></a> <a href="https://www.xiaonuo.vip" target="_blank" class="card-item row-3" style="background-color:#1373CC;--random-color:#1373CC;color:#ffffff;"><img src="/images/friends/ad/snowy.png" class="no-zoom"> <div><p class="name">Snowy</p> <p class="desc">国内首个国密前后端分离快速开发平台，中国式工作流、独家双模式租户</p></div></a></div><div class="language-yaml line-numbers-mode"><pre class="language-yaml codecopy-enabled"><code><span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Postcat
+  <span class="token key atrule">desc</span><span class="token punctuation">:</span> 开源 API 管理工具，接口文档、接口测试、Mock<span class="token punctuation">...</span>
+  <span class="token key atrule">avatar</span><span class="token punctuation">:</span> /images/friends/ad/postcat.png
+  <span class="token key atrule">link</span><span class="token punctuation">:</span> https<span class="token punctuation">:</span>//datayi.cn/w/nPN4JJe9
+  <span class="token key atrule">bgColor</span><span class="token punctuation">:</span> <span class="token string">'#102863'</span>
+  <span class="token key atrule">textColor</span><span class="token punctuation">:</span> <span class="token string">'#FFFFFF'</span>
+<span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> MaxKey
+  <span class="token key atrule">desc</span><span class="token punctuation">:</span> &lt;/br<span class="token punctuation">&gt;</span>业界领先的单点登录
+  <span class="token key atrule">avatar</span><span class="token punctuation">:</span> /images/friends/ad/maxkey.png
+  <span class="token key atrule">link</span><span class="token punctuation">:</span> https<span class="token punctuation">:</span>//gitee.com/dromara/MaxKey
+  <span class="token key atrule">bgColor</span><span class="token punctuation">:</span> <span class="token string">'#9ed3e5'</span>
+  <span class="token key atrule">textColor</span><span class="token punctuation">:</span> <span class="token string">'#1f2328'</span>
+<span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Snowy
+  <span class="token key atrule">desc</span><span class="token punctuation">:</span> 国内首个国密前后端分离快速开发平台，中国式工作流、独家双模式租户
+  <span class="token key atrule">avatar</span><span class="token punctuation">:</span> /images/friends/ad/snowy.png
+  <span class="token key atrule">link</span><span class="token punctuation">:</span> https<span class="token punctuation">:</span>//www.xiaonuo.vip
+  <span class="token key atrule">bgColor</span><span class="token punctuation">:</span> <span class="token string">'#1373CC'</span>
+  <span class="token key atrule">textColor</span><span class="token punctuation">:</span> <span class="token string">'#ffffff'</span>
+</code><i class="code-copy" title="Copy to clipboard"><svg style="color:#aaa;font-size:14px" t="1572422231464" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3201" width="14" height="14"><path d="M866.461538 39.384615H354.461538c-43.323077 0-78.769231 35.446154-78.76923 78.769231v39.384616h472.615384c43.323077 0 78.769231 35.446154 78.769231 78.76923v551.384616h39.384615c43.323077 0 78.769231-35.446154 78.769231-78.769231V118.153846c0-43.323077-35.446154-78.769231-78.769231-78.769231z m-118.153846 275.692308c0-43.323077-35.446154-78.769231-78.76923-78.769231H157.538462c-43.323077 0-78.769231 35.446154-78.769231 78.769231v590.769231c0 43.323077 35.446154 78.769231 78.769231 78.769231h512c43.323077 0 78.769231-35.446154 78.76923-78.769231V315.076923z m-354.461538 137.846154c0 11.815385-7.876923 19.692308-19.692308 19.692308h-157.538461c-11.815385 0-19.692308-7.876923-19.692308-19.692308v-39.384615c0-11.815385 7.876923-19.692308 19.692308-19.692308h157.538461c11.815385 0 19.692308 7.876923 19.692308 19.692308v39.384615z m157.538461 315.076923c0 11.815385-7.876923 19.692308-19.692307 19.692308H216.615385c-11.815385 0-19.692308-7.876923-19.692308-19.692308v-39.384615c0-11.815385 7.876923-19.692308 19.692308-19.692308h315.076923c11.815385 0 19.692308 7.876923 19.692307 19.692308v39.384615z m78.769231-157.538462c0 11.815385-7.876923 19.692308-19.692308 19.692308H216.615385c-11.815385 0-19.692308-7.876923-19.692308-19.692308v-39.384615c0-11.815385 7.876923-19.692308 19.692308-19.692308h393.846153c11.815385 0 19.692308 7.876923 19.692308 19.692308v39.384615z" p-id="3202"></path></svg></i></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br></div></div></div>
 -->
 
 <h2 id="🤝-dromara-组织项目"><a href="#🤝-dromara-组织项目" class="header-anchor">#</a> 🤝 dromara 组织项目</h2>
