@@ -289,7 +289,7 @@ postList: none
 <h2>🤝 友情开源项目</h2>
 <p>
 <a href="https://gitee.com/noear/solon" target="_blank" class="friends-item" style="display: flex;">
-    <img class="no-zoom friends-item-img hover-alt" src="$withBase(/img/logo/solon.png)" msg="一个高效的应用开发框架：更快、更小、更简单。" style="margin-left: 15px;"/><div style="margin-left: 10px;font-size: 30px;">Solon</div>
+    <img class="no-zoom friends-item-img hover-alt" :src="$withBase('/img/logo/solon.png')" msg="一个高效的应用开发框架：更快、更小、更简单。" style="margin-left: 15px;"/><div style="margin-left: 10px;font-size: 30px;">Solon</div>
 </a>
 </p>
 
