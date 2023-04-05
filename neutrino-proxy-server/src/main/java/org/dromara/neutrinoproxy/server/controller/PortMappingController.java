@@ -48,7 +48,7 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
 		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
 			// 目前仅HTTP支持绑定域名
-			req.setSubdomain("");
+			req.setSubdomain(null);
 		}
 
 		return portMappingService.create(req);
@@ -70,7 +70,7 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
 		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
 			// 目前仅HTTP支持绑定域名
-			req.setSubdomain("");
+			req.setSubdomain(null);
 		}
 
 		return portMappingService.update(req);
