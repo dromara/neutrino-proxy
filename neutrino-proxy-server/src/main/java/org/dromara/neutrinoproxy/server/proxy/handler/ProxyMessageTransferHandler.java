@@ -31,6 +31,9 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 			buf.writeBytes(proxyMessage.getData());
 			visitorChannel.writeAndFlush(buf);
 
+			// 关闭http响应通道
+			ProxyUtil.closeHttpProxyResponseChannel(visitorChannel);
+
 			// 增加流量计数
 			VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
 			Solon.context().getBean(FlowReportService.class).addReadByte(visitorChannelAttachInfo.getLicenseId(), proxyMessage.getData().length);

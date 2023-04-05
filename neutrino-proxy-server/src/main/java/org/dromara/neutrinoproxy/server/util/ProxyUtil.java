@@ -2,7 +2,9 @@ package org.dromara.neutrinoproxy.server.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.ChannelAttribute;
+import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
@@ -352,5 +354,37 @@ public class ProxyUtil {
 	 */
 	public static Integer getServerPortBySubdomain(String subdomain) {
 		return subdomainToServerPort.get(subdomain);
+	}
+
+	/**
+	 * 关闭http响应channel
+	 * @param channel
+	 * @return
+	 */
+	public static void closeHttpProxyResponseChannel(Channel channel) {
+		if (null == channel) {
+			return;
+		}
+
+		String visitorId = getVisitorIdByChannel(channel); // channel.attr(Constants.VISITOR_ID).get();
+		if (StringUtils.isBlank(visitorId)) {
+			return;
+		}
+		ProxyAttachment proxyAttachment = ProxyUtil.getProxyConnectAttachment(visitorId);
+		if (null != proxyAttachment) {
+			tryClose(channel);
+		}
+	}
+
+	/**
+	 * 关闭channel
+	 * @param channel
+	 */
+	public static void tryClose(Channel channel) {
+		try {
+			channel.close();
+		} catch (Exception e) {
+			// ignore
+		}
 	}
 }
