@@ -41,6 +41,8 @@ public enum ExceptionConstant {
 	PARAMS_NOT_NULL(10, "参数[{}]不能为空"),
 	PARAMS_NOT_EMPTY(11, "参数[{}]不能为空"),
 
+	FILED_LENGTH_OUT(12 ,"{}不能超出长度{}"),
+
 	// 用户管理(11000)
 	// license管理(12000)
 	LICENSE_NAME_CANNOT_REPEAT(12000, "license名称不能重复"),
