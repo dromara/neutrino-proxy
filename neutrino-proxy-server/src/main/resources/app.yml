@@ -20,7 +20,8 @@ neutrino:
       key-store-password: ${STORE_PASS:123456}
       key-manager-password: ${MGR_PASS:123456}
       jks-path: ${JKS_PATH:classpath:/test.jks}
-      # 如果不配置，则不支持代理http
+      http-proxy-port: ${HTTP_PROXY_PORT:80}
+      # 如果不配置，则不支持域名映射
       domain-name: ${DOMAIN_NAME:}
   data:
     db:

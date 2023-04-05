@@ -45,6 +45,7 @@ public class ProxyConfig {
 		private Integer bossThreadCount;
 		private Integer workThreadCount;
 		private String domainName;
+		private Integer httpProxyPort;
 	}
 
 }

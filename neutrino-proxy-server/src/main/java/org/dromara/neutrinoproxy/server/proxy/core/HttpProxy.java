@@ -39,7 +39,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName())) {
+        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName()) || null == proxyConfig.getServer().getHttpProxyPort()) {
             log.info("no config domain name,nonsupport http proxy.");
             return;
         }
@@ -57,7 +57,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                             ch.pipeline().addLast(new VisitorChannelHandler());
                         }
                     });
-            bootstrap.bind("0.0.0.0", 80).sync();
+            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getHttpProxyPort()).sync();
             log.info("Http代理服务启动成功！");
         } catch (Exception e) {
             log.error("http proxy start err!", e);
