@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `client_ip` VARCHAR(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
+  `description` VARCHAR(100) DEFAULT NULL,
   `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL
