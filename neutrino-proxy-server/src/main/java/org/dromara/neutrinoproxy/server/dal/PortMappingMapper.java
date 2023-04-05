@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
@@ -48,7 +49,7 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 	 * @return
 	 */
 	default Boolean checkRepeatBySubdomain(String subdomain, Set<Integer> excludeIds) {
-		return this.selectCount(new LambdaQueryWrapper<PortMappingDO>()
+		return StringUtils.isEmpty(subdomain)? Boolean.FALSE : this.selectCount(new LambdaQueryWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getSubdomain, subdomain)
 				.notIn(!CollectionUtil.isEmpty(excludeIds), PortMappingDO::getId, excludeIds)
 		).intValue() > 0;
