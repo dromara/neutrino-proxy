@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.handler;
 
+import org.checkerframework.checker.units.qual.C;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
@@ -29,12 +30,17 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 			return;
 		}
 		// 代理连接没有连上服务器由控制连接发送用户端断开连接消息
-		String visitorId = proxyMessage.getInfo();
-		Channel userChannel = ProxyUtil.removeVisitorChannelFromCmdChannel(ctx.channel(), visitorId);
-		if (null != userChannel) {
+		Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
+		if (null != visitorChannel) {
 			// 数据发送完成后再关闭连接，解决http1.0数据传输问题
-			userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+			visitorChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
 		}
+//		String visitorId = proxyMessage.getInfo();
+//		Channel visitorChannel = ProxyUtil.removeVisitorChannelFromCmdChannel(ctx.channel(), visitorId);
+//		if (null != visitorChannel) {
+//			// 数据发送完成后再关闭连接，解决http1.0数据传输问题
+//			visitorChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+//		}
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 			visitorChannel.writeAndFlush(buf);
 
 			// 关闭http响应通道
-			ProxyUtil.closeHttpProxyResponseChannel(visitorChannel);
+//			ProxyUtil.closeHttpProxyResponseChannel(visitorChannel);
 
 			// 增加流量计数
 			VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
