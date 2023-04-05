@@ -48,6 +48,11 @@ public class PortMappingListReq {
      * 服务端口号
      */
     private Integer serverPort;
+    /**
+     * 描述
+     */
+    private String description;
+
 
     /**
      * 是否在线

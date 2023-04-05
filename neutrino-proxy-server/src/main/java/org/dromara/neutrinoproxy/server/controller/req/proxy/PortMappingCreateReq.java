@@ -54,4 +54,8 @@ public class PortMappingCreateReq {
 	 * 客户端端口
 	 */
 	private Integer clientPort;
+	/**
+	 * 描述
+	 */
+	private String description;
 }

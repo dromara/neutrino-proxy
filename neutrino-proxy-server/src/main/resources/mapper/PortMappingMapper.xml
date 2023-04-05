@@ -23,6 +23,9 @@
             <if test="req.protocal != null and req.protocal != ''">
                 AND pm.protocal = #{req.protocal}
             </if>
+            <if test="req.description != null and req.description != '' ">
+                AND pm.description like #{req.description}
+            </if>
         </where>
         order by pm.id asc
     </select>

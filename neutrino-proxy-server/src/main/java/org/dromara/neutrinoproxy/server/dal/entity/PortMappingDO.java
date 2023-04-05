@@ -69,6 +69,11 @@ public class PortMappingDO {
 	 */
 	private Integer clientPort;
 	/**
+	 * 描述
+	 */
+	private String description;
+
+	/**
 	 * 是否在线
 	 * {@link OnlineStatusEnum}
 	 */

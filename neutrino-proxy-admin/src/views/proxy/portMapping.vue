@@ -1,16 +1,17 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container" style="display:flex">
-      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px;width: 120px;">
         <el-option v-for="item in userList" :key="item.loginName" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px">
+      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px;width: 135px;">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px">
-        <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name" :disabled="!item.enable"/>
+      <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px;width: 120px;">
+        <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
+          :disabled="!item.enable" />
       </el-select>
-      <el-input v-model="listQuery.serverPort" type="text" style="width:150px;margin-right:10px" class="filter-item"
+      <el-input v-model="listQuery.serverPort" type="text" style="width:145px;margin-right:10px" class="filter-item"
         placeholder="请输入服务端端口" :maxlength="5" show-word-limit />
       <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.onlineOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -18,6 +19,8 @@
       <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
+      <el-input v-model="listQuery.description" type="text" style="width:145px;margin-right:10px" class="filter-item"
+        placeholder="请输入描述详情" show-word-limit />
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{
         $t('table.search') }}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary"
@@ -61,6 +64,12 @@
           <span>{{ scope.row.clientIp }}:{{ scope.row.clientPort }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('table.desc')" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.description }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
           <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
@@ -128,7 +137,8 @@
         </el-form-item>
         <el-form-item :label="$t('协议')" prop="protocal">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
-            <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name" :disabled="!item.enable">
+            <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
+              :disabled="!item.enable">
             </el-option>
           </el-select>
         </el-form-item>
@@ -146,8 +156,11 @@
         </el-form-item>
         <el-form-item :label="$t('域名')" prop="subdomain" v-if="temp.protocal === 'HTTP'">
           <el-input v-model="temp.subdomain">
-            <template slot="append">.{{domainName}}</template>
+            <template slot="append">.{{ domainName }}</template>
           </el-input>
+        </el-form-item>
+        <el-form-item :label="$t('描述')" prop="description">
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -222,7 +235,8 @@ export default {
         license: undefined,
         port: undefined,
         isOnline: undefined,
-        enable: undefined
+        enable: undefined,
+        description: undefined
 
       },
       importanceOptions: [1, 2, 3],
@@ -261,7 +275,8 @@ export default {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
         serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
-        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }]
+        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
+        protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
       },
       downloadLoading: false,
       countryColumns: [

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
@@ -45,7 +46,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author: aoshiguchen
  * @date: 2022/8/8
  */
@@ -71,246 +71,252 @@ public class PortMappingService implements LifecycleBean {
 	@Inject
 	private DBInitialize dbInitialize;
 
-	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
-		Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+    public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
+        Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        if (StringUtils.isNotEmpty(req.getDescription())) {
+            //描述字段为模糊查询，在应用层处理，否则sqlite不支持
+            req.setDescription("%" + req.getDescription() + "%");
+        }
+        List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(req);
+        List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
+        if (CollectionUtils.isEmpty(list)) {
+            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        }
 
-		List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(req);
-		List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
-		if (CollectionUtils.isEmpty(list)) {
-			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
-		}
+        Set<Integer> licenseIds = respList.stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
+        List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
+        if (CollectionUtil.isEmpty(licenseList)) {
+            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        }
+        Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
+        List<UserDO> userList = userMapper.findByIds(userIds);
+        Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
+        Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
 
-		Set<Integer> licenseIds = respList.stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
-		List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
-		if (CollectionUtil.isEmpty(licenseList)) {
-			return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
-		}
-		Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
-		List<UserDO> userList = userMapper.findByIds(userIds);
-		Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
-		Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+        respList.forEach(item -> {
+            LicenseDO license = licenseMap.get(item.getLicenseId());
+            if (null == license) {
+                return;
+            }
+            item.setLicenseName(license.getName());
+            item.setUserId(license.getUserId());
+            UserDO user = userMap.get(license.getUserId());
+            if (null == user) {
+                return;
+            }
+            item.setUserName(user.getName());
+            if (StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
+                item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getDomainName());
+            }
+        });
+        //sorted [userId asc] [licenseId asc] [createTime asc]
+        respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId)
+                        .thenComparing(PortMappingListRes::getLicenseId)
+                        .thenComparing(PortMappingListRes::getCreateTime))
+                .collect(Collectors.toList());
+        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+    }
 
-		respList.forEach(item -> {
-			LicenseDO license = licenseMap.get(item.getLicenseId());
-			if (null == license) {
-				return;
-			}
-			item.setLicenseName(license.getName());
-			item.setUserId(license.getUserId());
-			UserDO user = userMap.get(license.getUserId());
-			if (null == user) {
-				return;
-			}
-			item.setUserName(user.getName());
-			if (StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
-				item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getDomainName());
-			}
-		});
-		//sorted [userId asc] [licenseId asc] [createTime asc]
-		respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId)
-				.thenComparing(PortMappingListRes::getLicenseId)
-				.thenComparing(PortMappingListRes::getCreateTime))
-		.collect(Collectors.toList());
-		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
-	}
+    public PortMappingCreateRes create(PortMappingCreateReq req) {
+        LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
+        ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+        if (!SystemContextHolder.isAdmin()) {
+            // 临时处理，如果当前用户不是管理员，则操作userId不能为1
+            ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+        }
+        PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
+        ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+        ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+        ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), null), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
 
-	public PortMappingCreateRes create(PortMappingCreateReq req) {
-		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
-		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
-		if (!SystemContextHolder.isAdmin()) {
-			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
-			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
-		}
-		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
-		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
-		ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), null), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
+        Date now = new Date();
+        PortMappingDO portMappingDO = new PortMappingDO();
+        portMappingDO.setLicenseId(req.getLicenseId());
+        portMappingDO.setProtocal(req.getProtocal());
+        portMappingDO.setSubdomain(req.getSubdomain());
+        portMappingDO.setServerPort(req.getServerPort());
+        portMappingDO.setClientIp(req.getClientIp());
+        portMappingDO.setClientPort(req.getClientPort());
+        portMappingDO.setDescription(req.getDescription());
+        portMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
+        portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+        portMappingDO.setCreateTime(now);
+        portMappingDO.setUpdateTime(now);
+        portMappingMapper.insert(portMappingDO);
+        // 更新VisitorChannel
+        visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+        // 更新域名映射
+        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+                StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
+                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+            ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
+        }
+        return new PortMappingCreateRes();
+    }
 
-		Date now = new Date();
-		PortMappingDO portMappingDO = new PortMappingDO();
-		portMappingDO.setLicenseId(req.getLicenseId());
-		portMappingDO.setProtocal(req.getProtocal());
-		portMappingDO.setSubdomain(req.getSubdomain());
-		portMappingDO.setServerPort(req.getServerPort());
-		portMappingDO.setClientIp(req.getClientIp());
-		portMappingDO.setClientPort(req.getClientPort());
-		portMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
-		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-		portMappingDO.setCreateTime(now);
-		portMappingDO.setUpdateTime(now);
-		portMappingMapper.insert(portMappingDO);
-		// 更新VisitorChannel
-		visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
-		// 更新域名映射
-		if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
-			StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
-			StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-			ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
-		}
-		return new PortMappingCreateRes();
-	}
+    public PortMappingUpdateRes update(PortMappingUpdateReq req) {
+        LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
+        ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+        if (!SystemContextHolder.isAdmin()) {
+            // 临时处理，如果当前用户不是管理员，则操作userId不能为1
+            ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+        }
+        PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
+        ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+        ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
+        ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
 
-	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
-		LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
-		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
-		if (!SystemContextHolder.isAdmin()) {
-			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
-			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
-		}
-		PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
-		ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-		ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
-		ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
+        // 查询原端口映射
+        PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-		// 查询原端口映射
-		PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
-		ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        PortMappingDO portMappingDO = new PortMappingDO();
+        portMappingDO.setId(req.getId());
+        portMappingDO.setProtocal(req.getProtocal());
+        portMappingDO.setSubdomain(req.getSubdomain());
+        portMappingDO.setLicenseId(req.getLicenseId());
+        portMappingDO.setServerPort(req.getServerPort());
+        portMappingDO.setClientIp(req.getClientIp());
+        portMappingDO.setClientPort(req.getClientPort());
+        portMappingDO.setDescription(req.getDescription());
+        portMappingDO.setUpdateTime(new Date());
+        portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+        portMappingMapper.updateById(portMappingDO);
+        // 更新VisitorChannel
+        visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
+        // 删除老的域名映射
+        if (NetworkProtocolEnum.HTTP.getDesc().equals(oldPortMappingDO.getProtocal()) &&
+                StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
+            ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
+        }
+        // 更新域名映射
+        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+                StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
+                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+            ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
+        }
+        return new PortMappingUpdateRes();
+    }
 
-		PortMappingDO portMappingDO = new PortMappingDO();
-		portMappingDO.setId(req.getId());
-		portMappingDO.setProtocal(req.getProtocal());
-		portMappingDO.setSubdomain(req.getSubdomain());
-		portMappingDO.setLicenseId(req.getLicenseId());
-		portMappingDO.setServerPort(req.getServerPort());
-		portMappingDO.setClientIp(req.getClientIp());
-		portMappingDO.setClientPort(req.getClientPort());
-		portMappingDO.setUpdateTime(new Date());
-		portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-		portMappingMapper.updateById(portMappingDO);
-		// 更新VisitorChannel
-		visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
-		// 删除老的域名映射
-		if (NetworkProtocolEnum.HTTP.getDesc().equals(oldPortMappingDO.getProtocal()) &&
-			StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
-			ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
-		}
-		// 更新域名映射
-		if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
-				StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
-				StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-			ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
-		}
-		return new PortMappingUpdateRes();
-	}
+    public PortMappingDetailRes detail(Integer id) {
+        PortMappingDO portMappingDO = portMappingMapper.findById(id);
+        if (null == portMappingDO) {
+            return null;
+        }
+        PortMappingDetailRes res = new PortMappingDetailRes()
+                .setId(portMappingDO.getId())
+                .setLicenseId(portMappingDO.getLicenseId())
+                .setServerPort(portMappingDO.getServerPort())
+                .setClientIp(portMappingDO.getClientIp())
+                .setClientPort(portMappingDO.getClientPort())
+                .setIsOnline(portMappingDO.getIsOnline())
+                .setEnable(portMappingDO.getEnable())
+                .setCreateTime(portMappingDO.getCreateTime())
+                .setUpdateTime(portMappingDO.getUpdateTime());
 
-	public PortMappingDetailRes detail(Integer id) {
-		PortMappingDO portMappingDO = portMappingMapper.findById(id);
-		if (null == portMappingDO) {
-			return null;
-		}
-		PortMappingDetailRes res = new PortMappingDetailRes()
-			.setId(portMappingDO.getId())
-			.setLicenseId(portMappingDO.getLicenseId())
-			.setServerPort(portMappingDO.getServerPort())
-			.setClientIp(portMappingDO.getClientIp())
-			.setClientPort(portMappingDO.getClientPort())
-			.setIsOnline(portMappingDO.getIsOnline())
-			.setEnable(portMappingDO.getEnable())
-			.setCreateTime(portMappingDO.getCreateTime())
-			.setUpdateTime(portMappingDO.getUpdateTime());
+        LicenseDO license = licenseMapper.findById(portMappingDO.getLicenseId());
+        if (null != license) {
+            res.setLicenseName(license.getName());
+            res.setUserId(license.getUserId());
+            UserDO user = userMapper.findById(license.getUserId());
+            if (null != user) {
+                res.setUserName(user.getName());
+            }
+        }
 
-		LicenseDO license = licenseMapper.findById(portMappingDO.getLicenseId());
-		if (null != license) {
-			res.setLicenseName(license.getName());
-			res.setUserId(license.getUserId());
-			UserDO user = userMapper.findById(license.getUserId());
-			if (null != user) {
-				res.setUserName(user.getName());
-			}
-		}
+        return res;
+    }
 
-		return res;
-	}
+    public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
+        PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-	public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
-		PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
-		ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+        ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
+        if (!SystemContextHolder.isAdmin()) {
+            ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+        }
 
-		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
-		ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
-		if (!SystemContextHolder.isAdmin()) {
-			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
-		}
+        portMappingMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
-		portMappingMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        // 更新VisitorChannel
+        portMappingDO.setEnable(req.getEnable());
+        if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
+            visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+        } else {
+            visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+        }
 
-		// 更新VisitorChannel
-		portMappingDO.setEnable(req.getEnable());
-		if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
-			visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
-		} else {
-			visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
-		}
+        return new PortMappingUpdateEnableStatusRes();
+    }
 
-		return new PortMappingUpdateEnableStatusRes();
-	}
+    public void delete(Integer id) {
+        PortMappingDO portMappingDO = portMappingMapper.findById(id);
+        ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-	public void delete(Integer id) {
-		PortMappingDO portMappingDO = portMappingMapper.findById(id);
-		ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+        if (null != licenseDO && !SystemContextHolder.isAdmin()) {
+            // 临时处理，如果当前用户不是管理员，则操作userId不能为1
+            ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
+        }
 
-		LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
-		if (null != licenseDO && !SystemContextHolder.isAdmin()) {
-			// 临时处理，如果当前用户不是管理员，则操作userId不能为1
-			ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
-		}
+        portMappingMapper.deleteById(id);
 
-		portMappingMapper.deleteById(id);
+        // 更新VisitorChannel
+        visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+        // 更新域名映射
+        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+            ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
+        }
+    }
 
-		// 更新VisitorChannel
-		visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
-		// 更新域名映射
-		if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
-				StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-			ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
-		}
-	}
+    /**
+     * 根据license查询可用的端口映射列表
+     *
+     * @param licenseId
+     * @return
+     */
+    public List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
+        return portMappingMapper.findEnableListByLicenseId(licenseId);
+    }
 
-	/**
-	 * 根据license查询可用的端口映射列表
-	 * @param licenseId
-	 * @return
-	 */
-	public List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
-		return portMappingMapper.findEnableListByLicenseId(licenseId);
-	}
+    /**
+     * 服务端项目停止、启动时，更新在线状态为离线
+     */
+    @Init
+    public void init() {
+        portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
-	/**
-	 * 服务端项目停止、启动时，更新在线状态为离线
-	 */
-	@Init
-	public void init() {
-		portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+        // 未配置域名，则不需要处理域名映射逻辑
+        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName())) {
+            return;
+        }
+        List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
+                .eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc())
+                .isNotNull(PortMappingDO::getSubdomain)
+        );
+        if (CollectionUtil.isEmpty(portMappingDOList)) {
+            return;
+        }
+        portMappingDOList.forEach(item -> {
+            if (StrUtil.isBlank(item.getSubdomain())) {
+                return;
+            }
+            ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
+        });
+    }
 
-		// 未配置域名，则不需要处理域名映射逻辑
-		if (StrUtil.isBlank(proxyConfig.getServer().getDomainName())) {
-			return;
-		}
-		List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
-				.eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc())
-				.isNotNull(PortMappingDO::getSubdomain)
-		);
-		if (CollectionUtil.isEmpty(portMappingDOList)) {
-			return;
-		}
-		portMappingDOList.forEach(item -> {
-			if (StrUtil.isBlank(item.getSubdomain())) {
-				return;
-			}
-			ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
-		});
-	}
+    @Override
+    public void start() throws Throwable {
 
-	@Override
-	public void start() throws Throwable {
+    }
 
-	}
-
-	/**
-	 * 服务端项目停止、启动时，更新在线状态为离线
-	 */
-	@Override
-	public void stop() throws Throwable {
-		portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
-	}
+    /**
+     * 服务端项目停止、启动时，更新在线状态为离线
+     */
+    @Override
+    public void stop() throws Throwable {
+        portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+    }
 }

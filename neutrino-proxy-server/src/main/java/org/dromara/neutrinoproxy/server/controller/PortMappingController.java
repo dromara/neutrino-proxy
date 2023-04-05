@@ -32,24 +32,25 @@ public class PortMappingController {
 		return portMappingService.page(pageQuery, req);
 	}
 
-	@Post
-	@Mapping("/create")
-	public PortMappingCreateRes create(PortMappingCreateReq req) {
-		ParamCheckUtil.checkNotNull(req, "req");
-		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
-		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
-		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
-		ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
-		if (StringUtils.isBlank(req.getClientIp())) {
-			// 没传客户端ip，默认为127.0.0.1
-			req.setClientIp("127.0.0.1");
-		}
-		NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
-		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
-		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
-			// 目前仅HTTP支持绑定域名
+    @Post
+    @Mapping("/create")
+    public PortMappingCreateRes create(PortMappingCreateReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
+        ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
+        ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
+        ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
+        ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
+        if (StringUtils.isBlank(req.getClientIp())) {
+            // 没传客户端ip，默认为127.0.0.1
+            req.setClientIp("127.0.0.1");
+        }
+        NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
+        ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
+        if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
+            // 目前仅HTTP支持绑定域名
 			req.setSubdomain(null);
-		}
+        }
 
 		return portMappingService.create(req);
 	}
@@ -62,6 +63,7 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
 		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
 		ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
+		ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
 		if (StringUtils.isBlank(req.getClientIp())) {
 			// 没传客户端ip，默认为127.0.0.1
 			req.setClientIp("127.0.0.1");
