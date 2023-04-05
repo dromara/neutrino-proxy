@@ -2,7 +2,7 @@
 # 中微子代理管理后台编译打包脚本，基础参数请自行修改
 
 #环境
-env=docker
+env=dev
 nvmDir=$HOME/.nvm
 nodeVersion=v13.12.0
 deployDir="deploy"
@@ -17,7 +17,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 #初始化文件夹
-cd ..
+cd ../..
 rm -rf $adminDeployDir
 if [ ! -d "$deployDir" ];then
   mkdir $deployDir

@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>org.dromara.neutrino-proxy</groupId>
-    <artifactId>neutrino-proxy-parent</artifactId>
+    <artifactId>neutrino-proxy</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
 
