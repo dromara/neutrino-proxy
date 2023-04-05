@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: ${WEB_PORT:8888}
 
 neutrino:
   proxy:
