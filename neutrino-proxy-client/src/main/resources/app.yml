@@ -14,10 +14,10 @@ neutrino:
       all-idle-time-seconds: 0
     client:
       thread-count: 50
-      key-store-password: 123456
-      jks-path: classpath:/test.jks
-      server-ip: localhost
-      server-port: 9002
-      ssl-enable: true
+      key-store-password: ${STORE_PASS:123456}
+      jks-path: ${JKS_PATH:classpath:/test.jks}
+      server-ip: ${SERVER_IP:localhost}
+      server-port: ${SERVER_PORT:9002}
+      ssl-enable: ${SSL_ENABLE:true}
       obtain-license-interval: 5
-      license-key: b0a907332b474b25897c4dcb31fc7eb6
+      license-key: ${LICENSE_KEY:b0a907332b474b25897c4dcb31fc7eb6}
