@@ -19,7 +19,7 @@ if not "%v%" == "%NODE_VERSION%" (
     nvm use %NODE_VERSION%
   )
 )
-cd %~dp0 && cd ../%MODULE_NAME%
+cd %~dp0 && cd ../../%MODULE_NAME%
 @rem 检查dist文件夹是否存在，存在就删除，/s选项表示将目录及其所有子目录一起删除，/q选项表示不需要确认操作
 if exist dist (
   rmdir /s /q dist
