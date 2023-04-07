@@ -154,7 +154,7 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('域名')" prop="subdomain" v-if="temp.protocal === 'HTTP' && !domainName && domainName != ''">
+        <el-form-item :label="$t('域名')" prop="subdomain" v-if="temp.protocal === 'HTTP' && domainName && domainName != ''">
           <el-input v-model="temp.subdomain">
             <template slot="append">.{{ domainName }}</template>
           </el-input>
