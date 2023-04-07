@@ -72,7 +72,32 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                 ctx.channel().close();
                 return;
             }
-            String host = getHost(byteBuf);
+
+            byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            byteBuf.resetReaderIndex();
+            ProxyAttachment proxyAttachment = new ProxyAttachment(ctx.channel(), bytes, (channel, buf) -> {
+                Channel proxyChannel = channel.attr(Constants.NEXT_CHANNEL).get();
+                if (null == proxyChannel) {
+                    // 该端口还没有代理客户端
+                    ctx.channel().close();
+                    return;
+                }
+
+                proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(ProxyUtil.getVisitorIdByChannel(channel), bytes));
+
+                // 增加流量计数
+                VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(channel);
+                Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
+            });
+
+            String visitorId = ProxyUtil.getVisitorIdByChannel(ctx.channel());
+            if (StringUtils.isNotBlank(visitorId)) {
+                proxyAttachment.execute();
+                return;
+            }
+
+            String host = getHost(bytes);
             if (StringUtils.isBlank(host)) {
                 ctx.channel().close();
                 return;
@@ -102,26 +127,8 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                 return;
             }
 
-            String visitorId = ProxyUtil.newVisitorId();
-            Channel visitorChannel = ctx.channel();
-
-            byte[] bytes = new byte[byteBuf.readableBytes()];
-            byteBuf.readBytes(bytes);
-            ProxyAttachment proxyAttachment = new ProxyAttachment(ctx.channel(), bytes, (channel, buf) -> {
-                Channel proxyChannel = channel.attr(Constants.NEXT_CHANNEL).get();
-                if (null == proxyChannel) {
-                    // 该端口还没有代理客户端
-                    ctx.channel().close();
-                    return;
-                }
-                proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
-
-                // 增加流量计数
-                VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
-                Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
-            });
-
-            ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel, serverPort);
+            visitorId = ProxyUtil.newVisitorId();
+            ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, ctx.channel(), serverPort);
             ProxyUtil.addProxyConnectAttachment(visitorId, proxyAttachment);
             cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
         }
@@ -167,10 +174,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
             ctx.close();
         }
 
-        private String getHost(ByteBuf byteBuf) {
-            byte[] buf = new byte[byteBuf.readableBytes()];
-            byteBuf.readBytes(buf);
-            byteBuf.resetReaderIndex();
+        private String getHost(byte[] buf) {
             String req = new String(buf);
             String[] lines = req.split("\r\n");
             String firstLine = lines[0];
