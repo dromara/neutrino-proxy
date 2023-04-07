@@ -4,12 +4,21 @@
 <p align="center">
   <a href='https://gitee.com/dromara/neutrino-proxy/stargazers'><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star'></img></a>
 <a href='https://gitee.com/dromara/neutrino-proxy/members'><img src='https://gitee.com/dromara/neutrino-proxy/badge/fork.svg?theme=dark' alt='fork'></img></a>
+<a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">
+    <img src="https://img.shields.io/badge/JDK-8+-red.svg" />
+</a>
+<a href="./LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-red" alt="license MIT">
+</a>
 </p>
 
 # 1、简介
 - 中微子代理（neutrino-proxy）是一个基于netty的、开源的java内网穿透项目。
 - 技术栈：Solon、MybatisPlus、Netty
 - 遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
+- 官网地址1：https://neutrino-proxy.dromara.org
+- 官网地址2：https://dromara.gitee.io/neutrino-proxy
+- 快速上手请[点击这里](https://dromara.gitee.io/neutrino-proxy/pages/793dcb)
 
 # 2、名称由来
 中微子，是轻子的一种，是组成自然界的最基本的粒子之一。它十分微小、不带电，可自由穿过地球，以接近光速运动，与其他物质的相互作用十分微弱，号称宇宙间的“隐身人”。
@@ -19,11 +28,11 @@
 因此以中微子命名，寓意着中微子代理拥有中微子"安全"、"快速"、"穿透力强"的特点。
 
 # 3、运行示例
+![首页](assets/run-example/home.png)
 ![用户管理](assets/run-example/user-manager1.png)
 ![端口池管理](assets/run-example/port-pool1.png)
 ![License管理](assets/run-example/license1.png)
 ![端口映射管理](assets/run-example/port-mapping1.png)
-![客户端启动示例](assets/run-example/client-run1.png)
 
 # 4、项目结构
 - neutrino-proxy 
