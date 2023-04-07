@@ -61,7 +61,9 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        cause.printStackTrace();
+        if (ctx.channel().isActive()) {
+            ctx.channel().close();
+        }
     }
 
     @Override
