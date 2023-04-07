@@ -1,6 +1,7 @@
 package org.dromara.neutrinoproxy.client.core;
 
 import cn.hutool.core.util.StrUtil;
+import io.netty.handler.logging.LoggingHandler;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
@@ -86,7 +87,7 @@ public class ProxyClientService {
 				if (proxyConfig.getClient().getSslEnable()) {
 					ch.pipeline().addLast(createSslHandler());
 				}
-
+//				ch.pipeline().addFirst(new LoggingHandler(ProxyClientService.class));
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
 						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
 						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
