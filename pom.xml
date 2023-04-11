@@ -29,11 +29,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <revision>1.0-SNAPSHOT</revision>
-
-        <java.version>1.8</java.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-flatten.version>1.1.0</maven-flatten.version>
-        <org.projectlombok.version>1.18.4</org.projectlombok.version>
+        <org.projectlombok.version>1.18.26</org.projectlombok.version>
     </properties>
 
     <dependencyManagement>
@@ -41,7 +42,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.1.22.Final</version>
+                <version>4.1.91.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
