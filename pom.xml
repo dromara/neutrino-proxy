@@ -95,10 +95,15 @@
                 <artifactId>sqlite-jdbc</artifactId>
                 <version>3.39.2.1</version>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>mysql</groupId>-->
+<!--                <artifactId>mysql-connector-java</artifactId>-->
+<!--                <version>5.1.49</version>-->
+<!--            </dependency>-->
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.49</version>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>8.0.32</version>
             </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>
