@@ -2,7 +2,7 @@
 <configuration>
     <property name="LOG_FILE" value="/work/projects/neutrino-proxy-server/app.log"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{50} - %msg%n"/>
-    <property name="ENCODE" value="utf8" />
+<!--    <property name="ENCODE" value="utf8" />-->
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -10,7 +10,7 @@
         </filter>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
-            <charset>${ENCODE}</charset>
+<!--            <charset>${ENCODE}</charset>-->
         </encoder>
     </appender>
 
@@ -22,7 +22,7 @@
         </rollingPolicy>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
-            <charset>${ENCODE}</charset>
+<!--            <charset>${ENCODE}</charset>-->
         </encoder>
     </appender>
 
