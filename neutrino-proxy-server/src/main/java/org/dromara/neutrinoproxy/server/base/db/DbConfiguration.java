@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.zaxxer.hikari.HikariDataSource;
-import org.dromara.neutrinoproxy.server.constant.DbTypeEnum;
 import org.apache.ibatis.solon.annotation.Db;
+import org.dromara.neutrinoproxy.server.constant.DbTypeEnum;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
@@ -32,7 +32,14 @@ public class DbConfiguration {
             return dataSource;
         } else if (DbTypeEnum.MYSQL == dbTypeEnum) {
             HikariDataSource dataSource = new HikariDataSource();
-            dataSource.setDriverClassName(dbConfig.getDriverClass());
+            String driver = "com.mysql.cj.jdbc.Driver";
+            try {
+                Class.forName(driver);
+            } catch (ClassNotFoundException e) {
+                // 对类名的判断,异常则说明不存在:
+                driver = "com.mysql.jdbc.Driver";
+            }
+            dataSource.setDriverClassName(driver);
             dataSource.setJdbcUrl(dbConfig.getUrl());
             dataSource.setMinimumIdle(5);
             dataSource.setMaximumPoolSize(20);
@@ -57,13 +64,13 @@ public class DbConfiguration {
     }
 
     @Bean
-    public void db1_ext2(@Db("db") MybatisConfiguration config){
+    public void db1_ext2(@Db("db") MybatisConfiguration config) {
         config.getTypeHandlerRegistry().register("fun.asgc.neutrino.proxy.server.dal");
         config.setDefaultEnumTypeHandler(null);
     }
 
     @Bean
-    public MybatisSqlSessionFactoryBuilder factoryBuilderNew(){
+    public MybatisSqlSessionFactoryBuilder factoryBuilderNew() {
         return new MybatisSqlSessionFactoryBuilderImpl();
     }
 

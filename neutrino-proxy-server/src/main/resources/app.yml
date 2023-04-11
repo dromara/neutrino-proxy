@@ -27,7 +27,6 @@ neutrino:
     db:
       type: ${DB_TYPE:sqlite}
       url: ${DB_URL:jdbc:sqlite:data.db}
-      driver-class: ${DB_DRIVER:org.sqlite.JDBC}
       username: ${DB_USER:}
       password: ${DB_PASSWORD:}
 
