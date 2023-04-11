@@ -45,11 +45,6 @@ public class DbConfig {
 	 */
 	@Inject("${neutrino.data.db.url}")
 	private String url;
-	/**
-	 * 驱动类
-	 */
-	@Inject("${neutrino.data.db.driver-class}")
-	private String driverClass;
 
 	/**
 	 * 用户名
