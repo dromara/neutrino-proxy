@@ -97,6 +97,9 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                 return;
             }
 
+            // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
+            ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
+
             String host = getHost(bytes);
             if (StringUtils.isBlank(host)) {
                 ctx.channel().close();
@@ -166,6 +169,11 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
             }
 
             super.channelInactive(ctx);
+        }
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            super.channelActive(ctx);
         }
 
         @Override
