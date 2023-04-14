@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+
+  neutrino-proxy11:
+    container_name: 'np-server'
+    restart: always
+    image: registry.cn-hangzhou.aliyuncs.com/asgc/neutrino-proxy:1.8.0
+    ports:
+      - "9000-9200:9000-9200"
+      - "8888:8888"
+
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /root/neutrino-proxy/config:/root/neutrino-proxy/config
+
+    privileged: true
