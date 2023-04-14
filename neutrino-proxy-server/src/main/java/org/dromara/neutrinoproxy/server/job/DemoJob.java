@@ -1,8 +1,8 @@
 package org.dromara.neutrinoproxy.server.job;
 
-import fun.asgc.solon.extend.job.IJobHandler;
-import fun.asgc.solon.extend.job.annotation.JobHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.solonplugins.job.IJobHandler;
+import org.dromara.solonplugins.job.annotation.JobHandler;
 import org.noear.solon.annotation.Component;
 
 /**

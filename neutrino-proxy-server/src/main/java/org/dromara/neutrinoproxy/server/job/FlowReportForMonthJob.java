@@ -6,10 +6,10 @@ import org.dromara.neutrinoproxy.server.dal.*;
 import org.dromara.neutrinoproxy.server.dal.entity.FlowReportDayDO;
 import org.dromara.neutrinoproxy.server.dal.entity.FlowReportMonthDO;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
-import fun.asgc.solon.extend.job.IJobHandler;
-import fun.asgc.solon.extend.job.annotation.JobHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.solonplugins.job.IJobHandler;
+import org.dromara.solonplugins.job.annotation.JobHandler;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 

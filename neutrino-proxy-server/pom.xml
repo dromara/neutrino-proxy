@@ -30,17 +30,13 @@
             <groupId>org.noear</groupId>
             <artifactId>activerecord-solon-plugin</artifactId>
         </dependency>
-        <!--orika-->
         <dependency>
-            <groupId>fun.asgc</groupId>
-            <artifactId>orika-solon-plugin</artifactId>
-            <version>2.2.2</version>
-        </dependency>
-        <!--job-->
-        <dependency>
-            <groupId>fun.asgc</groupId>
+            <groupId>org.dromara.solon-plugins</groupId>
             <artifactId>job-solon-plugin</artifactId>
-            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dromara.solon-plugins</groupId>
+            <artifactId>orika-solon-plugin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.dromara.neutrino-proxy</groupId>

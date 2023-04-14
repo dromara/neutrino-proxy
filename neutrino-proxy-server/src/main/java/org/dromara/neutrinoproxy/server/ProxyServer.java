@@ -1,6 +1,6 @@
 package org.dromara.neutrinoproxy.server;
 
-import fun.asgc.solon.extend.job.annotation.EnableJob;
+import org.dromara.solonplugins.job.annotation.EnableJob;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.SolonMain;
 import org.noear.solon.web.cors.CrossFilter;

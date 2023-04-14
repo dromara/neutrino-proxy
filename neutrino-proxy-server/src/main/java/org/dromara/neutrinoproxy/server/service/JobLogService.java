@@ -30,12 +30,12 @@ import org.dromara.neutrinoproxy.server.controller.req.log.JobLogListReq;
 import org.dromara.neutrinoproxy.server.controller.res.log.JobLogListRes;
 import org.dromara.neutrinoproxy.server.dal.JobLogMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.JobLogDO;
-import fun.asgc.solon.extend.job.IJobCallback;
-import fun.asgc.solon.extend.job.JobInfo;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.solon.annotation.Db;
+import org.dromara.solonplugins.job.IJobCallback;
+import org.dromara.solonplugins.job.JobInfo;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 

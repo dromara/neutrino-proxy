@@ -3,12 +3,12 @@ package org.dromara.neutrinoproxy.server.job;
 import com.alibaba.fastjson.JSONObject;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.dal.*;
-import fun.asgc.solon.extend.job.IJobHandler;
-import fun.asgc.solon.extend.job.annotation.JobHandler;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.solonplugins.job.IJobHandler;
+import org.dromara.solonplugins.job.annotation.JobHandler;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 

@@ -20,8 +20,6 @@
         <module>neutrino-proxy-core</module>
         <module>neutrino-proxy-client</module>
         <module>neutrino-proxy-server</module>
-        <module>_solon_plugin/job-solon-plugin</module>
-        <module>_solon_plugin/orika-solon-plugin</module>
     </modules>
 
     <properties>
@@ -103,6 +101,22 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>4.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dromara.solon-plugins</groupId>
+                <artifactId>job-solon-plugin</artifactId>
+                <version>0.0.4</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>hutool-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.dromara.solon-plugins</groupId>
+                <artifactId>orika-solon-plugin</artifactId>
+                <version>0.0.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

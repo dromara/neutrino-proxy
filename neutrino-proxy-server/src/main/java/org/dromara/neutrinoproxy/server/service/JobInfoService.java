@@ -19,19 +19,24 @@ import org.dromara.neutrinoproxy.server.controller.res.system.JobInfoUpdateEnabl
 import org.dromara.neutrinoproxy.server.controller.res.system.JobInfoUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.JobInfoMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.JobInfoDO;
+import org.dromara.neutrinoproxy.server.job.*;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import fun.asgc.solon.extend.job.IJobSource;
-import fun.asgc.solon.extend.job.JobInfo;
-import fun.asgc.solon.extend.job.impl.JobExecutor;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
+import org.dromara.solonplugins.job.IJobHandler;
+import org.dromara.solonplugins.job.IJobSource;
+import org.dromara.solonplugins.job.JobInfo;
+import org.dromara.solonplugins.job.impl.JobExecutor;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -45,6 +50,29 @@ public class JobInfoService implements IJobSource {
     private MapperFacade mapperFacade;
     @Db
     private JobInfoMapper jobInfoMapper;
+    @Inject
+    private DataCleanJob dataCleanJob;
+    @Inject
+    private DemoJob demoJob;
+    @Inject
+    private FlowReportForDayJob flowReportForDayJob;
+    @Inject
+    private FlowReportForHourJob flowReportForHourJob;
+    @Inject
+    private FlowReportForMinuteJob flowReportForMinuteJob;
+    @Inject
+    private FlowReportForMonthJob flowReportForMonthJob;
+    private Map<String, IJobHandler> jobHandlerMap = new HashMap<>();
+
+    @Init
+    public void init() {
+       jobHandlerMap.put("DataCleanJob", dataCleanJob);
+       jobHandlerMap.put("DemoJob", demoJob);
+       jobHandlerMap.put("FlowReportForDayJob", flowReportForDayJob);
+       jobHandlerMap.put("FlowReportForHourJob", flowReportForHourJob);
+       jobHandlerMap.put("FlowReportForMinuteJob", flowReportForMinuteJob);
+       jobHandlerMap.put("FlowReportForMonthJob", flowReportForMonthJob);
+    }
 
     public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
         Page<JobInfoListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -65,22 +93,15 @@ public class JobInfoService implements IJobSource {
         ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.JOB_INFO_NOT_EXIST);
         jobInfoMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
         if (EnableStatusEnum.ENABLE.getStatus().equals(req.getEnable())) {
-            Solon.context().getBean(JobExecutor.class).add(new JobInfo()
-                    .setId(String.valueOf(jobInfoDO.getId()))
-                    .setName(jobInfoDO.getHandler())
-                    .setDesc(jobInfoDO.getDesc())
-                    .setCron(jobInfoDO.getCron())
-                    .setParam(jobInfoDO.getParam())
-                    .setEnable(true)
-            );
+            Solon.context().getBean(JobExecutor.class).startById(String.valueOf(req.getId()));
         } else {
-            Solon.context().getBean(JobExecutor.class).remove(String.valueOf(req.getId()));
+            Solon.context().getBean(JobExecutor.class).stopById(String.valueOf(req.getId()));
         }
         return new JobInfoUpdateEnableStatusRes();
     }
 
     public JobInfoExecuteRes execute(JobInfoExecuteReq req) {
-        Solon.context().getBean(JobExecutor.class).trigger(String.valueOf(req.getId()), req.getParam());
+        Solon.context().getBean(JobExecutor.class).triggerById(String.valueOf(req.getId()), req.getParam());
         return new JobInfoExecuteRes();
     }
 
@@ -99,6 +120,7 @@ public class JobInfoService implements IJobSource {
                     .setCron(item.getCron())
                     .setParam(item.getParam())
                     .setEnable(EnableStatusEnum.ENABLE.getStatus().equals(item.getEnable()))
+                    .setJobHandler(jobHandlerMap.get(item.getHandler()))
             );
         }
 
