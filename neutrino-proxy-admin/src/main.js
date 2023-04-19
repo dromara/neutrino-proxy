@@ -16,6 +16,7 @@ import './icons' // icon
 import './errorLog'// error log
 import './permission' // permission control
 import './mock' // simulation data
+import './plugins/baiduhm' // 百度统计
 
 import * as filters from './filters' // global filters
 
