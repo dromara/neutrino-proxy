@@ -91,8 +91,7 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
-        if (cmdChannel == null) {
-
+        if (null == cmdChannel) {
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {
@@ -127,12 +126,12 @@ public class VisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> 
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
-        if (cmdChannel == null) {
+        if (null == cmdChannel) {
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {
             Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
-            if (proxyChannel != null) {
+            if (null != proxyChannel) {
                 proxyChannel.config().setOption(ChannelOption.AUTO_READ, visitorChannel.isWritable());
             }
         }

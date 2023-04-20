@@ -10,7 +10,7 @@ neutrino:
       initial-bytes-to-strip: 0
       length-adjustment: 0
       read-idle-time: 40
-      write-idle-time: 8
+      write-idle-time: 5
       all-idle-time-seconds: 0
     client:
       thread-count: 50

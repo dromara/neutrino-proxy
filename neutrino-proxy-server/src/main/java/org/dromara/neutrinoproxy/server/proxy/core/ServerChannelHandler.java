@@ -71,19 +71,21 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
-        if (userChannel != null && userChannel.isActive()) {
+        Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
+        if (null != visitorChannel) {
             Integer licenseId = ctx.channel().attr(Constants.LICENSE_ID).get();
             String visitorId = ctx.channel().attr(Constants.VISITOR_ID).get();
             Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseId);
 
-            if (cmdChannel != null) {
+            if (null != cmdChannel) {
                 ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, visitorId);
             }
 
-            // 数据发送完成后再关闭连接，解决http1.0数据传输问题
-            userChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-            userChannel.close();
+            if (visitorChannel.isActive()) {
+                // 数据发送完成后再关闭连接，解决http1.0数据传输问题
+                visitorChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                visitorChannel.close();
+            }
         } else {
             CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
             if (null != cmdChannelAttachInfo) {
@@ -96,8 +98,8 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
                         .setCode(SuccessCodeEnum.SUCCESS.getCode())
                         .setCreateTime(new Date())
                 );
+                ProxyUtil.removeCmdChannel(ctx.channel());
             }
-            ProxyUtil.removeCmdChannel(ctx.channel());
         }
 
         super.channelInactive(ctx);
