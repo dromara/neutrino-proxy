@@ -11,7 +11,7 @@ neutrino:
       length-adjustment: 0
       read-idle-time: 40
       write-idle-time: 5
-      all-idle-time-seconds: 0
+      all-idle-time-seconds: 45
     client:
       thread-count: 50
       key-store-password: ${STORE_PASS:123456}

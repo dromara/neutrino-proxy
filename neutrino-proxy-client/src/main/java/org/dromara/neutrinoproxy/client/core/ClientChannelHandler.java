@@ -73,13 +73,15 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-                    log.info("读超时");
-                    ctx.channel().close();
+//                    log.info("读超时");
+//                    ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
+                    log.info("读写超时");
+                    ctx.channel().close();
                     break;
             }
         }

@@ -124,7 +124,6 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
-                    log.info("写超时");
                     break;
                 case ALL_IDLE:
                     break;
