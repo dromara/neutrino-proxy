@@ -70,37 +70,19 @@ export default {
       })
     },
     getChartData(last7dFlow) {
-      const title = []
-      const downFlowDesc = []
-      const totalFlowDesc = []
-      const upFlowDesc = []
-      last7dFlow.dataList.forEach(item => {
-        title.push(item.dateStr)
-        totalFlowDesc.push(item.totalFlowDesc)
-        downFlowDesc.push(item.downFlowDesc)
-        upFlowDesc.push(item.upFlowDesc)
-      })
       const list = []
       last7dFlow.seriesList.forEach(item => {
-        let label = []
-        if (item.seriesName.indexOf('上') > -1) {
-          label = upFlowDesc
-        } else if (item.seriesName.indexOf('下') > -1) {
-          label = downFlowDesc
-        } else if (item.seriesName.indexOf('总') > -1) {
-          label = totalFlowDesc
-        }
         list.push({
           name: item.seriesName,
-          value: item.seriesData,
-          label: label
+          value: item.seriesData
         })
       })
       return {
         text: '流量监控',
         subtext: `最近${last7dFlow.dataList.length || 0}天流量监控`,
-        title: title,
-        list: list
+        title: last7dFlow.xDate,
+        list: list,
+        legendList: last7dFlow.legendData
       }
     }
   }

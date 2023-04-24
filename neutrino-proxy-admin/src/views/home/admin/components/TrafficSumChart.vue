@@ -50,7 +50,6 @@ export default {
       this.chartDom = document.getElementById(this.chartId)
       this.myChart = echarts.init(this.chartDom)
       const seriesList = []
-      const legendList = []
       this.data.list && this.data.list.forEach((item, index) => {
         seriesList.push({
           name: item.name,
@@ -74,7 +73,6 @@ export default {
           },
           smooth: true
         })
-        legendList.push(item.name)
       })
 
       const option = {
@@ -87,13 +85,13 @@ export default {
           formatter: (value) => {
             let title = this.data.text + '<br/>'
             value.forEach(item => {
-              title = title + item.marker + item.seriesName + ' : ' + this.data.list[item.seriesIndex].label[item.dataIndex] + '<br/>'
+              title = title + item.marker + item.seriesName + ' : ' + getSizeDescByByteCount(item.data) + '<br/>'
             })
             return title
           }
         },
         legend: {
-          data: legendList,
+          data: this.data.legendList,
           left: 'right'
         },
         grid: {
