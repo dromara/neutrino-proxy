@@ -55,7 +55,7 @@ export default {
         seriesList.push({
           name: item.name,
           type: 'line',
-          stack: 'Total',
+          // stack: 'Total',
           data: item.value,
           areaStyle: {
             normal: {
