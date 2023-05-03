@@ -18,10 +18,15 @@ public class ProxyConfig {
 	@Inject("${neutrino.proxy.protocol}")
 	private Protocol protocol;
 	/**
-	 * 服务端配置
+	 * 代理服务配置
 	 */
 	@Inject("${neutrino.proxy.server}")
 	private Server server;
+	/**
+	 * 代理隧道配置
+	 */
+	@Inject("${neutrino.proxy.tunnel}")
+	private Tunnel tunnel;
 
 	@Data
 	public static class Protocol {
@@ -37,15 +42,22 @@ public class ProxyConfig {
 
 	@Data
 	public static class Server {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
+		private String domainName;
+		private Integer httpProxyPort;
+		private Integer httpsProxyPort;
+	}
+
+	@Data
+	public static class Tunnel {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
 		private Integer port;
 		private Integer sslPort;
 		private String keyStorePassword;
 		private String keyManagerPassword;
 		private String jksPath;
-		private Integer bossThreadCount;
-		private Integer workThreadCount;
-		private String domainName;
-		private Integer httpProxyPort;
 	}
 
 }
