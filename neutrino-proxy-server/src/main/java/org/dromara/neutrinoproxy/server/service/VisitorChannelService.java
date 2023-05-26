@@ -14,7 +14,7 @@ import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
-import org.dromara.neutrinoproxy.server.proxy.core.VisitorChannelHandler;
+import org.dromara.neutrinoproxy.server.proxy.core.TcpVisitorChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
@@ -224,7 +224,7 @@ public class VisitorChannelService {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addFirst(new BytesMetricsHandler());
-                        ch.pipeline().addLast(new VisitorChannelHandler());
+                        ch.pipeline().addLast(new TcpVisitorChannelHandler());
                     }
                 });
 

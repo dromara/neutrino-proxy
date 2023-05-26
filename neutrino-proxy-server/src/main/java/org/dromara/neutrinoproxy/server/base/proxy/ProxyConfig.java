@@ -47,6 +47,8 @@ public class ProxyConfig {
 		private String domainName;
 		private Integer httpProxyPort;
 		private Integer httpsProxyPort;
+		private String keyStorePassword;
+		private String jksPath;
 	}
 
 	@Data

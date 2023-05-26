@@ -27,6 +27,8 @@ neutrino:
       https-proxy-port: ${HTTPS_PROXY_PORT:443}
       # 如果不配置，则不支持域名映射
       domain-name: ${DOMAIN_NAME:}
+      key-store-password: ${HTTPS_STORE_PASS:}
+      jks-path: ${HTTPS_JKS_PATH:}
   data:
     db:
       type: ${DB_TYPE:sqlite}
