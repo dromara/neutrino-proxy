@@ -47,38 +47,52 @@
 keytool -genkey -alias test1 -keyalg RSA -keysize 1024 -validity 3650 -keypass 123456 -storepass 123456 -keystore  "./test.jks"
 ```
 
-## 5.2、修改服务端配置（application.yml）
+## 5.2、修改服务端配置（app.yml）
 ```yml
 application:
   name: neutrino-proxy-server
 
-proxy:
-  protocol:
-    max-frame-length: 2097152
-    length-field-offset: 0
-    length-field-length: 4
-    initial-bytes-to-strip: 0
-    length-adjustment: 0
-    read-idle-time: 60
-    write-idle-time: 40
-    all-idle-time-seconds: 0
-  server:
-    # 服务端端口，用于保持与客户端的连接，非SSL
-    port: 9000    
-    # 服务端端口，用于保持与客户端的连接，SSL,需要jks证书文件，若不需要ssl支持，可不配置
-    ssl-port: 9002
-    # 证书密码
-    key-store-password: 123456
-    key-manager-password: 123456
-    # 证书存放路径，若不想打进jar包，可不带classpath:前缀
-    jks-path: classpath:/test.jks 
-  data:
-    # 数据库配置（支持mysql）
-      type: sqlite
-      url: jdbc:sqlite:data.db
-      driver-class: org.sqlite.JDBC
-      username:
-      password:
+neutrino:
+  proxy:
+    protocol:
+      max-frame-length: 2097152
+      length-field-offset: 0
+      length-field-length: 4
+      initial-bytes-to-strip: 0
+      length-adjustment: 0
+      read-idle-time: 60
+      write-idle-time: 40
+      all-idle-time-seconds: 0
+    tunnel:
+      boss-thread-count: 2
+      work-thread-count: 10
+      # 服务端端口，用于保持与客户端的连接，非SSL
+      port: ${OPEN_PORT:9000}
+      # 服务端端口，用于保持与客户端的连接，SSL,需要jks证书文件，若不需要ssl支持，可不配置
+      ssl-port: ${SSL_PORT:9002}
+      # 证书配置，用于隧道通信SSL加密
+      key-store-password: ${STORE_PASS:123456}
+      key-manager-password: ${MGR_PASS:123456}
+      jks-path: ${JKS_PATH:classpath:/test.jks}
+    server:
+      boss-thread-count: 5
+      work-thread-count: 20
+      # HTTP代理端口，默认80，也可以用其他端口，走nginx转发
+      http-proxy-port: ${HTTP_PROXY_PORT:80}
+      # HTTPS代理端口，默认443，也可以用其他端口，走nginx转发
+      https-proxy-port: ${HTTPS_PROXY_PORT:443}
+      # 如果不配置，则不支持域名映射
+      domain-name: ${DOMAIN_NAME:}
+      # 证书配置，用于支持HTTPS
+      key-store-password: ${HTTPS_STORE_PASS:}
+      jks-path: ${HTTPS_JKS_PATH:}
+    data:
+      # 数据库配置（支持mysql）
+        type: sqlite
+        url: jdbc:sqlite:data.db
+        driver-class: org.sqlite.JDBC
+        username:
+        password:
 ```
 
 ## 5.3、启动服务端
