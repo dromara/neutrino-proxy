@@ -1,7 +1,7 @@
 ---
 home: true
 
-heroImage: /img/logo.png
+heroImage: /img/logo-0.75x.png
 heroText: Neutrino-Proxy
 tagline: 🚀一个基于Netty的开源内网穿透神器
 actionText: 开始使用 →
@@ -21,8 +21,12 @@ features: # 可选的
     details: 新增、编辑、删除、禁用实时生效。
   - title: Docker
     details: 服务端支持Docker一键部署。
-#  - title: SSL证书
-#    details: 支持SSL，保护您的信息安全。
+  - title: 隧道SSL加密
+    details: 隧道通信支持SSL，保护您的数据安全
+  - title: HTTPS
+    details: 支持HTTPS
+  - title: 多客户端支持
+    details: 暂未支持
 
 # 文章列表显示方式: detailed 默认，显示详细版文章列表（包括作者、分类、标签、摘要、分页等）| simple => 显示简约版文章列表（仅标题和日期）| none 不显示文章列表
 postList: none
