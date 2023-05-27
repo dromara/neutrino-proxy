@@ -37,7 +37,7 @@ cp $OUT $JAR_PATH/logs/back_$time.out
 fi
 rm -f $OUT
 cd $JAR_PATH
-nohup java $JAVA_OPS -jar $NAME.jar $startupParams > $OUT 2>&1 &
+nohup java -Dfile.encoding=utf-8 $JAVA_OPS -jar $NAME.jar $startupParams > $OUT 2>&1 &
 echo "sleep 15s wating service start"
 sleep 15
 tail -200 $OUT

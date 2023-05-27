@@ -43,4 +43,14 @@ public class ProxyConfiguration implements LifecycleBean {
         return new NioEventLoopGroup(proxyConfig.getServer().getWorkThreadCount());
     }
 
+    @Bean("tunnelBossGroup")
+    public NioEventLoopGroup tunnelBossGroup(@Inject ProxyConfig proxyConfig) {
+        return new NioEventLoopGroup(proxyConfig.getTunnel().getBossThreadCount());
+    }
+
+    @Bean("tunnelWorkerGroup")
+    public NioEventLoopGroup tunnelWorkerGroup(@Inject ProxyConfig proxyConfig) {
+        return new NioEventLoopGroup(proxyConfig.getTunnel().getWorkThreadCount());
+    }
+
 }

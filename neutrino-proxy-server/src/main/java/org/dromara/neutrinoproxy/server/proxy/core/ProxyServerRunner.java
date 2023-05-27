@@ -36,20 +36,10 @@ import java.security.KeyStore;
 public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
 	@Inject
 	private ProxyConfig proxyConfig;
-	@Inject("serverBossGroup")
+	@Inject("tunnelBossGroup")
 	private NioEventLoopGroup serverBossGroup;
-	@Inject("serverWorkerGroup")
+	@Inject("tunnelWorkerGroup")
 	private NioEventLoopGroup serverWorkerGroup;
-	@Inject("${neutrino.proxy.server.port}")
-	private Integer port;
-	@Inject("${neutrino.proxy.server.ssl-port}")
-	private Integer sslPort;
-	@Inject("${neutrino.proxy.server.jks-path}")
-	private String jksPath;
-	@Inject("${neutrino.proxy.server.key-store-password}")
-	private String keyStorePassword;
-	@Inject("${neutrino.proxy.server.key-manager-password}")
-	private String keyManagerPassword;
 	@Override
 	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
 		startProxyServer();
@@ -68,15 +58,15 @@ public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
 			}
 		});
 		try {
-			bootstrap.bind(port).sync();
-			log.info("代理服务启动，端口：{}", port);
+			bootstrap.bind(proxyConfig.getTunnel().getPort()).sync();
+			log.info("代理服务启动，端口：{}", proxyConfig.getTunnel().getPort());
 		} catch (Exception e) {
 			log.error("代理服务异常", e);
 		}
 	}
 
 	private void startProxyServerForSSL() {
-		if (null == sslPort) {
+		if (null == proxyConfig.getTunnel().getSslPort()) {
 			return;
 		}
  		ServerBootstrap bootstrap = new ServerBootstrap();
@@ -89,8 +79,8 @@ public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
 			}
 		});
 		try {
-			bootstrap.bind(sslPort).sync();
-			log.info("代理服务启动，SSL端口： {}", sslPort);
+			bootstrap.bind(proxyConfig.getTunnel().getSslPort()).sync();
+			log.info("代理服务启动，SSL端口： {}", proxyConfig.getTunnel().getSslPort());
 		} catch (Exception e) {
 			log.error("代理服务异常", e);
 		}
@@ -98,13 +88,13 @@ public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
 
 	private ChannelHandler createSslHandler() {
 		try {
-			InputStream jksInputStream = FileUtil.getInputStream(jksPath);
+			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getTunnel().getJksPath());
 			SSLContext serverContext = SSLContext.getInstance("TLS");
 			final KeyStore ks = KeyStore.getInstance("JKS");
 
-			ks.load(jksInputStream, keyStorePassword.toCharArray());
+			ks.load(jksInputStream, proxyConfig.getTunnel().getKeyStorePassword().toCharArray());
 			final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			kmf.init(ks, keyManagerPassword.toCharArray());
+			kmf.init(ks, proxyConfig.getTunnel().getKeyManagerPassword().toCharArray());
 			TrustManager[] trustManagers = null;
 
 			serverContext.init(kmf.getKeyManagers(), trustManagers, null);
