@@ -292,8 +292,11 @@ postList: none
 
 <h2>🤝 友情开源项目</h2>
 <p>
-<a href="https://gitee.com/noear/solon" target="_blank" class="friends-item" style="display: flex;">
+<a href="https://gitee.com/noear/solon" target="_blank" class="friends-item" >
     <img class="no-zoom friends-item-img hover-alt" :src="$withBase('/img/logo/solon_logo_500_150.png')" msg="一个高效的应用开发框架：更快、更小、更简单。" />
+</a>
+<a href="https://gitee.com/xiaonuobase/snowy" target="_blank" class="friends-item">
+    <img class="no-zoom friends-item-img hover-alt" :src="$withBase('/img/logo/xiaonuo.png')" msg="国内首个国密前后端分离快速开发平台" />
 </a>
 </p>
 
