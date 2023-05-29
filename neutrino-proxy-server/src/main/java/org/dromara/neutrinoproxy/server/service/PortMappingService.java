@@ -108,6 +108,9 @@ public class PortMappingService implements LifecycleBean {
             if (StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
                 item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getDomainName());
             }
+            if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
+                item.setProtocal("HTTP(S)");
+            }
         });
         //sorted [userId asc] [licenseId asc] [createTime asc]
         respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId)
