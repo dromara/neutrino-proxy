@@ -1,4 +1,4 @@
-package org.dromara.neutrinoproxy.server.proxy.core;
+package org.dromara.neutrinoproxy.server.proxy.enhance;
 
 import cn.hutool.core.util.StrUtil;
 import io.netty.buffer.ByteBuf;

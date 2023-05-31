@@ -2,7 +2,7 @@
 - [ ] 增加针对https的支持
 
 # Bug
-- 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ServerChannelHandler.channelInactive 
+- 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
 - windows环境下直接运行发布版的jar包，日志输出乱码
 - 代理mysql时，使用未开启远程访问的账号走代理访问mysql，代理客户端出现断开现象
 

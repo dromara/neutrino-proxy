@@ -117,6 +117,6 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 			proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
 		ch.pipeline().addLast(new ProxyMessageEncoder());
 		ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-		ch.pipeline().addLast(new ServerChannelHandler());
+		ch.pipeline().addLast(new ProxyTunnelChannelHandler());
 	}
 }

@@ -47,10 +47,10 @@ import java.util.Date;
  * @date: 2022/6/16
  */
 @Slf4j
-public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
+public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
 
-    public ServerChannelHandler() {
+    public ProxyTunnelChannelHandler() {
         dispatcher = Solon.context().getBean(Dispatcher.class);
     }
 
