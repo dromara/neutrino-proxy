@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.base.proxy;
 
+import io.netty.bootstrap.ServerBootstrap;
 import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
@@ -41,6 +42,14 @@ public class ProxyConfiguration implements LifecycleBean {
     @Bean("serverWorkerGroup")
     public NioEventLoopGroup serverWorkerGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getServer().getWorkThreadCount());
+    }
+
+    @Bean("tcpServerBootstrap")
+    public ServerBootstrap tcpServerBootstrap(@Inject("serverBossGroup") NioEventLoopGroup serverBossGroup,
+                                              @Inject("serverWorkerGroup") NioEventLoopGroup serverWorkerGroup) {
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(serverBossGroup, serverWorkerGroup);
+        return bootstrap;
     }
 
     @Bean("tunnelBossGroup")

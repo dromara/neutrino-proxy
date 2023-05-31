@@ -41,10 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class VisitorChannelService {
-    @Inject("serverBossGroup")
-    private NioEventLoopGroup serverBossGroup;
-    @Inject("serverWorkerGroup")
-    private NioEventLoopGroup serverWorkerGroup;
+    @Inject("tcpServerBootstrap")
+    private ServerBootstrap tcpServerBootstrap;
     @Inject
     private ProxyMutualService proxyMutualService;
     @Db
@@ -218,20 +216,18 @@ public class VisitorChannelService {
         if (CollectionUtil.isEmpty(portMappingList)) {
             return;
         }
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(serverBossGroup, serverWorkerGroup)
-                .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+        tcpServerBootstrap.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addFirst(new BytesMetricsHandler());
-                        ch.pipeline().addLast(new TcpVisitorChannelHandler());
-                    }
-                });
+                ch.pipeline().addFirst(new BytesMetricsHandler());
+                ch.pipeline().addLast(new TcpVisitorChannelHandler());
+            }
+        });
 
         for (PortMappingDO portMapping : portMappingList) {
             try {
                 proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
-                bootstrap.bind(portMapping.getServerPort()).get();
+                tcpServerBootstrap.bind(portMapping.getServerPort()).get();
                 log.info("绑定用户端口： {}", portMapping.getServerPort());
             } catch (Exception ex) {
                 // BindException表示该端口已经绑定过
