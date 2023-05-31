@@ -218,6 +218,7 @@ public class VisitorChannelService {
         }
 
         for (PortMappingDO portMapping : portMappingList) {
+            // TODO 此处切入，TCP/UDP代理
             try {
                 proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
                 tcpServerBootstrap.bind(portMapping.getServerPort()).get();

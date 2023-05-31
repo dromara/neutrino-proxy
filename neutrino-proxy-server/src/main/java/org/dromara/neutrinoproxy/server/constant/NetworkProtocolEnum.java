@@ -16,11 +16,12 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum NetworkProtocolEnum {
-    TCP("TCP"),
-    UDP("UDP"),
-    HTTP("HTTP"),
+    TCP("TCP", "TCP"),
+    UDP("UDP", "UDP"),
+    HTTP("HTTP", "TCP"),
     ;
     private String desc;
+    private String baseProtocol;
     private static final Map<String, NetworkProtocolEnum> map = Stream.of(NetworkProtocolEnum.values()).collect(Collectors.toMap(NetworkProtocolEnum::getDesc, Function.identity()));
 
     public static NetworkProtocolEnum of(String desc) {
