@@ -216,13 +216,6 @@ public class VisitorChannelService {
         if (CollectionUtil.isEmpty(portMappingList)) {
             return;
         }
-        tcpServerBootstrap.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addFirst(new BytesMetricsHandler());
-                ch.pipeline().addLast(new TcpVisitorChannelHandler());
-            }
-        });
 
         for (PortMappingDO portMapping : portMappingList) {
             try {
