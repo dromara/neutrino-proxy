@@ -22,10 +22,6 @@ import org.noear.solon.core.event.EventListener;
 @Slf4j
 @Component
 public class HttpProxy implements EventListener<AppLoadEndEvent> {
-    @Inject("serverBossGroup")
-    private NioEventLoopGroup serverBossGroup;
-    @Inject("serverWorkerGroup")
-    private NioEventLoopGroup serverWorkerGroup;
     @Inject
     private ProxyConfig proxyConfig;
     @Override
@@ -40,7 +36,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
     private void start() {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(serverBossGroup, serverWorkerGroup)
+            bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup())
                     .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
