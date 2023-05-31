@@ -1,6 +1,5 @@
 package org.dromara.neutrinoproxy.server.proxy.core;
 
-import io.netty.handler.logging.LoggingHandler;
 import org.dromara.neutrinoproxy.core.ProxyMessageDecoder;
 import org.dromara.neutrinoproxy.core.ProxyMessageEncoder;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
@@ -27,13 +26,13 @@ import java.io.InputStream;
 import java.security.KeyStore;
 
 /**
- *
+ * 代理隧道服务
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
 @Slf4j
 @Component
-public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
+public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 	@Inject
 	private ProxyConfig proxyConfig;
 	@Inject("tunnelBossGroup")

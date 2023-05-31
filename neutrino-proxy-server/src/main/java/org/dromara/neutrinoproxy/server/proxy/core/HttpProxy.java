@@ -14,6 +14,7 @@ import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
 
 /**
+ * HTTP代理
  * @author: aoshiguchen
  * @date: 2023/4/2
  */
