@@ -61,16 +61,14 @@ public class ProxyUtil {
 	private static String clientId;
 	private static final String CLIENT_ID_FILE = ".NEUTRINO_PROXY_CLIENT_ID";
 
-	public static void borrowProxyChanel(Bootstrap bootstrap, final ProxyChannelBorrowListener borrowListener) {
+	public static void borrowProxyChanel(Bootstrap proxyTunnelBootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = proxyChannelPool.poll();
 		if (null != channel) {
 			borrowListener.success(channel);
 			return;
 		}
 
-		String serverIp = Solon.cfg().get("neutrino.proxy.client.server-ip");
-		Integer serverPort = Solon.cfg().getInt("neutrino.proxy.client.server-port", 9000);
-		bootstrap.connect(serverIp, serverPort).addListener((ChannelFutureListener) future -> {
+		proxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
 				borrowListener.success(future.channel());
 			} else {
