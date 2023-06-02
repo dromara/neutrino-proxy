@@ -9,9 +9,9 @@ neutrino:
       length-field-length: 4
       initial-bytes-to-strip: 0
       length-adjustment: 0
-      read-idle-time: 40
-      write-idle-time: 5
-      all-idle-time-seconds: 45
+      read-idle-time: 8
+      write-idle-time: 3
+      all-idle-time-seconds: 8
     client:
       thread-count: 50
       key-store-password: ${STORE_PASS:123456}
@@ -20,4 +20,4 @@ neutrino:
       server-port: ${SERVER_PORT:9002}
       ssl-enable: ${SSL_ENABLE:true}
       obtain-license-interval: 5
-      license-key: ${LICENSE_KEY:b0a907332b474b25897c4dcb31fc7eb6}
+      license-key: ${LICENSE_KEY:}

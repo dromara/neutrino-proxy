@@ -9,7 +9,7 @@ neutrino:
       length-field-length: 4
       initial-bytes-to-strip: 0
       length-adjustment: 0
-      read-idle-time: 40
+      read-idle-time: 30
       write-idle-time: 5
       all-idle-time-seconds: 0
     tunnel:
