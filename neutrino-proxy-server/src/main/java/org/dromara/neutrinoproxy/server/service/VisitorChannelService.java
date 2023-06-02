@@ -218,6 +218,10 @@ public class VisitorChannelService {
         }
 
         for (PortMappingDO portMapping : portMappingList) {
+            if (EnableStatusEnum.DISABLE.getStatus().equals(portMapping.getEnable())) {
+                // 端口映射被禁用了，忽略 TODO 端口被禁用了也需要处理
+                continue;
+            }
             // TODO 此处切入，TCP/UDP代理
             try {
                 proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
