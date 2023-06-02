@@ -1,10 +1,8 @@
-# 1.x剩余规划
-- [ ] 增加针对https的支持
-
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
 - windows环境下直接运行发布版的jar包，日志输出乱码
 - 代理mysql时，使用未开启远程访问的账号走代理访问mysql，代理客户端出现断开现象
+- 客户端连接映射某个端口以后，如果在服务器端禁用了，没有立刻反映出来，要灯客户端重连以后才会屏蔽被禁用的端口。
 
 # 2.x规划
 - 插件开发

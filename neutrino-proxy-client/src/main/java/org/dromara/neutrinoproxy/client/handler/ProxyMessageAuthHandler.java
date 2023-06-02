@@ -2,6 +2,7 @@ package org.dromara.neutrinoproxy.client.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import org.dromara.neutrinoproxy.core.Constants;
+import org.dromara.neutrinoproxy.core.ExceptionEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
@@ -24,5 +25,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		JSONObject data = JSONObject.parseObject(info);
 		Integer code = data.getInteger("code");
 		log.info("认证结果:{}", info);
+		if (!ExceptionEnum.SUCCESS.getCode().equals(code)) {
+			context.channel().close();
+		}
 	}
 }

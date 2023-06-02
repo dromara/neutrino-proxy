@@ -82,6 +82,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		String licenseKey = proxyMessage.getInfo();
 		if (StrUtil.isEmpty(licenseKey)) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
+			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
@@ -95,6 +96,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
+			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
@@ -107,6 +109,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被禁用!", licenseKey));
+			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setLicenseId(licenseDO.getId())
@@ -120,6 +123,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license无效!", licenseKey));
+			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setLicenseId(licenseDO.getId())
@@ -133,6 +137,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
+			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setLicenseId(licenseDO.getId())
