@@ -26,13 +26,13 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		JSONObject data = JSONObject.parseObject(info);
 		Integer code = data.getInteger("code");
 		log.info("认证结果:{}", info);
-		if (ExceptionEnum.CONNECT_FAILED.getCode().equals(code)) {
-			context.channel().close();
-		} else if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
+		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");
 			context.channel().close();
 			Solon.stop();
+		} else {
+			context.channel().close();
 		}
 	}
 }
