@@ -49,15 +49,15 @@ public class ProxyClientService {
 	/**
 	 * 重连间隔（秒）
 	 */
-	private static final long RECONNECT_INTERVAL_SECONDS = 5;
+	private static final long RECONNECT_INTERVAL_SECONDS = 8;
 	/**
 	 * 重连次数
 	 */
 	private volatile int reconnectCount = 0;
-	/**
-	 * 启用重连服务
-	 */
-	private volatile boolean reconnectServiceEnable = false;
+//	/**
+//	 * 启用重连服务
+//	 */
+//	private volatile boolean reconnectServiceEnable = false;
 	/**
 	 * 重连服务执行器
 	 */
@@ -80,7 +80,7 @@ public class ProxyClientService {
 
 		bootstrap.group(workerGroup);
 		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
 		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 		/**
 		 * TCP/IP协议中，无论发送多少数据，总是要在数据前面加上协议头，同时，对方接收到数据，也需要发送ACK表示确认。为了尽可能的利用网络带宽，TCP总是希望尽可能的发送足够大的数据。（一个连接会设置MSS参数，因此，TCP/IP希望每次都能够以MSS尺寸的数据块来发送数据）。
@@ -104,103 +104,112 @@ public class ProxyClientService {
 				ch.pipeline().addLast(new ClientChannelHandler());
 			}
 		});
-		this.start();
-	}
 
-	public void start() {
-		if (StrUtil.isEmpty(proxyConfig.getClient().getServerIp())) {
-			log.error("not found server-ip config.");
-			Solon.stop();
-			return;
+			try {
+				this.start();
+			} catch (Exception e) {
+				// 启动连不上也做一下重连，因此先catch异常
+				log.error("启动异常", e);
+			}
 		}
-		if (null == proxyConfig.getClient().getServerPort()) {
-			log.error("not found server-port config.");
-			Solon.stop();
-			return;
+
+		public void start() {
+			if (StrUtil.isEmpty(proxyConfig.getClient().getServerIp())) {
+				log.error("not found server-ip config.");
+				Solon.stop();
+				return;
+			}
+			if (null == proxyConfig.getClient().getServerPort()) {
+				log.error("not found server-port config.");
+				Solon.stop();
+				return;
+			}
+			if (null != proxyConfig.getClient().getSslEnable() && proxyConfig.getClient().getSslEnable()
+					&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
+				log.error("not found jks-path config.");
+				Solon.stop();
+				return;
+			}
+			if (StrUtil.isEmpty(proxyConfig.getClient().getLicenseKey())) {
+				log.error("not found license-key config.");
+				Solon.stop();
+				return;
+			}
+			if (null == channel || !channel.isActive()) {
+				try {
+					connectProxyServer();
+				} catch (Exception e) {
+					log.error("client start error", e);
+				}
+			} else {
+				channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
+			}
 		}
-		if (null != proxyConfig.getClient().getSslEnable() && proxyConfig.getClient().getSslEnable()
-			&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
-			log.error("not found jks-path config.");
-			Solon.stop();
-			return;
+
+		/**
+		 * 连接代理服务器
+		 */
+		private void connectProxyServer() throws InterruptedException {
+			bootstrap.connect(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort())
+					.addListener(new ChannelFutureListener() {
+
+						@Override
+						public void operationComplete(ChannelFuture future) throws Exception {
+							if (future.isSuccess()) {
+								channel = future.channel();
+								// 连接成功，向服务器发送客户端认证信息（licenseKey）
+								ProxyUtil.setCmdChannel(future.channel());
+								future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
+								log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
+
+//						reconnectServiceEnable = true;
+								reconnectCount = 0;
+							} else {
+								log.info("连接代理服务失败!");
+							}
+						}
+					}).sync();
 		}
-		if (StrUtil.isEmpty(proxyConfig.getClient().getLicenseKey())) {
-			log.error("not found license-key config.");
-			Solon.stop();
-			return;
+
+		private ChannelHandler createSslHandler() {
+			try {
+				InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getClient().getJksPath());
+
+				SSLContext clientContext = SSLContext.getInstance("TLS");
+				final KeyStore ks = KeyStore.getInstance("JKS");
+				ks.load(jksInputStream, proxyConfig.getClient().getKeyStorePassword().toCharArray());
+				TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				tmf.init(ks);
+				TrustManager[] trustManagers = tmf.getTrustManagers();
+				clientContext.init(null, trustManagers, null);
+
+				SSLEngine sslEngine = clientContext.createSSLEngine();
+				sslEngine.setUseClientMode(true);
+
+				return new SslHandler(sslEngine);
+			} catch (Exception e) {
+				log.error("创建SSL处理器失败", e);
+				e.printStackTrace();
+			}
+			return null;
 		}
-		if (null == channel || !channel.isActive()) {
+
+		protected synchronized void reconnect() {
+//		if (!reconnectServiceEnable) {
+//			return;
+//		}
+			if (null != channel) {
+				if (channel.isActive()) {
+					return;
+				}
+				channel.close();
+			}
+
+			log.info("客户端重连 seq:{}", ++reconnectCount);
 			try {
 				connectProxyServer();
 			} catch (Exception e) {
-				log.error("client start error", e);
+				log.error("重连异常", e);
 			}
-		} else {
-			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
 		}
-	}
-
-	/**
-	 * 连接代理服务器
-	 */
-	private void connectProxyServer() throws InterruptedException {
-		bootstrap.connect(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort())
-			.addListener(new ChannelFutureListener() {
-
-				@Override
-				public void operationComplete(ChannelFuture future) throws Exception {
-					if (future.isSuccess()) {
-						channel = future.channel();
-						// 连接成功，向服务器发送客户端认证信息（licenseKey）
-						ProxyUtil.setCmdChannel(future.channel());
-						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
-						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
-
-						reconnectServiceEnable = true;
-						reconnectCount = 0;
-					} else {
-						log.info("连接代理服务失败!");
-					}
-				}
-			}).sync();
-	}
-
-	private ChannelHandler createSslHandler() {
-		try {
-			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getClient().getJksPath());
-
-			SSLContext clientContext = SSLContext.getInstance("TLS");
-			final KeyStore ks = KeyStore.getInstance("JKS");
-			ks.load(jksInputStream, proxyConfig.getClient().getKeyStorePassword().toCharArray());
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			tmf.init(ks);
-			TrustManager[] trustManagers = tmf.getTrustManagers();
-			clientContext.init(null, trustManagers, null);
-
-			SSLEngine sslEngine = clientContext.createSSLEngine();
-			sslEngine.setUseClientMode(true);
-
-			return new SslHandler(sslEngine);
-		} catch (Exception e) {
-			log.error("创建SSL处理器失败", e);
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	protected synchronized void reconnect() {
-		if (!reconnectServiceEnable || null == channel) {
-			return;
-		}
-		if (channel.isActive()) {
-			return;
-		}
-		channel.close();
-		log.info("客户端重连 seq:{}", ++reconnectCount);
-		try {
-			connectProxyServer();
-		} catch (Exception e) {
-			log.error("重连异常", e);
-		}
-	}
 }
