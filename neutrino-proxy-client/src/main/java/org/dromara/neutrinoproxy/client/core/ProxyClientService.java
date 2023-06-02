@@ -49,7 +49,7 @@ public class ProxyClientService {
 	/**
 	 * 重连间隔（秒）
 	 */
-	private static final long RECONNECT_INTERVAL_SECONDS = 8;
+	private static final long RECONNECT_INTERVAL_SECONDS = 6;
 	/**
 	 * 重连次数
 	 */
@@ -65,7 +65,7 @@ public class ProxyClientService {
 
 	@Init
 	public void init() {
-		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 15, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
 		NioEventLoopGroup workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
 		realServerBootstrap.group(workerGroup);
@@ -80,7 +80,7 @@ public class ProxyClientService {
 
 		bootstrap.group(workerGroup);
 		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+		bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
 		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 		/**
 		 * TCP/IP协议中，无论发送多少数据，总是要在数据前面加上协议头，同时，对方接收到数据，也需要发送ACK表示确认。为了尽可能的利用网络带宽，TCP总是希望尽可能的发送足够大的数据。（一个连接会设置MSS参数，因此，TCP/IP希望每次都能够以MSS尺寸的数据块来发送数据）。

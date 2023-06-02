@@ -150,7 +150,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		if (null != cmdChannel) {
 			String _clientId = ProxyUtil.getClientIdByLicenseId(licenseDO.getId());
 			if (!clientId.equals(_clientId)) {
-				log.warn("[客户端连接] 当前license已被另一节点使用 info:{} ", info);
+				log.warn("[客户端连接] 当前license已被另一节点使用 info:{} _clientId:{}", info, _clientId);
 				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
 				ctx.channel().close();
 				clientConnectRecordService.add(new ClientConnectRecordDO()

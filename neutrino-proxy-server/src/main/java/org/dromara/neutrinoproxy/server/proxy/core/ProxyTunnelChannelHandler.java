@@ -89,18 +89,22 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
         } else {
             CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
             if (null != cmdChannelAttachInfo) {
-                Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
-                Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
-                        .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
-                        .setLicenseId(cmdChannelAttachInfo.getLicenseId())
-                        .setType(ClientConnectTypeEnum.DISCONNECT.getType())
-                        .setMsg("")
-                        .setCode(SuccessCodeEnum.SUCCESS.getCode())
-                        .setCreateTime(new Date())
-                );
-                ProxyUtil.removeCmdChannel(ctx.channel());
-                // 防止下次换一个客户端，无法连接的情况
-                ProxyUtil.removeClientIdByLicenseId(cmdChannelAttachInfo.getLicenseId());
+                Channel curCmdChannel = ProxyUtil.getCmdChannelByLicenseId(cmdChannelAttachInfo.getLicenseId());
+                // 客户端切换网络后，连接断开，但服务端还未触发断开事件。此时客户端重连上了，然后服务端触发了断开，此时不应该更新在线状态
+                if (curCmdChannel == ctx.channel()) {
+                    Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
+                    Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
+                            .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
+                            .setLicenseId(cmdChannelAttachInfo.getLicenseId())
+                            .setType(ClientConnectTypeEnum.DISCONNECT.getType())
+                            .setMsg("")
+                            .setCode(SuccessCodeEnum.SUCCESS.getCode())
+                            .setCreateTime(new Date())
+                    );
+                    ProxyUtil.removeCmdChannel(ctx.channel());
+                    // 防止下次换一个客户端，无法连接的情况
+                    ProxyUtil.removeClientIdByLicenseId(cmdChannelAttachInfo.getLicenseId());
+                }
             }
         }
 
