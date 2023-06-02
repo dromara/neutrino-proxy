@@ -136,7 +136,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.LICENSE_CANNOT_REPEAT_CONNECT.getCode(), "当前license已被另一节点使用!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
