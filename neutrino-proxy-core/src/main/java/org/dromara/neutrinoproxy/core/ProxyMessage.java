@@ -100,9 +100,9 @@ public class ProxyMessage {
         return create().setType(TYPE_HEARTBEAT);
     }
 
-    public static ProxyMessage buildAuthMessage(String info) {
+    public static ProxyMessage buildAuthMessage(String info, String clientId) {
         return create().setType(TYPE_AUTH)
-            .setInfo(info);
+            .setInfo(info + "," + clientId);
     }
 
     public static ProxyMessage buildAuthResultMessage(Integer code, String msg, String licenseKey) {

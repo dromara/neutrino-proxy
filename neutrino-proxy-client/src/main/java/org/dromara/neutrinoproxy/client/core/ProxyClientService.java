@@ -142,7 +142,7 @@ public class ProxyClientService {
 					log.error("client start error", e);
 				}
 			} else {
-				channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
+				channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
 			}
 		}
 
@@ -159,7 +159,7 @@ public class ProxyClientService {
 								channel = future.channel();
 								// 连接成功，向服务器发送客户端认证信息（licenseKey）
 								ProxyUtil.setCmdChannel(future.channel());
-								future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
+								future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
 								log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 
 //						reconnectServiceEnable = true;

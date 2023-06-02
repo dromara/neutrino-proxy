@@ -31,7 +31,9 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			log.info("client auth failed , client stop.");
 			context.channel().close();
 			Solon.stop();
-		} else {
+		} else if (ExceptionEnum.CONNECT_FAILED.getCode().equals(code) ||
+				ExceptionEnum.LICENSE_CANNOT_REPEAT_CONNECT.getCode().equals(code)
+		){
 			context.channel().close();
 		}
 	}

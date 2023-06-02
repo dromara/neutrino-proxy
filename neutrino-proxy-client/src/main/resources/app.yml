@@ -21,3 +21,4 @@ neutrino:
       ssl-enable: ${SSL_ENABLE:true}
       obtain-license-interval: 5
       license-key: ${LICENSE_KEY:}
+      client-id: ${CLIENT_ID:}

@@ -79,8 +79,17 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 		Date now = new Date();
 
+		String info = proxyMessage.getInfo();
+		String[] tmp = info.split(",");
 		String licenseKey = proxyMessage.getInfo();
+		String clientId = "";
+		if (tmp.length == 2) {
+			licenseKey = tmp[0];
+			clientId = tmp[1];
+		}
+
 		if (StrUtil.isEmpty(licenseKey)) {
+			log.warn("[客户端连接] license不能为空 info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -95,6 +104,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
+			log.warn("[客户端连接] license不存在 info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -108,6 +118,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
+			log.warn("[客户端连接] 当前license已被禁用 info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被禁用!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -122,6 +133,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
+			log.warn("[客户端连接] 当前license无效 info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license无效!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -136,17 +148,21 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 		if (null != cmdChannel) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.LICENSE_CANNOT_REPEAT_CONNECT.getCode(), "当前license已被另一节点使用!", licenseKey));
-			ctx.channel().close();
-			clientConnectRecordService.add(new ClientConnectRecordDO()
-					.setIp(ip)
-					.setLicenseId(licenseDO.getId())
-					.setType(ClientConnectTypeEnum.CONNECT.getType())
-					.setMsg(licenseKey)
-					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("当前license已被另一节点使用!")
-					.setCreateTime(now));
-			return;
+			String _clientId = ProxyUtil.getClientIdByLicenseId(licenseDO.getId());
+			if (!clientId.equals(_clientId)) {
+				log.warn("[客户端连接] 当前license已被另一节点使用 info:{} ", info);
+				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
+				ctx.channel().close();
+				clientConnectRecordService.add(new ClientConnectRecordDO()
+						.setIp(ip)
+						.setLicenseId(licenseDO.getId())
+						.setType(ClientConnectTypeEnum.CONNECT.getType())
+						.setMsg(licenseKey)
+						.setCode(SuccessCodeEnum.FAIL.getCode())
+						.setErr("当前license已被另一节点使用!")
+						.setCreateTime(now));
+				return;
+			}
 		}
 		// 发送认证成功消息
 		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "认证成功!", licenseKey));
@@ -155,9 +171,14 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 				.setIp(ip)
 				.setLicenseId(licenseDO.getId())
 				.setType(ClientConnectTypeEnum.CONNECT.getType())
-				.setMsg(licenseKey)
+				.setMsg(info)
 				.setCode(SuccessCodeEnum.SUCCESS.getCode())
 				.setCreateTime(now));
+
+		// 设置当前licenseId对应的客户端ID
+		ProxyUtil.setLicenseIdToClientIdMap(licenseDO.getId(), clientId);
+
+		log.warn("[客户端连接] 认证成功 info:{} ", info);
 
 		// 更新license在线状态
 		licenseMapper.updateOnlineStatus(licenseDO.getId(), OnlineStatusEnum.ONLINE.getStatus(), now);

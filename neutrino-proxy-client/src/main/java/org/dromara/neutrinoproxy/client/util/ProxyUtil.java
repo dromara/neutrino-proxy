@@ -21,6 +21,8 @@
  */
 package org.dromara.neutrinoproxy.client.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.core.ProxyChannelBorrowListener;
 import org.dromara.neutrinoproxy.core.Constants;
 import io.netty.bootstrap.Bootstrap;
@@ -29,10 +31,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.util.AttributeKey;
+import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.noear.solon.Solon;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -53,6 +57,9 @@ public class ProxyUtil {
 	private static ConcurrentLinkedQueue<Channel> proxyChannelPool = new ConcurrentLinkedQueue<Channel>();
 
 	private static volatile Channel cmdChannel;
+
+	private static String clientId;
+	private static final String CLIENT_ID_FILE = ".NEUTRINO_PROXY_CLIENT_ID";
 
 	public static void borrowProxyChanel(Bootstrap bootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = proxyChannelPool.poll();
@@ -128,5 +135,25 @@ public class ProxyUtil {
 		}
 
 		realServerChannels.clear();
+	}
+
+	public static String getClientId() {
+		if (StringUtils.isNotBlank(clientId)) {
+			return clientId;
+		}
+		ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
+		if (StringUtils.isNotBlank(proxyConfig.getClient().getClientId())) {
+			clientId = proxyConfig.getClient().getClientId();
+			return clientId;
+		}
+		String id = FileUtil.readContentAsString(CLIENT_ID_FILE);
+		if (StringUtils.isNotBlank(id)) {
+			clientId = id;
+			return id;
+		}
+		id = UUID.randomUUID().toString().replace("-", "");
+		FileUtil.write(CLIENT_ID_FILE, id);
+		clientId = id;
+		return id;
 	}
 }

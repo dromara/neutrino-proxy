@@ -39,5 +39,6 @@ public class ProxyConfig {
 		private Integer obtainLicenseInterval;
 		private String licenseKey;
 		private Integer threadCount;
+		private String clientId;
 	}
 }

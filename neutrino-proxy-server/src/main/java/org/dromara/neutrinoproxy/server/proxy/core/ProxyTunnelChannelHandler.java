@@ -99,6 +99,8 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
                         .setCreateTime(new Date())
                 );
                 ProxyUtil.removeCmdChannel(ctx.channel());
+                // 防止下次换一个客户端，无法连接的情况
+                ProxyUtil.removeClientIdByLicenseId(cmdChannelAttachInfo.getLicenseId());
             }
         }
 
