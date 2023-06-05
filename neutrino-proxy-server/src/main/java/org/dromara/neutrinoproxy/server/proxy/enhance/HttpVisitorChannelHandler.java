@@ -68,11 +68,11 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
 
         String host = getHost(bytes);
+        log.debug("HttpProxy host: {}", host);
         if (StringUtils.isBlank(host)) {
             ctx.channel().close();
             return;
         }
-        log.debug("HttpProxy host: {}", host);
         if (!host.endsWith(domainName)) {
             ctx.channel().close();
             return;
