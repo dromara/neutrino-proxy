@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.core;
 
+import io.netty.handler.logging.LoggingHandler;
 import org.dromara.neutrinoproxy.core.ProxyMessageDecoder;
 import org.dromara.neutrinoproxy.core.ProxyMessageEncoder;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
@@ -111,7 +112,9 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 	}
 
 	private void proxyServerCommonInitHandler(SocketChannel ch) {
-//		ch.pipeline().addFirst(new LoggingHandler(ProxyServerRunner.class));
+		if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
+			ch.pipeline().addFirst(new LoggingHandler(ProxyTunnelServer.class));
+		}
 		ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
 			proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
 			proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));

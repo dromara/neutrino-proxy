@@ -20,6 +20,7 @@ neutrino:
       key-store-password: ${STORE_PASS:123456}
       key-manager-password: ${MGR_PASS:123456}
       jks-path: ${JKS_PATH:classpath:/test.jks}
+      transfer-log-enable: ${TUNNEL_LOG:false}
     server:
       boss-thread-count: 5
       work-thread-count: 20
@@ -29,6 +30,7 @@ neutrino:
       domain-name: ${DOMAIN_NAME:}
       key-store-password: ${HTTPS_STORE_PASS:}
       jks-path: ${HTTPS_JKS_PATH:}
+      transfer-log-enable: ${SERVER_LOG:false}
   data:
     db:
       type: ${DB_TYPE:sqlite}

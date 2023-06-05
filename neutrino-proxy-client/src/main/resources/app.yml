@@ -22,3 +22,4 @@ neutrino:
       obtain-license-interval: 5
       license-key: ${LICENSE_KEY:}
       client-id: ${CLIENT_ID:}
+      transfer-log-enable: ${CLIENT_LOG:false}

@@ -40,5 +40,6 @@ public class ProxyConfig {
 		private String licenseKey;
 		private Integer threadCount;
 		private String clientId;
+		private Boolean transferLogEnable;
 	}
 }
