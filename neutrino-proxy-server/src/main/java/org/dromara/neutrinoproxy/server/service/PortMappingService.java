@@ -149,7 +149,7 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
                 StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
                 StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
@@ -188,12 +188,12 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
         // 删除老的域名映射
-        if (NetworkProtocolEnum.HTTP.getDesc().equals(oldPortMappingDO.getProtocal()) &&
+        if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal()) &&
                 StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
         }
         // 更新域名映射
-        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
                 StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
                 StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
@@ -268,7 +268,7 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.HTTP.getDesc().equals(portMappingDO.getProtocal()) &&
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
                 StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
         }

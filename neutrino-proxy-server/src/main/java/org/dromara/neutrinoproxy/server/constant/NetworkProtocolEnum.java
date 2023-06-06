@@ -33,4 +33,9 @@ public enum NetworkProtocolEnum {
         }
         return map.get(desc);
     }
+
+    public static Boolean isHttp(String desc) {
+        NetworkProtocolEnum networkProtocolEnum = of(desc);
+        return NetworkProtocolEnum.HTTP == networkProtocolEnum;
+    }
 }
