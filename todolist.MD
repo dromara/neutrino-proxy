@@ -1,3 +1,15 @@
+# 1.x规划
+- Bug
+- 优化
+  - 心跳日志开关
+  - 客户端启动无限重连开关
+- UDP支持
+- 官网文档完善
+  - 常见问题汇总
+  - HTTPS配置说明
+- 协议重构
+- 代码重构
+
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
 - windows环境下直接运行发布版的jar包，日志输出乱码
