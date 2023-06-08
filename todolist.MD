@@ -9,7 +9,7 @@
   - HTTPS配置说明
 - 协议重构
 - 代码重构
-- 适配mariadb
+- [x] 适配mariadb
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
