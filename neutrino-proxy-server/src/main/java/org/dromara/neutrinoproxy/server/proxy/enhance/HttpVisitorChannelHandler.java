@@ -163,7 +163,8 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
             }
             // 域名
             String domain = line.substring(6);
-            return domain;
+            // 去掉域名后面的端口号
+            return domain.replaceAll(":.*", "");
         }
         return null;
     }
