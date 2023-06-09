@@ -41,5 +41,12 @@ public class ProxyConfig {
 		private Integer threadCount;
 		private String clientId;
 		private Boolean transferLogEnable;
+		private Reconnection reconnection;
+	}
+
+	@Data
+	public static class Reconnection {
+		private Integer intervalSeconds;
+		private Boolean unlimited;
 	}
 }

@@ -1,6 +1,7 @@
 package org.dromara.neutrinoproxy.client.handler;
 
 import com.alibaba.fastjson.JSONObject;
+import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ExceptionEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
@@ -10,6 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  * 认证信息处理器
@@ -20,6 +22,8 @@ import org.noear.solon.annotation.Component;
 @Match(type = Constants.ProxyDataTypeName.AUTH)
 @Component
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {
+	@Inject
+	private ProxyConfig proxyConfig;
 	@Override
 	public void handle(ChannelHandlerContext context, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
@@ -30,7 +34,9 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");
 			context.channel().close();
-			Solon.stop();
+			if (!proxyConfig.getClient().getReconnection().getUnlimited()) {
+				Solon.stop();
+			}
 		} else if (ExceptionEnum.CONNECT_FAILED.getCode().equals(code) ||
 				ExceptionEnum.LICENSE_CANNOT_REPEAT_CONNECT.getCode().equals(code)
 		){

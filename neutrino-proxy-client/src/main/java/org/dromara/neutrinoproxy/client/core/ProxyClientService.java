@@ -49,10 +49,10 @@ public class ProxyClientService {
 	@Inject("realServerBootstrap")
 	private Bootstrap realServerBootstrap;
 	private volatile Channel channel;
-	/**
-	 * 重连间隔（秒）
-	 */
-	private static final long RECONNECT_INTERVAL_SECONDS = 5;
+//	/**
+//	 * 重连间隔（秒）
+//	 */
+//	private static final long RECONNECT_INTERVAL_SECONDS = 5;
 	/**
 	 * 重连次数
 	 */
@@ -69,7 +69,7 @@ public class ProxyClientService {
 
 	@Init
 	public void init() {
-		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getClient().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
 		this.workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
 
 		realServerBootstrap.group(workerGroup);

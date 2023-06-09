@@ -4,7 +4,7 @@ server:
 neutrino:
   proxy:
     logger:
-      level: info
+      level: ${LOG_LEVEL:info}
     protocol:
       max-frame-length: ${MAX_FRAME_LENGTH:2097152}
       length-field-offset: 0

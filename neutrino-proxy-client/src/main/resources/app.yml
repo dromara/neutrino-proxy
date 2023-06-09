@@ -4,7 +4,7 @@ neutrino:
 
   proxy:
     logger:
-      level: info
+      level: ${LOG_LEVEL:info}
     protocol:
       max-frame-length: 2097152
       length-field-offset: 0
@@ -25,3 +25,6 @@ neutrino:
       license-key: ${LICENSE_KEY:}
       client-id: ${CLIENT_ID:}
       transfer-log-enable: ${CLIENT_LOG:false}
+      reconnection:
+        interval-seconds: 10
+        unlimited: false
