@@ -50,7 +50,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                         }
                     });
             bootstrap.bind("0.0.0.0", proxyConfig.getServer().getHttpProxyPort()).sync();
-            log.info("Http代理服务启动成功！");
+            log.info("Http代理服务启动成功！port:{}", proxyConfig.getServer().getHttpProxyPort());
         } catch (Exception e) {
             log.error("http proxy start err!", e);
         }
