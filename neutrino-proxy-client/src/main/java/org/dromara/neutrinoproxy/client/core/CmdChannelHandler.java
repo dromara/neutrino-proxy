@@ -24,7 +24,7 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
-            log.info("Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+            log.debug("Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }

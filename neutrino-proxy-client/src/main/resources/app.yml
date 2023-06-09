@@ -3,6 +3,8 @@ neutrino:
     name: neutrino-proxy-client
 
   proxy:
+    logger:
+      level: info
     protocol:
       max-frame-length: 2097152
       length-field-offset: 0

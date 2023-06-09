@@ -24,7 +24,7 @@ public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessag
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
-            log.info("Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
+            log.debug("Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }
@@ -71,7 +71,7 @@ public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessag
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.info("读写超时");
+                    log.debug("读写超时");
                     ctx.close();
                     break;
             }
