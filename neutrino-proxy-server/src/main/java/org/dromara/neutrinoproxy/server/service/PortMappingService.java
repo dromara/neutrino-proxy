@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Sets;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
@@ -31,14 +33,10 @@ import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
-import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
-import org.noear.solon.core.Lifecycle;
 import org.noear.solon.core.bean.LifecycleBean;
 
 import java.util.*;
@@ -51,25 +49,25 @@ import java.util.stream.Collectors;
  */
 @Component
 public class PortMappingService implements LifecycleBean {
-	@Inject
-	private MapperFacade mapperFacade;
-	@Db
-	private PortMappingMapper portMappingMapper;
-	@Db
-	private LicenseMapper licenseMapper;
-	@Db
-	private UserMapper userMapper;
-	@Db
-	private PortPoolMapper portPoolMapper;
-	@Inject
-	private VisitorChannelService visitorChannelService;
+    @Inject
+    private MapperFacade mapperFacade;
+    @Db
+    private PortMappingMapper portMappingMapper;
+    @Db
+    private LicenseMapper licenseMapper;
+    @Db
+    private UserMapper userMapper;
+    @Db
+    private PortPoolMapper portPoolMapper;
+    @Inject
+    private VisitorChannelService visitorChannelService;
 
-	@Inject
-	private PortPoolService portPoolService;
-	@Inject
-	private ProxyConfig proxyConfig;
-	@Inject
-	private DBInitialize dbInitialize;
+    @Inject
+    private PortPoolService portPoolService;
+    @Inject
+    private ProxyConfig proxyConfig;
+    @Inject
+    private DBInitialize dbInitialize;
 
     public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
         Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
@@ -77,6 +75,13 @@ public class PortMappingService implements LifecycleBean {
             //描述字段为模糊查询，在应用层处理，否则sqlite不支持
             req.setDescription("%" + req.getDescription() + "%");
         }
+
+        // 协议名称转换
+        if (StringUtils.isNotBlank(req.getProtocal())) {
+            NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
+            req.setProtocal(networkProtocolEnum.getDesc());
+        }
+
         List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(req);
         List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
         if (CollectionUtils.isEmpty(list)) {
@@ -113,10 +118,7 @@ public class PortMappingService implements LifecycleBean {
             }
         });
         //sorted [userId asc] [licenseId asc] [createTime asc]
-        respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId)
-                        .thenComparing(PortMappingListRes::getLicenseId)
-                        .thenComparing(PortMappingListRes::getCreateTime))
-                .collect(Collectors.toList());
+        respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId).thenComparing(PortMappingListRes::getLicenseId).thenComparing(PortMappingListRes::getCreateTime)).collect(Collectors.toList());
         return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
@@ -149,9 +151,7 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
-                StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
-                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
         return new PortMappingCreateRes();
@@ -188,14 +188,11 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
         // 删除老的域名映射
-        if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal()) &&
-                StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal()) && StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
         }
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
-                StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) &&
-                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
         return new PortMappingUpdateRes();
@@ -206,16 +203,7 @@ public class PortMappingService implements LifecycleBean {
         if (null == portMappingDO) {
             return null;
         }
-        PortMappingDetailRes res = new PortMappingDetailRes()
-                .setId(portMappingDO.getId())
-                .setLicenseId(portMappingDO.getLicenseId())
-                .setServerPort(portMappingDO.getServerPort())
-                .setClientIp(portMappingDO.getClientIp())
-                .setClientPort(portMappingDO.getClientPort())
-                .setIsOnline(portMappingDO.getIsOnline())
-                .setEnable(portMappingDO.getEnable())
-                .setCreateTime(portMappingDO.getCreateTime())
-                .setUpdateTime(portMappingDO.getUpdateTime());
+        PortMappingDetailRes res = new PortMappingDetailRes().setId(portMappingDO.getId()).setLicenseId(portMappingDO.getLicenseId()).setServerPort(portMappingDO.getServerPort()).setClientIp(portMappingDO.getClientIp()).setClientPort(portMappingDO.getClientPort()).setIsOnline(portMappingDO.getIsOnline()).setEnable(portMappingDO.getEnable()).setCreateTime(portMappingDO.getCreateTime()).setUpdateTime(portMappingDO.getUpdateTime());
 
         LicenseDO license = licenseMapper.findById(portMappingDO.getLicenseId());
         if (null != license) {
@@ -268,8 +256,7 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) &&
-                StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
         }
     }
@@ -295,10 +282,7 @@ public class PortMappingService implements LifecycleBean {
         if (StrUtil.isBlank(proxyConfig.getServer().getDomainName())) {
             return;
         }
-        List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>()
-                .eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc())
-                .isNotNull(PortMappingDO::getSubdomain)
-        );
+        List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc()).isNotNull(PortMappingDO::getSubdomain));
         if (CollectionUtil.isEmpty(portMappingDOList)) {
             return;
         }
