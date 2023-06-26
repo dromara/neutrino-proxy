@@ -1,6 +1,7 @@
 server:
   # 服务端web端口，用于支持HTTP接口，管理后台页面访问
   port: ${WEB_PORT:8888}
+  context-path: /neutrino-proxy-server
 
 neutrino:
   proxy:

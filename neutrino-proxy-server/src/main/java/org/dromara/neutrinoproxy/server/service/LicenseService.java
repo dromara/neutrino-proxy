@@ -26,7 +26,6 @@ import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
-import org.jetbrains.annotations.Nullable;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
@@ -90,7 +89,6 @@ public class LicenseService implements LifecycleBean {
 		return licenseList;
 	}
 
-	@Nullable
 	private List<LicenseListRes> assembleConvertLicenses(List<LicenseDO> list) {
 		List<LicenseListRes> licenseList = mapperFacade.mapAsList(list, LicenseListRes.class);
 		if (!CollectionUtil.isEmpty(licenseList)) {
