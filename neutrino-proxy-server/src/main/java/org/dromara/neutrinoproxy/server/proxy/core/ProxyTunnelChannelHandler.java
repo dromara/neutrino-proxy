@@ -131,6 +131,7 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
+                    ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
                     break;

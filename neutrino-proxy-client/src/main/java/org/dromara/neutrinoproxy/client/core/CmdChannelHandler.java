@@ -61,14 +61,14 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-//                    log.info("读超时");
-//                    ctx.channel().close();
+                    log.error("Client CmdChannel 读超时，断开连接");
+                    ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.info("Client CmdChannel 读写超时");
+                    log.error("Client CmdChannel 读写超时，断开连接");
                     ctx.close();
                     break;
             }
