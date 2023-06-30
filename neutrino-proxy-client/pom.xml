@@ -32,9 +32,9 @@
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>false</filtering>
 
-                <excludes>
-                    <exclude>app-*.yml</exclude>
-                </excludes>
+<!--                <excludes>-->
+<!--                    <exclude>app-*.yml</exclude>-->
+<!--                </excludes>-->
             </resource>
         </resources>
         <plugins>
