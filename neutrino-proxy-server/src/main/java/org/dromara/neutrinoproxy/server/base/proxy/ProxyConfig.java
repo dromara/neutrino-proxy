@@ -62,6 +62,7 @@ public class ProxyConfig {
 		private String keyManagerPassword;
 		private String jksPath;
 		private Boolean transferLogEnable;
+		private Boolean heartbeatLogEnable;
 	}
 
 }

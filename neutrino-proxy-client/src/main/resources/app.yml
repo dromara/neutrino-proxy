@@ -33,6 +33,8 @@ neutrino:
       client-id: ${CLIENT_ID:}
       # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
       transfer-log-enable: ${CLIENT_LOG:false}
+      # 是否开启心跳日志
+      heartbeat-log-enable: ${HEARTBEAT_LOG:false}
       # 重连设置
       reconnection:
         # 重连间隔（秒）

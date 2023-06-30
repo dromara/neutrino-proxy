@@ -25,6 +25,7 @@ package org.dromara.neutrinoproxy.server.proxy.core;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
+import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.constant.ClientConnectTypeEnum;
 import org.dromara.neutrinoproxy.server.constant.SuccessCodeEnum;
 import org.dromara.neutrinoproxy.server.dal.entity.ClientConnectRecordDO;
@@ -49,13 +50,21 @@ import java.util.Date;
 @Slf4j
 public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
+    private static volatile Boolean transferLogEnable = Boolean.FALSE;
 
     public ProxyTunnelChannelHandler() {
         dispatcher = Solon.context().getBean(Dispatcher.class);
+        ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
+        if (null != proxyConfig.getTunnel() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
+            transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
+        }
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
+        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
+            log.debug("Server CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+        }
         dispatcher.dispatch(ctx, proxyMessage);
     }
 

@@ -41,6 +41,7 @@ public class ProxyConfig {
 		private Integer threadCount;
 		private String clientId;
 		private Boolean transferLogEnable;
+		private Boolean heartbeatLogEnable;
 		private Reconnection reconnection;
 	}
 

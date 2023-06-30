@@ -32,6 +32,8 @@ neutrino:
       jks-path: ${JKS_PATH:classpath:/test.jks}
       # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
       transfer-log-enable: ${TUNNEL_LOG:false}
+      # 是否开启心跳日志
+      heartbeat-log-enable: ${HEARTBEAT_LOG:false}
     server:
       # 线程池相关配置，用于技术调优，可忽略
       boss-thread-count: 5

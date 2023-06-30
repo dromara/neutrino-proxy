@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.client.core;
 
+import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
@@ -19,11 +20,18 @@ import org.noear.solon.Solon;
  */
 @Slf4j
 public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
+    private static volatile Boolean transferLogEnable = Boolean.FALSE;
 
+    public CmdChannelHandler() {
+        ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
+        if (null != proxyConfig.getClient() && null != proxyConfig.getClient().getHeartbeatLogEnable()) {
+            transferLogEnable = proxyConfig.getClient().getHeartbeatLogEnable();
+        }
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
-        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
+        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
             log.debug("Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
