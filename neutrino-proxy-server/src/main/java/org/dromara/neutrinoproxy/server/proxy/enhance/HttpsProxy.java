@@ -53,7 +53,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                             if (null != proxyConfig.getServer().getTransferLogEnable() && proxyConfig.getServer().getTransferLogEnable()) {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpsProxy.class));
                             }
-//                            ch.pipeline().addLast(createSslHandler());
+                            ch.pipeline().addLast(createSslHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getDomainName()));
                         }
