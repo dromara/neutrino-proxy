@@ -17,6 +17,6 @@ public class DemoJob implements IJobHandler {
 
 	@Override
 	public void execute(String param) throws Exception {
-		System.out.println("DemoJob execute param:" + param);
+		log.debug("DemoJob execute param: {}", param);
 	}
 }

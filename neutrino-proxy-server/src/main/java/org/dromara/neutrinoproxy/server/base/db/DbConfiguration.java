@@ -31,7 +31,6 @@ public class DbConfiguration {
             dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
             return dataSource;
         } else if (DbTypeEnum.MYSQL == dbTypeEnum) {
-            HikariDataSource dataSource = new HikariDataSource();
             String driver = "com.mysql.cj.jdbc.Driver";
             try {
                 Class.forName(driver);
@@ -39,22 +38,24 @@ public class DbConfiguration {
                 // 对类名的判断,异常则说明不存在:
                 driver = "com.mysql.jdbc.Driver";
             }
-            dataSource.setDriverClassName(driver);
-            dataSource.setJdbcUrl(dbConfig.getUrl());
-            dataSource.setMinimumIdle(5);
-            dataSource.setMaximumPoolSize(20);
-            dataSource.setMaxLifetime(60000);
-//            dataSource.setInitialSize(5);
-//            dataSource.setMinIdle(5);
-//            dataSource.setMaxActive(20);
-//            dataSource.setMaxWait(60000);
-//            dataSource.setPoolPreparedStatements(true);
-            dataSource.setUsername(dbConfig.getUsername());
-            dataSource.setPassword(dbConfig.getPassword());
-            return dataSource;
+            return newHikariDataSource(dbConfig, driver);
+        } else if (DbTypeEnum.MARIADB == dbTypeEnum) {
+            return newHikariDataSource(dbConfig, "org.mariadb.jdbc.Driver");
         }
 
         return null;
+    }
+
+    private HikariDataSource newHikariDataSource(DbConfig dbConfig, String driverClass) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setJdbcUrl(dbConfig.getUrl());
+        dataSource.setMinimumIdle(5);
+        dataSource.setMaximumPoolSize(20);
+        dataSource.setMaxLifetime(60000);
+        dataSource.setUsername(dbConfig.getUsername());
+        dataSource.setPassword(dbConfig.getPassword());
+        return dataSource;
     }
 
     @Bean

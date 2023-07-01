@@ -61,7 +61,7 @@ public class JobLogService implements IJobCallback {
 		String msg = "";
 		if (null == throwable) {
 			msg = "执行成功";
-			log.info("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+			log.debug("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
 		} else {
 			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
 			msg = "执行异常:\r\n" + ExceptionUtils.getStackTrace(throwable);

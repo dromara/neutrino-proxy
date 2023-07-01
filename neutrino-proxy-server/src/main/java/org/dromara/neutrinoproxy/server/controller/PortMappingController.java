@@ -51,6 +51,7 @@ public class PortMappingController {
             // 目前仅HTTP支持绑定域名
 			req.setSubdomain(null);
         }
+		req.setProtocal(networkProtocolEnum.getDesc());
 
 		return portMappingService.create(req);
 	}
@@ -74,6 +75,7 @@ public class PortMappingController {
 			// 目前仅HTTP支持绑定域名
 			req.setSubdomain(null);
 		}
+		req.setProtocal(networkProtocolEnum.getDesc());
 
 		return portMappingService.update(req);
 	}

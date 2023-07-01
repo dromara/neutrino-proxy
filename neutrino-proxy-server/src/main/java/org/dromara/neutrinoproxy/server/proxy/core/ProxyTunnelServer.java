@@ -27,13 +27,13 @@ import java.io.InputStream;
 import java.security.KeyStore;
 
 /**
- *
+ * 代理隧道服务
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
 @Slf4j
 @Component
-public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
+public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 	@Inject
 	private ProxyConfig proxyConfig;
 	@Inject("tunnelBossGroup")
@@ -112,12 +112,14 @@ public class ProxyServerRunner implements EventListener<AppLoadEndEvent> {
 	}
 
 	private void proxyServerCommonInitHandler(SocketChannel ch) {
-//		ch.pipeline().addFirst(new LoggingHandler(ProxyServerRunner.class));
+		if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
+			ch.pipeline().addFirst(new LoggingHandler(ProxyTunnelServer.class));
+		}
 		ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
 			proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
 			proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
 		ch.pipeline().addLast(new ProxyMessageEncoder());
 		ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-		ch.pipeline().addLast(new ServerChannelHandler());
+		ch.pipeline().addLast(new ProxyTunnelChannelHandler());
 	}
 }

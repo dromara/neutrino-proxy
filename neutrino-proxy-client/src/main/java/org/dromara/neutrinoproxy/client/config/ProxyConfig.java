@@ -39,5 +39,15 @@ public class ProxyConfig {
 		private Integer obtainLicenseInterval;
 		private String licenseKey;
 		private Integer threadCount;
+		private String clientId;
+		private Boolean transferLogEnable;
+		private Boolean heartbeatLogEnable;
+		private Reconnection reconnection;
+	}
+
+	@Data
+	public static class Reconnection {
+		private Integer intervalSeconds;
+		private Boolean unlimited;
 	}
 }

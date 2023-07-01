@@ -1,4 +1,4 @@
-package org.dromara.neutrinoproxy.server.proxy.core;
+package org.dromara.neutrinoproxy.server.proxy.enhance;
 
 import cn.hutool.core.util.StrUtil;
 import io.netty.buffer.ByteBuf;
@@ -68,11 +68,11 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
 
         String host = getHost(bytes);
+        log.debug("HttpProxy host: {}", host);
         if (StringUtils.isBlank(host)) {
             ctx.channel().close();
             return;
         }
-        log.debug("HttpProxy host: {}", host);
         if (!host.endsWith(domainName)) {
             ctx.channel().close();
             return;
@@ -163,7 +163,8 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
             }
             // 域名
             String domain = line.substring(6);
-            return domain;
+            // 去掉域名后面的端口号
+            return domain.replaceAll(":.*", "");
         }
         return null;
     }

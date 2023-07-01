@@ -26,13 +26,14 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 客户端服务
+ * 代理客户端服务
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
@@ -41,23 +42,26 @@ import java.util.concurrent.TimeUnit;
 public class ProxyClientService {
 	@Inject
 	private ProxyConfig proxyConfig;
-	@Inject("bootstrap")
-	private Bootstrap bootstrap;
+	@Inject("cmdTunnelBootstrap")
+	private Bootstrap cmdTunnelBootstrap;
+	@Inject("proxyTunnelBootstrap")
+	private Bootstrap proxyTunnelBootstrap;
 	@Inject("realServerBootstrap")
 	private Bootstrap realServerBootstrap;
 	private volatile Channel channel;
-	/**
-	 * 重连间隔（秒）
-	 */
-	private static final long RECONNECT_INTERVAL_SECONDS = 5;
+//	/**
+//	 * 重连间隔（秒）
+//	 */
+//	private static final long RECONNECT_INTERVAL_SECONDS = 5;
 	/**
 	 * 重连次数
 	 */
 	private volatile int reconnectCount = 0;
-	/**
-	 * 启用重连服务
-	 */
-	private volatile boolean reconnectServiceEnable = false;
+//	/**
+//	 * 启用重连服务
+//	 */
+//	private volatile boolean reconnectServiceEnable = false;
+	private NioEventLoopGroup workerGroup;
 	/**
 	 * 重连服务执行器
 	 */
@@ -65,9 +69,9 @@ public class ProxyClientService {
 
 	@Init
 	public void init() {
-		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 0, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getClient().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
+		this.workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
 
-		NioEventLoopGroup workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
 		realServerBootstrap.group(workerGroup);
 		realServerBootstrap.channel(NioSocketChannel.class);
 		realServerBootstrap.handler(new ChannelInitializer<SocketChannel>() {
@@ -78,9 +82,10 @@ public class ProxyClientService {
 			}
 		});
 
-		bootstrap.group(workerGroup);
-		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+		proxyTunnelBootstrap.group(workerGroup);
+		proxyTunnelBootstrap.channel(NioSocketChannel.class);
+		proxyTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort()));
+		proxyTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
@@ -93,10 +98,46 @@ public class ProxyClientService {
 						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
 				ch.pipeline().addLast(new ProxyMessageEncoder());
 				ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-				ch.pipeline().addLast(new ClientChannelHandler());
+				ch.pipeline().addLast(new ProxyChannelHandler());
 			}
 		});
-		this.start();
+
+		cmdTunnelBootstrap.group(workerGroup);
+		cmdTunnelBootstrap.channel(NioSocketChannel.class);
+//		cmdTunnelBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+//		cmdTunnelBootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+//		/**
+//		 * TCP/IP协议中，无论发送多少数据，总是要在数据前面加上协议头，同时，对方接收到数据，也需要发送ACK表示确认。为了尽可能的利用网络带宽，TCP总是希望尽可能的发送足够大的数据。（一个连接会设置MSS参数，因此，TCP/IP希望每次都能够以MSS尺寸的数据块来发送数据）。
+//		 * Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
+//		 */
+//		cmdTunnelBootstrap.option(ChannelOption.TCP_NODELAY, true);
+		cmdTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort()));
+
+		cmdTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
+
+			@Override
+			public void initChannel(SocketChannel ch) throws Exception {
+				if (proxyConfig.getClient().getSslEnable()) {
+					ch.pipeline().addLast(createSslHandler());
+				}
+				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+					ch.pipeline().addFirst(new LoggingHandler(ProxyClientService.class));
+				}
+				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
+						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
+						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
+				ch.pipeline().addLast(new ProxyMessageEncoder());
+				ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
+				ch.pipeline().addLast(new CmdChannelHandler());
+			}
+		});
+
+		try {
+			this.start();
+		} catch (Exception e) {
+			// 启动连不上也做一下重连，因此先catch异常
+			log.error("[客户端指令隧道] 启动异常", e);
+		}
 	}
 
 	public void start() {
@@ -111,7 +152,7 @@ public class ProxyClientService {
 			return;
 		}
 		if (null != proxyConfig.getClient().getSslEnable() && proxyConfig.getClient().getSslEnable()
-			&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
+				&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
 			log.error("not found jks-path config.");
 			Solon.stop();
 			return;
@@ -128,7 +169,7 @@ public class ProxyClientService {
 				log.error("client start error", e);
 			}
 		} else {
-			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
+			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
 		}
 	}
 
@@ -136,7 +177,7 @@ public class ProxyClientService {
 	 * 连接代理服务器
 	 */
 	private void connectProxyServer() throws InterruptedException {
-		bootstrap.connect(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort())
+		cmdTunnelBootstrap.connect()
 			.addListener(new ChannelFutureListener() {
 
 				@Override
@@ -145,13 +186,13 @@ public class ProxyClientService {
 						channel = future.channel();
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
-						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey()));
-						log.info("连接代理服务成功. channelId:{}", future.channel().id().asLongText());
+						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
+						log.info("[客户端指令隧道] 连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 
-						reconnectServiceEnable = true;
+//						reconnectServiceEnable = true;
 						reconnectCount = 0;
 					} else {
-						log.info("连接代理服务失败!");
+						log.info("[客户端指令隧道] 连接代理服务失败!");
 					}
 				}
 			}).sync();
@@ -181,17 +222,21 @@ public class ProxyClientService {
 	}
 
 	protected synchronized void reconnect() {
-		if (!reconnectServiceEnable) {
-			return;
+//		if (!reconnectServiceEnable) {
+//			return;
+//		}
+		if (null != channel) {
+			if (channel.isActive()) {
+				return;
+			}
+			channel.close();
 		}
-		if (null != channel && channel.isActive()) {
-			return;
-		}
-		log.info("客户端重连 seq:{}", ++reconnectCount);
+
+		log.info("[客户端指令隧道] 客户端重连 seq:{}", ++reconnectCount);
 		try {
 			connectProxyServer();
 		} catch (Exception e) {
-			log.error("重连异常", e);
+			log.error("[客户端指令隧道] 重连异常", e);
 		}
 	}
 }

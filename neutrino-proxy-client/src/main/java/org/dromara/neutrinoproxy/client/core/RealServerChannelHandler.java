@@ -22,6 +22,7 @@
 
 package org.dromara.neutrinoproxy.client.core;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
@@ -36,6 +37,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
 
@@ -85,6 +87,6 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        log.error("Client ProxyChannel Error", cause);
     }
 }

@@ -1,10 +1,21 @@
-# 1.x剩余规划
-- [ ] 增加针对https的支持
+# 1.x规划
+- Bug
+- 优化
+  - 心跳日志开关
+  - 客户端启动无限重连开关
+- UDP支持
+- 官网文档完善
+  - 常见问题汇总
+  - HTTPS配置说明
+- 协议重构
+- 代码重构
+- [x] 适配mariadb
 
 # Bug
-- 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ServerChannelHandler.channelInactive 
+- 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
 - windows环境下直接运行发布版的jar包，日志输出乱码
 - 代理mysql时，使用未开启远程访问的账号走代理访问mysql，代理客户端出现断开现象
+- 客户端连接映射某个端口以后，如果在服务器端禁用了，没有立刻反映出来，要灯客户端重连以后才会屏蔽被禁用的端口。
 
 # 2.x规划
 - 插件开发
@@ -19,6 +30,8 @@
   - [ ] 支持调整服务端端口、证书
   - [ ] 服务端版本、协议版本、客户端版本管理
   - [ ] 服务端日志
+  - [ ] 支持持管理后台动态调整日志级别。
+  - [ ] 动态调整转发、报文、心跳输出
 - client+计划启动
   - [ ] 安卓客户端
   - [ ] 基于electron-egg的多平台客户端

@@ -25,6 +25,7 @@ package org.dromara.neutrinoproxy.server.proxy.core;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
+import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.constant.ClientConnectTypeEnum;
 import org.dromara.neutrinoproxy.server.constant.SuccessCodeEnum;
 import org.dromara.neutrinoproxy.server.dal.entity.ClientConnectRecordDO;
@@ -47,15 +48,23 @@ import java.util.Date;
  * @date: 2022/6/16
  */
 @Slf4j
-public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
+public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
     private static volatile Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher;
+    private static volatile Boolean transferLogEnable = Boolean.FALSE;
 
-    public ServerChannelHandler() {
+    public ProxyTunnelChannelHandler() {
         dispatcher = Solon.context().getBean(Dispatcher.class);
+        ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
+        if (null != proxyConfig.getTunnel() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
+            transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
+        }
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
+        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
+            log.debug("Server CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+        }
         dispatcher.dispatch(ctx, proxyMessage);
     }
 
@@ -89,17 +98,24 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
         } else {
             CmdChannelAttachInfo cmdChannelAttachInfo = ProxyUtil.getAttachInfo(ctx.channel());
             if (null != cmdChannelAttachInfo) {
-                Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
-                Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
-                        .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
-                        .setLicenseId(cmdChannelAttachInfo.getLicenseId())
-                        .setType(ClientConnectTypeEnum.DISCONNECT.getType())
-                        .setMsg("")
-                        .setCode(SuccessCodeEnum.SUCCESS.getCode())
-                        .setCreateTime(new Date())
-                );
-                ProxyUtil.removeCmdChannel(ctx.channel());
+                Channel curCmdChannel = ProxyUtil.getCmdChannelByLicenseId(cmdChannelAttachInfo.getLicenseId());
+                // 客户端切换网络后，连接断开，但服务端还未触发断开事件。此时客户端重连上了，然后服务端触发了断开，此时不应该更新在线状态
+                if (curCmdChannel == ctx.channel()) {
+                    Solon.context().getBean(ProxyMutualService.class).offline(cmdChannelAttachInfo);
+                    ProxyUtil.removeCmdChannel(ctx.channel());
+                    // 防止下次换一个客户端，无法连接的情况
+                    ProxyUtil.removeClientIdByLicenseId(cmdChannelAttachInfo.getLicenseId());
+                }
             }
+            // 即便是因为上述原因断开，断开的日志依然要记录，方便排查问题
+            Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
+                    .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
+                    .setLicenseId(cmdChannelAttachInfo.getLicenseId())
+                    .setType(ClientConnectTypeEnum.DISCONNECT.getType())
+                    .setMsg("")
+                    .setCode(SuccessCodeEnum.SUCCESS.getCode())
+                    .setCreateTime(new Date())
+            );
         }
 
         super.channelInactive(ctx);
@@ -120,10 +136,11 @@ public class ServerChannelHandler extends SimpleChannelInboundHandler<ProxyMessa
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-                    log.info("读超时");
+                    log.debug("读超时");
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
+                    ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
                     break;

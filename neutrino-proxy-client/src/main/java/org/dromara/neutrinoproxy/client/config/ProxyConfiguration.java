@@ -31,8 +31,13 @@ public class ProxyConfiguration implements LifecycleBean {
         Solon.context().wrapAndPut(Dispatcher.class, dispatcher);
     }
 
-    @Bean("bootstrap")
-    public Bootstrap bootstrap() {
+    @Bean("cmdTunnelBootstrap")
+    public Bootstrap cmdTunnelBootstrap() {
+        return new Bootstrap();
+    }
+
+    @Bean("proxyTunnelBootstrap")
+    public Bootstrap proxyTunnelBootstrap() {
         return new Bootstrap();
     }
 

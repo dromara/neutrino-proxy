@@ -49,6 +49,7 @@ public class ProxyConfig {
 		private Integer httpsProxyPort;
 		private String keyStorePassword;
 		private String jksPath;
+		private Boolean transferLogEnable;
 	}
 
 	@Data
@@ -60,6 +61,8 @@ public class ProxyConfig {
 		private String keyStorePassword;
 		private String keyManagerPassword;
 		private String jksPath;
+		private Boolean transferLogEnable;
+		private Boolean heartbeatLogEnable;
 	}
 
 }

@@ -63,6 +63,10 @@ public class ProxyUtil {
 	 * 子域名 - 服务端端口映射
 	 */
 	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
+	/**
+	 * licenseId - 客户端Id映射
+	 */
+	private static Map<Integer, String> licenseIdToClientIdMap = new HashMap<>();
 
 	/**
 	 * 初始化代理信息
@@ -386,5 +390,31 @@ public class ProxyUtil {
 		} catch (Exception e) {
 			// ignore
 		}
+	}
+
+	/**
+	 * 设置licenseId - clientId映射
+	 * @param licenseId
+	 * @param clientId
+	 */
+	public static void setLicenseIdToClientIdMap(Integer licenseId, String clientId) {
+		licenseIdToClientIdMap.put(licenseId, clientId);
+	}
+
+	/**
+	 * 根据licenseId获取clientId
+	 * @param licenseId
+	 * @return
+	 */
+	public static String getClientIdByLicenseId(Integer licenseId) {
+		return licenseIdToClientIdMap.get(licenseId);
+	}
+
+	/**
+	 * 根据licenseId删除clientId
+	 * @param licenseId
+	 */
+	public static void removeClientIdByLicenseId(Integer licenseId) {
+		licenseIdToClientIdMap.remove(licenseId);
 	}
 }
