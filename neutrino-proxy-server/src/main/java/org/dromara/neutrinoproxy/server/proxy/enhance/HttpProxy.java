@@ -43,7 +43,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             if (null != proxyConfig.getServer().getTransferLogEnable() && proxyConfig.getServer().getTransferLogEnable()) {
-                                ch.pipeline().addFirst(new LoggingHandler(ProxyTunnelServer.class));
+                                ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getDomainName()));

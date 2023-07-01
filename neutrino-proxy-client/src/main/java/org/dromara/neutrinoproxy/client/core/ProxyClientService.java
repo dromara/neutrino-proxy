@@ -78,6 +78,9 @@ public class ProxyClientService {
 
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
+				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+					ch.pipeline().addFirst(new LoggingHandler(RealServerChannelHandler.class));
+				}
 				ch.pipeline().addLast(new RealServerChannelHandler());
 			}
 		});
@@ -92,7 +95,9 @@ public class ProxyClientService {
 				if (proxyConfig.getClient().getSslEnable()) {
 					ch.pipeline().addLast(createSslHandler());
 				}
-//				ch.pipeline().addFirst(new LoggingHandler(ProxyClientService.class));
+				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+					ch.pipeline().addFirst(new LoggingHandler(ProxyChannelHandler.class));
+				}
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
 						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
 						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
@@ -121,7 +126,7 @@ public class ProxyClientService {
 					ch.pipeline().addLast(createSslHandler());
 				}
 				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
-					ch.pipeline().addFirst(new LoggingHandler(ProxyClientService.class));
+					ch.pipeline().addFirst(new LoggingHandler(CmdChannelHandler.class));
 				}
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
 						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
