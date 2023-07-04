@@ -101,6 +101,7 @@ export default {
     publish: 'Publish',
     draft: 'Draft',
     delete: 'Delete',
+    deleteBatch: 'DeleteBatch',
     cancel: 'Cancel',
     confirm: 'Confirm',
     portOrRange: 'example: 3306 or 1000-2000'

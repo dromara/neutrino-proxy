@@ -121,6 +121,7 @@ export default {
     publish: '发布',
     draft: '草稿',
     delete: '删除',
+    deleteBatch: '批量删除',
     cancel: '取 消',
     confirm: '确 定',
     userId: '用户ID',

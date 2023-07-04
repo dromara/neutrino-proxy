@@ -60,3 +60,13 @@ export function deletePortPool(id) {
     }
   })
 }
+
+export function deleteBatchPortPool(ids) {
+  return request({
+    url: '/port-pool/deleteBatch',
+    method: 'post',
+    data: {
+      ids:ids
+    }
+  })
+}

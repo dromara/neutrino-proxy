@@ -143,7 +143,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择">
+          <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择" filterable>
             <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
             </el-option>
           </el-select>
