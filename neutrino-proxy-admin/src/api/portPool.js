@@ -63,10 +63,10 @@ export function deletePortPool(id) {
 
 export function deleteBatchPortPool(ids) {
   return request({
-    url: '/port-pool/deleteBatch',
+    url: '/port-pool/delete-batch',
     method: 'post',
     data: {
-      ids:ids
+      ids: ids
     }
   })
 }

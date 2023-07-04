@@ -125,7 +125,7 @@ public class PortPoolController {
 	}
 
 	@Post
-	@Mapping("/deleteBatch")
+	@Mapping("/delete-batch")
 	@Authorization(onlyAdmin = true)
 	public void deleteBatch(PortPoolDeleteBatchReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
