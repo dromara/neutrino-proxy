@@ -42,3 +42,5 @@ npm run build:$env
 cd ..
 cp -rf ./neutrino-proxy-admin/dist $adminDeployDir/
 cp -rf ./neutrino-proxy-admin/dist/ $giteePagesDir
+cd $serverDeployDir
+zip -r neutrino-proxy-admin.zip "neutrino-proxy-admin/"
