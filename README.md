@@ -84,6 +84,9 @@
 <a href="https://gitee.com/zoo-plus" target="_blank">
 <img src="assets/developer/zoo-plus.png" width="12%">
 </a>
+<a href="https://gitee.com/MetalXingxing" target="_blank">
+<img src="assets/developer/metal.png" width="12%">
+</a>
 </p>
 
 #  ❤️ 感谢
