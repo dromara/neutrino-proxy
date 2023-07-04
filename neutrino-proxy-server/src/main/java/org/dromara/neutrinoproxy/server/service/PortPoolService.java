@@ -179,4 +179,15 @@ public class PortPoolService {
         LicenseDO licenseDO = licenseMapper.queryById(req.getLicenseId());
         return portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId());
     }
+
+    public void deleteBatch(List<Integer> ids) {
+        List<PortPoolDO> portPoolDOList = portPoolMapper.selectBatchIds(ids);
+        ParamCheckUtil.checkNotNull(portPoolDOList, ExceptionConstant.PORT_NOT_EXIST);
+
+        portPoolMapper.deleteBatchIds(ids);
+        // 更新visitorChannel
+        portPoolDOList.stream().forEach(portPoolDO -> {
+            visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());
+        });
+    }
 }
