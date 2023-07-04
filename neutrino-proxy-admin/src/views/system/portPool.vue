@@ -6,10 +6,13 @@
       </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <button-popover class="filter-item" style="margin-left: 10px;" size="medium" icon="el-icon-delete"
+                      :buttonText="$t('table.deleteBatch')" :disabled="checkBoxData.length==0" @handleCommitClick="handleDeleteBatch" />
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
-              style="width: 100%">
+              style="width: 100%" @selection-change="onTableRowChange">
+      <el-table-column align="center" width="40" type="selection" />
       <el-table-column align="center" :label="$t('table.id')" width="120">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
@@ -92,7 +95,7 @@
 </template>
 
 <script>
-import { createPortPool, deletePortPool, fetchList, updateEnableStatus, updatePortPool } from '@/api/portPool'
+import { createPortPool, deletePortPool, deleteBatchPortPool, fetchList, updateEnableStatus, updatePortPool } from '@/api/portPool'
 import { portGroupList } from '@/api/portGroup'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
@@ -157,7 +160,8 @@ const calendarTypeOptions = [
         rules: {
           port: [{ required: true, message: '端口必填', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        checkBoxData:[], //表单勾选的行
       }
     },
     filters: {
@@ -320,6 +324,24 @@ const calendarTypeOptions = [
             return v[j]
           }
         }))
+      },
+      onTableRowChange(val){ //表单勾选后赋值
+        this.checkBoxData = val
+      },
+      handleDeleteBatch(){ //批量删除操作
+        let ids = []
+        this.checkBoxData.forEach(item => {ids.push(item.id)})
+        deleteBatchPortPool(ids).then(response => {
+          if (response.data.code === 0) {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
+          }
+        })
       }
     }
   }

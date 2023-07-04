@@ -123,4 +123,14 @@ public class PortPoolController {
 		ParamCheckUtil.checkNotEmpty(req.getPortIdList(), "portIdList");
 		return portPoolService.updateGroup(req);
 	}
+
+	@Post
+	@Mapping("/delete-batch")
+	@Authorization(onlyAdmin = true)
+	public void deleteBatch(PortPoolDeleteBatchReq req) {
+		ParamCheckUtil.checkNotNull(req, "req");
+		ParamCheckUtil.checkNotNull(req.getIds(), "ids");
+
+		portPoolService.deleteBatch(req.getIds());
+	}
 }

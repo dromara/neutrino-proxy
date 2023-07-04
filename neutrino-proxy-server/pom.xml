@@ -70,7 +70,7 @@
                 <filtering>false</filtering>
 
                 <excludes>
-                    <exclude>app-*.yml</exclude>
+                    <exclude>app-dev.yml</exclude>
                 </excludes>
             </resource>
         </resources>
