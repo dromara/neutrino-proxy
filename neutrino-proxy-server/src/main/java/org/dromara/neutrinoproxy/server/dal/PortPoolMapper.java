@@ -67,5 +67,5 @@ public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
 
 	List<PortPoolListRes> selectResList(@Param("req") PortPoolListReq req);
 
-    List<PortPoolListRes> getAvailablePortList(@Param("licenseId") Integer licenseId,@Param("userId") Integer userId);
+    List<PortPoolListRes> getAvailablePortList(@Param("licenseId") Integer licenseId,@Param("userId") Integer userId, @Param("keyword") String keyword);
 }

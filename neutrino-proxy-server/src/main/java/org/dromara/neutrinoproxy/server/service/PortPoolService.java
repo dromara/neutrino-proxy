@@ -175,9 +175,17 @@ public class PortPoolService {
      * 游客：全局端口 + 当前选择用户独占端口 + 当前选择license独占端口
      * 非管理员身份时：下拉选择license，只能选当前用户下的LICENSE
      */
-    public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+    public PageInfo<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+
         LicenseDO licenseDO = licenseMapper.queryById(req.getLicenseId());
-        return portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId());
+        if(StringUtils.isNotEmpty(req.getKeyword())){
+            req.setKeyword(req.getKeyword()+"%");
+        }
+
+        Page<PortPoolListRes> result = PageHelper.startPage(req.getPage(), req.getSize());
+        List<PortPoolListRes> portList = portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId(), req.getKeyword());
+
+        return PageInfo.of(portList, result.getTotal(), req.getPage(), req.getSize());
     }
 
     public void deleteBatch(List<Integer> ids) {
