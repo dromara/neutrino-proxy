@@ -102,7 +102,7 @@ public class PortPoolController {
 
 	@Get
 	@Mapping("/get-available-port-list")
-	public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+	public PageInfo<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
 		return portPoolService.getAvailablePortList(req);

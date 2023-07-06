@@ -142,11 +142,22 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('服务端端口')" prop="serverPort">
+        <!--<el-form-item :label="$t('服务端端口')" prop="serverPort">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择" filterable>
             <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
             </el-option>
           </el-select>
+        </el-form-item>-->
+        <el-form-item :label="$t('服务端端口')" prop="serverPort" >
+          <load-select style="width: 280px;" class="filter-item"
+            v-model="temp.serverPort"
+            :data="serverPortList"
+            :page="loadServerPortQuery.page"
+            :hasMore="more"
+            :clearable="false"
+            :dictLabel="'port'"
+            :dictValue="'port'"
+            :request="loadServerPort"/>
         </el-form-item>
         <el-form-item :label="$t('客户端IP')" prop="clientIp">
           <el-input v-model="temp.clientIp"></el-input>
@@ -196,6 +207,8 @@ import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
 import DropdownTable from '../../components/Dropdown/DropdownTable'
+// 下拉选择加载组件
+import loadSelect from "@/components/Select/SelectLoadMore";
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -217,7 +230,8 @@ export default {
   },
   components: {
     DropdownTable,
-    ButtonPopover
+    ButtonPopover,
+    loadSelect
   },
   data() {
     return {
@@ -282,7 +296,13 @@ export default {
       countryColumns: [
         { prop: 'userName', label: '用户名', align: 'center' },
         { prop: 'name', label: 'License', align: 'center' }
-      ]
+      ],
+      loadServerPortQuery:{ //下拉框加载数据请求参数
+        page:1,
+        size:50,
+        licenseId:null,
+      },
+      more: true,
     }
   },
   filters: {
@@ -343,15 +363,9 @@ export default {
         this.domainName = response.data.data
       })
     },
-    getPortPoolList() {
-      portPoolList().then(response => {
-        this.serverPortList = response.data.data
-      })
-    },
     getAvailablePortList(licenseId) {
-      availablePortList(licenseId).then(response => {
-        this.serverPortList = response.data.data
-      })
+      this.loadServerPortQuery.licenseId = licenseId;
+      this.serverPortList = []; //清掉数据
     },
     getAllUserList() {
       userList().then(response => {
@@ -408,6 +422,8 @@ export default {
         userId: undefined
       }
       this.serverPortList = []
+      this.loadServerPortQuery.licenseId = null;
+      this.more = true;
     },
     handleCreate() {
       this.resetTemp()
@@ -526,7 +542,37 @@ export default {
           return v[j]
         }
       }))
-    }
+    },
+    // 传入给load-select组件的函数
+    loadServerPort({page = 1, more = false, keyword = ""} = {}) {
+      if(this.loadServerPortQuery.licenseId==null || this.loadServerPortQuery.licenseId==''){
+        this.more = false;
+        this.$message({
+          message: '请先选择License',
+          type: 'warning'
+        })
+        return ;
+      }
+      return new Promise(resolve => {
+        this.loadServerPortQuery.page = page;
+        this.loadServerPortQuery.keyword = keyword;
+        // 访问后端接口API
+        availablePortList(this.loadServerPortQuery).then(res => {
+          let result = res.data;
+          if (more) {
+            this.serverPortList = [...this.serverPortList, ...result.data.records];
+          } else {
+            this.serverPortList = result.data.records;
+          }
+
+          // this.loadServerPortQuery.page = result.data.current;
+          let {total, current, size} = result.data;
+          this.more = page * size < total;
+          this.loadServerPortQuery.page = current;
+          resolve();
+        });
+      });
+    },
   }
 }
 </script>
