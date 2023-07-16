@@ -1,15 +1,14 @@
 # 1.x规划
 - Bug
 - 优化
-  - 心跳日志开关
-  - 客户端启动无限重连开关
+  - 添加端口映射时，验证端口是否被其他服务占用
+  - 拉下搜索license，支持模糊搜索
+  - license下拉用户搜索，支持模糊搜索
 - UDP支持
 - 官网文档完善
-  - 常见问题汇总
   - HTTPS配置说明
 - 协议重构
 - 代码重构
-- [x] 适配mariadb
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
