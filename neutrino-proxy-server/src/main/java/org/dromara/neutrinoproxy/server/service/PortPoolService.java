@@ -28,6 +28,7 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.controller.req.system.*;
 import org.dromara.neutrinoproxy.server.controller.res.system.*;
 import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
+import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -197,5 +198,14 @@ public class PortPoolService {
         portPoolDOList.stream().forEach(portPoolDO -> {
             visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());
         });
+    }
+
+    /**
+     * 检查端口是否被占用
+     * @param port
+     * @return
+     */
+    public boolean portAvailable(Integer port) {
+        return PortAvailableUtil.isPortAvailable(port);
     }
 }

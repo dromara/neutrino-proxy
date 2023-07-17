@@ -68,3 +68,11 @@ export function deleteBatchPortPool(ids) {
     }
   })
 }
+
+export function portAvailable(query) {
+  return request({
+    url: '/port-pool/port-available',
+    method: 'get',
+    params: query
+  })
+}

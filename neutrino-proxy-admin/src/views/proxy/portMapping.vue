@@ -142,12 +142,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <!--<el-form-item :label="$t('服务端端口')" prop="serverPort">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择" filterable>
-            <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
-            </el-option>
-          </el-select>
-        </el-form-item>-->
         <el-form-item :label="$t('服务端端口')" prop="serverPort" >
           <load-select style="width: 280px;" class="filter-item"
             v-model="temp.serverPort"
@@ -198,7 +192,7 @@
 
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-import { portPoolList, availablePortList } from '@/api/portPool'
+import { portPoolList, availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
@@ -234,6 +228,16 @@ export default {
     loadSelect
   },
   data() {
+    let isPortAvailable = (rule, value, callback) => {
+      if(value!=null){
+        let param = {port: value}
+        portAvailable(param).then(res => {
+          if(!res.data.data){
+            return callback(new Error('该端口被占用'));
+          }
+        });
+      }
+    };
     return {
       tableKey: 0,
       list: null,
@@ -287,7 +291,8 @@ export default {
       pvData: [],
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
-        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
+        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
+          { validator: isPortAvailable, trigger: 'change' }],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
         clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
@@ -572,7 +577,7 @@ export default {
           resolve();
         });
       });
-    },
+    }
   }
 }
 </script>
