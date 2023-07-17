@@ -10,6 +10,14 @@
 - 协议重构
 - 代码重构
 
+# 1.8.6
+- [x] 端口映射选择端口支持分页
+- [ ] 新增/更新端口映射，增加端口占用检测
+- [ ] 增加服务端/客户端jar式一键部署脚本
+- [ ] 拉下搜索license，支持模糊搜索
+- [ ] license下拉用户搜索，支持模糊搜索
+- [ ] 排查解决问题：https://gitee.com/dromara/neutrino-proxy/issues/I7LGLB
+
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
 - windows环境下直接运行发布版的jar包，日志输出乱码
