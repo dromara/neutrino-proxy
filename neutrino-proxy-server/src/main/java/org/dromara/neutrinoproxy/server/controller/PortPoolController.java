@@ -133,4 +133,12 @@ public class PortPoolController {
 
 		portPoolService.deleteBatch(req.getIds());
 	}
+
+	@Get
+	@Mapping("/port-available")
+	public boolean portAvailable(Integer port) {
+		ParamCheckUtil.checkNotNull(port, "port");
+
+		return portPoolService.portAvailable(port);
+	}
 }
