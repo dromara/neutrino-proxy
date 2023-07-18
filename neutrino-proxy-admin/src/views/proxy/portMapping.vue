@@ -234,6 +234,8 @@ export default {
         portAvailable(param).then(res => {
           if(!res.data.data){
             return callback(new Error('该端口被占用'));
+          }else{
+            callback();
           }
         });
       }
