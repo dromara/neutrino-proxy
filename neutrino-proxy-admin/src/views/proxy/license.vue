@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable>
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" filterable clearable>
         <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
       </el-select>
       <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable>
