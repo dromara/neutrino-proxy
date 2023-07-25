@@ -1,10 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container" style="display:flex">
-      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px;width: 120px;">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" filterable clearable style="margin-right:10px;width: 120px;">
         <el-option v-for="item in userList" :key="item.loginName" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px;width: 135px;">
+      <el-select v-model="listQuery.licenseId" placeholder="请选择license" filterable clearable style="margin-right:10px;width: 135px;">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
       <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px;width: 120px;">
