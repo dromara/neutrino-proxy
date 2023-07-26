@@ -2,8 +2,8 @@
 # 中微子代理客户端编译打包脚本，基础参数请自行修改
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
-export MAVANE_HOME=/Users/yangwen/my/service/maven/apache-maven-3.8.1
-export PATH=:$PATH:$JAVA_HOME/bin:$MAVANE_HOME/bin
+export MAVEN_HOME=/Users/yangwen/my/service/maven/apache-maven-3.8.1
+export PATH=:$PATH:$JAVA_HOME/bin:$MAVEN_HOME/bin
 
 deployDir="deploy"
 serverDeployDir=$deployDir"/server"
