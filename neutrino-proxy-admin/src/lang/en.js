@@ -97,6 +97,7 @@ export default {
     readings: 'Readings',
     status: 'Status',
     actions: 'Actions',
+    access: 'Access',
     edit: 'Edit',
     publish: 'Publish',
     draft: 'Draft',

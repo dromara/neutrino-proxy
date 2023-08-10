@@ -90,8 +90,9 @@
           <el-tag :type="scope.row.isOnline | statusFilter">{{ scope.row.isOnline | isOnlineName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.actions')" width="320" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button size="mini" @click="handleAccess(scope.row)">{{ $t('table.access') }}</el-button>
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{
             $t('table.disable') }}</el-button>
@@ -457,6 +458,10 @@ export default {
           })
         }
       })
+    },
+    handleAccess(row){
+      let url = location.protocol + '//' + location.hostname + ':' + row.serverPort;
+      open(url);
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
