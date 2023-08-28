@@ -106,16 +106,16 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
                     // 防止下次换一个客户端，无法连接的情况
                     ProxyUtil.removeClientIdByLicenseId(cmdChannelAttachInfo.getLicenseId());
                 }
+                // 即便是因为上述原因断开，断开的日志依然要记录，方便排查问题
+                Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
+                        .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
+                        .setLicenseId(cmdChannelAttachInfo.getLicenseId())
+                        .setType(ClientConnectTypeEnum.DISCONNECT.getType())
+                        .setMsg("")
+                        .setCode(SuccessCodeEnum.SUCCESS.getCode())
+                        .setCreateTime(new Date())
+                );
             }
-            // 即便是因为上述原因断开，断开的日志依然要记录，方便排查问题
-            Solon.context().getBean(ClientConnectRecordService.class).add(new ClientConnectRecordDO()
-                    .setIp(((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress())
-                    .setLicenseId(cmdChannelAttachInfo.getLicenseId())
-                    .setType(ClientConnectTypeEnum.DISCONNECT.getType())
-                    .setMsg("")
-                    .setCode(SuccessCodeEnum.SUCCESS.getCode())
-                    .setCreateTime(new Date())
-            );
         }
 
         super.channelInactive(ctx);
@@ -123,7 +123,7 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+//        super.exceptionCaught(ctx, cause);
         if (ctx.channel().isActive()) {
             ctx.channel().close();
         }
