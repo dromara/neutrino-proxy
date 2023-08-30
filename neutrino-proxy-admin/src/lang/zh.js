@@ -118,6 +118,7 @@ export default {
     status: '状态',
     actions: '操作',
     access: '访问',
+    openWebPage: '打开网页',
     edit: '编辑',
     publish: '发布',
     draft: '草稿',
