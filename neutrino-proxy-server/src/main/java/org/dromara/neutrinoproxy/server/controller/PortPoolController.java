@@ -136,9 +136,9 @@ public class PortPoolController {
 
 	@Get
 	@Mapping("/port-available")
-	public boolean portAvailable(Integer port) {
+	public boolean portAvailable(Integer port, Integer portMappingId) {
 		ParamCheckUtil.checkNotNull(port, "port");
 
-		return portPoolService.portAvailable(port);
+		return portPoolService.portAvailable(port, portMappingId);
 	}
 }

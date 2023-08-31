@@ -202,10 +202,18 @@ public class PortPoolService {
 
     /**
      * 检查端口是否被占用
+     * 端口映射编辑时，如果端口号没有变动，则不验证。避免出现端口映射正在使用时，无法更新端口映射其他信息的问题
      * @param port
+     * @param portMappingId
      * @return
      */
-    public boolean portAvailable(Integer port) {
+    public boolean portAvailable(Integer port, Integer portMappingId) {
+        if (null != portMappingId) {
+            PortMappingDO portMappingDO = portMappingMapper.findById(portMappingId);
+            if (null != portMappingDO && portMappingDO.getServerPort().equals(port)) {
+                return Boolean.TRUE;
+            }
+        }
         return PortAvailableUtil.isPortAvailable(port);
     }
 }

@@ -232,18 +232,18 @@ export default {
     loadSelect
   },
   data() {
-    let isPortAvailable = (rule, value, callback) => {
-      if(value!=null){
-        let param = {port: value}
+    const isPortAvailable = (rule, value, callback) => {
+      if (value != null) {
+        const param = { port: value, portMappingId: this.temp.id }
         portAvailable(param).then(res => {
-          if(!res.data.data){
-            return callback(new Error('该端口被占用'));
-          }else{
-            callback();
+          if (!res.data.data) {
+            return callback(new Error('该端口被占用'))
+          } else {
+            callback()
           }
-        });
+        })
       }
-    };
+    }
     return {
       tableKey: 0,
       list: null,
