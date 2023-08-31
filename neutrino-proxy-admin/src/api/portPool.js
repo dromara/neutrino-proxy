@@ -14,13 +14,11 @@ export function portPoolList() {
     method: 'get'
   })
 }
-export function availablePortList(licenseId) {
+export function availablePortList(query) {
   return request({
     url: '/port-pool/get-available-port-list',
     method: 'get',
-    params: {
-      licenseId: licenseId
-    }
+    params: query
   })
 }
 
@@ -68,5 +66,13 @@ export function deleteBatchPortPool(ids) {
     data: {
       ids: ids
     }
+  })
+}
+
+export function portAvailable(query) {
+  return request({
+    url: '/port-pool/port-available',
+    method: 'get',
+    params: query
   })
 }

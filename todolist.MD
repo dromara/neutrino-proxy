@@ -1,15 +1,25 @@
 # 1.x规划
 - Bug
 - 优化
-  - 心跳日志开关
-  - 客户端启动无限重连开关
+  - 添加端口映射时，验证端口是否被其他服务占用
+  - 拉下搜索license，支持模糊搜索
+  - license下拉用户搜索，支持模糊搜索
 - UDP支持
 - 官网文档完善
-  - 常见问题汇总
   - HTTPS配置说明
 - 协议重构
 - 代码重构
-- [x] 适配mariadb
+
+# 1.8.6
+- [x] 端口映射选择端口支持分页
+- [x] 新增/更新端口映射，增加端口占用检测
+- [ ] 增加服务端/客户端jar式一键部署脚本
+- [x] 拉下搜索license，支持模糊搜索
+- [x] license下拉用户搜索，支持模糊搜索
+- [x] 端口映射编辑时，如果端口号没有变动，则不验证。避免出现端口映射正在使用时，无法更新端口映射其他信息的问题
+- [x] 端口映射HTTP(S)新增打开网页按钮
+- [x] 客户端断开连接时，记录日志空指针异常问题修复
+- [ ] 排查解决问题：https://gitee.com/dromara/neutrino-proxy/issues/I7LGLB
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 

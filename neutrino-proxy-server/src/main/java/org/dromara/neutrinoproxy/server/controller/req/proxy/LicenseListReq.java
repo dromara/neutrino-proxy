@@ -30,8 +30,16 @@ import lombok.Data;
  */
 @Data
 public class LicenseListReq {
-
+    /**
+     * 用户ID
+     */
     private Integer userId;
+    /**
+     * 是否在线
+     */
     private Integer isOnline;
+    /**
+     * 启动状态 1启用 2禁用
+     */
     private Integer enable;
 }

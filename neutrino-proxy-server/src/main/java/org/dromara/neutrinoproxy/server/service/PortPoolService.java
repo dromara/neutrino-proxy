@@ -28,6 +28,7 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.controller.req.system.*;
 import org.dromara.neutrinoproxy.server.controller.res.system.*;
 import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
+import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -175,9 +176,17 @@ public class PortPoolService {
      * 游客：全局端口 + 当前选择用户独占端口 + 当前选择license独占端口
      * 非管理员身份时：下拉选择license，只能选当前用户下的LICENSE
      */
-    public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+    public PageInfo<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+
         LicenseDO licenseDO = licenseMapper.queryById(req.getLicenseId());
-        return portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId());
+        if(StringUtils.isNotEmpty(req.getKeyword())){
+            req.setKeyword(req.getKeyword()+"%");
+        }
+
+        Page<PortPoolListRes> result = PageHelper.startPage(req.getPage(), req.getSize());
+        List<PortPoolListRes> portList = portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId(), req.getKeyword());
+
+        return PageInfo.of(portList, result.getTotal(), req.getPage(), req.getSize());
     }
 
     public void deleteBatch(List<Integer> ids) {
@@ -189,5 +198,22 @@ public class PortPoolService {
         portPoolDOList.stream().forEach(portPoolDO -> {
             visitorChannelService.updateVisitorChannelByPortPool(portPoolDO.getPort(), EnableStatusEnum.DISABLE.getStatus());
         });
+    }
+
+    /**
+     * 检查端口是否被占用
+     * 端口映射编辑时，如果端口号没有变动，则不验证。避免出现端口映射正在使用时，无法更新端口映射其他信息的问题
+     * @param port
+     * @param portMappingId
+     * @return
+     */
+    public boolean portAvailable(Integer port, Integer portMappingId) {
+        if (null != portMappingId) {
+            PortMappingDO portMappingDO = portMappingMapper.findById(portMappingId);
+            if (null != portMappingDO && portMappingDO.getServerPort().equals(port)) {
+                return Boolean.TRUE;
+            }
+        }
+        return PortAvailableUtil.isPortAvailable(port);
     }
 }

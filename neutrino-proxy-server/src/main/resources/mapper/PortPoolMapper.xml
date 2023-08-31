@@ -32,6 +32,9 @@
                 possessor_type = 0
                OR ( possessor_type = 1 AND possessor_id = #{userId,jdbcType=INTEGER} )
                OR ( possessor_type = 2 AND possessor_id = #{licenseId,jdbcType=INTEGER} )
-        )
+          )
+          <if test="keyword!=null and keyword!=''">
+              AND `port` LIKE #{keyword}
+          </if>
     </select>
 </mapper>

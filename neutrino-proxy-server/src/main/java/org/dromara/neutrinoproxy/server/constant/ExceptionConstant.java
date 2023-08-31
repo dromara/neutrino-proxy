@@ -50,6 +50,7 @@ public enum ExceptionConstant {
 	ORIGIN_PASSWORD_CHECK_FAIL(12002, "原密码验证失败"),
 	LOGIN_PASSWORD_LENGTH_CHECK_FAIL(12003, "登录密码不能小于6位数"),
 	LOGIN_PASSWORD_NO_CHANGE_MODIFY_FAIL(12004, "密码没有变化，修改失败"),
+	LICENSE_CANNOT_BE_DELETED(12005, "license下存在[{}]个端口映射!"),
 	// 端口池管理(13000)
 	PORT_CANNOT_REPEAT(13000,"端口不能重复"),
 	PORT_NOT_EXIST(13001, "该端口在端口池中不存在"),

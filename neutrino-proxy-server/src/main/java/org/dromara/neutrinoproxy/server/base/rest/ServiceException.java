@@ -42,6 +42,7 @@ public class ServiceException extends RuntimeException {
 	private String msg;
 
 	public ServiceException(int code, String msg) {
+		super(msg);
 		this.code = code;
 		this.msg = msg;
 	}

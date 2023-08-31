@@ -102,7 +102,7 @@ public class PortPoolController {
 
 	@Get
 	@Mapping("/get-available-port-list")
-	public List<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
+	public PageInfo<PortPoolListRes> getAvailablePortList(AvailablePortListReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
 		return portPoolService.getAvailablePortList(req);
@@ -132,5 +132,13 @@ public class PortPoolController {
 		ParamCheckUtil.checkNotNull(req.getIds(), "ids");
 
 		portPoolService.deleteBatch(req.getIds());
+	}
+
+	@Get
+	@Mapping("/port-available")
+	public boolean portAvailable(Integer port, Integer portMappingId) {
+		ParamCheckUtil.checkNotNull(port, "port");
+
+		return portPoolService.portAvailable(port, portMappingId);
 	}
 }

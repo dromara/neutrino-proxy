@@ -1,10 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container" style="display:flex">
-      <el-select v-model="listQuery.userId" placeholder="请选择用户" clearable style="margin-right:10px;width: 120px;">
+      <el-select v-model="listQuery.userId" placeholder="请选择用户" filterable clearable style="margin-right:10px;width: 120px;">
         <el-option v-for="item in userList" :key="item.loginName" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.licenseId" placeholder="请选择license" clearable style="margin-right:10px;width: 135px;">
+      <el-select v-model="listQuery.licenseId" placeholder="请选择license" filterable clearable style="margin-right:10px;width: 135px;">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
       <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px;width: 120px;">
@@ -90,11 +90,15 @@
           <el-tag :type="scope.row.isOnline | statusFilter">{{ scope.row.isOnline | isOnlineName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
+      <el-table-column class-name="status-col" :label="$t('table.access')" width="120">
+        <template slot-scope="scope">
+          <el-button size="mini"  v-if="(scope.row.protocal === 'HTTP' || scope.row.protocal === 'HTTP(S)')" @click="handleOpenWebPage(scope.row)">{{$t('table.openWebPage')}}</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.actions')" width="320" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
-          <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{
-            $t('table.disable') }}</el-button>
+          <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success"
             @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
           <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
@@ -142,11 +146,16 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('服务端端口')" prop="serverPort">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.serverPort" placeholder="请选择" filterable>
-            <el-option v-for="item in serverPortList" :key="item.port" :label="item.port" :value="item.port">
-            </el-option>
-          </el-select>
+        <el-form-item :label="$t('服务端端口')" prop="serverPort" >
+          <load-select style="width: 280px;" class="filter-item"
+            v-model="temp.serverPort"
+            :data="serverPortList"
+            :page="loadServerPortQuery.page"
+            :hasMore="more"
+            :clearable="false"
+            :dictLabel="'port'"
+            :dictValue="'port'"
+            :request="loadServerPort"/>
         </el-form-item>
         <el-form-item :label="$t('客户端IP')" prop="clientIp">
           <el-input v-model="temp.clientIp"></el-input>
@@ -187,7 +196,7 @@
 
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-import { portPoolList, availablePortList } from '@/api/portPool'
+import { portPoolList, availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
@@ -196,6 +205,8 @@ import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
 import DropdownTable from '../../components/Dropdown/DropdownTable'
+// 下拉选择加载组件
+import loadSelect from "@/components/Select/SelectLoadMore";
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -217,9 +228,22 @@ export default {
   },
   components: {
     DropdownTable,
-    ButtonPopover
+    ButtonPopover,
+    loadSelect
   },
   data() {
+    const isPortAvailable = (rule, value, callback) => {
+      if (value != null) {
+        const param = { port: value, portMappingId: this.temp.id }
+        portAvailable(param).then(res => {
+          if (!res.data.data) {
+            return callback(new Error('该端口被占用'))
+          } else {
+            callback()
+          }
+        })
+      }
+    }
     return {
       tableKey: 0,
       list: null,
@@ -273,7 +297,8 @@ export default {
       pvData: [],
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
-        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' }],
+        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
+          { validator: isPortAvailable, trigger: 'change' }],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
         clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
@@ -282,7 +307,13 @@ export default {
       countryColumns: [
         { prop: 'userName', label: '用户名', align: 'center' },
         { prop: 'name', label: 'License', align: 'center' }
-      ]
+      ],
+      loadServerPortQuery:{ //下拉框加载数据请求参数
+        page:1,
+        size:50,
+        licenseId:null,
+      },
+      more: true,
     }
   },
   filters: {
@@ -343,15 +374,9 @@ export default {
         this.domainName = response.data.data
       })
     },
-    getPortPoolList() {
-      portPoolList().then(response => {
-        this.serverPortList = response.data.data
-      })
-    },
     getAvailablePortList(licenseId) {
-      availablePortList(licenseId).then(response => {
-        this.serverPortList = response.data.data
-      })
+      this.loadServerPortQuery.licenseId = licenseId;
+      this.serverPortList = []; //清掉数据
     },
     getAllUserList() {
       userList().then(response => {
@@ -408,6 +433,8 @@ export default {
         userId: undefined
       }
       this.serverPortList = []
+      this.loadServerPortQuery.licenseId = null;
+      this.more = true;
     },
     handleCreate() {
       this.resetTemp()
@@ -434,6 +461,10 @@ export default {
           })
         }
       })
+    },
+    handleOpenWebPage(row) {
+      const url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      open(url)
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
@@ -526,6 +557,36 @@ export default {
           return v[j]
         }
       }))
+    },
+    // 传入给load-select组件的函数
+    loadServerPort({page = 1, more = false, keyword = ""} = {}) {
+      if(this.loadServerPortQuery.licenseId==null || this.loadServerPortQuery.licenseId==''){
+        this.more = false;
+        this.$message({
+          message: '请先选择License',
+          type: 'warning'
+        })
+        return ;
+      }
+      return new Promise(resolve => {
+        this.loadServerPortQuery.page = page;
+        this.loadServerPortQuery.keyword = keyword;
+        // 访问后端接口API
+        availablePortList(this.loadServerPortQuery).then(res => {
+          let result = res.data;
+          if (more) {
+            this.serverPortList = [...this.serverPortList, ...result.data.records];
+          } else {
+            this.serverPortList = result.data.records;
+          }
+
+          // this.loadServerPortQuery.page = result.data.current;
+          let {total, current, size} = result.data;
+          this.more = page * size < total;
+          this.loadServerPortQuery.page = current;
+          resolve();
+        });
+      });
     }
   }
 }
