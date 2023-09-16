@@ -140,8 +140,8 @@ public class ProxyUtil {
 			return clientId;
 		}
 		ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
-		if (StringUtils.isNotBlank(proxyConfig.getClient().getClientId())) {
-			clientId = proxyConfig.getClient().getClientId();
+		if (StringUtils.isNotBlank(proxyConfig.getTunnel().getClientId())) {
+			clientId = proxyConfig.getTunnel().getClientId();
 			return clientId;
 		}
 		String id = FileUtil.readContentAsString(CLIENT_ID_FILE);

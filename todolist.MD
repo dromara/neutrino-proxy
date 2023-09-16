@@ -26,6 +26,10 @@
 - [ ] 访问白名单
 - [ ] 端口映射分组
 - [ ] 支持UDP
+  - 服务端
+    - 原`neutrino.proxy.server`配置移到`neutrino.proxy.server.tcp`下
+  - 客户端
+    - 原`neutrino.proxy.client`配置移到`neutrino.proxy.tunnel`下
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 

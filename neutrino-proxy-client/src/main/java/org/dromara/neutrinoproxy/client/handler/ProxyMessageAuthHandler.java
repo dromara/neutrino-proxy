@@ -34,7 +34,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");
 			context.channel().close();
-			if (!proxyConfig.getClient().getReconnection().getUnlimited()) {
+			if (!proxyConfig.getTunnel().getReconnection().getUnlimited()) {
 				Solon.stop();
 			}
 		} else if (ExceptionEnum.CONNECT_FAILED.getCode().equals(code) ||

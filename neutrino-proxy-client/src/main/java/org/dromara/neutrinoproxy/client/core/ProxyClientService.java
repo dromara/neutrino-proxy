@@ -69,8 +69,8 @@ public class ProxyClientService {
 
 	@Init
 	public void init() {
-		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getClient().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
-		this.workerGroup = new NioEventLoopGroup(proxyConfig.getClient().getThreadCount());
+		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getTunnel().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
+		this.workerGroup = new NioEventLoopGroup(proxyConfig.getTunnel().getThreadCount());
 
 		realServerBootstrap.group(workerGroup);
 		realServerBootstrap.channel(NioSocketChannel.class);
@@ -78,7 +78,7 @@ public class ProxyClientService {
 
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
-				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
 					ch.pipeline().addFirst(new LoggingHandler(RealServerChannelHandler.class));
 				}
 				ch.pipeline().addLast(new RealServerChannelHandler());
@@ -87,15 +87,15 @@ public class ProxyClientService {
 
 		proxyTunnelBootstrap.group(workerGroup);
 		proxyTunnelBootstrap.channel(NioSocketChannel.class);
-		proxyTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort()));
+		proxyTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort()));
 		proxyTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
-				if (proxyConfig.getClient().getSslEnable()) {
+				if (proxyConfig.getTunnel().getSslEnable()) {
 					ch.pipeline().addLast(createSslHandler());
 				}
-				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
 					ch.pipeline().addFirst(new LoggingHandler(ProxyChannelHandler.class));
 				}
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
@@ -116,16 +116,16 @@ public class ProxyClientService {
 //		 * Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
 //		 */
 //		cmdTunnelBootstrap.option(ChannelOption.TCP_NODELAY, true);
-		cmdTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getClient().getServerIp(), proxyConfig.getClient().getServerPort()));
+		cmdTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort()));
 
 		cmdTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
 			@Override
 			public void initChannel(SocketChannel ch) throws Exception {
-				if (proxyConfig.getClient().getSslEnable()) {
+				if (proxyConfig.getTunnel().getSslEnable()) {
 					ch.pipeline().addLast(createSslHandler());
 				}
-				if (null != proxyConfig.getClient().getTransferLogEnable() && proxyConfig.getClient().getTransferLogEnable()) {
+				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
 					ch.pipeline().addFirst(new LoggingHandler(CmdChannelHandler.class));
 				}
 				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
@@ -146,23 +146,23 @@ public class ProxyClientService {
 	}
 
 	public void start() {
-		if (StrUtil.isEmpty(proxyConfig.getClient().getServerIp())) {
+		if (StrUtil.isEmpty(proxyConfig.getTunnel().getServerIp())) {
 			log.error("not found server-ip config.");
 			Solon.stop();
 			return;
 		}
-		if (null == proxyConfig.getClient().getServerPort()) {
+		if (null == proxyConfig.getTunnel().getServerPort()) {
 			log.error("not found server-port config.");
 			Solon.stop();
 			return;
 		}
-		if (null != proxyConfig.getClient().getSslEnable() && proxyConfig.getClient().getSslEnable()
-				&& StrUtil.isEmpty(proxyConfig.getClient().getJksPath())) {
+		if (null != proxyConfig.getTunnel().getSslEnable() && proxyConfig.getTunnel().getSslEnable()
+				&& StrUtil.isEmpty(proxyConfig.getTunnel().getJksPath())) {
 			log.error("not found jks-path config.");
 			Solon.stop();
 			return;
 		}
-		if (StrUtil.isEmpty(proxyConfig.getClient().getLicenseKey())) {
+		if (StrUtil.isEmpty(proxyConfig.getTunnel().getLicenseKey())) {
 			log.error("not found license-key config.");
 			Solon.stop();
 			return;
@@ -174,7 +174,7 @@ public class ProxyClientService {
 				log.error("client start error", e);
 			}
 		} else {
-			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
+			channel.writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getTunnel().getLicenseKey(), ProxyUtil.getClientId()));
 		}
 	}
 
@@ -191,7 +191,7 @@ public class ProxyClientService {
 						channel = future.channel();
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
-						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getClient().getLicenseKey(), ProxyUtil.getClientId()));
+						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getTunnel().getLicenseKey(), ProxyUtil.getClientId()));
 						log.info("[客户端指令隧道] 连接代理服务成功. channelId:{}", future.channel().id().asLongText());
 
 //						reconnectServiceEnable = true;
@@ -205,11 +205,11 @@ public class ProxyClientService {
 
 	private ChannelHandler createSslHandler() {
 		try {
-			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getClient().getJksPath());
+			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getTunnel().getJksPath());
 
 			SSLContext clientContext = SSLContext.getInstance("TLS");
 			final KeyStore ks = KeyStore.getInstance("JKS");
-			ks.load(jksInputStream, proxyConfig.getClient().getKeyStorePassword().toCharArray());
+			ks.load(jksInputStream, proxyConfig.getTunnel().getKeyStorePassword().toCharArray());
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			tmf.init(ks);
 			TrustManager[] trustManagers = tmf.getTrustManagers();

@@ -24,8 +24,8 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
 
     public CmdChannelHandler() {
         ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
-        if (null != proxyConfig.getClient() && null != proxyConfig.getClient().getHeartbeatLogEnable()) {
-            transferLogEnable = proxyConfig.getClient().getHeartbeatLogEnable();
+        if (null != proxyConfig.getClient() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
+            transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
         }
     }
 

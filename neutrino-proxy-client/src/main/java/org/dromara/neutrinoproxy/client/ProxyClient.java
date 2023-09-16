@@ -22,12 +22,12 @@ public class ProxyClient {
 
 	public static void main(String[] args) {
 		Solon.start(ProxyClient.class, args, app -> {
-			setAlias("neutrino.proxy.client.serverIp", "serverIp");
-			setAlias("neutrino.proxy.client.serverPort", "serverPort");
-			setAlias("neutrino.proxy.client.sslEnable", "sslEnable");
-			setAlias("neutrino.proxy.client.jksPath", "jksPath");
-			setAlias("neutrino.proxy.client.keyStorePassword", "keyStorePassword");
-			setAlias("neutrino.proxy.client.licenseKey", "licenseKey");
+			setAlias("neutrino.proxy.tunnel.serverIp", "serverIp");
+			setAlias("neutrino.proxy.tunnel.serverPort", "serverPort");
+			setAlias("neutrino.proxy.tunnel.sslEnable", "sslEnable");
+			setAlias("neutrino.proxy.tunnel.jksPath", "jksPath");
+			setAlias("neutrino.proxy.tunnel.keyStorePassword", "keyStorePassword");
+			setAlias("neutrino.proxy.tunnel.licenseKey", "licenseKey");
 			// 设置日志级别
 			setLogLevel(app);
 		});

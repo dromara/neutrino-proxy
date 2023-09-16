@@ -57,7 +57,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
 
 							// 远程绑定
-							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getClient().getLicenseKey()));
+							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getTunnel().getLicenseKey()));
 
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
 							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
