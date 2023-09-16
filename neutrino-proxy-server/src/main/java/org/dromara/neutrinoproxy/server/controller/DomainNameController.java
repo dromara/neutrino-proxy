@@ -21,7 +21,7 @@ public class DomainNameController {
     @Get
     @Mapping("/bind-info")
     public String bindInfo () {
-        return proxyConfig.getServer().getDomainName();
+        return proxyConfig.getServer().getTcp().getDomainName();
     }
 
 }

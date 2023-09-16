@@ -110,8 +110,8 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             item.setUserName(user.getName());
-            if (StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
-                item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getDomainName());
+            if (StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
+                item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getTcp().getDomainName());
             }
             if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
                 item.setProtocal("HTTP(S)");
@@ -151,7 +151,7 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
         return new PortMappingCreateRes();
@@ -192,7 +192,7 @@ public class PortMappingService implements LifecycleBean {
             ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
         }
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
+        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
         return new PortMappingUpdateRes();
@@ -279,7 +279,7 @@ public class PortMappingService implements LifecycleBean {
         portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
         // 未配置域名，则不需要处理域名映射逻辑
-        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName())) {
+        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName())) {
             return;
         }
         List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc()).isNotNull(PortMappingDO::getSubdomain));

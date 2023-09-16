@@ -35,8 +35,8 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName()) || null == proxyConfig.getServer().getHttpsProxyPort() ||
-                StringUtils.isEmpty(proxyConfig.getServer().getJksPath()) || StringUtils.isEmpty(proxyConfig.getServer().getKeyStorePassword())) {
+        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) || null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
+                StringUtils.isEmpty(proxyConfig.getServer().getTcp().getJksPath()) || StringUtils.isEmpty(proxyConfig.getServer().getTcp().getKeyStorePassword())) {
             log.info("no config domain name,nonsupport https proxy.");
             return;
         }
@@ -50,16 +50,16 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                     .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            if (null != proxyConfig.getServer().getTransferLogEnable() && proxyConfig.getServer().getTransferLogEnable()) {
+                            if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() && proxyConfig.getServer().getTcp().getTransferLogEnable()) {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpsProxy.class));
                             }
                             ch.pipeline().addLast(createSslHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
                         }
                     });
-            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getHttpsProxyPort()).sync();
-            log.info("Https代理服务启动成功！port:{}", proxyConfig.getServer().getHttpsProxyPort());
+            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpsProxyPort()).sync();
+            log.info("Https代理服务启动成功！port:{}", proxyConfig.getServer().getTcp().getHttpsProxyPort());
         } catch (Exception e) {
             log.error("https proxy start err!", e);
         }
@@ -67,13 +67,13 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
 
     private ChannelHandler createSslHandler() {
         try {
-            InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getServer().getJksPath());
+            InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getServer().getTcp().getJksPath());
             SSLContext serverContext = SSLContext.getInstance("TLS");
             final KeyStore ks = KeyStore.getInstance("JKS");
 
-            ks.load(jksInputStream, proxyConfig.getServer().getKeyStorePassword().toCharArray());
+            ks.load(jksInputStream, proxyConfig.getServer().getTcp().getKeyStorePassword().toCharArray());
             final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(ks, proxyConfig.getServer().getKeyStorePassword().toCharArray());
+            kmf.init(ks, proxyConfig.getServer().getTcp().getKeyStorePassword().toCharArray());
             TrustManager[] trustManagers = null;
 
             serverContext.init(kmf.getKeyManagers(), trustManagers, null);

@@ -28,7 +28,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getDomainName()) || null == proxyConfig.getServer().getHttpProxyPort()) {
+        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) || null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
             log.info("no config domain name,nonsupport http proxy.");
             return;
         }
@@ -42,15 +42,15 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                     .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            if (null != proxyConfig.getServer().getTransferLogEnable() && proxyConfig.getServer().getTransferLogEnable()) {
+                            if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() && proxyConfig.getServer().getTcp().getTransferLogEnable()) {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
                         }
                     });
-            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getHttpProxyPort()).sync();
-            log.info("Http代理服务启动成功！port:{}", proxyConfig.getServer().getHttpProxyPort());
+            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpProxyPort()).sync();
+            log.info("Http代理服务启动成功！port:{}", proxyConfig.getServer().getTcp().getHttpProxyPort());
         } catch (Exception e) {
             log.error("http proxy start err!", e);
         }
