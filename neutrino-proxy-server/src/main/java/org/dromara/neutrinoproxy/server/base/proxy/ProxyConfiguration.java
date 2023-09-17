@@ -77,17 +77,17 @@ public class ProxyConfiguration implements LifecycleBean {
     }
 
     @Bean("udpServerBossGroup")
-    private NioEventLoopGroup udpBossGroup(@Inject ProxyConfig proxyConfig) {
+    private NioEventLoopGroup udpServerBossGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getServer().getUdp().getBossThreadCount());
     }
 
     @Bean("udpServerWorkerGroup")
-    private NioEventLoopGroup udpWorkerGroup(@Inject ProxyConfig proxyConfig) {
+    private NioEventLoopGroup udpServerWorkerGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getServer().getUdp().getWorkThreadCount());
     }
 
     @Bean("udpServerBootstrap")
-    public Bootstrap udpBootstrap(@Inject("udpServerBossGroup") NioEventLoopGroup udpServerBossGroup,
+    public Bootstrap udpServerBootstrap(@Inject("udpServerBossGroup") NioEventLoopGroup udpServerBossGroup,
                                   @Inject("udpServerWorkerGroup") NioEventLoopGroup udpServerWorkerGroup,
                                   @Inject ProxyConfig proxyConfig) {
         Bootstrap bootstrap = new Bootstrap();

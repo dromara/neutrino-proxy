@@ -24,7 +24,7 @@ public class ProtocalService {
         return Lists.newArrayList(
                 new ProtocalListRes().setName("TCP").setEnable(Boolean.TRUE).setRemark("支持一切TCP之上的协议"),
                 new ProtocalListRes().setName("HTTP(S)").setEnable(Boolean.TRUE).setRemark("支持绑定子域名，未绑定时等价于时使用TCP。 若配置了证书，则同时支持HTTPS。"),
-                new ProtocalListRes().setName("UDP").setEnable(Boolean.FALSE).setRemark("暂不支持")
+                new ProtocalListRes().setName("UDP").setEnable(Boolean.TRUE).setRemark("暂不支持")
         );
     }
 
