@@ -66,6 +66,10 @@ public class ProxyMessage {
      * 通用异常信息
      */
     public static final byte TYPE_ERROR = 0x06;
+    /**
+     * UDP数据传输
+     */
+    private static final byte TYPE_UDP_TRANSFER = 0x07;
 
     /**
      * 消息类型
@@ -130,6 +134,17 @@ public class ProxyMessage {
             .setData(data);
     }
 
+    public static ProxyMessage buildUdpTransferMessage(String visitorIp, int visitorPort, String targetIp, int targetPort, byte[] data) {
+        return create().setType(TYPE_UDP_TRANSFER)
+                .setInfo(JSONObject.toJSONString(new UdpBaseInfo()
+                        .setVisitorIp(visitorIp)
+                        .setVisitorPort(visitorPort)
+                        .setTargetIp(targetIp)
+                        .setTargetPort(targetPort)
+                ))
+                .setData(data);
+    }
+
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum, String info) {
         JSONObject data = new JSONObject();
         data.put("code", exceptionEnum.getCode());
@@ -141,5 +156,14 @@ public class ProxyMessage {
 
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum) {
        return buildErrMessage(exceptionEnum, null);
+    }
+
+    @Accessors(chain = true)
+    @Data
+    public static class UdpBaseInfo {
+        private String visitorIp;
+        private int visitorPort;
+        private String targetIp;
+        private int targetPort;
     }
 }
