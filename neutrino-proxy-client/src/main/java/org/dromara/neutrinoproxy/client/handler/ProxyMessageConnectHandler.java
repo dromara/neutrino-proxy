@@ -48,7 +48,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 					realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
 					// 获取连接
-					ProxyUtil.borrowProxyChanel(tcpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
+					ProxyUtil.borrowTcpProxyChanel(tcpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
 
 						@Override
 						public void success(Channel channel) {

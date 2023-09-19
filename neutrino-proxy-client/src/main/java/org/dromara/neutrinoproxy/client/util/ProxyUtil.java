@@ -71,14 +71,14 @@ public class ProxyUtil {
 	private static String clientId;
 	private static final String CLIENT_ID_FILE = ".NEUTRINO_PROXY_CLIENT_ID";
 
-	public static void borrowProxyChanel(Bootstrap proxyTunnelBootstrap, final ProxyChannelBorrowListener borrowListener) {
+	public static void borrowTcpProxyChanel(Bootstrap tcpProxyTunnelBootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = proxyChannelPool.poll();
 		if (null != channel) {
 			borrowListener.success(channel);
 			return;
 		}
 
-		proxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
+		tcpProxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
 				borrowListener.success(future.channel());
 			} else {

@@ -1,16 +1,15 @@
 package org.dromara.neutrinoproxy.client.core;
 
-import org.dromara.neutrinoproxy.client.config.ProxyConfig;
-import org.dromara.neutrinoproxy.client.util.ProxyUtil;
-import org.dromara.neutrinoproxy.core.Constants;
-import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.client.util.ProxyUtil;
+import org.dromara.neutrinoproxy.core.Constants;
+import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 import org.noear.solon.Solon;
 
 /**
@@ -19,20 +18,13 @@ import org.noear.solon.Solon;
  * @date: 2022/6/16
  */
 @Slf4j
-public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
-    private static volatile Boolean transferLogEnable = Boolean.FALSE;
+public class UdpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
 
-    public CmdChannelHandler() {
-        ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
-        if (null != proxyConfig.getClient() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
-            transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
-        }
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
-        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
-            log.debug("[CMD Channel]Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
+            log.debug("[UDP Proxy Channel]Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }
@@ -49,16 +41,19 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("[CMD Channel]Client CmdChannel disconnect");
-        ProxyUtil.setCmdChannel(null);
-        ProxyUtil.clearRealServerChannels();
+        // 数据传输连接
+        Channel realServerChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
+        if (realServerChannel != null && realServerChannel.isActive()) {
+            realServerChannel.close();
+        }
 
+        ProxyUtil.removeProxyChanel(ctx.channel());
         super.channelInactive(ctx);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("[CMD Channel]Client CmdChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
+        log.error("[UDP Proxy Channel]Client ProxyChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
         ctx.close();
     }
 
@@ -69,14 +64,14 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-                    log.error("[CMD Channel] Read timeout disconnect");
+                    log.info("[UDP Proxy Channel]Read timeout");
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.error("[CMD Channel] ReadWrite timeout disconnect");
+                    log.debug("[UDP Proxy Channel]ReadWrite timeout");
                     ctx.close();
                     break;
             }

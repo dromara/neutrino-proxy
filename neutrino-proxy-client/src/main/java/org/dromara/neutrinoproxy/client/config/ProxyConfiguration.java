@@ -7,8 +7,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.dromara.neutrinoproxy.client.core.CmdChannelHandler;
-import org.dromara.neutrinoproxy.client.core.ProxyChannelHandler;
+import org.dromara.neutrinoproxy.client.core.TcpProxyChannelHandler;
 import org.dromara.neutrinoproxy.client.core.RealServerChannelHandler;
+import org.dromara.neutrinoproxy.client.core.UdpProxyChannelHandler;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.*;
 import org.dromara.neutrinoproxy.core.dispatcher.DefaultDispatcher;
@@ -103,23 +104,44 @@ public class ProxyConfiguration implements LifecycleBean {
                     ch.pipeline().addLast(ProxyUtil.createSslHandler(proxyConfig));
                 }
                 if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
-                    ch.pipeline().addFirst(new LoggingHandler(ProxyChannelHandler.class));
+                    ch.pipeline().addFirst(new LoggingHandler(TcpProxyChannelHandler.class));
                 }
                 ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
                         proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
                         proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
                 ch.pipeline().addLast(new ProxyMessageEncoder());
                 ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-                ch.pipeline().addLast(new ProxyChannelHandler());
+                ch.pipeline().addLast(new TcpProxyChannelHandler());
             }
         });
         return bootstrap;
     }
 
     @Bean("udpProxyTunnelBootstrap")
-    private Bootstrap udpProxyTunnelBootstrap() {
+    private Bootstrap udpProxyTunnelBootstrap(@Inject ProxyConfig proxyConfig,
+                                              @Inject("tunnelWorkGroup") NioEventLoopGroup tunnelWorkGroup) {
         Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(tunnelWorkGroup);
+        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort()));
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
+            @Override
+            public void initChannel(SocketChannel ch) throws Exception {
+                if (proxyConfig.getTunnel().getSslEnable()) {
+                    ch.pipeline().addLast(ProxyUtil.createSslHandler(proxyConfig));
+                }
+                if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
+                    ch.pipeline().addFirst(new LoggingHandler(TcpProxyChannelHandler.class));
+                }
+                ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
+                        proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
+                        proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
+                ch.pipeline().addLast(new ProxyMessageEncoder());
+                ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
+                ch.pipeline().addLast(new UdpProxyChannelHandler());
+            }
+        });
         return bootstrap;
     }
 

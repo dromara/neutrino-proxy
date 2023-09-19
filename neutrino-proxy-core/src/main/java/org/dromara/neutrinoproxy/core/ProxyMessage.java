@@ -69,7 +69,7 @@ public class ProxyMessage {
     /**
      * UDP数据传输
      */
-    private static final byte TYPE_UDP_TRANSFER = 0x07;
+    private static final byte TYPE_UDP_TRANSFER = 0x08;
 
     /**
      * 消息类型

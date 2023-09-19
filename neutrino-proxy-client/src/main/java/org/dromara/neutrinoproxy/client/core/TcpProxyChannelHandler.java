@@ -18,13 +18,13 @@ import org.noear.solon.Solon;
  * @date: 2022/6/16
  */
 @Slf4j
-public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
+public class TcpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
-            log.debug("Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
+            log.debug("[TCP Proxy Channel]Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }
@@ -53,7 +53,7 @@ public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessag
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("Client ProxyChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
+        log.error("[TCP Proxy Channel]Client ProxyChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
         ctx.close();
     }
 
@@ -64,14 +64,14 @@ public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessag
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-//                    log.info("Read timeout");
-//                    ctx.channel().close();
+                    log.info("[TCP Proxy Channel]Read timeout");
+                    ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.debug("ReadWrite timeout");
+                    log.debug("[TCP Proxy Channel]ReadWrite timeout");
                     ctx.close();
                     break;
             }
