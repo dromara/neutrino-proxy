@@ -232,10 +232,10 @@ public class VisitorChannelService {
                 NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(portMapping.getProtocal());
                 if (networkProtocolEnum == NetworkProtocolEnum.UDP) {
                     udpServerBootstrap.bind(portMapping.getServerPort()).get();
-                    log.info("绑定UDP用户端口： {}", portMapping.getServerPort());
+                    log.info("bind UDP user port： {}", portMapping.getServerPort());
                 } else {
                     tcpServerBootstrap.bind(portMapping.getServerPort()).get();
-                    log.info("绑定TCP用户端口： {}", portMapping.getServerPort());
+                    log.info("bind TCP user port： {}", portMapping.getServerPort());
                 }
             } catch (Exception ex) {
                 // BindException表示该端口已经绑定过

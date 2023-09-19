@@ -49,7 +49,7 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.info("Client CmdChannel 与服务端断开连接");
+        log.info("Client CmdChannel disconnect");
         ProxyUtil.setCmdChannel(null);
         ProxyUtil.clearRealServerChannels();
 
@@ -69,14 +69,14 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-                    log.error("Client CmdChannel 读超时，断开连接");
+                    log.error("[Client CmdChannel] Read timeout disconnect");
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.error("Client CmdChannel 读写超时，断开连接");
+                    log.error("[Client CmdChannel] ReadWrite timeout disconnect");
                     ctx.close();
                     break;
             }

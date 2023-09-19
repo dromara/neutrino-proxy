@@ -46,7 +46,7 @@ public class ProxyClientService {
 			this.start();
 		} catch (Exception e) {
 			// 启动连不上也做一下重连，因此先catch异常
-			log.error("[客户端指令隧道] 启动异常", e);
+			log.error("[CmdChannel] start error", e);
 		}
 	}
 
@@ -97,12 +97,12 @@ public class ProxyClientService {
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getTunnel().getLicenseKey(), ProxyUtil.getClientId()));
-						log.info("[客户端指令隧道] 连接代理服务成功. channelId:{}", future.channel().id().asLongText());
+						log.info("[CmdChannel] connect proxy server success. channelId:{}", future.channel().id().asLongText());
 
 //						reconnectServiceEnable = true;
 						reconnectCount = 0;
 					} else {
-						log.info("[客户端指令隧道] 连接代理服务失败!");
+						log.info("[CmdChannel] connect proxy server failed!");
 					}
 				}
 			}).sync();
@@ -116,11 +116,11 @@ public class ProxyClientService {
 			channel.close();
 		}
 
-		log.info("[客户端指令隧道] 客户端重连 seq:{}", ++reconnectCount);
+		log.info("[CmdChannel] client reconnect seq:{}", ++reconnectCount);
 		try {
 			connectProxyServer();
 		} catch (Exception e) {
-			log.error("[客户端指令隧道] 重连异常", e);
+			log.error("[CmdChannel] reconnect error", e);
 		}
 	}
 }

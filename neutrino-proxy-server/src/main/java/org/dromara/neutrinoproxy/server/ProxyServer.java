@@ -46,7 +46,7 @@ public class ProxyServer {
 				logger.setLevel(level);
 			}
 		} catch (Exception e) {
-			log.error("日志级别设置失败", e);
+			log.error("logger level set failed", e);
 		}
 	}
 }

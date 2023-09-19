@@ -29,7 +29,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		String info = proxyMessage.getInfo();
 		JSONObject data = JSONObject.parseObject(info);
 		Integer code = data.getInteger("code");
-		log.info("认证结果:{}", info);
+		log.info("Auth result:{}", info);
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");

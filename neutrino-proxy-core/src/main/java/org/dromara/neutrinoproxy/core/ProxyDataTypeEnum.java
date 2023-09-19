@@ -38,13 +38,13 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum ProxyDataTypeEnum {
-	HEARTBEAT(0x01, Constants.ProxyDataTypeName.HEARTBEAT, "心跳"),
-	AUTH(0x02, Constants.ProxyDataTypeName.AUTH,"认证"),
-	CONNECT(0x03, Constants.ProxyDataTypeName.CONNECT,"连接"),
-	DISCONNECT(0x04, Constants.ProxyDataTypeName.DISCONNECT,"断开连接"),
-	TRANSFER(0x05, Constants.ProxyDataTypeName.TRANSFER,"数据传输"),
-	ERROR(0x06, Constants.ProxyDataTypeName.ERROR,"异常"),
-	PORT_MAPPING_SYNC(0x07, Constants.ProxyDataTypeName.PORT_MAPPING_SYNC, "端口映射同步");
+	HEARTBEAT(0x01, Constants.ProxyDataTypeName.HEARTBEAT, "HEARTBEAT"),
+	AUTH(0x02, Constants.ProxyDataTypeName.AUTH,"AUTH"),
+	CONNECT(0x03, Constants.ProxyDataTypeName.CONNECT,"CONNECT"),
+	DISCONNECT(0x04, Constants.ProxyDataTypeName.DISCONNECT,"DISCONNECT"),
+	TRANSFER(0x05, Constants.ProxyDataTypeName.TRANSFER,"TRANSFER"),
+	ERROR(0x06, Constants.ProxyDataTypeName.ERROR,"ERROR"),
+	PORT_MAPPING_SYNC(0x07, Constants.ProxyDataTypeName.PORT_MAPPING_SYNC, "PORT_MAPPING_SYNC");
 	private static Map<Integer,ProxyDataTypeEnum> cache = Stream.of(values()).collect(Collectors.toMap(ProxyDataTypeEnum::getType, Function.identity()));
 
 	private int type;

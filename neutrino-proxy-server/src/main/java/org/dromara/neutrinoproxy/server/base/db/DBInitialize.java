@@ -57,7 +57,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
 		Assert.notNull(dbTypeEnum, "neutrino.data.db.type取值异常!");
 
-		log.info("{}数据库初始化...", dbConfig.getType());
+		log.info("{} database init...", dbConfig.getType());
 		initDBStructure();
 		initDBData();
 	}
@@ -82,7 +82,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 			}
 			sql += "\r\n" + line.trim();
 			if (sql.endsWith(";")) {
-				log.debug("初始化数据库表 sql:{}", sql);
+				log.debug("init database table sql:{}", sql);
 				Db.update(sql);
 				sql = "";
 			}
@@ -116,7 +116,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 				}
 				sql += "\r\n" + line.trim();
 				if (sql.endsWith(";")) {
-					log.debug("初始化数据[table={}] sql:{}", tableName, sql);
+					log.debug("init database data[table={}] sql:{}", tableName, sql);
 					Db.update(sql);
 					sql = "";
 				}

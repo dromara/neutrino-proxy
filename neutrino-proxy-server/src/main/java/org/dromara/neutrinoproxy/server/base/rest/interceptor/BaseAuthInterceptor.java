@@ -74,7 +74,7 @@ public class BaseAuthInterceptor implements RouterInterceptor {
         }
 
         if (result instanceof Throwable) {
-            log.error("全局异常", (Throwable) result);
+            log.error("global error", (Throwable) result);
 
             if (result instanceof ServiceException) {
                 ServiceException exception = (ServiceException) result;

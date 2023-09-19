@@ -23,7 +23,7 @@ public class GlobalExceptionFilter implements Filter {
         try {
             chain.doFilter(ctx);
         } catch (Throwable e) {
-            log.error("全局异常", e);
+            log.error("global error", e);
 
             if (e instanceof ServiceException) {
                 ServiceException serviceException = (ServiceException) e;

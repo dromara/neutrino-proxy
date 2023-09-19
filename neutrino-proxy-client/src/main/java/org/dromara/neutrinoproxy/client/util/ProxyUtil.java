@@ -182,7 +182,7 @@ public class ProxyUtil {
 
 			return new SslHandler(sslEngine);
 		} catch (Exception e) {
-			log.error("创建SSL处理器失败", e);
+			log.error("create SSL handler failed", e);
 			e.printStackTrace();
 		}
 		return null;

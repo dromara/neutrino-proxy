@@ -64,14 +64,14 @@ public class ProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessag
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-//                    log.info("读超时");
+//                    log.info("Read timeout");
 //                    ctx.channel().close();
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.debug("读写超时");
+                    log.debug("ReadWrite timeout");
                     ctx.close();
                     break;
             }

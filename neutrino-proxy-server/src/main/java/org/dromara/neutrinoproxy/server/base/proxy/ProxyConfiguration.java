@@ -38,7 +38,7 @@ public class ProxyConfiguration implements LifecycleBean {
     @Override
     public void start() throws Throwable {
         List<ProxyMessageHandler> list = Solon.context().getBeansOfType(ProxyMessageHandler.class);
-        Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("消息调度器", list,
+        Dispatcher<ChannelHandlerContext, ProxyMessage> dispatcher = new DefaultDispatcher<>("MessageDispatcher", list,
             proxyMessage -> ProxyDataTypeEnum.of((int)proxyMessage.getType()) == null ?
                     null : ProxyDataTypeEnum.of((int)proxyMessage.getType()).getName());
 

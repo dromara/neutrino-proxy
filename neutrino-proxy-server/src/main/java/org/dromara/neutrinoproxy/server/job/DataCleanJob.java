@@ -70,37 +70,37 @@ public class DataCleanJob implements IJobHandler {
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getJobLogKeepDays());
-            log.info("清理调度管理日志 date:{}", sdf.format(date));
+            log.info("clean job log date:{}", sdf.format(date));
             jobLogMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getUserLoginRecordKeepDays());
-            log.info("清理用户登录日志 date:{}", sdf.format(date));
+            log.info("clean user login record date:{}", sdf.format(date));
             userLoginRecordMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getClientConnectRecordKeepDays());
-            log.info("清理客户端连接日志 date:{}", sdf.format(date));
+            log.info("clean client connect record date:{}", sdf.format(date));
             clientConnectRecordMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowMinuteReportKeepDays());
-            log.info("清理流通统计分钟报表日志 date:{}", sdf.format(date));
+            log.info("clean flow report minute record date:{}", sdf.format(date));
             flowReportMinuteMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowHourReportKeepDays());
-            log.info("清理流通统计小时报表日志 date:{}", sdf.format(date));
+            log.info("clean flow report hour record date:{}", sdf.format(date));
             flowReportHourMapper.clean(date);
         }
 
         {
             Date date = DateUtil.addDate(new Date(), Calendar.DATE, -1 * jobParams.getFlowDayReportKeepDays());
-            log.info("清理流通统计日报表日志 date:{}", sdf.format(date));
+            log.info("clean flow report day record date:{}", sdf.format(date));
             flowReportDayMapper.clean(date);
         }
     }

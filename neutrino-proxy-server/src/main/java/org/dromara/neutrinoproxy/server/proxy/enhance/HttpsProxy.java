@@ -59,7 +59,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                         }
                     });
             bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpsProxyPort()).sync();
-            log.info("Https代理服务启动成功！port:{}", proxyConfig.getServer().getTcp().getHttpsProxyPort());
+            log.info("Https proxy server started！port:{}", proxyConfig.getServer().getTcp().getHttpsProxyPort());
         } catch (Exception e) {
             log.error("https proxy start err!", e);
         }
@@ -84,7 +84,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
 
             return new SslHandler(sslEngine);
         } catch (Exception e) {
-            log.error("创建SSL处理器失败", e);
+            log.error("create SSL handler failed", e);
             e.printStackTrace();
         }
         return null;

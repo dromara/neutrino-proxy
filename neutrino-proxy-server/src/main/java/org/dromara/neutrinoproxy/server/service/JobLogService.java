@@ -60,11 +60,11 @@ public class JobLogService implements IJobCallback {
 		Integer code = 0;
 		String msg = "";
 		if (null == throwable) {
-			msg = "执行成功";
-			log.debug("job[id={},name={}]执行完毕", jobInfo.getId(), jobInfo.getName());
+			msg = "execute success";
+			log.debug("job[id={},name={}]execute success", jobInfo.getId(), jobInfo.getName());
 		} else {
-			log.error("job[id={},name={}]执行异常", jobInfo.getId(), jobInfo.getName(), throwable);
-			msg = "执行异常:\r\n" + ExceptionUtils.getStackTrace(throwable);
+			log.error("job[id={},name={}]execute error", jobInfo.getId(), jobInfo.getName(), throwable);
+			msg = "execute error:\r\n" + ExceptionUtils.getStackTrace(throwable);
 			code = -1;
 		}
 		jobLogMapper.insert(new JobLogDO()

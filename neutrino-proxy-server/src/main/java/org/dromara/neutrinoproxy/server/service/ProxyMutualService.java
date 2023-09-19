@@ -53,7 +53,7 @@ public class ProxyMutualService {
 		Date now = new Date();
 		portMappingMapper.updateOnlineStatus(attachInfo.getLicenseId(), serverPort, OnlineStatusEnum.ONLINE.getStatus(), now);
 		licenseMapper.updateOnlineStatus(attachInfo.getLicenseId(), OnlineStatusEnum.ONLINE.getStatus(), now);
-		log.info("绑定服务端端口 licenseId:{},ip:{},serverPort:{}", attachInfo.getLicenseId(), attachInfo.getIp(),  serverPort);
+		log.info("bind server port licenseId:{},ip:{},serverPort:{}", attachInfo.getLicenseId(), attachInfo.getIp(),  serverPort);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class ProxyMutualService {
 		Date now = new Date();
 		portMappingMapper.updateOnlineStatus(attachInfo.getLicenseId(), OnlineStatusEnum.OFFLINE.getStatus(), now);
 		licenseMapper.updateOnlineStatus(attachInfo.getLicenseId(), OnlineStatusEnum.OFFLINE.getStatus(), now);
-		log.info("客户端下线 licenseId:{},ip:{}", attachInfo.getLicenseId(), attachInfo.getIp());
+		log.info("client offline licenseId:{},ip:{}", attachInfo.getLicenseId(), attachInfo.getIp());
 	}
 
 }

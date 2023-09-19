@@ -136,7 +136,7 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
             switch (event.state()) {
                 case READER_IDLE:
                     // 读超时，断开连接
-                    log.debug("读超时");
+                    log.debug("Read timeout");
                     ctx.channel().close();
                     break;
                 case WRITER_IDLE:
