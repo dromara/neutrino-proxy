@@ -1,33 +1,17 @@
 package org.dromara.neutrinoproxy.client.core;
 
 import cn.hutool.core.util.StrUtil;
-import io.netty.handler.logging.LoggingHandler;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.ProxyMessageDecoder;
-import org.dromara.neutrinoproxy.core.ProxyMessageEncoder;
-import org.dromara.neutrinoproxy.core.util.FileUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.security.KeyStore;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,24 +28,11 @@ public class ProxyClientService {
 	private ProxyConfig proxyConfig;
 	@Inject("cmdTunnelBootstrap")
 	private Bootstrap cmdTunnelBootstrap;
-	@Inject("proxyTunnelBootstrap")
-	private Bootstrap proxyTunnelBootstrap;
-	@Inject("realServerBootstrap")
-	private Bootstrap realServerBootstrap;
 	private volatile Channel channel;
-//	/**
-//	 * 重连间隔（秒）
-//	 */
-//	private static final long RECONNECT_INTERVAL_SECONDS = 5;
 	/**
 	 * 重连次数
 	 */
 	private volatile int reconnectCount = 0;
-//	/**
-//	 * 启用重连服务
-//	 */
-//	private volatile boolean reconnectServiceEnable = false;
-	private NioEventLoopGroup workerGroup;
 	/**
 	 * 重连服务执行器
 	 */
@@ -70,72 +41,6 @@ public class ProxyClientService {
 	@Init
 	public void init() {
 		this.reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getTunnel().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
-		this.workerGroup = new NioEventLoopGroup(proxyConfig.getTunnel().getThreadCount());
-
-		realServerBootstrap.group(workerGroup);
-		realServerBootstrap.channel(NioSocketChannel.class);
-		realServerBootstrap.handler(new ChannelInitializer<SocketChannel>() {
-
-			@Override
-			public void initChannel(SocketChannel ch) throws Exception {
-				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
-					ch.pipeline().addFirst(new LoggingHandler(RealServerChannelHandler.class));
-				}
-				ch.pipeline().addLast(new RealServerChannelHandler());
-			}
-		});
-
-		proxyTunnelBootstrap.group(workerGroup);
-		proxyTunnelBootstrap.channel(NioSocketChannel.class);
-		proxyTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort()));
-		proxyTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
-
-			@Override
-			public void initChannel(SocketChannel ch) throws Exception {
-				if (proxyConfig.getTunnel().getSslEnable()) {
-					ch.pipeline().addLast(createSslHandler());
-				}
-				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
-					ch.pipeline().addFirst(new LoggingHandler(ProxyChannelHandler.class));
-				}
-				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
-						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
-						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
-				ch.pipeline().addLast(new ProxyMessageEncoder());
-				ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-				ch.pipeline().addLast(new ProxyChannelHandler());
-			}
-		});
-
-		cmdTunnelBootstrap.group(workerGroup);
-		cmdTunnelBootstrap.channel(NioSocketChannel.class);
-//		cmdTunnelBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
-//		cmdTunnelBootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-//		/**
-//		 * TCP/IP协议中，无论发送多少数据，总是要在数据前面加上协议头，同时，对方接收到数据，也需要发送ACK表示确认。为了尽可能的利用网络带宽，TCP总是希望尽可能的发送足够大的数据。（一个连接会设置MSS参数，因此，TCP/IP希望每次都能够以MSS尺寸的数据块来发送数据）。
-//		 * Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
-//		 */
-//		cmdTunnelBootstrap.option(ChannelOption.TCP_NODELAY, true);
-		cmdTunnelBootstrap.remoteAddress(InetSocketAddress.createUnresolved(proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort()));
-
-		cmdTunnelBootstrap.handler(new ChannelInitializer<SocketChannel>() {
-
-			@Override
-			public void initChannel(SocketChannel ch) throws Exception {
-				if (proxyConfig.getTunnel().getSslEnable()) {
-					ch.pipeline().addLast(createSslHandler());
-				}
-				if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
-					ch.pipeline().addFirst(new LoggingHandler(CmdChannelHandler.class));
-				}
-				ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
-						proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
-						proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
-				ch.pipeline().addLast(new ProxyMessageEncoder());
-				ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-				ch.pipeline().addLast(new CmdChannelHandler());
-			}
-		});
 
 		try {
 			this.start();
@@ -203,33 +108,7 @@ public class ProxyClientService {
 			}).sync();
 	}
 
-	private ChannelHandler createSslHandler() {
-		try {
-			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getTunnel().getJksPath());
-
-			SSLContext clientContext = SSLContext.getInstance("TLS");
-			final KeyStore ks = KeyStore.getInstance("JKS");
-			ks.load(jksInputStream, proxyConfig.getTunnel().getKeyStorePassword().toCharArray());
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			tmf.init(ks);
-			TrustManager[] trustManagers = tmf.getTrustManagers();
-			clientContext.init(null, trustManagers, null);
-
-			SSLEngine sslEngine = clientContext.createSSLEngine();
-			sslEngine.setUseClientMode(true);
-
-			return new SslHandler(sslEngine);
-		} catch (Exception e) {
-			log.error("创建SSL处理器失败", e);
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	protected synchronized void reconnect() {
-//		if (!reconnectServiceEnable) {
-//			return;
-//		}
 		if (null != channel) {
 			if (channel.isActive()) {
 				return;

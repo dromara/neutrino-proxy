@@ -21,6 +21,9 @@
  */
 package org.dromara.neutrinoproxy.client.util;
 
+import io.netty.channel.ChannelHandler;
+import io.netty.handler.ssl.SslHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.core.ProxyChannelBorrowListener;
@@ -34,6 +37,12 @@ import io.netty.util.AttributeKey;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.noear.solon.Solon;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -45,6 +54,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author: aoshiguchen
  * @date: 2022/8/31
  */
+@Slf4j
 public class ProxyUtil {
 	private static final AttributeKey<Boolean> USER_CHANNEL_WRITEABLE = AttributeKey.newInstance("user_channel_writeable");
 
@@ -153,5 +163,28 @@ public class ProxyUtil {
 		FileUtil.write(CLIENT_ID_FILE, id);
 		clientId = id;
 		return id;
+	}
+
+	public static ChannelHandler createSslHandler(ProxyConfig proxyConfig) {
+		try {
+			InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getTunnel().getJksPath());
+
+			SSLContext clientContext = SSLContext.getInstance("TLS");
+			final KeyStore ks = KeyStore.getInstance("JKS");
+			ks.load(jksInputStream, proxyConfig.getTunnel().getKeyStorePassword().toCharArray());
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(ks);
+			TrustManager[] trustManagers = tmf.getTrustManagers();
+			clientContext.init(null, trustManagers, null);
+
+			SSLEngine sslEngine = clientContext.createSSLEngine();
+			sslEngine.setUseClientMode(true);
+
+			return new SslHandler(sslEngine);
+		} catch (Exception e) {
+			log.error("创建SSL处理器失败", e);
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
