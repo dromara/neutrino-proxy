@@ -74,6 +74,14 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 		);
 	}
 
+	default PortMappingDO findByLicenseIdAndServerPort(Integer licenseId, Integer serverPort) {
+		return this.selectOne(new LambdaQueryWrapper<PortMappingDO>()
+				.eq(PortMappingDO::getLicenseId, licenseId)
+				.eq(PortMappingDO::getServerPort, serverPort)
+				.last("limit 1")
+		);
+	}
+
 	default void updateOnlineStatus(Integer licenseId,Integer serverPort, Integer isOnline, Date updateTime) {
 		this.update(null, new LambdaUpdateWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getLicenseId, licenseId)

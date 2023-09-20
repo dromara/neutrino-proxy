@@ -26,7 +26,7 @@ public class ProxyMessageDisconnectHandler implements ProxyMessageHandler {
 		Channel realServerChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
 		if (null != realServerChannel) {
 			ctx.channel().attr(Constants.NEXT_CHANNEL).remove();
-			ProxyUtil.returnProxyChanel(ctx.channel());
+			ProxyUtil.returnTcpProxyChanel(ctx.channel());
 			realServerChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
 		}
 		ctx.close();

@@ -47,7 +47,7 @@ public class TcpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMes
             realServerChannel.close();
         }
 
-        ProxyUtil.removeProxyChanel(ctx.channel());
+        ProxyUtil.removeTcpProxyChanel(ctx.channel());
         super.channelInactive(ctx);
     }
 

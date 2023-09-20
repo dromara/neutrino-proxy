@@ -34,14 +34,14 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
 		if (StrUtil.isEmpty(info)) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info不能为空!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info cannot be empty!"));
 			ctx.channel().close();
 			return;
 		}
 
 		String[] tokens = info.split("@");
 		if (tokens.length != 2) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info格式有误!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "info format error!"));
 			ctx.channel().close();
 			return;
 		}
@@ -50,18 +50,18 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "license不存在!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "the license notfound!"));
 			ctx.channel().close();
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "当前license已被禁用!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "the license invalid!"));
 			ctx.channel().close();
 			return;
 		}
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "当前license无效!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "the license invalid!"));
 			ctx.channel().close();
 			return;
 		}
@@ -69,7 +69,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 
 		if (null == cmdChannel) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "服务端异常，指令通道不存在!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "server error，cmd channel notfound!"));
 			ctx.channel().close();
 			return;
 		}

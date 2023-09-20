@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
@@ -76,7 +77,7 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
         String visitorId = ProxyUtil.newVisitorId();
-        ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, visitorChannel, sa.getPort());
+        ProxyUtil.addVisitorChannelToCmdChannel(NetworkProtocolEnum.TCP, cmdChannel, visitorId, visitorChannel, sa.getPort());
         cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
 
         super.channelActive(ctx);

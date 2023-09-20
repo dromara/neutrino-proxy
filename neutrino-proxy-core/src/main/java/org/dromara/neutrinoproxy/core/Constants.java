@@ -38,6 +38,9 @@ public interface Constants {
 
     AttributeKey<Integer> LICENSE_ID = AttributeKey.newInstance("license_id");
 
+    AttributeKey<String> TARGET_IP = AttributeKey.newInstance("targetIp");
+    AttributeKey<Integer> TARGET_PORT = AttributeKey.newInstance("targetPort");
+
     int HEADER_SIZE = 4;
     int TYPE_SIZE = 1;
     int SERIAL_NUMBER_SIZE = 8;
@@ -49,6 +52,9 @@ public interface Constants {
         String CONNECT = "CONNECT";
         String DISCONNECT = "DISCONNECT";
         String TRANSFER = "TRANSFER";
+        String UDP_CONNECT = "UDP_CONNECT";
+        String UDP_DISCONNECT = "UDP_DISCONNECT";
+        String UDP_TRANSFER = "UDP_TRANSFER";
         String ERROR = "ERROR";
         String PORT_MAPPING_SYNC = "PORT_MAPPING_SYNC";
     }

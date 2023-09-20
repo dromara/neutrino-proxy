@@ -6,8 +6,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
+import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
+import org.dromara.neutrinoproxy.server.service.FlowReportService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
+import org.noear.solon.Solon;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -16,12 +22,46 @@ import java.nio.charset.StandardCharsets;
  * @author: aoshiguchen
  * @date: 2023/9/16
  */
+@Slf4j
 public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
+        System.out.println("channelId:" + ctx.channel().id().asLongText());
         System.out.println("服务端接收到消息 \nsender:" + datagramPacket.sender().toString() + "内容\n" + datagramPacket.content().toString(StandardCharsets.UTF_8));
 
+        // 通知代理客户端
+        Channel visitorChannel = ctx.channel();
+        Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
+
+        if (null == proxyChannel) {
+            // 该端口还没有代理客户端
+            ctx.channel().close();
+            return;
+        }
+        String targetIp = proxyChannel.attr(Constants.TARGET_IP).get();
+        int targetPort = proxyChannel.attr(Constants.TARGET_PORT).get();
+
+        // 转发代理数据
+        byte[] bytes = new byte[datagramPacket.content().readableBytes()];
+        datagramPacket.content().readBytes(bytes);
+        String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
+        proxyChannel.writeAndFlush(ProxyMessage.buildUdpTransferMessage(new ProxyMessage.UdpBaseInfo()
+                        .setVisitorId(visitorId)
+                        .setVisitorIp(datagramPacket.sender().getAddress().getHostAddress())
+                        .setVisitorPort(datagramPacket.sender().getPort())
+                        .setTargetIp(targetIp)
+                        .setTargetPort(targetPort)
+                ).setData(bytes));
+
+        // 增加流量计数
+        VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(visitorChannel);
+        Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("active channelId:" + ctx.channel().id().asLongText());
         Channel visitorChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
@@ -43,16 +83,27 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
         String targetIp = targetInfo[0];
         int targetPort = Integer.parseInt(targetInfo[1]);
 
-        // 转发代理数据
-        byte[] bytes = new byte[datagramPacket.content().readableBytes()];
-        datagramPacket.content().readBytes(bytes);
+        // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
+        visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
-        cmdChannel.writeAndFlush(ProxyMessage.buildUdpTransferMessage(
-                sa.getAddress().getHostAddress(),
-                sa.getPort(),
-                targetIp,
-                targetPort,
-                bytes
-        ));
+        // UDP此处叫visitor似有不妥，与TCP不同
+        String visitorId = ProxyUtil.newVisitorId();
+        // 此处需要和tcp分开
+        ProxyUtil.addVisitorChannelToCmdChannel(NetworkProtocolEnum.UDP, cmdChannel, visitorId, visitorChannel, sa.getPort());
+        cmdChannel.writeAndFlush(ProxyMessage.buildUdpConnectMessage(new ProxyMessage.UdpBaseInfo()
+                        .setVisitorId(visitorId)
+                        .setServerPort(sa.getPort())
+                        .setTargetIp(targetIp)
+                        .setTargetPort(targetPort)
+                ));
+
+        super.channelActive(ctx);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        // 当出现异常就关闭连接
+        ctx.close();
+        log.error("[UDP Visitor Channel]VisitorChannel error", cause);
     }
 }

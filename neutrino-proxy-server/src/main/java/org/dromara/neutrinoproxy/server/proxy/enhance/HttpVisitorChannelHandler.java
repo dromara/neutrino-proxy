@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
@@ -98,7 +99,7 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         }
 
         visitorId = ProxyUtil.newVisitorId();
-        ProxyUtil.addVisitorChannelToCmdChannel(cmdChannel, visitorId, ctx.channel(), serverPort);
+        ProxyUtil.addVisitorChannelToCmdChannel(NetworkProtocolEnum.HTTP, cmdChannel, visitorId, ctx.channel(), serverPort);
         ProxyUtil.addProxyConnectAttachment(visitorId, proxyAttachment);
         cmdChannel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId).setData(lanInfo.getBytes()));
     }
