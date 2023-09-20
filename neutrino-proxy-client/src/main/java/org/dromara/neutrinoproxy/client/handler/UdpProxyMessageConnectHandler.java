@@ -36,11 +36,11 @@ public class UdpProxyMessageConnectHandler implements ProxyMessageHandler {
         log.info("[UDP connect]info:{}", proxyMessage.getInfo());
 
         // 获取连接
-        ProxyUtil.borrowTcpProxyChanel(udpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
+        ProxyUtil.borrowUdpProxyChanel(udpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
 
             @Override
             public void success(Channel channel) {
-                ctx.channel().writeAndFlush(ProxyMessage.buildUdpConnectMessage(new ProxyMessage.UdpBaseInfo()
+                channel.writeAndFlush(ProxyMessage.buildUdpConnectMessage(new ProxyMessage.UdpBaseInfo()
                         .setVisitorId(udpBaseInfo.getVisitorId())
                         .setServerPort(udpBaseInfo.getServerPort())
                         .setTargetIp(udpBaseInfo.getTargetIp())
