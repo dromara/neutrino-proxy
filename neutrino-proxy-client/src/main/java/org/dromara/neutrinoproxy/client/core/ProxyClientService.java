@@ -3,6 +3,7 @@ package org.dromara.neutrinoproxy.client.core;
 import cn.hutool.core.util.StrUtil;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
+import org.dromara.neutrinoproxy.client.util.UdpServerUtil;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -28,6 +29,8 @@ public class ProxyClientService {
 	private ProxyConfig proxyConfig;
 	@Inject("cmdTunnelBootstrap")
 	private Bootstrap cmdTunnelBootstrap;
+	@Inject("udpServerBootstrap")
+	private Bootstrap udpServerBootstrap;
 	private volatile Channel channel;
 	/**
 	 * 重连次数
@@ -44,6 +47,7 @@ public class ProxyClientService {
 
 		try {
 			this.start();
+			UdpServerUtil.initCache(proxyConfig, udpServerBootstrap);
 		} catch (Exception e) {
 			// 启动连不上也做一下重连，因此先catch异常
 			log.error("[CmdChannel] start error", e);

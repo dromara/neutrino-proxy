@@ -50,7 +50,7 @@ public class ProxyConfig {
 	@Data
 	public static class Client {
 //		private Tcp tcp;
-//		private Udp udp;
+		private Udp udp;
 	}
 
 	@Data
@@ -60,12 +60,15 @@ public class ProxyConfig {
 	}
 
 	@Data
-	private static class Tcp {
+	public static class Tcp {
 
 	}
 
 	@Data
-	private static class Udp {
-
+	public static class Udp {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
+		private String puppetPortRange;
+		private Boolean transferLogEnable;
 	}
 }

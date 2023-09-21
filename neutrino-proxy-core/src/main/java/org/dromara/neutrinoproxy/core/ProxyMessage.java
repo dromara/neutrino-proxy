@@ -179,6 +179,14 @@ public class ProxyMessage {
         private int serverPort;
         private String targetIp;
         private int targetPort;
+        /**
+         * 期待的响应数
+         */
+        private int proxyResponses;
+        /**
+         * 超时时间(<=0时，相当于不需要响应)
+         */
+        private int proxyTimeout;
         public String toJsonString() {
             return JSONObject.toJSONString(this);
         }

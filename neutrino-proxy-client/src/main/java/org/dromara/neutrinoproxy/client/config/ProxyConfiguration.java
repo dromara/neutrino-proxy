@@ -1,15 +1,15 @@
 package org.dromara.neutrinoproxy.client.config;
 
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.dromara.neutrinoproxy.client.core.CmdChannelHandler;
-import org.dromara.neutrinoproxy.client.core.TcpProxyChannelHandler;
-import org.dromara.neutrinoproxy.client.core.RealServerChannelHandler;
-import org.dromara.neutrinoproxy.client.core.UdpProxyChannelHandler;
+import org.dromara.neutrinoproxy.client.core.*;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.*;
 import org.dromara.neutrinoproxy.core.dispatcher.DefaultDispatcher;
@@ -51,6 +51,18 @@ public class ProxyConfiguration implements LifecycleBean {
     public NioEventLoopGroup tcpRealServerWorkGroup(@Inject ProxyConfig proxyConfig) {
         // 暂时先公用此配置
         return new NioEventLoopGroup(proxyConfig.getTunnel().getThreadCount());
+    }
+
+    @Bean("udpServerGroup")
+    public NioEventLoopGroup udpServerGroup(@Inject ProxyConfig proxyConfig) {
+        // 暂时先公用此配置
+        return new NioEventLoopGroup(proxyConfig.getClient().getUdp().getBossThreadCount());
+    }
+
+    @Bean("udpWorkGroup")
+    public NioEventLoopGroup udpWorkGroup(@Inject ProxyConfig proxyConfig) {
+        // 暂时先公用此配置
+        return new NioEventLoopGroup(proxyConfig.getClient().getUdp().getWorkThreadCount());
     }
 
     @Bean("cmdTunnelBootstrap")
@@ -165,5 +177,31 @@ public class ProxyConfiguration implements LifecycleBean {
         return bootstrap;
     }
 
+    @Bean("udpServerBootstrap")
+    public Bootstrap udpServerBootstrap(@Inject ProxyConfig proxyConfig,
+                                        @Inject("udpServerGroup") NioEventLoopGroup udpServerGroup,
+                                        @Inject("udpWorkGroup") NioEventLoopGroup udpWorkGroup) {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(udpServerGroup)
+                // 主线程处理
+                .channel(NioDatagramChannel.class)
+                // 广播
+                .option(ChannelOption.SO_BROADCAST, true)
+                // 设置读缓冲区为2M
+                .option(ChannelOption.SO_RCVBUF, 2048 * 1024)
+                // 设置写缓冲区为1M
+                .option(ChannelOption.SO_SNDBUF, 1024 * 1024)
+                .handler(new ChannelInitializer<NioDatagramChannel>() {
+                    @Override
+                    protected void initChannel(NioDatagramChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        if (null != proxyConfig.getClient().getUdp().getTransferLogEnable() && proxyConfig.getClient().getUdp().getTransferLogEnable()) {
+                            ch.pipeline().addFirst(new LoggingHandler(UdpRealServerHandler.class));
+                        }
+                        pipeline.addLast(udpWorkGroup, new UdpRealServerHandler());
+                    }
+                });
+        return bootstrap;
+    }
 
 }
