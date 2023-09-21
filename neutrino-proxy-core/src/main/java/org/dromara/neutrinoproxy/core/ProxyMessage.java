@@ -186,7 +186,7 @@ public class ProxyMessage {
         /**
          * 超时时间(<=0时，相当于不需要响应)
          */
-        private int proxyTimeout;
+        private long proxyTimeoutMs;
         public String toJsonString() {
             return JSONObject.toJSONString(this);
         }

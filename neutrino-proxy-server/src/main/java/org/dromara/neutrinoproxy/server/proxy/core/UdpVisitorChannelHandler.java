@@ -29,9 +29,6 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
-        System.out.println("channelId:" + ctx.channel().id().asLongText());
-        System.out.println("服务端接收到消息 \nsender:" + datagramPacket.sender().toString() + "内容\n" + datagramPacket.content().toString(StandardCharsets.UTF_8));
-
         byte[] bytes = new byte[datagramPacket.content().readableBytes()];
         datagramPacket.content().readBytes(bytes);
         datagramPacket.content().resetReaderIndex();
@@ -54,6 +51,8 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
                     .setVisitorPort(datagramPacket.sender().getPort())
                     .setTargetIp(targetIp)
                     .setTargetPort(targetPort)
+                    .setProxyTimeoutMs(10000)
+                    .setProxyResponses(3)
             ).setData(bytes));
 
             // 增加流量计数
