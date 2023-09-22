@@ -19,19 +19,20 @@
 - [x] 端口映射HTTP(S)新增打开网页按钮
 - [x] 客户端断开连接时，记录日志空指针异常问题修复
 
-
 # 1.9.0
-- [ ] 增加服务端/客户端jar式一键部署脚本
-- [ ] 排查解决问题：https://gitee.com/dromara/neutrino-proxy/issues/I7LGLB
-- [ ] 访问白名单
-- [ ] 端口映射分组
-- [ ] 支持UDP
+- [x] 支持UDP
   - 服务端
     - 原`neutrino.proxy.server`配置移到`neutrino.proxy.server.tcp`下
   - 客户端
     - 原`neutrino.proxy.client`配置移到`neutrino.proxy.tunnel`下
 - [x] 端口映射HTTP(S)新增打开网页按钮，优先使用域名打开
 - [x] 新增/编辑端口映射时端口占用检测功能屏蔽，解决docker下使用的各种问题
+
+# 1.9.1
+- [ ] 增加服务端/客户端jar式一键部署脚本
+- [ ] 排查解决问题：https://gitee.com/dromara/neutrino-proxy/issues/I7LGLB
+- [ ] 访问白名单
+- [ ] 端口映射分组
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
