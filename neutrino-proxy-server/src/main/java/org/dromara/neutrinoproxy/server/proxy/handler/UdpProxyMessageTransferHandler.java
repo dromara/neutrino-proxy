@@ -12,6 +12,10 @@ import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
+import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
+import org.dromara.neutrinoproxy.server.service.FlowReportService;
+import org.dromara.neutrinoproxy.server.util.ProxyUtil;
+import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 
 import java.net.InetSocketAddress;
@@ -34,6 +38,12 @@ public class UdpProxyMessageTransferHandler implements ProxyMessageHandler {
             InetSocketAddress address = new InetSocketAddress(udpBaseInfo.getVisitorIp(), udpBaseInfo.getVisitorPort());
             ByteBuf byteBuf = Unpooled.copiedBuffer(proxyMessage.getData());
             visitorChannel.writeAndFlush(new DatagramPacket(byteBuf, address));
+
+            // 增加流量计数(TODO 如果UDP映射服务端端口修改，这个似乎不准)
+            Integer licenseId = visitorChannel.attr(Constants.LICENSE_ID).get();
+            if (null != licenseId) {
+                Solon.context().getBean(FlowReportService.class).addReadByte(licenseId, proxyMessage.getData().length);
+            }
         }
     }
 
