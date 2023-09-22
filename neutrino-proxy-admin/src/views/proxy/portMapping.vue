@@ -463,7 +463,10 @@ export default {
       })
     },
     handleOpenWebPage(row) {
-      const url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      if (row.domain) {
+        url = location.protocol + '//' + row.domain
+      }
       open(url)
     },
     handleUpdate(row) {
