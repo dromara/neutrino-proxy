@@ -196,7 +196,7 @@
 
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-import { portPoolList, availablePortList, portAvailable } from '@/api/portPool'
+import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
@@ -298,7 +298,8 @@ export default {
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
         serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
-          { validator: isPortAvailable, trigger: 'change' }],
+          // { validator: isPortAvailable, trigger: 'change' }
+        ],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
         clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]

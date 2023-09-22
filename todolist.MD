@@ -30,6 +30,8 @@
     - 原`neutrino.proxy.server`配置移到`neutrino.proxy.server.tcp`下
   - 客户端
     - 原`neutrino.proxy.client`配置移到`neutrino.proxy.tunnel`下
+- [x] 端口映射HTTP(S)新增打开网页按钮，优先使用域名打开
+- [x] 新增/编辑端口映射时端口占用检测功能屏蔽，解决docker下使用的各种问题
 
 # Bug
 - 指令通达被close的问题，org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelChannelHandler.channelInactive 
