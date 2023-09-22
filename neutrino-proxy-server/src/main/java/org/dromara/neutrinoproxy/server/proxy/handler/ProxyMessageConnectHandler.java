@@ -88,6 +88,8 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		// 获取代理附加对象
 		ProxyAttachment proxyAttachment = ProxyUtil.getProxyConnectAttachment(visitorId);
 		if (null != proxyAttachment) {
+			// 及时释放
+			ProxyUtil.remoteProxyConnectAttachment(visitorId);
 			proxyAttachment.execute();
 		}
 	}

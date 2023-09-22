@@ -55,6 +55,14 @@ public class PortMappingCreateReq {
 	 */
 	private Integer clientPort;
 	/**
+	 * 代理响应数量（响应数据包数量，如果没有拆包则等于数据条数）
+	 */
+	private Integer proxyResponses;
+	/**
+	 * 代理超时时间
+	 */
+	private Long proxyTimeoutMs;
+	/**
 	 * 描述
 	 */
 	private String description;

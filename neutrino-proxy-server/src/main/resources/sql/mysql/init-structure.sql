@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `client_port` int NOT NULL COMMENT '客户端端口',
     `is_online` int NOT NULL COMMENT '是否在线（1、在线 2、离线）',
     `description` varchar(100) DEFAULT NULL COMMENT '描述',
+    `proxy_responses` int NOT NULL DEFAULT 0 COMMENT '代理响应数据包数量',
+    `proxy_timeout_ms` int NOT NULL DEFAULT 0 COMMENT '代理超时毫秒数',
     `enable` int NOT NULL COMMENT '是否启用(1、启用 2、禁用)',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',

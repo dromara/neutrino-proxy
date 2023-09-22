@@ -211,7 +211,8 @@ public class VisitorChannelService {
             if (null != proxyChannel) {
                 proxyChannel.close();
             }
-            visitorChannel.close();
+            // TODO 此处如果时UDP的visitorChannel,则不能close，后续重构考虑
+//            visitorChannel.close();
         }
         ProxyUtil.removeProxyInfo(portMappingDO.getServerPort());
     }

@@ -29,6 +29,7 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
+        log.debug("chid>>>{}", ctx.channel().id().asLongText());
         byte[] bytes = new byte[datagramPacket.content().readableBytes()];
         datagramPacket.content().readBytes(bytes);
         datagramPacket.content().resetReaderIndex();
@@ -36,12 +37,14 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
             Channel proxyChannel = channel.attr(Constants.NEXT_CHANNEL).get();
 
             if (null == proxyChannel) {
-                // 该端口还没有代理客户端
-                ctx.channel().close();
+//                // 该端口还没有代理客户端
+//                ctx.channel().close();
                 return;
             }
             String targetIp = proxyChannel.attr(Constants.TARGET_IP).get();
             int targetPort = proxyChannel.attr(Constants.TARGET_PORT).get();
+            Integer proxyResponses = proxyChannel.attr(Constants.PROXY_RESPONSES).get();
+            Long proxyTimeoutMs = proxyChannel.attr(Constants.PROXY_TIMEOUT_MS).get();
 
             // 转发代理数据
             String visitorId = ProxyUtil.getVisitorIdByChannel(channel);
@@ -51,8 +54,8 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
                     .setVisitorPort(datagramPacket.sender().getPort())
                     .setTargetIp(targetIp)
                     .setTargetPort(targetPort)
-                    .setProxyTimeoutMs(10000)
-                    .setProxyResponses(3)
+                    .setProxyTimeoutMs(proxyTimeoutMs)
+                    .setProxyResponses(proxyResponses)
             ).setData(bytes));
 
             // 增加流量计数
@@ -80,7 +83,7 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
         // 没有指令通道，直接结束
         if (null == cmdChannel) {
             // 该端口还没有代理客户端
-            ctx.channel().close();
+//            ctx.channel().close();
             return;
         }
 
@@ -95,8 +98,8 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
         String targetIp = targetInfo[0];
         int targetPort = Integer.parseInt(targetInfo[1]);
 
-        // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
-        visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
+//        // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
+//        visitorChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
         // TODO UDP此处叫visitor似有不妥，与TCP不同,2.x重构思考
         String visitorId = ProxyUtil.newVisitorId();

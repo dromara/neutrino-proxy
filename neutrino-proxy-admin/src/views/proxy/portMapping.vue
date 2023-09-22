@@ -168,6 +168,14 @@
             <template slot="append">.{{ domainName }}</template>
           </el-input>
         </el-form-item>
+        <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
+          <el-input v-model="temp.proxyResponses"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('超时时间')" prop="proxyTimeoutMs" v-if="temp.protocal === 'UDP'">
+          <el-input v-model="temp.proxyTimeoutMs">
+            <template slot="append">毫秒</template>
+          </el-input>
+        </el-form-item>
         <el-form-item :label="$t('描述')" prop="description">
           <el-input v-model="temp.description"></el-input>
         </el-form-item>
@@ -281,7 +289,9 @@ export default {
         serverPort: undefined,
         clientIp: undefined,
         clientPort: undefined,
-        protocal: undefined
+        protocal: undefined,
+        proxyResponses: undefined,
+        proxyTimeoutMs: undefined
       },
       selectObj: {
         statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
@@ -431,7 +441,9 @@ export default {
         serverPort: undefined,
         clientIp: '127.0.0.1',
         clientPort: undefined,
-        userId: undefined
+        userId: undefined,
+        proxyResponses: undefined,
+        proxyTimeoutMs: undefined
       }
       this.serverPortList = []
       this.loadServerPortQuery.licenseId = null;

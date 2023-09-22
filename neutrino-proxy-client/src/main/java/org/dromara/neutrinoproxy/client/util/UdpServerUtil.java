@@ -1,8 +1,10 @@
 package org.dromara.neutrinoproxy.client.util;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
@@ -174,10 +176,21 @@ public class UdpServerUtil {
                     System.currentTimeMillis() - lockChannel.getTakeTime().getTime() >= lockChannel.getProxyTimeoutMs()
             ) {
                 iter.remove();
+                UdpChannelBindInfo udpChannelBindInfo = lockChannel.getChannel().attr(Constants.UDP_CHANNEL_BIND_KEY).get();
+                // 此处必须释放代理隧道
+                closeChannel(udpChannelBindInfo.getTunnelChannel());
                 lockChannel.getChannel().attr(Constants.UDP_CHANNEL_BIND_KEY).set(null);
                 udpServerFreePortPool.offer(lockChannel.getPort());
                 log.debug("[udp channel]release udp channel port:{}", lockChannel.getPort());
             }
+        }
+    }
+
+    private static void closeChannel(Channel channel) {
+        try {
+            channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            // ignore
         }
     }
 }

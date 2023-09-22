@@ -40,6 +40,12 @@ public interface Constants {
 
     AttributeKey<String> TARGET_IP = AttributeKey.newInstance("targetIp");
     AttributeKey<Integer> TARGET_PORT = AttributeKey.newInstance("targetPort");
+    AttributeKey<Integer> PROXY_RESPONSES = AttributeKey.newInstance("proxyResponses");
+    AttributeKey<Long> PROXY_TIMEOUT_MS = AttributeKey.newInstance("proxyTimeoutMs");
+
+    // 临时解决 udp channel被close的问题
+    AttributeKey<Boolean> IS_UDP_KEY =  AttributeKey.newInstance("isUdp");
+
 
     int HEADER_SIZE = 4;
     int TYPE_SIZE = 1;

@@ -142,6 +142,8 @@ public class PortMappingService implements LifecycleBean {
         portMappingDO.setServerPort(req.getServerPort());
         portMappingDO.setClientIp(req.getClientIp());
         portMappingDO.setClientPort(req.getClientPort());
+        portMappingDO.setProxyResponses(req.getProxyResponses());
+        portMappingDO.setProxyTimeoutMs(req.getProxyTimeoutMs());
         portMappingDO.setDescription(req.getDescription());
         portMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
         portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
@@ -181,6 +183,8 @@ public class PortMappingService implements LifecycleBean {
         portMappingDO.setServerPort(req.getServerPort());
         portMappingDO.setClientIp(req.getClientIp());
         portMappingDO.setClientPort(req.getClientPort());
+        portMappingDO.setProxyResponses(req.getProxyResponses());
+        portMappingDO.setProxyTimeoutMs(req.getProxyTimeoutMs());
         portMappingDO.setDescription(req.getDescription());
         portMappingDO.setUpdateTime(new Date());
         portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
@@ -203,7 +207,18 @@ public class PortMappingService implements LifecycleBean {
         if (null == portMappingDO) {
             return null;
         }
-        PortMappingDetailRes res = new PortMappingDetailRes().setId(portMappingDO.getId()).setLicenseId(portMappingDO.getLicenseId()).setServerPort(portMappingDO.getServerPort()).setClientIp(portMappingDO.getClientIp()).setClientPort(portMappingDO.getClientPort()).setIsOnline(portMappingDO.getIsOnline()).setEnable(portMappingDO.getEnable()).setCreateTime(portMappingDO.getCreateTime()).setUpdateTime(portMappingDO.getUpdateTime());
+        PortMappingDetailRes res = new PortMappingDetailRes()
+            .setId(portMappingDO.getId())
+            .setLicenseId(portMappingDO.getLicenseId())
+            .setServerPort(portMappingDO.getServerPort())
+            .setClientIp(portMappingDO.getClientIp())
+            .setClientPort(portMappingDO.getClientPort())
+            .setIsOnline(portMappingDO.getIsOnline())
+            .setProxyTimeoutMs(portMappingDO.getProxyTimeoutMs())
+            .setProxyResponses(portMappingDO.getProxyResponses())
+            .setEnable(portMappingDO.getEnable())
+            .setCreateTime(portMappingDO.getCreateTime())
+            .setUpdateTime(portMappingDO.getUpdateTime());
 
         LicenseDO license = licenseMapper.findById(portMappingDO.getLicenseId());
         if (null != license) {

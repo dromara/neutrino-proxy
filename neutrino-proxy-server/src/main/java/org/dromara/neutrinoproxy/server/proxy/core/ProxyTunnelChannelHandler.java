@@ -89,8 +89,11 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
             if (null != cmdChannel) {
                 ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, visitorId);
             }
+            ProxyUtil.remoteProxyConnectAttachment(visitorId);
 
-            if (visitorChannel.isActive()) {
+            // 此处如果时UDP的 visitorChannel，则不能close，先临时判断一下
+            Boolean isUdp = visitorChannel.attr(Constants.IS_UDP_KEY).get();
+            if (visitorChannel.isActive() && null == isUdp) {
                 // 数据发送完成后再关闭连接，解决http1.0数据传输问题
                 visitorChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
                 visitorChannel.close();
