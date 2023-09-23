@@ -41,6 +41,8 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
 //                ctx.channel().close();
                 return;
             }
+
+            proxyChannel.attr(Constants.SENDER).set(datagramPacket.sender());
             String targetIp = proxyChannel.attr(Constants.TARGET_IP).get();
             int targetPort = proxyChannel.attr(Constants.TARGET_PORT).get();
             Integer proxyResponses = proxyChannel.attr(Constants.PROXY_RESPONSES).get();

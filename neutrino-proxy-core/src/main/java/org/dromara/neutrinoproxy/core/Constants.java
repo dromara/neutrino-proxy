@@ -25,6 +25,8 @@ package org.dromara.neutrinoproxy.core;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
+import java.net.InetSocketAddress;
+
 /**
  *
  * @author: aoshiguchen
@@ -45,6 +47,7 @@ public interface Constants {
 
     // 临时解决 udp channel被close的问题
     AttributeKey<Boolean> IS_UDP_KEY =  AttributeKey.newInstance("isUdp");
+    AttributeKey<InetSocketAddress> SENDER = AttributeKey.newInstance("sender");
 
 
     int HEADER_SIZE = 4;

@@ -35,9 +35,13 @@ public class UdpProxyMessageTransferHandler implements ProxyMessageHandler {
 
         Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
         if (null != visitorChannel) {
-            InetSocketAddress address = new InetSocketAddress(udpBaseInfo.getVisitorIp(), udpBaseInfo.getVisitorPort());
-            ByteBuf byteBuf = Unpooled.copiedBuffer(proxyMessage.getData());
-            visitorChannel.writeAndFlush(new DatagramPacket(byteBuf, address));
+//            InetSocketAddress address = new InetSocketAddress(udpBaseInfo.getVisitorIp(), udpBaseInfo.getVisitorPort());
+//            ByteBuf byteBuf = Unpooled.copiedBuffer(proxyMessage.getData());
+//            visitorChannel.writeAndFlush(new DatagramPacket(byteBuf, address));
+            InetSocketAddress address = ctx.channel().attr(Constants.SENDER).get();
+            if (null != address) {
+                visitorChannel.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(proxyMessage.getData()), address));
+            }
 
             // 增加流量计数(TODO 如果UDP映射服务端端口修改，这个似乎不准)
             Integer licenseId = visitorChannel.attr(Constants.LICENSE_ID).get();
