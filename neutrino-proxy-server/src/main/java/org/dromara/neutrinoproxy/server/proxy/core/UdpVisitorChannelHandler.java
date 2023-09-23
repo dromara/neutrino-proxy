@@ -127,4 +127,26 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
         ctx.close();
         log.error("[UDP Visitor Channel]VisitorChannel error", cause);
     }
+
+    @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+
+        // 通知代理客户端
+        Channel visitorChannel = ctx.channel();
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
+        Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
+
+        if (null == cmdChannel) {
+            // 该端口还没有代理客户端
+            ctx.channel().close();
+        }
+        else {
+            Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
+            if (null != proxyChannel) {
+                proxyChannel.config().setOption(ChannelOption.AUTO_READ, visitorChannel.isWritable());
+            }
+        }
+
+        super.channelWritabilityChanged(ctx);
+    }
 }

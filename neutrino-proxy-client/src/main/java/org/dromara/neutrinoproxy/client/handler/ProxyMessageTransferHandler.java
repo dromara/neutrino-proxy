@@ -23,6 +23,10 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		Channel realServerChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
 		if (realServerChannel != null) {
+
+			// 自己可写，则设置来源可读。自己不可写，则设置来源不可读
+			realServerChannel.config().setAutoRead(ctx.channel().isWritable());
+
 			ByteBuf buf = ctx.alloc().buffer(proxyMessage.getData().length);
 			buf.writeBytes(proxyMessage.getData());
 			realServerChannel.writeAndFlush(buf);

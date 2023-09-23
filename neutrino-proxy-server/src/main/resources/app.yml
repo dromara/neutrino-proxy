@@ -11,8 +11,8 @@ neutrino:
       length-field-length: 4
       initial-bytes-to-strip: 0
       length-adjustment: 0
-      read-idle-time: 30
-      write-idle-time: 5
+      read-idle-time: 120
+      write-idle-time: 20
       all-idle-time-seconds: 0
     logger:
       # 日志级别

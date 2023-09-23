@@ -63,16 +63,18 @@ public class TcpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMes
             IdleStateEvent event = (IdleStateEvent)evt;
             switch (event.state()) {
                 case READER_IDLE:
-                    // 读超时，断开连接
-                    log.info("[TCP Proxy Channel]Read timeout");
-                    ctx.channel().close();
+                    if (ctx.channel().isWritable()) {
+                        // 读超时，断开连接
+                        log.info("[TCP Proxy Channel]Read timeout");
+                        ctx.channel().close();
+                    }
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());
                     break;
                 case ALL_IDLE:
-                    log.debug("[TCP Proxy Channel]ReadWrite timeout");
-                    ctx.close();
+//                    log.debug("[TCP Proxy Channel]ReadWrite timeout");
+//                    ctx.close();
                     break;
             }
         }
