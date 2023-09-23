@@ -20,7 +20,7 @@ public class ProxyMessageErrorHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-		log.info("异常信息: {}", proxyMessage.getInfo());
+		log.info("error: {}", proxyMessage.getInfo());
 		JSONObject data = JSONObject.parseObject(proxyMessage.getInfo());
 		Integer code = data.getInteger("code");
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {

@@ -168,6 +168,14 @@
             <template slot="append">.{{ domainName }}</template>
           </el-input>
         </el-form-item>
+        <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
+          <el-input v-model="temp.proxyResponses"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('超时时间')" prop="proxyTimeoutMs" v-if="temp.protocal === 'UDP'">
+          <el-input v-model="temp.proxyTimeoutMs">
+            <template slot="append">毫秒</template>
+          </el-input>
+        </el-form-item>
         <el-form-item :label="$t('描述')" prop="description">
           <el-input v-model="temp.description"></el-input>
         </el-form-item>
@@ -196,7 +204,7 @@
 
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
-import { portPoolList, availablePortList, portAvailable } from '@/api/portPool'
+import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
@@ -281,7 +289,9 @@ export default {
         serverPort: undefined,
         clientIp: undefined,
         clientPort: undefined,
-        protocal: undefined
+        protocal: undefined,
+        proxyResponses: undefined,
+        proxyTimeoutMs: undefined
       },
       selectObj: {
         statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
@@ -298,7 +308,8 @@ export default {
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
         serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
-          { validator: isPortAvailable, trigger: 'change' }],
+          // { validator: isPortAvailable, trigger: 'change' }
+        ],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
         clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
@@ -430,7 +441,9 @@ export default {
         serverPort: undefined,
         clientIp: '127.0.0.1',
         clientPort: undefined,
-        userId: undefined
+        userId: undefined,
+        proxyResponses: undefined,
+        proxyTimeoutMs: undefined
       }
       this.serverPortList = []
       this.loadServerPortQuery.licenseId = null;
@@ -463,7 +476,10 @@ export default {
       })
     },
     handleOpenWebPage(row) {
-      const url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      if (row.domain) {
+        url = location.protocol + '//' + row.domain
+      }
       open(url)
     },
     handleUpdate(row) {

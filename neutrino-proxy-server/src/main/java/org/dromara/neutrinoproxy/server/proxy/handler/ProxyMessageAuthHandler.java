@@ -89,7 +89,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 
 		if (StrUtil.isEmpty(licenseKey)) {
-			log.warn("[客户端连接] license不能为空 info:{} ", info);
+			log.warn("[client connection] license cannot empty info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -97,14 +97,14 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("license不能为空!")
+					.setErr("license cannot empty!")
 					.setCreateTime(now)
 			);
 			return;
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
-			log.warn("[客户端连接] license不存在 info:{} ", info);
+			log.warn("[client connection] license notfound info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -112,14 +112,14 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("license不存在!")
+					.setErr("license notfound!")
 					.setCreateTime(now)
 			);
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
-			log.warn("[客户端连接] 当前license已被禁用 info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被禁用!", licenseKey));
+			log.warn("[client connection] the license disabled info:{} ", info);
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license disabled!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -127,14 +127,14 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("当前license已被禁用!")
+					.setErr("the license disabled!")
 					.setCreateTime(now));
 			return;
 		}
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
-			log.warn("[客户端连接] 当前license无效 info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license无效!", licenseKey));
+			log.warn("[client connection] the license invalid info:{} ", info);
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license invalid!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -142,7 +142,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("当前license无效!")
+					.setErr("the license invalid!")
 					.setCreateTime(now));
 			return;
 		}
@@ -150,8 +150,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		if (null != cmdChannel) {
 			String _clientId = ProxyUtil.getClientIdByLicenseId(licenseDO.getId());
 			if (!clientId.equals(_clientId)) {
-				log.warn("[客户端连接] 当前license已被另一节点使用 info:{} _clientId:{}", info, _clientId);
-				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "当前license已被另一节点使用!", licenseKey));
+				log.warn("[client connection] the license on another no used info:{} _clientId:{}", info, _clientId);
+				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license on another no used!", licenseKey));
 				ctx.channel().close();
 				clientConnectRecordService.add(new ClientConnectRecordDO()
 						.setIp(ip)
@@ -159,13 +159,13 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 						.setType(ClientConnectTypeEnum.CONNECT.getType())
 						.setMsg(licenseKey)
 						.setCode(SuccessCodeEnum.FAIL.getCode())
-						.setErr("当前license已被另一节点使用!")
+						.setErr("the license on another no used!")
 						.setCreateTime(now));
 				return;
 			}
 		}
 		// 发送认证成功消息
-		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "认证成功!", licenseKey));
+		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "auth success!", licenseKey));
 
 		clientConnectRecordService.add(new ClientConnectRecordDO()
 				.setIp(ip)
@@ -178,7 +178,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		// 设置当前licenseId对应的客户端ID
 		ProxyUtil.setLicenseIdToClientIdMap(licenseDO.getId(), clientId);
 
-		log.warn("[客户端连接] 认证成功 info:{} ", info);
+		log.warn("[client connection] auth success info:{} ", info);
 
 		// 更新license在线状态
 		licenseMapper.updateOnlineStatus(licenseDO.getId(), OnlineStatusEnum.ONLINE.getStatus(), now);

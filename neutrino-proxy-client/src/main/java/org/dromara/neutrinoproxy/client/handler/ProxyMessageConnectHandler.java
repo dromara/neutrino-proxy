@@ -21,8 +21,8 @@ import org.noear.solon.annotation.Inject;
 @Match(type = Constants.ProxyDataTypeName.CONNECT)
 @Component
 public class ProxyMessageConnectHandler implements ProxyMessageHandler {
-	@Inject("proxyTunnelBootstrap")
-	private Bootstrap proxyTunnelBootstrap;
+	@Inject("tcpProxyTunnelBootstrap")
+	private Bootstrap tcpProxyTunnelBootstrap;
 	@Inject("realServerBootstrap")
 	private Bootstrap realServerBootstrap;
 	@Inject
@@ -48,7 +48,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 					realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
 					// 获取连接
-					ProxyUtil.borrowProxyChanel(proxyTunnelBootstrap, new ProxyChannelBorrowListener() {
+					ProxyUtil.borrowTcpProxyChanel(tcpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
 
 						@Override
 						public void success(Channel channel) {
@@ -57,7 +57,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
 
 							// 远程绑定
-							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getClient().getLicenseKey()));
+							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getTunnel().getLicenseKey()));
 
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
 							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);

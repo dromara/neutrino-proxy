@@ -31,7 +31,7 @@ public class VisitLogInterceptor implements RouterInterceptor {
         } finally {
             Date now = new Date();
             long elapsedTime = now.getTime() - startTime.getTime();
-            log.debug("\n-----------------------------------------------------------------接口请求日志：\n{} url:{} 执行耗时:{}\n请求体参数:{}\n响应结果:{}\n客户端IP:{}\n",
+            log.debug("\n-----------------------------------------------------------------interface request log：\n{} url:{} elapsed time:{}\nrequest:{}\nresponse:{}\nclient ip:{}\n",
                     ctx.method(), ctx.path(), getElapsedTimeStr(elapsedTime),
                     JSONObject.toJSONString(ctx.paramMap()),
                     JSONObject.toJSONString(JSONObject.toJSONString(ctx.result)),
@@ -47,11 +47,11 @@ public class VisitLogInterceptor implements RouterInterceptor {
 	 */
 	private static String getElapsedTimeStr(long elapsedTime) {
 		if (elapsedTime < 1000) {
-			return String.format("%s毫秒", elapsedTime);
+			return String.format("%sms", elapsedTime);
 		} else if (elapsedTime < 60000) {
-			return String.format("%.2f秒", (elapsedTime * 1.0) / 1000);
+			return String.format("%.2fs", (elapsedTime * 1.0) / 1000);
 		}
-		return String.format("%.2f分钟", (elapsedTime * 1.0) / 1000 / 60);
+		return String.format("%.2fm", (elapsedTime * 1.0) / 1000 / 60);
 	}
 
 }

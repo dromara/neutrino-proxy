@@ -40,7 +40,7 @@ public class PortMappingController {
         ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
         ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
         ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
-        ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
+		ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
         if (StringUtils.isBlank(req.getClientIp())) {
             // 没传客户端ip，默认为127.0.0.1
             req.setClientIp("127.0.0.1");
@@ -52,6 +52,12 @@ public class PortMappingController {
 			req.setSubdomain(null);
         }
 		req.setProtocal(networkProtocolEnum.getDesc());
+		if (null == req.getProxyResponses()) {
+			req.setProxyResponses(0);
+		}
+		if (null == req.getProxyTimeoutMs()) {
+			req.setProxyTimeoutMs(0L);
+		}
 
 		return portMappingService.create(req);
 	}
@@ -76,6 +82,12 @@ public class PortMappingController {
 			req.setSubdomain(null);
 		}
 		req.setProtocal(networkProtocolEnum.getDesc());
+		if (null == req.getProxyResponses()) {
+			req.setProxyResponses(0);
+		}
+		if (null == req.getProxyTimeoutMs()) {
+			req.setProxyTimeoutMs(0L);
+		}
 
 		return portMappingService.update(req);
 	}

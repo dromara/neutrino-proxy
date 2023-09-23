@@ -14,6 +14,8 @@ import org.noear.solon.annotation.Inject;
 public class ProxyConfig {
 	@Inject("${neutrino.proxy.protocol}")
 	private Protocol protocol;
+	@Inject("${neutrino.proxy.tunnel}")
+	private Tunnel tunnel;
 	@Inject("${neutrino.proxy.client}")
 	private Client client;
 
@@ -30,7 +32,7 @@ public class ProxyConfig {
 	}
 
 	@Data
-	public static class Client {
+	public static class Tunnel {
 		private String keyStorePassword;
 		private String jksPath;
 		private String serverIp;
@@ -46,8 +48,27 @@ public class ProxyConfig {
 	}
 
 	@Data
+	public static class Client {
+//		private Tcp tcp;
+		private Udp udp;
+	}
+
+	@Data
 	public static class Reconnection {
 		private Integer intervalSeconds;
 		private Boolean unlimited;
+	}
+
+	@Data
+	public static class Tcp {
+
+	}
+
+	@Data
+	public static class Udp {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
+		private String puppetPortRange;
+		private Boolean transferLogEnable;
 	}
 }

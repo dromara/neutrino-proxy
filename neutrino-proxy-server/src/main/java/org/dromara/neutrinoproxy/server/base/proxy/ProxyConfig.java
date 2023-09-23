@@ -42,14 +42,8 @@ public class ProxyConfig {
 
 	@Data
 	public static class Server {
-		private Integer bossThreadCount;
-		private Integer workThreadCount;
-		private String domainName;
-		private Integer httpProxyPort;
-		private Integer httpsProxyPort;
-		private String keyStorePassword;
-		private String jksPath;
-		private Boolean transferLogEnable;
+		private Tcp tcp;
+		private Udp udp;
 	}
 
 	@Data
@@ -65,4 +59,22 @@ public class ProxyConfig {
 		private Boolean heartbeatLogEnable;
 	}
 
+	@Data
+	public static class Tcp {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
+		private String domainName;
+		private Integer httpProxyPort;
+		private Integer httpsProxyPort;
+		private String keyStorePassword;
+		private String jksPath;
+		private Boolean transferLogEnable;
+	}
+
+	@Data
+	public static class Udp {
+		private Integer bossThreadCount;
+		private Integer workThreadCount;
+		private Boolean transferLogEnable;
+	}
 }

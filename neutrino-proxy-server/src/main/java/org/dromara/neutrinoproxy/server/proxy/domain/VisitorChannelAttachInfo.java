@@ -23,6 +23,7 @@ package org.dromara.neutrinoproxy.server.proxy.domain;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 
 /**
  *
@@ -32,6 +33,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Data
 public class VisitorChannelAttachInfo {
+	private NetworkProtocolEnum protocol;
 	private String visitorId;
 	private String lanInfo;
 	private Integer serverPort;

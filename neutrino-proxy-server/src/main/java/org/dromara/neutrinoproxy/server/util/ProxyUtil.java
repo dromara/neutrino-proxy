@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.ChannelAttribute;
 import org.dromara.neutrinoproxy.core.Constants;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
@@ -201,18 +202,21 @@ public class ProxyUtil {
 	 * @param visitorId
 	 * @param visitorChannel
 	 */
-	public static void addVisitorChannelToCmdChannel(Channel cmdChannel, String visitorId, Channel visitorChannel, Integer serverPort) {
+	public static void addVisitorChannelToCmdChannel(NetworkProtocolEnum protocol, Channel cmdChannel, String visitorId, Channel visitorChannel, Integer serverPort) {
 		InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 		String lanInfo = getClientLanInfoByServerPort(sa.getPort());
 		CmdChannelAttachInfo cmdChannelAttachInfo = getAttachInfo(cmdChannel);
 
-		setAttachInfo(visitorChannel, new VisitorChannelAttachInfo()
-			.setVisitorId(visitorId)
-			.setLanInfo(lanInfo)
-			.setServerPort(serverPort)
-			.setLicenseId(cmdChannelAttachInfo.getLicenseId())
-			.setIp(((InetSocketAddress)visitorChannel.remoteAddress()).getAddress().getHostAddress())
-		);
+		VisitorChannelAttachInfo attachInfo = new VisitorChannelAttachInfo()
+				.setProtocol(protocol)
+				.setVisitorId(visitorId)
+				.setLanInfo(lanInfo)
+				.setServerPort(serverPort)
+				.setLicenseId(cmdChannelAttachInfo.getLicenseId());
+		if (NetworkProtocolEnum.UDP != protocol) {
+			attachInfo.setIp(((InetSocketAddress)visitorChannel.remoteAddress()).getAddress().getHostAddress());
+		}
+		setAttachInfo(visitorChannel, attachInfo);
 		userChannelMapLock.writeLock().lock();
 		try {
 			cmdChannelAttachInfo.getVisitorChannelMap().put(visitorId, visitorChannel);

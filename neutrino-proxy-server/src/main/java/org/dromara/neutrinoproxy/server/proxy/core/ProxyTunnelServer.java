@@ -59,9 +59,9 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 		});
 		try {
 			bootstrap.bind(proxyConfig.getTunnel().getPort()).sync();
-			log.info("代理服务启动，端口：{}", proxyConfig.getTunnel().getPort());
+			log.info("proxy server started，port：{}", proxyConfig.getTunnel().getPort());
 		} catch (Exception e) {
-			log.error("代理服务异常", e);
+			log.error("proxy server error", e);
 		}
 	}
 
@@ -80,9 +80,9 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 		});
 		try {
 			bootstrap.bind(proxyConfig.getTunnel().getSslPort()).sync();
-			log.info("代理服务启动，SSL端口： {}", proxyConfig.getTunnel().getSslPort());
+			log.info("proxy server started，SSL port： {}", proxyConfig.getTunnel().getSslPort());
 		} catch (Exception e) {
-			log.error("代理服务异常", e);
+			log.error("proxy server error", e);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 
 			return new SslHandler(sslEngine);
 		} catch (Exception e) {
-			log.error("创建SSL处理器失败", e);
+			log.error("create SSL handler error", e);
 			e.printStackTrace();
 		}
 		return null;

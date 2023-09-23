@@ -33,11 +33,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ExceptionEnum {
-	SUCCESS(0, "成功"),
-	AUTH_FAILED(1, "认证失败"),
-	CONNECT_FAILED(2, "连接失败"),
+	SUCCESS(0, "success"),
+	AUTH_FAILED(1, "auth failed"),
+	CONNECT_FAILED(2, "connect failed"),
 	@Deprecated
-	LICENSE_CANNOT_REPEAT_CONNECT(3, "license不能多个客户端同时使用"),
+	LICENSE_CANNOT_REPEAT_CONNECT(3, "license cannot multiple client simultaneous use"),
 	;
 
 	private Integer code;

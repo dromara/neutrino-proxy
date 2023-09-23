@@ -35,10 +35,10 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 	private Function<Data,String> matcher;
 
 	public DefaultDispatcher(String name, List<? extends Handler<Context,Data>> handlerList, Function<Data,String> matcher) {
-		Assert.notNull(name, "名称不能为空!");
-		Assert.notNull(matcher, "匹配器不能为空!");
+		Assert.notNull(name, "name cannot empty!");
+		Assert.notNull(matcher, "matcher cannot empty!");
 		if (CollectionUtil.isEmpty(handlerList)) {
-			log.error("{} 处理器列表为空.", name);
+			log.error("{} handler list empty.", name);
 			return;
 		}
 		this.name = name == null ? "" : name;
@@ -48,20 +48,20 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		for (Handler handler : handlerList) {
 			Match match = handler.getClass().getAnnotation(Match.class);
 			if (null == match) {
-				log.warn("{} 类: {} 缺失Match注解", this.name, handler.getClass().getName());
+				log.warn("{} class: {} notfound Match annotation", this.name, handler.getClass().getName());
 				continue;
 			}
 			if (StrUtil.isEmpty(match.type())) {
-				log.warn("{} 类: {} match注解缺失type参数！", this.name, handler.getClass().getName());
+				log.warn("{} class: {} match annotation notfound type param！", this.name, handler.getClass().getName());
 				continue;
 			}
 			if (handlerMap.containsKey(match.type())) {
-				log.warn("{} 类: {} match注解type值{} 存在重复!", this.name, handler.getClass().getName(), match.type());
+				log.warn("{} class: {} match annotation type value {} repeat!", this.name, handler.getClass().getName(), match.type());
 				continue;
 			}
 			handlerMap.put(match.type(), handler);
 		}
-		log.info("{} 处理器初始化完成", this.name);
+		log.info("{} dispatcher init success", this.name);
 	}
 
 	@Override
@@ -71,19 +71,18 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		}
 		String type = matcher.apply(data);
 		if (null == type) {
-			log.warn("{} 获取匹配类型失败 data:{}", this.name, JSONObject.toJSONString(data));
+			log.warn("{} get match type failed data:{}", this.name, JSONObject.toJSONString(data));
 			return;
 		}
 		Handler<Context,Data> handler = handlerMap.get(type);
 		if (null == handler) {
-//			log.debug("{} 找不到匹配的处理器 type:{}", this.name, type);
 			return;
 		}
 		String handlerName = handler.name();
 		if (StrUtil.isEmpty(handlerName)) {
 			handlerName = TypeUtil.getSimpleName(handler.getClass());
 		}
-		log.debug("{} 处理器[{}]执行.", this.name, handlerName);
+		log.debug("{} handler[{}]execute.", this.name, handlerName);
 		handler.handle(context, data);
 	}
 }

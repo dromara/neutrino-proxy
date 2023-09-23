@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `client_port` INTEGER NOT NULL,
   `is_online` INTEGER(2) NOT NULL,
   `description` VARCHAR(100) DEFAULT NULL,
+  `proxy_responses` INTEGER(20) NOT NULL DEFAULT 0,
+  `proxy_timeout_ms` INTEGER(20) NOT NULL DEFAULT 0,
   `enable` INTEGER(2) NOT NULL,
   `create_time` INTEGER(20) NOT NULL,
   `update_time` INTEGER(20) NOT NULL

@@ -66,6 +66,18 @@ public class ProxyMessage {
      * 通用异常信息
      */
     public static final byte TYPE_ERROR = 0x06;
+    /**
+     * UDP代理隧道连接
+     */
+    public static final byte TYPE_UDP_CONNECT = 0x08;
+    /**
+     * UDP代理隧道断开连接
+     */
+    public static final byte TYPE_UDP_DISCONNECT = 0x09;
+    /**
+     * UDP数据传输
+     */
+    public static final byte TYPE_UDP_TRANSFER = 0x10;
 
     /**
      * 消息类型
@@ -130,6 +142,21 @@ public class ProxyMessage {
             .setData(data);
     }
 
+
+    public static ProxyMessage buildUdpConnectMessage(UdpBaseInfo info) {
+        return create().setType(TYPE_UDP_CONNECT)
+                .setInfo(info.toJsonString());
+    }
+
+    public static ProxyMessage buildUdpDisconnectMessage() {
+        return create().setType(TYPE_UDP_DISCONNECT);
+    }
+
+    public static ProxyMessage buildUdpTransferMessage(UdpBaseInfo info) {
+        return create().setType(TYPE_UDP_TRANSFER)
+                .setInfo(info.toJsonString());
+    }
+
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum, String info) {
         JSONObject data = new JSONObject();
         data.put("code", exceptionEnum.getCode());
@@ -141,5 +168,27 @@ public class ProxyMessage {
 
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum) {
        return buildErrMessage(exceptionEnum, null);
+    }
+
+    @Accessors(chain = true)
+    @Data
+    public static class UdpBaseInfo {
+        private String visitorId;
+        private String visitorIp;
+        private int visitorPort;
+        private int serverPort;
+        private String targetIp;
+        private int targetPort;
+        /**
+         * 期待的响应数
+         */
+        private int proxyResponses;
+        /**
+         * 超时时间(<=0时，相当于不需要响应)
+         */
+        private long proxyTimeoutMs;
+        public String toJsonString() {
+            return JSONObject.toJSONString(this);
+        }
     }
 }

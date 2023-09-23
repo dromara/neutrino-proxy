@@ -3,8 +3,10 @@ package org.dromara.neutrinoproxy.server.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import io.netty.bootstrap.Bootstrap;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
@@ -43,6 +45,8 @@ import java.util.stream.Collectors;
 public class VisitorChannelService {
     @Inject("tcpServerBootstrap")
     private ServerBootstrap tcpServerBootstrap;
+    @Inject("udpServerBootstrap")
+    private Bootstrap udpServerBootstrap;
     @Inject
     private ProxyMutualService proxyMutualService;
     @Db
@@ -207,7 +211,8 @@ public class VisitorChannelService {
             if (null != proxyChannel) {
                 proxyChannel.close();
             }
-            visitorChannel.close();
+            // TODO 此处如果时UDP的visitorChannel,则不能close，后续重构考虑
+//            visitorChannel.close();
         }
         ProxyUtil.removeProxyInfo(portMappingDO.getServerPort());
     }
@@ -219,14 +224,20 @@ public class VisitorChannelService {
 
         for (PortMappingDO portMapping : portMappingList) {
             if (EnableStatusEnum.DISABLE.getStatus().equals(portMapping.getEnable())) {
-                // 端口映射被禁用了，忽略 TODO 端口被禁用了也需要处理
+                // 端口映射被禁用了，忽略 TODO 映射没被禁用，但端口被禁用了也需要处理
                 continue;
             }
-            // TODO 此处切入，TCP/UDP代理
             try {
                 proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
-                tcpServerBootstrap.bind(portMapping.getServerPort()).get();
-                log.info("绑定用户端口： {}", portMapping.getServerPort());
+
+                NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(portMapping.getProtocal());
+                if (networkProtocolEnum == NetworkProtocolEnum.UDP) {
+                    udpServerBootstrap.bind(portMapping.getServerPort()).get();
+                    log.info("bind UDP user port： {}", portMapping.getServerPort());
+                } else {
+                    tcpServerBootstrap.bind(portMapping.getServerPort()).get();
+                    log.info("bind TCP user port： {}", portMapping.getServerPort());
+                }
             } catch (Exception ex) {
                 // BindException表示该端口已经绑定过
                 if (!(ex.getCause() instanceof BindException)) {
