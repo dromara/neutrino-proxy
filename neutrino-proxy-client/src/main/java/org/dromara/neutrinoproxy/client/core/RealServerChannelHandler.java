@@ -49,6 +49,17 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
             // 代理客户端连接断开
             ctx.channel().close();
         } else {
+
+            if (proxyChannel.isWritable()) {
+                if (!realServerChannel.config().isAutoRead()) {
+                    realServerChannel.config().setAutoRead(true);
+                }
+            } else {
+                if (realServerChannel.config().isAutoRead()) {
+                    realServerChannel.config().setAutoRead(false);
+                }
+            }
+
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             String visitorId = ProxyUtil.getVisitorIdByRealServerChannel(realServerChannel);

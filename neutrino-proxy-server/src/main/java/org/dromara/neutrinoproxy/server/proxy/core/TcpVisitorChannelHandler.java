@@ -43,6 +43,10 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
             ctx.channel().close();
             return;
         }
+
+        // 代理通道可写，则设置访问通道可读。代理通道不可写，则设置访问通道不可读
+        visitorChannel.config().setAutoRead(proxyChannel.isWritable());
+
         // 转发代理数据
         byte[] bytes = new byte[buf.readableBytes()];
         buf.readBytes(bytes);
@@ -129,7 +133,8 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         if (null == cmdChannel) {
             // 该端口还没有代理客户端
             ctx.channel().close();
-        } else {
+        }
+        else {
             Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
             if (null != proxyChannel) {
                 proxyChannel.config().setOption(ChannelOption.AUTO_READ, visitorChannel.isWritable());

@@ -70,10 +70,10 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-        Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
-        if (userChannel != null) {
-            userChannel.config().setOption(ChannelOption.AUTO_READ, ctx.channel().isWritable());
-        }
+//        Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
+//        if (userChannel != null) {
+//            userChannel.config().setOption(ChannelOption.AUTO_READ, ctx.channel().isWritable());
+//        }
 
         super.channelWritabilityChanged(ctx);
     }
@@ -127,9 +127,10 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 //        super.exceptionCaught(ctx, cause);
-        if (ctx.channel().isActive()) {
-            ctx.channel().close();
-        }
+//        if (ctx.channel().isActive()) {
+//            ctx.channel().close();
+//        }
+        log.error("[Tunnel Channel] error", cause);
     }
 
     @Override
@@ -138,9 +139,11 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
             IdleStateEvent event = (IdleStateEvent)evt;
             switch (event.state()) {
                 case READER_IDLE:
-                    // 读超时，断开连接
-                    log.debug("Read timeout");
-                    ctx.channel().close();
+                    if (ctx.channel().isWritable()) {
+                        // 读超时，断开连接
+                        log.warn("[Tunnel Channel]Read timeout");
+                        ctx.channel().close();
+                    }
                     break;
                 case WRITER_IDLE:
                     ctx.channel().writeAndFlush(ProxyMessage.buildHeartbeatMessage());

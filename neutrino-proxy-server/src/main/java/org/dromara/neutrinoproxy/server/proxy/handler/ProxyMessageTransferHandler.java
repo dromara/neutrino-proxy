@@ -27,6 +27,17 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
 		if (null != visitorChannel) {
+			if (!visitorChannel.isWritable()) {
+				//自己不可写，通道可以读，让通道关闭读
+				//自己可写，通道不可以读，让通道打开读
+				if (ctx.channel().config().isAutoRead()) {
+					ctx.channel().config().setAutoRead(false);
+				}
+			} else {
+				if (ctx.channel().config().isAutoRead()) {
+					ctx.channel().config().setAutoRead(true);
+				}
+			}
 			ByteBuf buf = ctx.alloc().buffer(proxyMessage.getData().length);
 			buf.writeBytes(proxyMessage.getData());
 			visitorChannel.writeAndFlush(buf);
