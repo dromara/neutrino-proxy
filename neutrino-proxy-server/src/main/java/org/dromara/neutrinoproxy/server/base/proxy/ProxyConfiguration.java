@@ -9,6 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
@@ -70,6 +71,7 @@ public class ProxyConfiguration implements LifecycleBean {
                 ch.pipeline().addFirst(new LoggingHandler(TcpVisitorChannelHandler.class));
             }
             ch.pipeline().addFirst(new BytesMetricsHandler());
+//            ch.pipeline().addLast(new ChannelTrafficShapingHandler(1024 * 1024 * 20, 1024 * 1024 * 20, 100, 20000));
             ch.pipeline().addLast(new TcpVisitorChannelHandler());
             }
         });
