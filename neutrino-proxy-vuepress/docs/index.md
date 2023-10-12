@@ -147,7 +147,7 @@ postList: none
 <div class="cardListContainer">
     <div class="card-list">
         <a href="https://www.xigexb.com" target="_blank" class="card-item row-3" style="background-color:#102863;--random-color:#102863;color:#FFFFFF;">
-            <img src="/img/sponsor/xigexiaobao.jpg" class="no-zoom"> 
+            <img src="img/sponsor/xigexiaobao.jpg" class="no-zoom"> 
             <div><p class="name">喜鸽小宝</p> <p class="desc">一个爱好写代码的同学</p></div>
         </a>
     </div>
