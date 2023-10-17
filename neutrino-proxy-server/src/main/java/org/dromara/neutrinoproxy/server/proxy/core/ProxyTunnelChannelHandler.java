@@ -70,10 +70,10 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-//        Channel userChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
-//        if (userChannel != null) {
-//            userChannel.config().setOption(ChannelOption.AUTO_READ, ctx.channel().isWritable());
-//        }
+        Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
+        if (visitorChannel != null) {
+            visitorChannel.config().setOption(ChannelOption.AUTO_READ, ctx.channel().isWritable());
+        }
 
         super.channelWritabilityChanged(ctx);
     }

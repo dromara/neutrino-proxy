@@ -25,7 +25,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 		if (realServerChannel != null) {
 
 			// 自己可写，则设置来源可读。自己不可写，则设置来源不可读
-			realServerChannel.config().setAutoRead(ctx.channel().isWritable());
+			ctx.channel().config().setAutoRead(realServerChannel.isWritable());
 
 			ByteBuf buf = ctx.alloc().buffer(proxyMessage.getData().length);
 			buf.writeBytes(proxyMessage.getData());
