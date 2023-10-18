@@ -34,7 +34,7 @@ public class ProxyMessageTransferHandler implements ProxyMessageHandler {
 					ctx.channel().config().setAutoRead(false);
 				}
 			} else {
-				if (ctx.channel().config().isAutoRead()) {
+				if (!ctx.channel().config().isAutoRead()) {
 					ctx.channel().config().setAutoRead(true);
 				}
 			}
