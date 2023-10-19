@@ -3,8 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.ServiceException;
@@ -16,7 +15,6 @@ import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortGroupMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
-import org.dromara.neutrinoproxy.server.dal.entity.*;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
@@ -25,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.solon.annotation.Db;
-import org.dromara.neutrinoproxy.server.controller.req.system.*;
-import org.dromara.neutrinoproxy.server.controller.res.system.*;
 import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
 import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
 import org.noear.solon.annotation.Component;
@@ -63,10 +59,9 @@ public class PortPoolService {
     private LicenseMapper licenseMapper;
 
     public PageInfo<PortPoolListRes> page(PageQuery pageQuery, PortPoolListReq req) {
-        Page<PortPoolListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-
-        List<PortPoolListRes> list = portPoolMapper.selectResList(req);
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        Page<PortPoolListRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
+        List<PortPoolListRes> list = portPoolMapper.selectResList(page, req);
+        return PageInfo.of(list, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public List<PortPoolListRes> list(PortPoolListReq req) {
@@ -183,10 +178,10 @@ public class PortPoolService {
             req.setKeyword(req.getKeyword()+"%");
         }
 
-        Page<PortPoolListRes> result = PageHelper.startPage(req.getPage(), req.getSize());
-        List<PortPoolListRes> portList = portPoolMapper.getAvailablePortList(req.getLicenseId(), licenseDO.getUserId(), req.getKeyword());
+        Page<PortPoolListRes> page = new Page<>(req.getPage(), req.getSize());
+        List<PortPoolListRes> portList = portPoolMapper.getAvailablePortList(page, req.getLicenseId(), licenseDO.getUserId(), req.getKeyword());
 
-        return PageInfo.of(portList, result.getTotal(), req.getPage(), req.getSize());
+        return PageInfo.of(portList, page.getTotal(), req.getPage(), req.getSize());
     }
 
     public void deleteBatch(List<Integer> ids) {

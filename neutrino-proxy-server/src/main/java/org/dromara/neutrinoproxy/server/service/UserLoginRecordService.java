@@ -3,8 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.controller.req.log.UserLoginRecordListReq;
@@ -39,14 +38,13 @@ public class UserLoginRecordService {
     private UserMapper userMapper;
 
     public PageInfo<UserLoginRecordListRes> page(PageQuery pageQuery, UserLoginRecordListReq req) {
-        Page<UserLoginRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<UserLoginRecordDO> list = userLoginRecordMapper.selectList(new LambdaQueryWrapper<UserLoginRecordDO>()
-                        .eq(null != req.getUserId(), UserLoginRecordDO::getUserId, req.getUserId())
-                .orderByDesc(UserLoginRecordDO::getCreateTime)
+        Page<UserLoginRecordDO> page = userLoginRecordMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<UserLoginRecordDO>()
+            .eq(null != req.getUserId(), UserLoginRecordDO::getUserId, req.getUserId())
+            .orderByDesc(UserLoginRecordDO::getCreateTime)
         );
-        List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(list, UserLoginRecordListRes.class);
-        if (CollectionUtils.isEmpty(list)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(page.getRecords(), UserLoginRecordListRes.class);
+        if (CollectionUtils.isEmpty(page.getRecords())) {
+            return PageInfo.of(respList, page);
         }
 
         if (!CollectionUtil.isEmpty(respList)) {
@@ -60,6 +58,6 @@ public class UserLoginRecordService {
                 }
             }
         }
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(respList, page);
     }
 }

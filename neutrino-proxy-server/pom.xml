@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.noear</groupId>
-            <artifactId>mybatis-pagehelper-solon-plugin</artifactId>
+            <artifactId>mybatis-plus-extension-solon-plugin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.noear</groupId>

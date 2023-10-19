@@ -2,9 +2,11 @@ package org.dromara.neutrinoproxy.server.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
@@ -19,11 +21,13 @@ import org.dromara.neutrinoproxy.server.controller.res.system.JobInfoUpdateEnabl
 import org.dromara.neutrinoproxy.server.controller.res.system.JobInfoUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.JobInfoMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.JobInfoDO;
-import org.dromara.neutrinoproxy.server.job.*;
+import org.dromara.neutrinoproxy.server.job.DataCleanJob;
+import org.dromara.neutrinoproxy.server.job.DemoJob;
+import org.dromara.neutrinoproxy.server.job.FlowReportForDayJob;
+import org.dromara.neutrinoproxy.server.job.FlowReportForHourJob;
+import org.dromara.neutrinoproxy.server.job.FlowReportForMinuteJob;
+import org.dromara.neutrinoproxy.server.job.FlowReportForMonthJob;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.solonplugins.job.IJobHandler;
 import org.dromara.solonplugins.job.IJobSource;
 import org.dromara.solonplugins.job.JobInfo;
@@ -39,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author: aoshiguchen
  * @date: 2022/9/5
  */
@@ -66,21 +69,20 @@ public class JobInfoService implements IJobSource {
 
     @Init
     public void init() {
-       jobHandlerMap.put("DataCleanJob", dataCleanJob);
-       jobHandlerMap.put("DemoJob", demoJob);
-       jobHandlerMap.put("FlowReportForDayJob", flowReportForDayJob);
-       jobHandlerMap.put("FlowReportForHourJob", flowReportForHourJob);
-       jobHandlerMap.put("FlowReportForMinuteJob", flowReportForMinuteJob);
-       jobHandlerMap.put("FlowReportForMonthJob", flowReportForMonthJob);
+        jobHandlerMap.put("DataCleanJob", dataCleanJob);
+        jobHandlerMap.put("DemoJob", demoJob);
+        jobHandlerMap.put("FlowReportForDayJob", flowReportForDayJob);
+        jobHandlerMap.put("FlowReportForHourJob", flowReportForHourJob);
+        jobHandlerMap.put("FlowReportForMinuteJob", flowReportForMinuteJob);
+        jobHandlerMap.put("FlowReportForMonthJob", flowReportForMonthJob);
     }
 
     public PageInfo<JobInfoListRes> page(PageQuery pageQuery, JobInfoListReq req) {
-        Page<JobInfoListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<JobInfoDO> list = jobInfoMapper.selectList(new LambdaQueryWrapper<JobInfoDO>()
-                .orderByAsc(JobInfoDO::getId)
+        Page<JobInfoDO> page = jobInfoMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<JobInfoDO>()
+            .orderByAsc(JobInfoDO::getId)
         );
-        List<JobInfoListRes> respList = mapperFacade.mapAsList(list, JobInfoListRes.class);
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        List<JobInfoListRes> respList = mapperFacade.mapAsList(page.getRecords(), JobInfoListRes.class);
+        return PageInfo.of(respList, page);
     }
 
     public List<JobInfoDO> findList() {
@@ -114,13 +116,13 @@ public class JobInfoService implements IJobSource {
         }
         for (JobInfoDO item : jobInfoDOList) {
             jobInfoList.add(new JobInfo()
-                    .setId(String.valueOf(item.getId()))
-                    .setName(item.getHandler())
-                    .setDesc(item.getDesc())
-                    .setCron(item.getCron())
-                    .setParam(item.getParam())
-                    .setEnable(EnableStatusEnum.ENABLE.getStatus().equals(item.getEnable()))
-                    .setJobHandler(jobHandlerMap.get(item.getHandler()))
+                .setId(String.valueOf(item.getId()))
+                .setName(item.getHandler())
+                .setDesc(item.getDesc())
+                .setCron(item.getCron())
+                .setParam(item.getParam())
+                .setEnable(EnableStatusEnum.ENABLE.getStatus().equals(item.getEnable()))
+                .setJobHandler(jobHandlerMap.get(item.getHandler()))
             );
         }
 
@@ -128,8 +130,8 @@ public class JobInfoService implements IJobSource {
     }
 
     public JobInfoUpdateRes update(JobInfoUpdateReq req) {
-        JobInfoDO  jobInfoDO = jobInfoMapper.findById(req.getId());
-        ParamCheckUtil.checkNotNull( jobInfoDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        JobInfoDO jobInfoDO = jobInfoMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull(jobInfoDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
         JobInfoDO jobInfo = new JobInfoDO();
         jobInfo.setId(req.getId());
         jobInfo.setCron(req.getCron());

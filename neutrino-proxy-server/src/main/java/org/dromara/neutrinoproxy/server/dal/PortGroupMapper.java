@@ -1,6 +1,7 @@
 package org.dromara.neutrinoproxy.server.dal;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.dromara.neutrinoproxy.server.controller.req.system.PortGroupListReq;
 import org.dromara.neutrinoproxy.server.controller.res.system.PortGroupListRes;
@@ -14,7 +15,7 @@ import java.util.List;
 @Mapper
 public interface PortGroupMapper extends BaseMapper<PortGroupDO> {
 
-    List<PortGroupListRes> selectPortGroupListResList(PortGroupListReq res);
+    List<PortGroupListRes> selectPortGroupListResList(IPage<PortGroupListRes> page, PortGroupListReq res);
 
 
    default void updateEnableStatus(Integer id, Integer enable, Date now){

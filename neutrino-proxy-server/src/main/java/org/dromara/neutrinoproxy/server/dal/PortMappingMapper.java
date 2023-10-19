@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
@@ -106,5 +107,5 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 		);
 	}
 
-	List<PortMappingDO> selectPortMappingByCondition(@Param("req") PortMappingListReq req);
+	List<PortMappingDO> selectPortMappingByCondition(IPage<PortMappingDO> page, @Param("req") PortMappingListReq req);
 }

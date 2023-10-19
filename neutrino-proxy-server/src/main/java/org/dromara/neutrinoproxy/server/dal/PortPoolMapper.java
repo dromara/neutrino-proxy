@@ -24,6 +24,7 @@ package org.dromara.neutrinoproxy.server.dal;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolListReq;
 import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolListRes;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
@@ -65,7 +66,7 @@ public interface PortPoolMapper extends BaseMapper<PortPoolDO> {
 		);
 	}
 
-	List<PortPoolListRes> selectResList(@Param("req") PortPoolListReq req);
+	List<PortPoolListRes> selectResList(IPage<PortPoolListRes> page, @Param("req") PortPoolListReq req);
 
-    List<PortPoolListRes> getAvailablePortList(@Param("licenseId") Integer licenseId,@Param("userId") Integer userId, @Param("keyword") String keyword);
+    List<PortPoolListRes> getAvailablePortList(IPage<PortPoolListRes> page, @Param("licenseId") Integer licenseId,@Param("userId") Integer userId, @Param("keyword") String keyword);
 }

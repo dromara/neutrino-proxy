@@ -3,8 +3,10 @@ package org.dromara.neutrinoproxy.server.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import ma.glasnost.orika.MapperFacade;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
@@ -16,9 +18,6 @@ import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.ClientConnectRecordDO;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
-import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -49,19 +48,18 @@ public class ClientConnectRecordService {
     }
 
     public PageInfo<ClientConnectRecordListRes> page(PageQuery pageQuery, ClientConnectRecordListReq req) {
-        Page<ClientConnectRecordListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<ClientConnectRecordDO> list = clientConnectRecordMapper.selectList(new LambdaQueryWrapper<ClientConnectRecordDO>()
-                        .eq(null != req.getLicenseId(), ClientConnectRecordDO::getLicenseId, req.getLicenseId())
-                .orderByDesc(ClientConnectRecordDO::getId)
+        Page<ClientConnectRecordDO> pageResult = clientConnectRecordMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<ClientConnectRecordDO>()
+            .eq(null != req.getLicenseId(), ClientConnectRecordDO::getLicenseId, req.getLicenseId())
+            .orderByDesc(ClientConnectRecordDO::getId)
         );
-        List<ClientConnectRecordListRes> respList = mapperFacade.mapAsList(list, ClientConnectRecordListRes.class);
-        if (CollectionUtils.isEmpty(list)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        List<ClientConnectRecordListRes> respList = mapperFacade.mapAsList(pageResult.getRecords(), ClientConnectRecordListRes.class);
+        if (CollectionUtils.isEmpty(pageResult.getRecords())) {
+            return PageInfo.of(respList, pageResult.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
         Set<Integer> licenseIds = respList.stream().map(ClientConnectRecordListRes::getLicenseId).collect(Collectors.toSet());
         List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
         if (CollectionUtil.isEmpty(licenseList)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+            return PageInfo.of(respList, pageResult.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
         Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
         List<UserDO> userList = userMapper.findByIds(userIds);
@@ -85,6 +83,6 @@ public class ClientConnectRecordService {
                 item.setMsg("******");
             }
         });
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(respList, pageResult);
     }
 }

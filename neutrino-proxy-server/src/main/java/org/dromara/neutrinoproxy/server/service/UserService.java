@@ -2,8 +2,7 @@ package org.dromara.neutrinoproxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
@@ -120,12 +119,11 @@ public class UserService {
 	}
 
 	public PageInfo<UserListRes> page(PageQuery pageQuery, UserListReq req) {
-		Page<UserListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-		List<UserDO> list = userMapper.selectList(new LambdaQueryWrapper<UserDO>()
-				.orderByAsc(UserDO::getId)
-		);
-		List<UserListRes> respList = mapperFacade.mapAsList(list, UserListRes.class);
-		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        Page<UserDO> page = userMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<UserDO>()
+            .orderByAsc(UserDO::getId)
+        );
+        List<UserListRes> respList = mapperFacade.mapAsList(page.getRecords(), UserListRes.class);
+		return PageInfo.of(respList, page);
 	}
 
 	public List<UserListRes> list(UserListReq req) {

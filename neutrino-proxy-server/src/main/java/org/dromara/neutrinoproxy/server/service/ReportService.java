@@ -2,8 +2,7 @@ package org.dromara.neutrinoproxy.server.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.base.db.DbConfig;
@@ -101,11 +100,11 @@ public class ReportService {
      * @return
      */
     public PageInfo<UserFlowReportRes> userFlowReportPage(PageQuery pageQuery, UserFlowReportReq req) {
-        Page<UserFlowReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        Page<UserFlowReportRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         Date now = new Date();
-        List<UserFlowReportRes> list = reportMapper.userFlowReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        List<UserFlowReportRes> list = reportMapper.userFlowReportList(page, req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillUserFlowReport(list);
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, page);
     }
 
     /**
@@ -115,11 +114,11 @@ public class ReportService {
      * @return
      */
     public PageInfo<LicenseFlowReportRes> licenseFlowReportPage(PageQuery pageQuery, LicenseFlowReportReq req) {
-        Page<LicenseFlowReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        Page<LicenseFlowReportRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         Date now = new Date();
-        List<LicenseFlowReportRes> list = reportMapper.licenseFLowReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        List<LicenseFlowReportRes> list = reportMapper.licenseFLowReportList(page, req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillLicenseFlowReport(list);
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, page);
     }
 
     /**
@@ -129,11 +128,11 @@ public class ReportService {
      * @return
      */
     public PageInfo<UserFlowMonthReportRes> userFlowMonthReportPage(PageQuery pageQuery, UserFlowMonthReportReq req) {
-        Page<UserFlowMonthReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        Page<UserFlowMonthReportRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         Date now = new Date();
-        List<UserFlowMonthReportRes> list = reportMapper.userFlowMonthReportList(req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        List<UserFlowMonthReportRes> list = reportMapper.userFlowMonthReportList(page, req.getUserId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillUserFlowMonthReport(list);
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, page);
     }
 
     /**
@@ -143,11 +142,11 @@ public class ReportService {
      * @return
      */
     public PageInfo<LicenseFlowMonthReportRes> licenseFlowMonthReportPage(PageQuery pageQuery, LicenseFlowMonthReportReq req) {
-        Page<LicenseFlowMonthReportRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
+        Page<LicenseFlowMonthReportRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         Date now = new Date();
-        List<LicenseFlowMonthReportRes> list = reportMapper.licenseFLowMonthReportList(req.getUserId(), req.getLicenseId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
+        List<LicenseFlowMonthReportRes> list = reportMapper.licenseFLowMonthReportList(page, req.getUserId(), req.getLicenseId(), DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
         fillLicenseFlowMonthReport(list);
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, page);
     }
 
     private void fillUserFlowReport(List<UserFlowReportRes> list) {

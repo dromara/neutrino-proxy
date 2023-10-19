@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.dal;
 
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.server.controller.res.report.*;
 import org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowMonthReportRes;
 import org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowReportRes;
@@ -24,26 +25,26 @@ public interface ReportMapper {
      * @param userId
      * @return
      */
-    List<UserFlowReportRes> userFlowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    List<UserFlowReportRes> userFlowReportList(Page<UserFlowReportRes> page, @Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
     /**
      * 基于License维度的流量报表
      * @param userId
      * @return
      */
-    List<LicenseFlowReportRes> licenseFLowReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    List<LicenseFlowReportRes> licenseFLowReportList(Page<LicenseFlowReportRes> page, @Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
 
     /**
      * 用户流量月度明细
      * @param userId
      * @return
      */
-    List<UserFlowMonthReportRes> userFlowMonthReportList(@Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    List<UserFlowMonthReportRes> userFlowMonthReportList(Page<UserFlowMonthReportRes> page, @Param("userId") Integer userId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
     /**
      * License流量月度明细
      * @param userId
      * @return
      */
-    List<LicenseFlowMonthReportRes> licenseFLowMonthReportList(@Param("userId") Integer userId, @Param("licenseId") Integer licenseId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
+    List<LicenseFlowMonthReportRes> licenseFLowMonthReportList(Page<LicenseFlowMonthReportRes> page, @Param("userId") Integer userId, @Param("licenseId") Integer licenseId, @Param("curMonthBeginDate") Date curMonthBeginDate, @Param("curDayBeginDate") Date curDayBeginDate, @Param("curDate") Date curDate);
 
     /**
      * 首页 - 今日流量

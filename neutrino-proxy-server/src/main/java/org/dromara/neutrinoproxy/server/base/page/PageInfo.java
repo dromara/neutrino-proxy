@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.base.page;
 
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -101,11 +102,20 @@ public class PageInfo<T> implements Serializable {
 	}
 
 	public static <T> PageInfo<T> of(List<T> records, Long total, Integer current, Integer size) {
-		PageInfo<T> pageInfo = new PageInfo();
+		PageInfo<T> pageInfo = new PageInfo<>();
 		pageInfo.setRecords(records);
 		pageInfo.setTotal(total);
 		pageInfo.setCurrent(current);
 		pageInfo.setSize(size);
+		return pageInfo;
+	}
+
+	public static <T> PageInfo<T> of(List<T> records, Page<?> page) {
+		PageInfo<T> pageInfo = new PageInfo<>();
+		pageInfo.setRecords(records);
+		pageInfo.setTotal(page.getTotal());
+		pageInfo.setCurrent((int) page.getCurrent());
+		pageInfo.setSize((int) page.getSize());
 		return pageInfo;
 	}
 }
