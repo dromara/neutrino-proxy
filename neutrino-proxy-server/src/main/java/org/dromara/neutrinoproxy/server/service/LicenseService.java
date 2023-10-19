@@ -3,8 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
@@ -59,16 +58,15 @@ public class LicenseService implements LifecycleBean {
     private DBInitialize dbInitialize;
 
     public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
-        Page<LicenseListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<LicenseDO> list = licenseMapper.selectList(new LambdaQueryWrapper<LicenseDO>()
-                .eq(req.getUserId() != null, LicenseDO::getUserId, req.getUserId())
-                .eq(req.getIsOnline() != null, LicenseDO::getIsOnline, req.getIsOnline())
-                .eq(req.getEnable() != null, LicenseDO::getEnable, req.getEnable())
-                .orderByAsc(Arrays.asList(LicenseDO::getUserId, LicenseDO::getId))
+        Page<LicenseDO> page = licenseMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<LicenseDO>()
+            .eq(req.getUserId() != null, LicenseDO::getUserId, req.getUserId())
+            .eq(req.getIsOnline() != null, LicenseDO::getIsOnline, req.getIsOnline())
+            .eq(req.getEnable() != null, LicenseDO::getEnable, req.getEnable())
+            .orderByAsc(Arrays.asList(LicenseDO::getUserId, LicenseDO::getId))
         );
-        List<LicenseListRes> respList = mapperFacade.mapAsList(list, LicenseListRes.class);
-        if (CollectionUtils.isEmpty(list)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        List<LicenseListRes> respList = mapperFacade.mapAsList(page.getRecords(), LicenseListRes.class);
+        if (CollectionUtils.isEmpty(page.getRecords())) {
+            return PageInfo.of(respList, page);
         }
         if (!CollectionUtil.isEmpty(respList)) {
             Set<Integer> userIds = respList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
@@ -82,7 +80,7 @@ public class LicenseService implements LifecycleBean {
                 item.setKey(desensitization(item.getUserId(), item.getKey()));
             }
         }
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(respList, page);
     }
 
     public List<LicenseListRes> list(LicenseListReq req) {

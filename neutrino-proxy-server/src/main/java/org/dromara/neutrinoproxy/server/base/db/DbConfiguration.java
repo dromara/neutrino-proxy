@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.solon.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.solon.plugins.inner.PaginationInnerInterceptor;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.constant.DbTypeEnum;
@@ -68,6 +70,10 @@ public class DbConfiguration {
     public void db1_ext2(@Db("db") MybatisConfiguration config) {
         config.getTypeHandlerRegistry().register("fun.asgc.neutrino.proxy.server.dal");
         config.setDefaultEnumTypeHandler(null);
+
+        MybatisPlusInterceptor plusInterceptor = new MybatisPlusInterceptor();
+        plusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        config.addInterceptor(plusInterceptor);
     }
 
     @Bean

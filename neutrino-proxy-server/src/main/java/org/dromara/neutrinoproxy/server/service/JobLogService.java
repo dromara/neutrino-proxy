@@ -22,8 +22,7 @@
 package org.dromara.neutrinoproxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.controller.req.log.JobLogListReq;
@@ -79,13 +78,12 @@ public class JobLogService implements IJobCallback {
 	}
 
 	public PageInfo<JobLogListRes> page(PageQuery pageQuery, JobLogListReq req) {
-		Page<JobLogListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-		List<JobLogDO> list = jobLogMapper.selectList(new LambdaQueryWrapper<JobLogDO>()
-				.eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
-				.orderByDesc(JobLogDO::getId)
-		);
-		List<JobLogListRes> respList = mapperFacade.mapAsList(list, JobLogListRes.class);
-		return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        Page<JobLogDO> page = jobLogMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<JobLogDO>()
+            .eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
+            .orderByDesc(JobLogDO::getId)
+        );
+        List<JobLogListRes> respList = mapperFacade.mapAsList(page.getRecords(), JobLogListRes.class);
+		return PageInfo.of(respList, page);
 	}
 
 }

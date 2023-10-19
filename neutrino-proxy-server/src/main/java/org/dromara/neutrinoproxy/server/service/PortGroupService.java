@@ -1,8 +1,7 @@
 package org.dromara.neutrinoproxy.server.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.ServiceException;
@@ -64,14 +63,14 @@ public class PortGroupService {
     }
 
     public PageInfo<PortGroupListRes> page(PageQuery pageQuery, PortGroupListReq req) {
-        Page<PortGroupListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
-        List<PortGroupListRes> list = portGroupMapper.selectPortGroupListResList(req);
+        Page<PortGroupListRes> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
+        List<PortGroupListRes> list = portGroupMapper.selectPortGroupListResList(page, req);
 
-        return PageInfo.of(list, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(list, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public List<PortGroupListRes> list(PortGroupListReq req) {
-        List<PortGroupListRes> list = portGroupMapper.selectPortGroupListResList(req);
+        List<PortGroupListRes> list = portGroupMapper.selectPortGroupListResList(null, req);
         return list;
     }
 

@@ -5,8 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
@@ -70,7 +69,6 @@ public class PortMappingService implements LifecycleBean {
     private DBInitialize dbInitialize;
 
     public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
-        Page<PortMappingListRes> result = PageHelper.startPage(pageQuery.getCurrent(), pageQuery.getSize());
         if (StringUtils.isNotEmpty(req.getDescription())) {
             //描述字段为模糊查询，在应用层处理，否则sqlite不支持
             req.setDescription("%" + req.getDescription() + "%");
@@ -82,16 +80,17 @@ public class PortMappingService implements LifecycleBean {
             req.setProtocal(networkProtocolEnum.getDesc());
         }
 
-        List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(req);
+        Page<PortMappingDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
+        List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(page, req);
         List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
         if (CollectionUtils.isEmpty(list)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+            return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
 
         Set<Integer> licenseIds = respList.stream().map(PortMappingListRes::getLicenseId).collect(Collectors.toSet());
         List<LicenseDO> licenseList = licenseMapper.findByIds(licenseIds);
         if (CollectionUtil.isEmpty(licenseList)) {
-            return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+            return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
         Set<Integer> userIds = licenseList.stream().map(LicenseDO::getUserId).collect(Collectors.toSet());
         List<UserDO> userList = userMapper.findByIds(userIds);
@@ -119,7 +118,7 @@ public class PortMappingService implements LifecycleBean {
         });
         //sorted [userId asc] [licenseId asc] [createTime asc]
         respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId).thenComparing(PortMappingListRes::getLicenseId).thenComparing(PortMappingListRes::getCreateTime)).collect(Collectors.toList());
-        return PageInfo.of(respList, result.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
     public PortMappingCreateRes create(PortMappingCreateReq req) {
