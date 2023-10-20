@@ -22,9 +22,9 @@
 
 package org.dromara.neutrinoproxy.core;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.noear.snack.ONode;
 
 import java.util.Arrays;
 
@@ -118,12 +118,12 @@ public class ProxyMessage {
     }
 
     public static ProxyMessage buildAuthResultMessage(Integer code, String msg, String licenseKey) {
-        JSONObject data = new JSONObject();
-        data.put("code", code);
-        data.put("msg", msg);
-        data.put("licenseKey", licenseKey);
+        ONode data = ONode.newObject();
+        data.set("code", code);
+        data.set("msg", msg);
+        data.set("licenseKey", licenseKey);
         return create().setType(TYPE_AUTH)
-            .setInfo(data.toJSONString());
+            .setInfo(data.toJson());
     }
 
     public static ProxyMessage buildConnectMessage(String visitorId) {
@@ -158,12 +158,12 @@ public class ProxyMessage {
     }
 
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum, String info) {
-        JSONObject data = new JSONObject();
-        data.put("code", exceptionEnum.getCode());
-        data.put("msg", exceptionEnum.getMsg());
-        data.put("info", info);
+        ONode data = ONode.newObject();
+        data.set("code", exceptionEnum.getCode());
+        data.set("msg", exceptionEnum.getMsg());
+        data.set("info", info);
         return create().setType(TYPE_ERROR)
-            .setInfo(data.toJSONString());
+            .setInfo(data.toJson());
     }
 
     public static ProxyMessage buildErrMessage(ExceptionEnum exceptionEnum) {
@@ -188,7 +188,7 @@ public class ProxyMessage {
          */
         private long proxyTimeoutMs;
         public String toJsonString() {
-            return JSONObject.toJSONString(this);
+            return ONode.serialize(this);
         }
     }
 }

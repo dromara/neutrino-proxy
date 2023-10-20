@@ -24,16 +24,17 @@ package org.dromara.neutrinoproxy.server.base.db;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.Db;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.util.Assert;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.dromara.neutrinoproxy.server.constant.DbTypeEnum;
-import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
+import org.noear.wood.DbContext;
+import org.noear.wood.annotation.Db;
 
 import java.util.List;
 
@@ -50,6 +51,9 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 	private DbConfig dbConfig;
 
 	private DbTypeEnum dbTypeEnum;
+
+    @Db
+    DbContext dbContext;
 
 	@Init
 	public void init() throws Throwable {
@@ -83,7 +87,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 			sql += "\r\n" + line.trim();
 			if (sql.endsWith(";")) {
 				log.debug("init database table sql:{}", sql);
-				Db.update(sql);
+                dbContext.exe(sql);
 				sql = "";
 			}
 		}
@@ -101,8 +105,8 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		for (String tableName : initDataTableNameList) {
 			// 表里没有数据的时候，才进行初始化操作
 
-			int count = Db.queryInt(String.format("select count(1) from `%s`", tableName));
-			if (count > 0) {
+			Object result = dbContext.exe(String.format("select count(1) from `%s`", tableName));
+			if (result != null && ((Number) result).intValue() > 0) {
 				continue;
 			}
 			List<String> lines = FileUtil.readContentAsStringList(String.format("classpath:/sql/%s/%s.data.sql", dbConfig.getType(), tableName));
@@ -117,7 +121,7 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 				sql += "\r\n" + line.trim();
 				if (sql.endsWith(";")) {
 					log.debug("init database data[table={}] sql:{}", tableName, sql);
-					Db.update(sql);
+                    dbContext.exe(sql);
 					sql = "";
 				}
 			}

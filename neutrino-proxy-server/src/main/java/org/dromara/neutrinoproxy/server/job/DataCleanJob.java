@@ -1,14 +1,19 @@
 package org.dromara.neutrinoproxy.server.job;
 
-import com.alibaba.fastjson.JSONObject;
-import org.dromara.neutrinoproxy.core.util.DateUtil;
-import org.dromara.neutrinoproxy.server.dal.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.neutrinoproxy.core.util.DateUtil;
+import org.dromara.neutrinoproxy.server.dal.ClientConnectRecordMapper;
+import org.dromara.neutrinoproxy.server.dal.FlowReportDayMapper;
+import org.dromara.neutrinoproxy.server.dal.FlowReportHourMapper;
+import org.dromara.neutrinoproxy.server.dal.FlowReportMinuteMapper;
+import org.dromara.neutrinoproxy.server.dal.JobLogMapper;
+import org.dromara.neutrinoproxy.server.dal.UserLoginRecordMapper;
 import org.dromara.solonplugins.job.IJobHandler;
 import org.dromara.solonplugins.job.annotation.JobHandler;
+import org.noear.snack.ONode;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -108,7 +113,7 @@ public class DataCleanJob implements IJobHandler {
     public static JobParams getParams(String s) {
         try {
             if (StringUtils.isNotBlank(s)) {
-                return JSONObject.parseObject(s, JobParams.class);
+                return ONode.deserialize(s, JobParams.class);
             }
         } catch (Exception e) {
             // ignore

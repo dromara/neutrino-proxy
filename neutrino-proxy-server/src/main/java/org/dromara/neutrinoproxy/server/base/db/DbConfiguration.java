@@ -12,8 +12,6 @@ import org.dromara.neutrinoproxy.server.constant.DbTypeEnum;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
-import org.sqlite.SQLiteConfig;
-import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
 
@@ -27,11 +25,8 @@ public class DbConfiguration {
     @Bean(value = "db", typed = true)
     public DataSource dataSource(@Inject DbConfig dbConfig) {
         DbTypeEnum dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
-        if (DbTypeEnum.SQLITE == dbTypeEnum) {
-            SQLiteDataSource dataSource = new SQLiteDataSource();
-            dataSource.setUrl(dbConfig.getUrl());
-            dataSource.setJournalMode(SQLiteConfig.JournalMode.WAL.getValue());
-            return dataSource;
+        if (DbTypeEnum.H2 == dbTypeEnum) {
+            return newHikariDataSource(dbConfig, "org.h2.Driver");
         } else if (DbTypeEnum.MYSQL == dbTypeEnum) {
             String driver = "com.mysql.cj.jdbc.Driver";
             try {
@@ -68,7 +63,7 @@ public class DbConfiguration {
 
     @Bean
     public void db1_ext2(@Db("db") MybatisConfiguration config) {
-        config.getTypeHandlerRegistry().register("fun.asgc.neutrino.proxy.server.dal");
+        config.getTypeHandlerRegistry().register("org.dromara.neutrinoproxy.server.dal.entity");
         config.setDefaultEnumTypeHandler(null);
 
         MybatisPlusInterceptor plusInterceptor = new MybatisPlusInterceptor();

@@ -1,6 +1,7 @@
 package org.dromara.neutrinoproxy.server.service.bo;
 
 import lombok.Data;
+import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
 
 import java.util.Date;
 
@@ -23,4 +24,12 @@ public class SingleDayFlowBO {
      * 下行流量字节数
      */
     private Long downFlowBytes;
+
+    public HomeDataView.SingleDayFlow toSingleDayFlow() {
+        HomeDataView.SingleDayFlow singleDayFlow = new HomeDataView.SingleDayFlow();
+        singleDayFlow.setDate(date);
+        singleDayFlow.setUpFlowBytes(upFlowBytes);
+        singleDayFlow.setDownFlowBytes(downFlowBytes);
+        return singleDayFlow;
+    }
 }

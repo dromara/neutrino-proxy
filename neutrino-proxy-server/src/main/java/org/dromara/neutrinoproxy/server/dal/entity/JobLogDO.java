@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.log.JobLogListRes;
 
 import java.util.Date;
 
@@ -52,4 +53,17 @@ public class JobLogDO {
 	 * 创建时间
 	 */
 	private Date createTime;
+
+    public JobLogListRes toRes() {
+        JobLogListRes res = new JobLogListRes();
+        res.setId(id);
+        res.setJobId(jobId);
+        res.setHandler(handler);
+        res.setParam(param);
+        res.setCode(code);
+        res.setMsg(msg);
+        res.setAlarmStatus(alarmStatus);
+        res.setCreateTime(createTime);
+        return res;
+    }
 }

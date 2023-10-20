@@ -58,3 +58,4 @@ neutrino-proxy-vuepress/deploy.sh
 .NEUTRINO_PROXY_CLIENT_ID
 logs
 **/ixxxk.com/**
+neutrino-proxy-server/src/main/resources/static/**

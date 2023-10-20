@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
-import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
@@ -22,7 +21,11 @@ import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingCreateRe
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingUpdateEnableStatusReq;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingCreateRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingDetailRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingUpdateEnableStatusRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
@@ -38,7 +41,11 @@ import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,8 +55,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class PortMappingService implements LifecycleBean {
-    @Inject
-    private MapperFacade mapperFacade;
     @Db
     private PortMappingMapper portMappingMapper;
     @Db
@@ -82,7 +87,7 @@ public class PortMappingService implements LifecycleBean {
 
         Page<PortMappingDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         List<PortMappingDO> list = portMappingMapper.selectPortMappingByCondition(page, req);
-        List<PortMappingListRes> respList = mapperFacade.mapAsList(list, PortMappingListRes.class);
+        List<PortMappingListRes> respList = list.stream().map(PortMappingDO::toRes).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(list)) {
             return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }

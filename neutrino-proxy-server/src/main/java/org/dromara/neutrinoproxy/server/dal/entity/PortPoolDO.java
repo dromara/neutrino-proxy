@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolListRes;
 
 import java.util.Date;
 
@@ -64,4 +65,15 @@ public class PortPoolDO {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+    public PortPoolListRes toRes() {
+        PortPoolListRes res = new PortPoolListRes();
+        res.setId(id);
+        res.setGroupId(groupId);
+        res.setPort(port);
+        res.setEnable(enable);
+        res.setCreateTime(createTime);
+        res.setUpdateTime(updateTime);
+        return res;
+    }
 }

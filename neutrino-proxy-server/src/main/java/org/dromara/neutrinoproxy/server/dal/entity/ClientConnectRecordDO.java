@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.log.ClientConnectRecordListRes;
 
 import java.util.Date;
 
@@ -34,4 +35,17 @@ public class ClientConnectRecordDO {
      * 创建时间
      */
     private Date createTime;
+
+    public ClientConnectRecordListRes toRes() {
+        ClientConnectRecordListRes res = new ClientConnectRecordListRes();
+        res.setId(id);
+        res.setIp(ip);
+        res.setLicenseId(licenseId);
+        res.setType(type);
+        res.setMsg(msg);
+        res.setCode(code);
+        res.setErr(err);
+        res.setCreateTime(createTime);
+        return res;
+    }
 }

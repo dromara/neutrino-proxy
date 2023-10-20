@@ -29,6 +29,7 @@ import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
 
 import java.util.Date;
 
@@ -99,4 +100,24 @@ public class PortMappingDO {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+
+    public PortMappingListRes toRes() {
+        PortMappingListRes res = new PortMappingListRes();
+        res.setId(id);
+        res.setLicenseId(licenseId);
+        res.setProtocal(protocal);
+        res.setSubdomain(subdomain);
+        res.setServerPort(serverPort);
+        res.setClientIp(clientIp);
+        res.setClientPort(clientPort);
+        res.setDescription(description);
+        res.setIsOnline(isOnline);
+        res.setProxyResponses(proxyResponses);
+        res.setProxyTimeoutMs(proxyTimeoutMs);
+        res.setEnable(enable);
+        res.setCreateTime(createTime);
+        res.setUpdateTime(updateTime);
+        return res;
+    }
 }

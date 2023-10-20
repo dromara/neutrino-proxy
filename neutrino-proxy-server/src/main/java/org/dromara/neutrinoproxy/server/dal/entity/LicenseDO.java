@@ -30,6 +30,7 @@ import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseListRes;
 
 import java.util.Date;
 
@@ -76,4 +77,17 @@ public class LicenseDO {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+    public LicenseListRes toRes() {
+        LicenseListRes res = new LicenseListRes();
+        res.setId(id);
+        res.setName(name);
+        res.setKey(key);
+        res.setUserId(userId);
+        res.setIsOnline(isOnline);
+        res.setEnable(enable);
+        res.setCreateTime(createTime);
+        res.setUpdateTime(updateTime);
+        return res;
+    }
 }

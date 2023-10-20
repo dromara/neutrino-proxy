@@ -1,7 +1,7 @@
 package org.dromara.neutrinoproxy.server.base.rest.interceptor;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.noear.snack.ONode;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.core.handle.Action;
 import org.noear.solon.core.handle.Context;
@@ -33,8 +33,8 @@ public class VisitLogInterceptor implements RouterInterceptor {
             long elapsedTime = now.getTime() - startTime.getTime();
             log.debug("\n-----------------------------------------------------------------interface request log：\n{} url:{} elapsed time:{}\nrequest:{}\nresponse:{}\nclient ip:{}\n",
                     ctx.method(), ctx.path(), getElapsedTimeStr(elapsedTime),
-                    JSONObject.toJSONString(ctx.paramMap()),
-                    JSONObject.toJSONString(JSONObject.toJSONString(ctx.result)),
+                    ONode.serialize(ctx.paramMap()),
+                    ONode.serialize(ctx.result),
                     ctx.realIp()
             );
         }

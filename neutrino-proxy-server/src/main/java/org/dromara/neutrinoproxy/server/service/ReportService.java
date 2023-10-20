@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.base.db.DbConfig;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
@@ -14,7 +16,11 @@ import org.dromara.neutrinoproxy.server.controller.req.report.LicenseFlowMonthRe
 import org.dromara.neutrinoproxy.server.controller.req.report.LicenseFlowReportReq;
 import org.dromara.neutrinoproxy.server.controller.req.report.UserFlowMonthReportReq;
 import org.dromara.neutrinoproxy.server.controller.req.report.UserFlowReportReq;
-import org.dromara.neutrinoproxy.server.controller.res.report.*;
+import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
+import org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowMonthReportRes;
+import org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowReportRes;
+import org.dromara.neutrinoproxy.server.controller.res.report.UserFlowMonthReportRes;
+import org.dromara.neutrinoproxy.server.controller.res.report.UserFlowReportRes;
 import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.ReportMapper;
@@ -23,13 +29,16 @@ import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.service.bo.FlowBO;
 import org.dromara.neutrinoproxy.server.service.bo.SingleDayFlowBO;
 import org.dromara.neutrinoproxy.server.util.FormatUtil;
-import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,8 +48,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class ReportService {
-    @Inject
-    private MapperFacade mapperFacade;
     @Db
     private ReportMapper reportMapper;
     @Db
@@ -76,17 +83,17 @@ public class ReportService {
         // 今日流量
         Date now = new Date();
         FlowBO todayFlow = reportMapper.homeTodayFlow(DateUtil.getDayBegin(now), now);
-        homeDataView.setTodayFlow(mapperFacade.map(todayFlow, HomeDataView.TodayFlow.class));
+        homeDataView.setTodayFlow(todayFlow.todayFlow());
 
         // 总流量
         FlowBO totalFlow = reportMapper.homeTotalFlow(DateUtil.getMonthBegin(now), DateUtil.getDayBegin(now), now);
-        homeDataView.setTotalFlow(mapperFacade.map(totalFlow, HomeDataView.TotalFlow.class));
+        homeDataView.setTotalFlow(totalFlow.totalFlow());
 
         // 最近n日流量
         Integer days = Constants.HOME_FLOW_DAYS;
         List<SingleDayFlowBO> last7dFlowList = reportMapper.homeLast7dFlowList(DateUtil.getDayBegin(DateUtil.addDate(now, Calendar.DATE, -(days - 1))), DateUtil.getDayBegin(now), now);
         homeDataView.setLast7dFlow(new HomeDataView.Last7dFlow());
-        homeDataView.getLast7dFlow().setDataList(mapperFacade.mapAsList(last7dFlowList, HomeDataView.SingleDayFlow.class));
+        homeDataView.getLast7dFlow().setDataList(last7dFlowList.stream().map(SingleDayFlowBO::toSingleDayFlow).collect(Collectors.toList()));
 
         // 数据处理
         fillHomeDataView(homeDataView, now);

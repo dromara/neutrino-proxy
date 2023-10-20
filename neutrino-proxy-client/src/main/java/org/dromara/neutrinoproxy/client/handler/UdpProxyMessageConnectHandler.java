@@ -1,6 +1,5 @@
 package org.dromara.neutrinoproxy.client.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +12,7 @@ import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
+import org.noear.snack.ONode;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -32,7 +32,7 @@ public class UdpProxyMessageConnectHandler implements ProxyMessageHandler {
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
         final Channel cmdChannel = ctx.channel();
-        final ProxyMessage.UdpBaseInfo udpBaseInfo = JSONObject.parseObject(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
+        final ProxyMessage.UdpBaseInfo udpBaseInfo = ONode.deserialize(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
         log.info("[UDP connect]info:{}", proxyMessage.getInfo());
 
         // 获取连接

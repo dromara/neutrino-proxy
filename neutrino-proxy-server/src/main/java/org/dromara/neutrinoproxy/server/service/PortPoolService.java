@@ -4,26 +4,34 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.ServiceException;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
-import org.dromara.neutrinoproxy.server.controller.req.system.*;
-import org.dromara.neutrinoproxy.server.controller.res.system.*;
+import org.dromara.neutrinoproxy.server.controller.req.system.AvailablePortListReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolCreateReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolListReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolUpdateEnableStatusReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolUpdateGroupReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.PortPoolUpdateReq;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolCreateRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolListRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolUpdateEnableStatusRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolUpdateGroupRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.PortPoolUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortGroupMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
+import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.solon.annotation.Db;
-import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
 import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -34,7 +42,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.dromara.neutrinoproxy.server.constant.ExceptionConstant.*;
+import static org.dromara.neutrinoproxy.server.constant.ExceptionConstant.PORT_CANNOT_REPEAT;
+import static org.dromara.neutrinoproxy.server.constant.ExceptionConstant.PORT_GROUP_NAME_DOES_NOT_EXIST;
+import static org.dromara.neutrinoproxy.server.constant.ExceptionConstant.PORT_RANGE_FAIL;
 
 /**
  *
@@ -44,8 +54,6 @@ import static org.dromara.neutrinoproxy.server.constant.ExceptionConstant.*;
 @Slf4j
 @Component
 public class PortPoolService {
-	@Inject
-	private MapperFacade mapperFacade;
 	@Db
 	private PortPoolMapper portPoolMapper;
 	@Inject
@@ -68,7 +76,9 @@ public class PortPoolService {
         List<PortPoolDO> list = portPoolMapper.selectList(new LambdaQueryWrapper<PortPoolDO>()
                 .eq(PortPoolDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
         );
-        return mapperFacade.mapAsList(this.filterUsedPorts(list), PortPoolListRes.class);
+
+        List<PortPoolDO> resultList = this.filterUsedPorts(list);
+        return resultList.stream().map(PortPoolDO::toRes).collect(Collectors.toList());
     }
 
     private List<PortPoolDO> filterUsedPorts(List<PortPoolDO> list) {
@@ -149,7 +159,7 @@ public class PortPoolService {
 
     public List<PortPoolListRes> portListByGroupId(String groupId) {
         List<PortPoolDO> portPoolDOList = portPoolMapper.getByGroupId(groupId);
-        List<PortPoolListRes> portPoolListReList = mapperFacade.mapAsList(portPoolDOList, PortPoolListRes.class);
+        List<PortPoolListRes> portPoolListReList = portPoolDOList.stream().map(PortPoolDO::toRes).collect(Collectors.toList());
         return portPoolListReList;
     }
 

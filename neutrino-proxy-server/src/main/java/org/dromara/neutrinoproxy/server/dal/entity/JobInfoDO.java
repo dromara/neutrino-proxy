@@ -29,6 +29,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.controller.res.system.JobInfoListRes;
 
 import java.util.Date;
 
@@ -64,4 +65,19 @@ public class JobInfoDO {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+    public JobInfoListRes toRes() {
+        JobInfoListRes res = new JobInfoListRes();
+        res.setId(id);
+        res.setCron(cron);
+        res.setDesc(desc);
+        res.setAlarmEmail(alarmEmail);
+        res.setAlarmDing(alarmDing);
+        res.setHandler(handler);
+        res.setParam(param);
+        res.setEnable(enable);
+        res.setCreateTime(createTime);
+        res.setUpdateTime(updateTime);
+        return res;
+    }
 }

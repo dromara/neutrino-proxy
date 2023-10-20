@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.controller.res.log.UserLoginRecordListRes;
 
 import java.util.Date;
 
@@ -62,4 +63,14 @@ public class UserLoginRecordDO {
 	 * 创建时间
 	 */
 	private Date createTime;
+
+    public UserLoginRecordListRes toRes() {
+        UserLoginRecordListRes res = new UserLoginRecordListRes();
+        res.setId(id);
+        res.setUserId(userId);
+        res.setIp(ip);
+        res.setType(type);
+        res.setCreateTime(createTime);
+        return res;
+    }
 }

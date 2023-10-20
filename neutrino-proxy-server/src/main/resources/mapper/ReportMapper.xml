@@ -4,16 +4,16 @@
 
     <select id="userFlowReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.UserFlowReportRes">
         SELECT
-        u.id AS 'userId',
-        u.name AS 'userName',
-        SUM(IFNULL(frm.write_bytes,0) + IFNULL(frd.write_bytes,0) + IFNULL(frm2.write_bytes,0)) AS 'upFlowBytes',
-        SUM(IFNULL(frm.read_bytes,0) + IFNULL(frd.read_bytes,0) + IFNULL(frm2.read_bytes,0)) AS 'downFlowBytes',
-        IFNULL(SUM(frm.write_bytes),0) monthWriteBytes,
-        IFNULL(SUM(frm.read_bytes),0) monthReadBytes,
-        IFNULL(SUM(frd.write_bytes),0) dayWriteBytes,
-        IFNULL(SUM(frd.read_bytes),0) dayReadBytes,
-        IFNULL(SUM(frm2.write_bytes),0) minuteWriteBytes,
-        IFNULL(SUM(frm2.read_bytes),0) minuteReadBytes
+        u.id AS userId,
+        u.name AS userName,
+        SUM(COALESCE(frm.write_bytes,0) + COALESCE(frd.write_bytes,0) + COALESCE(frm2.write_bytes,0)) AS upFlowBytes,
+        SUM(COALESCE(frm.read_bytes,0) + COALESCE(frd.read_bytes,0) + COALESCE(frm2.read_bytes,0)) AS downFlowBytes,
+        COALESCE(SUM(frm.write_bytes),0) monthWriteBytes,
+        COALESCE(SUM(frm.read_bytes),0) monthReadBytes,
+        COALESCE(SUM(frd.write_bytes),0) dayWriteBytes,
+        COALESCE(SUM(frd.read_bytes),0) dayReadBytes,
+        COALESCE(SUM(frm2.write_bytes),0) minuteWriteBytes,
+        COALESCE(SUM(frm2.read_bytes),0) minuteReadBytes
         FROM `user` u
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY user_id) frm ON u.id = frm.user_id
         LEFT JOIN (SELECT user_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
@@ -32,18 +32,18 @@
 
     <select id="licenseFLowReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowReportRes">
         SELECT
-        l.id AS 'licenseId',
-        l.name AS 'licenseName',
-        u.id AS 'userId',
-        u.name AS 'userName',
-        SUM(IFNULL(frm.write_bytes,0) + IFNULL(frd.write_bytes,0) + IFNULL(frm2.write_bytes,0)) AS 'upFlowBytes',
-        SUM(IFNULL(frm.read_bytes,0) + IFNULL(frd.read_bytes,0) + IFNULL(frm2.read_bytes,0)) AS 'downFlowBytes',
-        IFNULL(SUM(frm.write_bytes),0) monthWriteBytes,
-        IFNULL(SUM(frm.read_bytes),0) monthReadBytes,
-        IFNULL(SUM(frd.write_bytes),0) dayWriteBytes,
-        IFNULL(SUM(frd.read_bytes),0) dayReadBytes,
-        IFNULL(SUM(frm2.write_bytes),0) minuteWriteBytes,
-        IFNULL(SUM(frm2.read_bytes),0) minuteReadBytes
+        l.id AS licenseId,
+        l.name AS licenseName,
+        u.id AS userId,
+        u.name AS userName,
+        SUM(COALESCE(frm.write_bytes,0) + COALESCE(frd.write_bytes,0) + COALESCE(frm2.write_bytes,0)) AS upFlowBytes,
+        SUM(COALESCE(frm.read_bytes,0) + COALESCE(frd.read_bytes,0) + COALESCE(frm2.read_bytes,0)) AS downFlowBytes,
+        COALESCE(SUM(frm.write_bytes),0) monthWriteBytes,
+        COALESCE(SUM(frm.read_bytes),0) monthReadBytes,
+        COALESCE(SUM(frd.write_bytes),0) dayWriteBytes,
+        COALESCE(SUM(frd.read_bytes),0) dayReadBytes,
+        COALESCE(SUM(frm2.write_bytes),0) minuteWriteBytes,
+        COALESCE(SUM(frm2.read_bytes),0) minuteReadBytes
         FROM `license` l
         LEFT JOIN `user` u ON l.user_id = u.id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY license_id) frm ON l.id = frm.license_id
@@ -64,7 +64,7 @@
     <select id="userFlowMonthReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.UserFlowMonthReportRes">
         SELECT
         T2.user_id,
-        u.name AS 'userName',
+        u.name AS userName,
         T2.date,
         T2.upFlowBytes,
         T2.downFlowBytes
@@ -73,8 +73,8 @@
         SELECT
         frm.user_id,
         frm.date,
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_month frm
         GROUP BY frm.user_id,frm.date
 
@@ -82,16 +82,16 @@
 
         SELECT
         T1.user_id,
-        #{curMonthBeginDate} AS 'date',
-        IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
+        #{curMonthBeginDate} AS date,
+        COALESCE(SUM(T1.upFlowBytes),0) AS upFlowBytes,
+        COALESCE(SUM(T1.downFlowBytes),0) AS downFlowBytes
         FROM (
 
         SELECT
         frd.user_id,
         frd.license_id,
-        frd.write_bytes AS 'upFlowBytes',
-        frd.read_bytes AS 'downFlowBytes',
+        frd.write_bytes AS upFlowBytes,
+        frd.read_bytes AS downFlowBytes,
         frd.date
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
@@ -101,9 +101,9 @@
         SELECT
         frm.user_id,
         frm.license_id,
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes',
-        #{curDayBeginDate} AS 'date'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes,
+        #{curDayBeginDate} AS date
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
         GROUP BY frm.user_id,frm.license_id
@@ -124,9 +124,9 @@
     <select id="licenseFLowMonthReportList" resultType="org.dromara.neutrinoproxy.server.controller.res.report.LicenseFlowMonthReportRes">
         SELECT
         T2.user_id,
-        u.name AS 'userName',
+        u.name AS userName,
         T2.license_id,
-        l.`name` AS 'licenseName',
+        l.`name` AS licenseName,
         T2.date,
         T2.upFlowBytes,
         T2.downFlowBytes
@@ -136,8 +136,8 @@
         frm.user_id,
         frm.license_id,
         frm.date,
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_month frm
         GROUP BY frm.user_id,frm.license_id,frm.date
 
@@ -146,16 +146,16 @@
         SELECT
         T1.user_id,
         T1.license_id,
-        #{curMonthBeginDate} AS 'date',
-        IFNULL(SUM(T1.upFlowBytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(T1.downFlowBytes),0) AS 'downFlowBytes'
+        #{curMonthBeginDate} AS date,
+        COALESCE(SUM(T1.upFlowBytes),0) AS upFlowBytes,
+        COALESCE(SUM(T1.downFlowBytes),0) AS downFlowBytes
         FROM (
 
         SELECT
         frd.user_id,
         frd.license_id,
-        frd.write_bytes AS 'upFlowBytes',
-        frd.read_bytes AS 'downFlowBytes',
+        frd.write_bytes AS upFlowBytes,
+        frd.read_bytes AS downFlowBytes,
         frd.date
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
@@ -165,9 +165,9 @@
         SELECT
         frm.user_id,
         frm.license_id,
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes',
-        #{curDayBeginDate} AS 'date'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes,
+        #{curDayBeginDate} AS date
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
         GROUP BY frm.user_id,frm.license_id
@@ -191,35 +191,35 @@
 
     <select id="homeTodayFlow" resultType="org.dromara.neutrinoproxy.server.service.bo.FlowBO">
         SELECT
-            IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-            IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+            COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+            COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
     </select>
 
     <select id="homeTotalFlow" resultType="org.dromara.neutrinoproxy.server.service.bo.FlowBO">
         SELECT
-        IFNULL(SUM(T.upFlowBytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(T.downFlowBytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(T.upFlowBytes),0) AS upFlowBytes,
+        COALESCE(SUM(T.downFlowBytes),0) AS downFlowBytes
         FROM (
 
         SELECT
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_month frm
         UNION ALL
 
         SELECT
-        IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frd.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frd.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frd.read_bytes),0) AS downFlowBytes
         FROM flow_report_day frd
         WHERE frd.date >= #{curMonthBeginDate} AND frd.date &lt;= #{curDayBeginDate}
 
         UNION ALL
 
         SELECT
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
 
@@ -233,8 +233,8 @@
 
         SELECT
         frd.date,
-        IFNULL(SUM(frd.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frd.read_bytes),0) AS 'downFlowBytes'
+        COALESCE(SUM(frd.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frd.read_bytes),0) AS downFlowBytes
         FROM flow_report_day frd
         WHERE frd.date >= #{beginDate} AND frd.date &lt;= #{curDayBeginDate}
         GROUP BY frd.date
@@ -242,9 +242,9 @@
         UNION ALL
 
         SELECT
-        #{curDayBeginDate} AS 'date',
-        IFNULL(SUM(frm.write_bytes),0) AS 'upFlowBytes',
-        IFNULL(SUM(frm.read_bytes),0) AS 'downFlowBytes'
+        #{curDayBeginDate} AS date,
+        COALESCE(SUM(frm.write_bytes),0) AS upFlowBytes,
+        COALESCE(SUM(frm.read_bytes),0) AS downFlowBytes
         FROM flow_report_minute frm
         WHERE frm.date >= #{curDayBeginDate} AND frm.date &lt;= #{curDate}
 
