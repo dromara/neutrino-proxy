@@ -1,15 +1,9 @@
 package org.dromara.neutrinoproxy.client;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.noear.solon.Solon;
-import org.noear.solon.SolonApp;
 import org.noear.solon.annotation.SolonMain;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,8 +22,6 @@ public class ProxyClient {
 			setAlias("neutrino.proxy.tunnel.jksPath", "jksPath");
 			setAlias("neutrino.proxy.tunnel.keyStorePassword", "keyStorePassword");
 			setAlias("neutrino.proxy.tunnel.licenseKey", "licenseKey");
-			// 设置日志级别
-			setLogLevel(app);
 		});
 	}
 
@@ -45,20 +37,4 @@ public class ProxyClient {
 		}
 	}
 
-	private static void setLogLevel(SolonApp app) {
-		String loggerLevel = app.cfg().get("neutrino.proxy.logger.level");
-		if (StringUtils.isBlank(loggerLevel)) {
-			return;
-		}
-
-		try {
-			Level level = Level.toLevel(loggerLevel);
-			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-			for (Logger logger : loggerContext.getLoggerList()) {
-				logger.setLevel(level);
-			}
-		} catch (Exception e) {
-			log.error("logger level set failed", e);
-		}
-	}
 }

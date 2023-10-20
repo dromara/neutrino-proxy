@@ -48,7 +48,10 @@ public class ProxyConfiguration implements LifecycleBean {
 
     @Bean("tcpServerBossGroup")
     public NioEventLoopGroup tcpServerBossGroup(@Inject ProxyConfig proxyConfig) {
-        return new NioEventLoopGroup(proxyConfig.getServer().getTcp().getBossThreadCount());
+        ProxyConfig.Server server = proxyConfig.getServer();
+        System.out.println("==> server:" + server);
+        ProxyConfig.Tcp tcp = server.getTcp();
+        return new NioEventLoopGroup(tcp.getBossThreadCount());
     }
 
     @Bean("tcpServerWorkerGroup")
@@ -79,12 +82,12 @@ public class ProxyConfiguration implements LifecycleBean {
     }
 
     @Bean("udpServerBossGroup")
-    private NioEventLoopGroup udpServerBossGroup(@Inject ProxyConfig proxyConfig) {
+    public NioEventLoopGroup udpServerBossGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getServer().getUdp().getBossThreadCount());
     }
 
     @Bean("udpServerWorkerGroup")
-    private NioEventLoopGroup udpServerWorkerGroup(@Inject ProxyConfig proxyConfig) {
+    public NioEventLoopGroup udpServerWorkerGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getServer().getUdp().getWorkThreadCount());
     }
 

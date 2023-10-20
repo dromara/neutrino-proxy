@@ -1,3 +1,15 @@
+# 日志级别
+solon.logging.appender:
+  console:
+    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(${PID:-}) --- %-15([%15.15thread]) %-56(%cyan(%-40.40logger{39}%L)) : %msg%n"
+  file:
+    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:-} --- %-15([%15.15thread]) %-56(%-40.40logger{39}%L) : %msg%n"
+    name: "logs/${neutrino.application.name}"
+    rolling: "logs/${neutrino.application.name}_%d{yyyy-MM-dd}_%i.log.gz"
+solon.logging.logger:
+  "root":
+    #    level: ${LOG_LEVEL:info}
+    level: info
 neutrino:
   application:
     name: neutrino-proxy-client
@@ -12,9 +24,6 @@ neutrino:
       read-idle-time: 120
       write-idle-time: 20
       all-idle-time-seconds: 0
-    logger:
-      # 日志级别
-      level: ${LOG_LEVEL:info}
     tunnel:
       # 线程池相关配置，用于技术调优，可忽略
       thread-count: 50

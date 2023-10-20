@@ -2,6 +2,7 @@ package org.dromara.neutrinoproxy.server.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.ServiceException;
@@ -20,10 +21,7 @@ import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.PortGroupDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
@@ -34,9 +32,6 @@ import java.util.Objects;
  */
 @Component
 public class PortGroupService {
-
-    @Inject
-    private MapperFacade mapperFacade;
 
     @Db
     private PortGroupMapper portGroupMapper;

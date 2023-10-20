@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.controller.req.log.UserLoginRecordListReq;
@@ -12,10 +13,7 @@ import org.dromara.neutrinoproxy.server.dal.UserLoginRecordMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserLoginRecordDO;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +28,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class UserLoginRecordService {
-    @Inject
-    private MapperFacade mapperFacade;
     @Db
     private UserLoginRecordMapper userLoginRecordMapper;
     @Db
@@ -42,7 +38,7 @@ public class UserLoginRecordService {
             .eq(null != req.getUserId(), UserLoginRecordDO::getUserId, req.getUserId())
             .orderByDesc(UserLoginRecordDO::getCreateTime)
         );
-        List<UserLoginRecordListRes> respList = mapperFacade.mapAsList(page.getRecords(), UserLoginRecordListRes.class);
+        List<UserLoginRecordListRes> respList = page.getRecords().stream().map(UserLoginRecordDO::toRes).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(page.getRecords())) {
             return PageInfo.of(respList, page);
         }

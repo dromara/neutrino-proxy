@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserListRes;
 
 import java.util.Date;
 
@@ -36,7 +37,7 @@ import java.util.Date;
  */
 @ToString
 @Data
-@TableName("user")
+@TableName("`user`")
 public class UserDO {
 	@TableId(type = IdType.AUTO)
 	private Integer id;
@@ -64,4 +65,15 @@ public class UserDO {
 	 * 更新时间
 	 */
 	private Date updateTime;
+
+    public UserListRes toRes() {
+        UserListRes res = new UserListRes();
+        res.setId(id);
+        res.setName(name);
+        res.setLoginName(loginName);
+        res.setEnable(enable);
+        res.setCreateTime(createTime);
+        res.setUpdateTime(updateTime);
+        return res;
+    }
 }

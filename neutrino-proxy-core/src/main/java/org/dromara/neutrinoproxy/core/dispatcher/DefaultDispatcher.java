@@ -3,9 +3,9 @@ package org.dromara.neutrinoproxy.core.dispatcher;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
-import org.dromara.neutrinoproxy.core.util.TypeUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.core.util.TypeUtil;
+import org.noear.snack.ONode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +71,7 @@ public class DefaultDispatcher<Context, Data> implements Dispatcher<Context, Dat
 		}
 		String type = matcher.apply(data);
 		if (null == type) {
-			log.warn("{} get match type failed data:{}", this.name, JSONObject.toJSONString(data));
+			log.warn("{} get match type failed data:{}", this.name, ONode.serialize(data));
 			return;
 		}
 		Handler<Context,Data> handler = handlerMap.get(type);

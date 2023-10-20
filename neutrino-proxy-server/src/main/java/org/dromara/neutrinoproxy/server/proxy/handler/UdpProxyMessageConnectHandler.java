@@ -1,11 +1,13 @@
 package org.dromara.neutrinoproxy.server.proxy.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOption;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.core.*;
+import org.dromara.neutrinoproxy.core.Constants;
+import org.dromara.neutrinoproxy.core.ExceptionEnum;
+import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
+import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
@@ -16,6 +18,7 @@ import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.service.LicenseService;
 import org.dromara.neutrinoproxy.server.service.UserService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
+import org.noear.snack.ONode;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -36,7 +39,7 @@ public class UdpProxyMessageConnectHandler implements ProxyMessageHandler {
 
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-        final ProxyMessage.UdpBaseInfo udpBaseInfo = JSONObject.parseObject(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
+        final ProxyMessage.UdpBaseInfo udpBaseInfo = ONode.deserialize(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
         final String licenseKey = new String(proxyMessage.getData());
         log.info("[UDP connect]info:{} licenseKey:{}", proxyMessage.getInfo(), licenseKey);
 

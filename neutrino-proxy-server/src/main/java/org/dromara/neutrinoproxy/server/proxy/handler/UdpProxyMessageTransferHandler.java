@@ -1,7 +1,5 @@
 package org.dromara.neutrinoproxy.server.proxy.handler;
 
-import com.alibaba.fastjson.JSONObject;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,9 +10,8 @@ import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
-import org.dromara.neutrinoproxy.server.util.ProxyUtil;
+import org.noear.snack.ONode;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 
@@ -30,7 +27,7 @@ import java.net.InetSocketAddress;
 public class UdpProxyMessageTransferHandler implements ProxyMessageHandler {
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-        final ProxyMessage.UdpBaseInfo udpBaseInfo = JSONObject.parseObject(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
+        final ProxyMessage.UdpBaseInfo udpBaseInfo = ONode.deserialize(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
         log.debug("[UDP transfer]info:{} data:{}", proxyMessage.getInfo(), new String(proxyMessage.getData()));
 
         Channel visitorChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();

@@ -2,6 +2,25 @@ server:
   # 服务端web端口，用于支持HTTP接口，管理后台页面访问
   port: ${WEB_PORT:8888}
   context-path: /neutrino-proxy-server
+solon:
+  app:
+    name: neutrino-proxy-server
+#  aot:
+#    jvmArguments: --add-opens java.base/java.lang=ALL-UNNAMED
+# 日志级别
+solon.logging.appender:
+  console:
+    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(${PID:-}) --- %-15([%15.15thread]) %-56(%cyan(%-40.40logger{39}%L)) : %msg%n"
+  file:
+    enable: false
+    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:-} --- %-15([%15.15thread]) %-56(%-40.40logger{39}%L) : %msg%n"
+    name: "logs/${solon.app.name}"
+    rolling: "logs/${solon.app.name}_%d{yyyy-MM-dd}_%i.log"
+solon.logging.logger:
+  "root":
+#    level: ${LOG_LEVEL:info}
+    level: info
+
 
 neutrino:
   proxy:
@@ -14,9 +33,6 @@ neutrino:
       read-idle-time: 120
       write-idle-time: 20
       all-idle-time-seconds: 0
-    logger:
-      # 日志级别
-      level: ${LOG_LEVEL:info}
     # 隧道相关配置-用于维持服务端与客户端的通信
     tunnel:
       # 线程池相关配置，用于技术调优，可忽略
@@ -58,10 +74,10 @@ neutrino:
         transfer-log-enable: ${SERVER_LOG:false}
   data:
     db:
-      # 数据库类型，目前支持sqlite、mysql、mariadb
-      type: ${DB_TYPE:sqlite}
+      # 数据库类型，目前支持h2、mysql、mariadb
+      type: ${DB_TYPE:h2}
       # 数据库连接URL
-      url: ${DB_URL:jdbc:sqlite:data.db}
+      url: ${DB_URL:jdbc:h2:file:~/.neutrino-proxy/data/db;MODE=MySQL;AUTO_SERVER=TRUE}
       # 数据库用户名
       username: ${DB_USER:}
       # 数据库密码

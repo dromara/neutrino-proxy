@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
@@ -41,6 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author: aoshiguchen
@@ -49,8 +49,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class JobInfoService implements IJobSource {
-    @Inject
-    private MapperFacade mapperFacade;
     @Db
     private JobInfoMapper jobInfoMapper;
     @Inject
@@ -81,7 +79,7 @@ public class JobInfoService implements IJobSource {
         Page<JobInfoDO> page = jobInfoMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<JobInfoDO>()
             .orderByAsc(JobInfoDO::getId)
         );
-        List<JobInfoListRes> respList = mapperFacade.mapAsList(page.getRecords(), JobInfoListRes.class);
+        List<JobInfoListRes> respList = page.getRecords().stream().map(JobInfoDO::toRes).collect(Collectors.toList());
         return PageInfo.of(respList, page);
     }
 

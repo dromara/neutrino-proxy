@@ -23,23 +23,22 @@ package org.dromara.neutrinoproxy.server.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.controller.req.log.JobLogListReq;
 import org.dromara.neutrinoproxy.server.controller.res.log.JobLogListRes;
 import org.dromara.neutrinoproxy.server.dal.JobLogMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.JobLogDO;
-import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.solonplugins.job.IJobCallback;
 import org.dromara.solonplugins.job.JobInfo;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Inject;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -49,8 +48,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class JobLogService implements IJobCallback {
-	@Inject
-	private MapperFacade mapperFacade;
 	@Db
 	private JobLogMapper jobLogMapper;
 
@@ -82,7 +79,7 @@ public class JobLogService implements IJobCallback {
             .eq(null != req.getJobId(), JobLogDO::getJobId, req.getJobId())
             .orderByDesc(JobLogDO::getId)
         );
-        List<JobLogListRes> respList = mapperFacade.mapAsList(page.getRecords(), JobLogListRes.class);
+        List<JobLogListRes> respList = page.getRecords().stream().map(JobLogDO::toRes).collect(Collectors.toList());
 		return PageInfo.of(respList, page);
 	}
 

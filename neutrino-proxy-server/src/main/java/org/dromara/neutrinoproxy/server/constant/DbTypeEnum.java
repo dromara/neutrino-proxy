@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum DbTypeEnum {
-    SQLITE("sqlite"),
+    H2("h2"),
     MYSQL("mysql"),
     MARIADB("mariadb"),
     ;

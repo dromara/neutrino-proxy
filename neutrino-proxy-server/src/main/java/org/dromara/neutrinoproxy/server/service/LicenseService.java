@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
-import ma.glasnost.orika.MapperFacade;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
@@ -19,7 +18,11 @@ import org.dromara.neutrinoproxy.server.controller.req.proxy.LicenseCreateReq;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.LicenseListReq;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.LicenseUpdateEnableStatusReq;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.LicenseUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseCreateRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseDetailRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseListRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseUpdateEnableStatusRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
@@ -32,7 +35,12 @@ import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,8 +52,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class LicenseService implements LifecycleBean {
-    @Inject
-    private MapperFacade mapperFacade;
     @Db
     private LicenseMapper licenseMapper;
     @Db
@@ -64,7 +70,7 @@ public class LicenseService implements LifecycleBean {
             .eq(req.getEnable() != null, LicenseDO::getEnable, req.getEnable())
             .orderByAsc(Arrays.asList(LicenseDO::getUserId, LicenseDO::getId))
         );
-        List<LicenseListRes> respList = mapperFacade.mapAsList(page.getRecords(), LicenseListRes.class);
+        List<LicenseListRes> respList = page.getRecords().stream().map(LicenseDO::toRes).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(page.getRecords())) {
             return PageInfo.of(respList, page);
         }
@@ -92,7 +98,7 @@ public class LicenseService implements LifecycleBean {
     }
 
     private List<LicenseListRes> assembleConvertLicenses(List<LicenseDO> list) {
-        List<LicenseListRes> licenseList = mapperFacade.mapAsList(list, LicenseListRes.class);
+        List<LicenseListRes> licenseList = list.stream().map(LicenseDO::toRes).collect(Collectors.toList());
         if (!CollectionUtil.isEmpty(licenseList)) {
             Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
             List<UserDO> userList = userMapper.findByIds(userIds);

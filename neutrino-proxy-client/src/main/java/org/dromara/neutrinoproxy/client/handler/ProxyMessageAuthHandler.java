@@ -1,14 +1,14 @@
 package org.dromara.neutrinoproxy.client.handler;
 
-import com.alibaba.fastjson.JSONObject;
+import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.config.ProxyConfig;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ExceptionEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import io.netty.channel.ChannelHandlerContext;
-import lombok.extern.slf4j.Slf4j;
+import org.noear.snack.ONode;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
@@ -27,8 +27,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	@Override
 	public void handle(ChannelHandlerContext context, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
-		JSONObject data = JSONObject.parseObject(info);
-		Integer code = data.getInteger("code");
+        ONode load = ONode.load(info);
+        Integer code = load.get("code").getInt();
 		log.info("Auth result:{}", info);
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			// 客户端认证失败，直接停止服务

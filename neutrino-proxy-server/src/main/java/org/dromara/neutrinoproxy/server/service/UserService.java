@@ -3,6 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
@@ -10,8 +11,20 @@ import org.dromara.neutrinoproxy.server.base.rest.ServiceException;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
-import org.dromara.neutrinoproxy.server.controller.req.system.*;
-import org.dromara.neutrinoproxy.server.controller.res.system.*;
+import org.dromara.neutrinoproxy.server.controller.req.system.LoginReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserCreateReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserInfoReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserListReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserUpdateEnableStatusReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserUpdatePasswordReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.UserUpdateReq;
+import org.dromara.neutrinoproxy.server.controller.res.system.LoginRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserCreateRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserInfoRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserListRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserUpdateEnableStatusRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserUpdatePasswordRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.UserUpdateRes;
 import org.dromara.neutrinoproxy.server.dal.UserLoginRecordMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.UserTokenMapper;
@@ -20,8 +33,6 @@ import org.dromara.neutrinoproxy.server.dal.entity.UserLoginRecordDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserTokenDO;
 import org.dromara.neutrinoproxy.server.util.Md5Util;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import ma.glasnost.orika.MapperFacade;
-import org.apache.ibatis.solon.annotation.Db;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -29,6 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -38,8 +50,7 @@ import java.util.UUID;
 @Component
 public class UserService {
 	private static final String DEFAULT_PASSWORD = "123456";
-	@Inject
-	private MapperFacade mapperFacade;
+
 	@Db
 	private UserMapper userMapper;
 	@Db
@@ -122,7 +133,7 @@ public class UserService {
         Page<UserDO> page = userMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<UserDO>()
             .orderByAsc(UserDO::getId)
         );
-        List<UserListRes> respList = mapperFacade.mapAsList(page.getRecords(), UserListRes.class);
+        List<UserListRes> respList = page.getRecords().stream().map(UserDO::toRes).collect(Collectors.toList());
 		return PageInfo.of(respList, page);
 	}
 
@@ -131,7 +142,7 @@ public class UserService {
 				.eq(UserDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
 				.orderByAsc(UserDO::getId)
 		);
-		return mapperFacade.mapAsList(userDOList, UserListRes.class);
+		return userDOList.stream().map(UserDO::toRes).collect(Collectors.toList());
 	}
 
 	public UserInfoRes info(UserInfoReq req) {
