@@ -130,7 +130,7 @@ public class ProxyConfiguration implements LifecycleBean {
     }
 
     @Bean("udpProxyTunnelBootstrap")
-    private Bootstrap udpProxyTunnelBootstrap(@Inject ProxyConfig proxyConfig,
+    public Bootstrap udpProxyTunnelBootstrap(@Inject ProxyConfig proxyConfig,
                                               @Inject("tunnelWorkGroup") NioEventLoopGroup tunnelWorkGroup) {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(tunnelWorkGroup);

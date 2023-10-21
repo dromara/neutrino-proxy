@@ -54,9 +54,10 @@ import java.util.Map;
  * @since 2023/10/20 11:24
  */
 @Component
-public class NeutrinoRuntimeNativeRegistrar implements RuntimeNativeRegistrar {
+public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegistrar {
     @Override
     public void register(AppContext context, RuntimeNativeMetadata metadata) {
+        metadata.registerResourceInclude("test.jks");
 
         // 使用 MP lambda 的类，需要注册序列化
         metadata.registerLambdaSerialization(ClientConnectRecordService.class);
