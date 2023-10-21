@@ -2,6 +2,9 @@ package org.dromara.neutrinoproxy.server.base;
 
 import org.apache.ibatis.io.DefaultVFS;
 import org.apache.ibatis.io.JBoss6VFS;
+import org.apache.ibatis.solon.MybatisAdapter;
+import org.apache.ibatis.solon.integration.MybatisAdapterDefault;
+import org.apache.ibatis.solon.integration.MybatisAdapterManager;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.base.rest.ResponseBody;
 import org.dromara.neutrinoproxy.server.dal.ClientConnectRecordMapper;
@@ -28,19 +31,25 @@ import org.dromara.neutrinoproxy.server.service.UserLoginRecordService;
 import org.dromara.neutrinoproxy.server.service.UserService;
 import org.dromara.solonplugins.job.JobBean;
 import org.noear.solon.Solon;
-import org.noear.solon.SolonApp;
+import org.noear.solon.Utils;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.aot.RuntimeNativeMetadata;
 import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.aot.hint.MemberCategory;
 import org.noear.solon.core.AppContext;
+import org.noear.solon.core.util.GenericUtil;
 import org.noear.solon.core.util.ResourceUtil;
+import org.noear.solon.core.wrap.MethodWrap;
 import org.noear.solon.core.wrap.ParamWrap;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
 
 /**
+ * native 打包
+ *
  * @author songyinyin
  * @since 2023/10/20 11:24
  */
@@ -82,21 +91,21 @@ public class NeutrinoRuntimeNativeRegistrar implements RuntimeNativeRegistrar {
         Collection<Class<?>> classes = ResourceUtil.scanClasses("org.dromara.neutrinoproxy.server.dal.entity.*");
         for (Class<?> clazz : classes) {
             metadata.registerReflection(clazz, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+            metadata.registerDefaultConstructor(clazz);
+        }
+
+        for (String name : MybatisAdapterManager.getAll().keySet()) {
+            //用 name 找，避免出现重复的（默认的name=null）
+            if (Utils.isNotEmpty(name)) {
+                MybatisAdapter adapter = MybatisAdapterManager.getOnly(name);
+                if (adapter instanceof MybatisAdapterDefault) {
+                    registerMybatisAdapter(context, metadata, (MybatisAdapterDefault) adapter);
+                }
+            }
         }
 
         Solon.context().methodForeach(method -> {
-            ParamWrap[] paramWraps = method.getParamWraps();
-            for (ParamWrap paramWrap : paramWraps) {
-                Class<?> paramType = paramWrap.getType();
-                metadata.registerReflection(paramType, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
-
-                Type genericType = paramWrap.getGenericType();
-                metadata.registerReflection(genericType.getTypeName(), MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
-            }
-
-            Class<?> returnType = method.getReturnType();
-            metadata.registerReflection(returnType, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
-
+            processMethod(metadata, method);
         });
 
         metadata.registerReflection(ResponseBody.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
@@ -110,5 +119,54 @@ public class NeutrinoRuntimeNativeRegistrar implements RuntimeNativeRegistrar {
 
         metadata.registerReflection(JobBean.class, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
 
+    }
+
+    /**
+     * 注册 mybatis 的 mapper 用到的 DO
+     */
+    protected void registerMybatisAdapter(AppContext context, RuntimeNativeMetadata metadata, MybatisAdapterDefault bean) {
+
+        //注册 mapper 代理
+        for (Class<?> clz : bean.getConfiguration().getMapperRegistry().getMappers()) {
+            metadata.registerJdkProxy(clz);
+            metadata.registerReflection(clz, MemberCategory.INTROSPECT_PUBLIC_METHODS);
+            Method[] declaredMethods = clz.getDeclaredMethods();
+            for (Method method : declaredMethods) {
+                MethodWrap methodWrap = new MethodWrap(context, method);
+                processMethod(metadata, methodWrap);
+            }
+        }
+    }
+
+    /**
+     * 注册方法，包括参数的类型、泛型和返回值类型、泛型
+     */
+    private void processMethod(RuntimeNativeMetadata metadata, MethodWrap method) {
+        ParamWrap[] paramWraps = method.getParamWraps();
+        for (ParamWrap paramWrap : paramWraps) {
+            Class<?> paramType = paramWrap.getType();
+            if (!paramType.getName().startsWith("java.")) {
+                metadata.registerReflection(paramType, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+            }
+
+            Type genericType = paramWrap.getGenericType();
+            processGenericType(metadata, genericType);
+        }
+
+        Class<?> returnType = method.getReturnType();
+        if (!returnType.getName().startsWith("java.")) {
+            metadata.registerReflection(returnType, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+        }
+        Type genericReturnType = method.getGenericReturnType();
+        processGenericType(metadata, genericReturnType);
+    }
+
+    private void processGenericType(RuntimeNativeMetadata metadata, Type genericType) {
+        Map<String, Type> genericInfo = GenericUtil.getGenericInfo(genericType);
+        for (Map.Entry<String, Type> entry : genericInfo.entrySet()) {
+            if (!entry.getValue().getTypeName().startsWith("java.")) {
+                metadata.registerReflection(entry.getValue().getTypeName(), MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+            }
+        }
     }
 }
