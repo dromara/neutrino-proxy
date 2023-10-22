@@ -49,49 +49,49 @@
 # 7、贡献者列表
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
-<img src="assets/developer/zcans.png" width="12%">
+<img src="assets/developer/zcans.png" width="11%">
 </a>
 <a href="https://gitee.com/bmlt" target="_blank">
-<img src="assets/developer/jiuye.png" width="12%">
+<img src="assets/developer/jiuye.png" width="11%">
 </a>
 <a href="https://gitee.com/wangke666" target="_blank">
-<img src="assets/developer/keke.png" width="12%">
+<img src="assets/developer/keke.png" width="11%">
 </a>
 <a href="https://gitee.com/xue-fangming" target="_blank">
-<img src="assets/developer/fangming.png" width="12%">
+<img src="assets/developer/fangming.png" width="11%">
 </a>
 <a href="https://gitee.com/y0hanes" target="_blank">
-<img src="assets/developer/yohanes.png" width="12%">
+<img src="assets/developer/yohanes.png" width="11%">
 </a>
 <a href="https://gitee.com/noear_admin" target="_blank">
-<img src="assets/developer/near.png" width="12%">
+<img src="assets/developer/near.png" width="11%">
 </a>
 <a href="https://gitee.com/westboy" target="_blank">
-<img src="assets/developer/westboy.jpg" width="12%">
+<img src="assets/developer/westboy.jpg" width="11%">
 </a>
 <a href="https://gitee.com/liugddx" target="_blank">
-<img src="assets/developer/liugddx.png" width="12%">
+<img src="assets/developer/liugddx.png" width="11%">
 </a>
 <a href="https://gitee.com/DianZiFaPiao" target="_blank">
 <img src="assets/developer/tan90.png" width="12%">
 </a>
 <a href="https://gitee.com/dearsny" target="_blank">
-<img src="assets/developer/pingon.png" width="12%">
+<img src="assets/developer/pingon.png" width="11%">
 </a>
 <a href="https://gitee.com/ixxxk" target="_blank">
-<img src="assets/developer/tany.png" width="12%">
+<img src="assets/developer/tany.png" width="11%">
 </a>
 <a href="https://gitee.com/zoo-plus" target="_blank">
-<img src="assets/developer/zoo-plus.png" width="12%">
+<img src="assets/developer/zoo-plus.png" width="11%">
 </a>
 <a href="https://gitee.com/MetalXingxing" target="_blank">
-<img src="assets/developer/metal.png" width="12%">
+<img src="assets/developer/metal.png" width="11%">
 </a>
 <a href="https://gitee.com/click33" target="_blank">
-<img src="assets/developer/click33.png" width="12%">
+<img src="assets/developer/click33.png" width="11%">
 </a>
 <a href="https://gitee.com/songyinyin" target="_blank">
-<img src="assets/developer/songyinyin.png" width="12%">
+<img src="assets/developer/songyinyin.png" width="11%">
 </a>
 </p>
 
