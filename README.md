@@ -37,16 +37,11 @@
 # 4、代理示意图
 ![代理流程](assets/design/neutrino-proxy-process.jpg)
 
-# 5、演示环境
-> 可使用分配好的游客license试用。服务器带宽较低，仅供学习使用！
-- 管理后台地址：http://103.163.47.16:9527
-- 游客账号：visitor/123456
-
-# 6、联系我们
+# 5、联系我们
 - 微信: yuyunshize
 - Gitee: https://gitee.com/asgc/neutrino-proxy
 
-# 7、贡献者列表
+# 6、贡献者列表
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
 <img src="assets/developer/zcans.png" width="11%">
