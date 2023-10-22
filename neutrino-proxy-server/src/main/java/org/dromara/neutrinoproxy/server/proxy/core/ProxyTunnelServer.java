@@ -18,6 +18,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -42,8 +43,11 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 	private NioEventLoopGroup serverWorkerGroup;
 	@Override
 	public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-		startProxyServer();
-		startProxyServerForSSL();
+        // aot 阶段，不启动代理服务
+        if (NativeDetector.isNotAotRuntime()) {
+            startProxyServer();
+            startProxyServerForSSL();
+        }
 	}
 	/**
 	 * 启动代理服务
