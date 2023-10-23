@@ -48,7 +48,7 @@ public class UdpServerUtil {
      */
     public static void initCache(ProxyConfig proxyConfig, Bootstrap udpServerBootstrap) {
         // aot 阶段，不初始化UDP服务
-        if (NativeDetector.isNotAotRuntime()) {
+        if (NativeDetector.isAotRuntime()) {
             return;
         }
         if (null == proxyConfig.getClient().getUdp() || StringUtils.isEmpty(proxyConfig.getClient().getUdp().getPuppetPortRange())) {
