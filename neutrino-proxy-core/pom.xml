@@ -13,6 +13,13 @@
     <artifactId>neutrino-proxy-core</artifactId>
 
     <dependencies>
+        <!--solon aot start（用于 aot 时注册 native 元信息）-->
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon.aot</artifactId>
+        </dependency>
+        <!--solon aot end-->
+
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>

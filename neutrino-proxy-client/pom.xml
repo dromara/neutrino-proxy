@@ -23,13 +23,6 @@
             <groupId>org.noear</groupId>
             <artifactId>solon-lib</artifactId>
         </dependency>
-
-        <!--solon aot start（用于 aot 时注册 native 元信息）-->
-        <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon.aot</artifactId>
-        </dependency>
-        <!--solon aot end-->
     </dependencies>
 
     <build>

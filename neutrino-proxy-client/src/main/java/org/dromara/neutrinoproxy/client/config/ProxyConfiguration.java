@@ -12,6 +12,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.dromara.neutrinoproxy.client.core.*;
 import org.dromara.neutrinoproxy.client.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.*;
+import org.dromara.neutrinoproxy.core.aot.NeutrinoCoreRuntimeNativeRegistrar;
 import org.dromara.neutrinoproxy.core.dispatcher.DefaultDispatcher;
 import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 import io.netty.bootstrap.Bootstrap;
@@ -202,6 +203,11 @@ public class ProxyConfiguration implements LifecycleBean {
                     }
                 });
         return bootstrap;
+    }
+
+    @Bean
+    public NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar() {
+        return new NeutrinoCoreRuntimeNativeRegistrar();
     }
 
 }

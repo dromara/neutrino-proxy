@@ -9,10 +9,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
+import org.dromara.neutrinoproxy.core.aot.NeutrinoCoreRuntimeNativeRegistrar;
 import org.dromara.neutrinoproxy.core.dispatcher.DefaultDispatcher;
 import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 import io.netty.channel.ChannelHandlerContext;
@@ -126,6 +126,11 @@ public class ProxyConfiguration implements LifecycleBean {
     @Bean("tunnelWorkerGroup")
     public NioEventLoopGroup tunnelWorkerGroup(@Inject ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getTunnel().getWorkThreadCount());
+    }
+
+    @Bean
+    public NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar() {
+        return new NeutrinoCoreRuntimeNativeRegistrar();
     }
 
 }
