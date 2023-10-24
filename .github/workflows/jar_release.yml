@@ -39,32 +39,32 @@ jobs:
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress package
         cd neutrino-proxy-server
         mvn clean package --file pom.xml --no-transfer-progress package
-        cp target/neutrino-proxy-server.jar ./../
+#        cp target/neutrino-proxy-server.jar ./../
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress package
-        cp target/neutrino-proxy-client.jar ./../
+#        cp target/neutrino-proxy-client.jar ./../
     # 上传构建产物
-    - name: Upload artifact (neutrino-proxy-server)
-      uses: actions/upload-artifact@v3.0.0
-      with:
-        name: neutrino-proxy-server
-        path:
-          neutrino-proxy-server.jar
-    - name: Upload artifact (neutrino-proxy-client)
-      uses: actions/upload-artifact@v3.0.0
-      with:
-        name: neutrino-proxy-client
-        path:
-          neutrino-proxy-client.jar
+#    - name: Upload artifact (neutrino-proxy-server)
+#      uses: actions/upload-artifact@v3.0.0
+#      with:
+#        name: neutrino-proxy-server
+#        path:
+#          neutrino-proxy-server.jar
+#    - name: Upload artifact (neutrino-proxy-client)
+#      uses: actions/upload-artifact@v3.0.0
+#      with:
+#        name: neutrino-proxy-client
+#        path:
+#          neutrino-proxy-client.jar
     # GitHub 上创建 release
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          neutrino-proxy-server.jar
-          neutrino-proxy-client.jar
+          neutrino-proxy-server/target/neutrino-proxy-server.jar
+          neutrino-proxy-client/target/neutrino-proxy-client.jar
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
