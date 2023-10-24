@@ -1,0 +1,18 @@
+[
+  {
+    "name": "java.nio.channels.spi.SelectorProvider",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "sun.nio.ch.KQueueSelectorProvider",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "sun.nio.ch.PollSelectorProvider",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "sun.nio.ch.SelectorProviderImpl",
+    "allDeclaredMethods": true
+  }
+]

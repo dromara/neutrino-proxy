@@ -8,7 +8,6 @@ import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.aot.hint.MemberCategory;
 import org.noear.solon.core.AppContext;
 
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
 
 /**
@@ -23,12 +22,9 @@ public class NeutrinoCoreRuntimeNativeRegistrar implements RuntimeNativeRegistra
             metadata.registerReflection(clazz, MemberCategory.INVOKE_DECLARED_METHODS);
         }
 
-        Set<Class<?>> selectorProviderClasses = ClassUtil.scanPackageBySuper("org.dromara.neutrinoproxy", SelectorProvider.class);
-        for (Class<?> selectorProviderClass : selectorProviderClasses) {
-            metadata.registerReflection(selectorProviderClass, MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
-        }
-
         metadata.registerReflection(ProxyMessage.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
         metadata.registerReflection(ProxyMessage.UdpBaseInfo.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+
+        metadata.registerArg("--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED");
     }
 }

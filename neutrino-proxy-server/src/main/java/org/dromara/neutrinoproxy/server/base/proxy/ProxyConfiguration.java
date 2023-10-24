@@ -49,7 +49,6 @@ public class ProxyConfiguration implements LifecycleBean {
     @Bean("tcpServerBossGroup")
     public NioEventLoopGroup tcpServerBossGroup(@Inject ProxyConfig proxyConfig) {
         ProxyConfig.Server server = proxyConfig.getServer();
-        System.out.println("==> server:" + server);
         ProxyConfig.Tcp tcp = server.getTcp();
         return new NioEventLoopGroup(tcp.getBossThreadCount());
     }
