@@ -64,7 +64,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          neutrino-proxy-server
-          neutrino-proxy-client
+          neutrino-proxy-server.jar
+          neutrino-proxy-client.jar
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
