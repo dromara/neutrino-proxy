@@ -1,0 +1,65 @@
+name: jar release
+
+on:
+  workflow_dispatch: 
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        # 'ubuntu-latest', 'windows-latest', 'macos-latest'
+#        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest']
+    name: build - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # https://github.com/softprops/action-gh-release/issues/236#issuecomment-1150530128
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: GitHub Action for GraalVM JDK 17
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '17.0.7' # for a specific JDK 17; or '17' for the latest JDK 17
+        distribution: 'graalvm' # New 'distribution' option
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Build with Maven (neutrino-proxy-server)
+      run: |
+        mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress package
+        cd neutrino-proxy-server
+        mvn clean package --file pom.xml --no-transfer-progress package
+        cp target/neutrino-proxy-server.jar .
+    - name: Build with Maven (neutrino-proxy-client)
+      run: |
+        cd neutrino-proxy-client
+        mvn clean package --file pom.xml --no-transfer-progress package
+        cp target/neutrino-proxy-client.jar .
+    # 上传构建产物
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: neutrino-proxy-server-and-client
+        path: |
+          neutrino-proxy-server.jar
+          neutrino-proxy-client.jar
+    # GitHub 上创建 release
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          neutrino-proxy-server.jar
+          neutrino-proxy-client.jar
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
