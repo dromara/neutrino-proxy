@@ -55,7 +55,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-server-${{ github.ref_name }}'
+        path: 'neutrino-proxy-server.exe'
         filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
@@ -67,7 +67,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-client-${{ github.ref_name }}'
+        path: 'neutrino-proxy-client.exe'
         filename: neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
     # GitHub 上创建 release
     - name: Release
@@ -77,7 +77,7 @@ jobs:
         files: |
           neutrino-proxy-server/target/neutrino-proxy-server.jar
           neutrino-proxy-client/target/neutrino-proxy-client.jar
-          neutrino-proxy-server.exe
-          neutrino-proxy-client.exe
+          neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
+          neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
