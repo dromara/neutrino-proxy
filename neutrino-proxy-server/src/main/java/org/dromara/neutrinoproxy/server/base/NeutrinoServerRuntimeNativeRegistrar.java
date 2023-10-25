@@ -43,6 +43,7 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
     @Override
     public void register(AppContext context, RuntimeNativeMetadata metadata) {
         metadata.registerResourceInclude("test.jks");
+        metadata.registerResourceInclude("sql/.*");
 
         // 使用 MP lambda 的类，需要注册序列化
         metadata.registerLambdaSerialization(ClientConnectRecordService.class);
