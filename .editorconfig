@@ -3,3 +3,6 @@ root=true
 [*.{groovy,java,kt,xml}]
 indent_style = space
 indent_size = 4
+
+[*.sh]
+end_of_line=lf
