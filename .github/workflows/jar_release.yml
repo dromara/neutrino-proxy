@@ -48,13 +48,26 @@ jobs:
           ${{ runner.os }}-maven-
     - name: Build with Maven (neutrino-proxy-server)
       run: |
-        mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress package
+        mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server
-        mvn clean package --file pom.xml --no-transfer-progress package
+        mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+    - name: Archive zip (neutrino-proxy-server)
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: 'neutrino-proxy-server/target/neutrino-proxy-server'
+        filename: neutrino-proxy-server-${{ matrix.os }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         cd neutrino-proxy-client
-        mvn clean package --file pom.xml --no-transfer-progress package
+        mvn clean package --file pom.xml --no-transfer-progress
+        mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+    - name: Archive zip (neutrino-proxy-client)
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: 'neutrino-proxy-client/target/neutrino-proxy-client'
+        filename: neutrino-proxy-client-${{ matrix.os }}.zip
     # GitHub 上创建 release
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -63,5 +76,7 @@ jobs:
         files: |
           neutrino-proxy-server/target/neutrino-proxy-server.jar
           neutrino-proxy-client/target/neutrino-proxy-client.jar
+          neutrino-proxy-server-${{ matrix.os }}.zip
+          neutrino-proxy-client-${{ matrix.os }}.zip
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
