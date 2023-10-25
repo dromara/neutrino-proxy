@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        # 'ubuntu-latest', 'windows-latest', 'macos-latest'
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        # see: https://docs.github.com/zh/actions/using-jobs/choosing-the-runner-for-a-job
+        os: ['ubuntu-20.04', 'windows-latest', 'macos-latest']
         # os: ['ubuntu-latest']
     name: build - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
