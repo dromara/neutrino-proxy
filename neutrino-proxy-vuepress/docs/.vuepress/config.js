@@ -30,7 +30,7 @@ module.exports = {
                     {text: '后台操作指南', link: '/pages/793dcc/'},
                 ]
             },
-            {text: '演示', link: '/pages/db78e2/'},
+            {text: '支持', link: '/pages/a3f096/'},
             {text: 'Gitee', link: 'https://gitee.com/dromara/neutrino-proxy'},
         ],
         sidebarDepth: 2, // 侧边栏显示深度，默认1，最大2（显示到h3标题）

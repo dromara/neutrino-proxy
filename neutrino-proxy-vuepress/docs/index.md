@@ -23,10 +23,10 @@ features: # 可选的
     details: 服务端支持Docker一键部署。
   - title: 隧道SSL加密
     details: 隧道通信支持SSL，保护您的数据安全
-  - title: HTTPS
-    details: 支持HTTPS
-  - title: 多客户端支持
-    details: 暂未支持
+  - title: 多种协议
+    details: 支持TCP、HTTP、HTTPS、UDP
+  - title: 原生部署
+    details: 支持原生部署，更简单、性能更好的使用体验
 
 # 文章列表显示方式: detailed 默认，显示详细版文章列表（包括作者、分类、标签、摘要、分页等）| simple => 显示简约版文章列表（仅标题和日期）| none 不显示文章列表
 postList: none
