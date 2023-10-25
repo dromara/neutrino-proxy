@@ -21,10 +21,11 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
-    - name: build neutrino-proxy-admin
+    - name: setup node v13.12.0
       uses: actions/setup-node@v3
       with:
         node-version: 13.12.0
+    - name: build neutrino-proxy-admin
       run: |
         cd neutrino-proxy-admin
         npm install
