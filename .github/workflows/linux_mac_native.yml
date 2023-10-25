@@ -1,0 +1,82 @@
+name: Build linux and mac native image
+
+on:
+  workflow_dispatch: 
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # see: https://docs.github.com/zh/actions/using-jobs/choosing-the-runner-for-a-job
+        os: ['ubuntu-20.04', 'macos-12']
+    name: build - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # https://github.com/softprops/action-gh-release/issues/236#issuecomment-1150530128
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: setup node v13.12.0
+      uses: actions/setup-node@v3
+      with:
+        node-version: 13.12.0
+        # cache: 'npm' # 使用缓存需要把 package-lock.json 也上传到 git 上
+    - name: build neutrino-proxy-admin
+      run: |
+        cd neutrino-proxy-admin
+        npm install
+        npm run build:docker
+        cp -rf ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
+    - name: GitHub Action for GraalVM JDK 17
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '17.0.7' # for a specific JDK 17; or '17' for the latest JDK 17
+        distribution: 'graalvm' # New 'distribution' option
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Build with Maven (neutrino-proxy-server)
+      run: |
+        mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
+        cd neutrino-proxy-server
+        mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+        cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ github.ref_name }}
+    - name: Archive zip (neutrino-proxy-server)
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: 'neutrino-proxy-server-${{ github.ref_name }}'
+        filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
+    - name: Build with Maven (neutrino-proxy-client)
+      run: |
+        cd neutrino-proxy-client
+        mvn clean package --file pom.xml --no-transfer-progress
+        mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+        cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ github.ref_name }}
+    - name: Archive zip (neutrino-proxy-client)
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: 'neutrino-proxy-client-${{ github.ref_name }}'
+        filename: neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+    # GitHub 上创建 release
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          neutrino-proxy-server/target/neutrino-proxy-server.jar
+          neutrino-proxy-client/target/neutrino-proxy-client.jar
+          neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
+          neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
