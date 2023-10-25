@@ -25,6 +25,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 13.12.0
+        cache: 'npm'
+        cache-dependency-path: neutrino-proxy-admin/package-lock.json
     - name: build neutrino-proxy-admin
       run: |
         cd neutrino-proxy-admin
