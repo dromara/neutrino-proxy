@@ -49,24 +49,24 @@ jobs:
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
-        cp target/neutrino-proxy-server ./../
+        cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ github.ref }}
     - name: Archive zip (neutrino-proxy-server)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-server'
+        path: 'neutrino-proxy-server-${{ github.ref }}'
         filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
-        cp target/neutrino-proxy-client ./../
+        cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ github.ref }}
     - name: Archive zip (neutrino-proxy-client)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-client'
+        path: 'neutrino-proxy-client-${{ github.ref }}'
         filename: neutrino-proxy-client-${{ matrix.os }}-${{ github.ref }}.zip
     # GitHub 上创建 release
     - name: Release
