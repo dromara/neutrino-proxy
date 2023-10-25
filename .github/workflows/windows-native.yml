@@ -31,7 +31,7 @@ jobs:
         cd neutrino-proxy-admin
         npm install
         npm run build:dev
-        xcopy /s /i ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
+        xcopy ./dist/ ./../neutrino-proxy-server/src/main/resources/static/ /s /e
     - name: GitHub Action for GraalVM JDK 17
       uses: graalvm/setup-graalvm@v1
       with:
