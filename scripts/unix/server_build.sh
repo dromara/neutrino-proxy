@@ -1,7 +1,7 @@
 #!/bin/sh
 # 中微子代理服务端编译打包脚本，基础参数请自行修改
 
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
+export JAVA_HOME=/Users/yangwen/my/service/graalvm/graalvm-community-openjdk-17.0.8+7.1/Contents/Home
 export MAVEN_HOME=/Users/yangwen/my/service/maven/apache-maven-3.8.1
 export PATH=:$PATH:$JAVA_HOME/bin:$MAVEN_HOME/bin
 
@@ -11,12 +11,13 @@ serverDeployDir=$deployDir"/server"
 #切到项目根目录
 cd ../..
 #初始化文件夹
-if [ ! -d "$deployDir" ];then
-  mkdir $deployDir
-fi
-if [ ! -d "$serverDeployDir" ];then
-  mkdir $serverDeployDir
-fi
+#if [ ! -d "$deployDir" ];then
+#  mkdir $deployDir
+#fi
+#if [ ! -d "$serverDeployDir" ];then
+#  mkdir $serverDeployDir
+#fi
+mkdir -p $serverDeployDir
 rm -rf $serverDeployDir/neutrino-proxy-server.jar
 
 #服务端打包

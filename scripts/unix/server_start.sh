@@ -1,8 +1,8 @@
 #!/bin/sh
 # 中微子代理服务端启动脚本，基础参数请自行修改
 
-JAVA_OPS="-server -Xms256m -Xmx1024m -XX:PermSize=128M -XX:MaxPermSize=256M -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=/work/$NAME/heapError/"
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
+JAVA_OPS="-server -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=/work/$NAME/heapError/"
+export JAVA_HOME=/Users/yangwen/my/service/graalvm/graalvm-community-openjdk-17.0.8+7.1/Contents/Home
 export PATH=:$PATH:$JAVA_HOME/bin
 export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 mkdir -p /work/$NAME/heapError/
