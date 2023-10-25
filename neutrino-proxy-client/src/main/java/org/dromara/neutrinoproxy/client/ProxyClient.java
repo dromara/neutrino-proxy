@@ -16,12 +16,12 @@ public class ProxyClient {
 
 	public static void main(String[] args) {
 		Solon.start(ProxyClient.class, args, app -> {
-			setAlias("neutrino.proxy.tunnel.serverIp", "serverIp");
-			setAlias("neutrino.proxy.tunnel.serverPort", "serverPort");
-			setAlias("neutrino.proxy.tunnel.sslEnable", "sslEnable");
-			setAlias("neutrino.proxy.tunnel.jksPath", "jksPath");
-			setAlias("neutrino.proxy.tunnel.keyStorePassword", "keyStorePassword");
-			setAlias("neutrino.proxy.tunnel.licenseKey", "licenseKey");
+			setAlias("neutrino.proxy.tunnel.server-ip", "serverIp");
+			setAlias("neutrino.proxy.tunnel.server-port", "serverPort");
+			setAlias("neutrino.proxy.tunnel.ssl-enable", "sslEnable");
+			setAlias("neutrino.proxy.tunnel.jks-path", "jksPath");
+			setAlias("neutrino.proxy.tunnel.key-store-password", "keyStorePassword");
+			setAlias("neutrino.proxy.tunnel.license-key", "licenseKey");
 		});
 	}
 

@@ -44,3 +44,9 @@ cp -rf ./neutrino-proxy-admin/dist $adminDeployDir/
 cp -rf ./neutrino-proxy-admin/dist/ $giteePagesDir
 cd $serverDeployDir
 zip -r neutrino-proxy-admin.zip "neutrino-proxy-admin/"
+
+#拷贝到neutrino-proxy-server项目静态资源目录下
+cd ../..
+rm -rf ./neutrino-proxy-server/src/main/resources/static
+mkdir -p neutrino-proxy-server/src/main/resources/static
+cp -rf ./neutrino-proxy-admin/dist/ ./neutrino-proxy-server/src/main/resources/static

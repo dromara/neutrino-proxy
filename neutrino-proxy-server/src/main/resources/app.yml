@@ -77,7 +77,7 @@ neutrino:
       # 数据库类型，目前支持h2、mysql、mariadb
       type: ${DB_TYPE:h2}
       # 数据库连接URL
-      url: ${DB_URL:jdbc:h2:file:~/.neutrino-proxy/data/db;MODE=MySQL;AUTO_SERVER=TRUE}
+      url: ${DB_URL:jdbc:h2:file:./data/db;MODE=MySQL;AUTO_SERVER=TRUE}
       # 数据库用户名
       username: ${DB_USER:}
       # 数据库密码

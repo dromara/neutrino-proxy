@@ -57,5 +57,6 @@ hs_err_pid*
 neutrino-proxy-vuepress/deploy.sh
 .NEUTRINO_PROXY_CLIENT_ID
 logs
+data
 **/cert/**
 neutrino-proxy-server/src/main/resources/static/**
