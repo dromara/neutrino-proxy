@@ -31,7 +31,7 @@ jobs:
         cd neutrino-proxy-admin
         npm install
         npm run build:dev
-        xcopy ./dist/ ./../neutrino-proxy-server/src/main/resources/static/ /s /e
+        cp -r ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
     - name: GitHub Action for GraalVM JDK 17
       uses: graalvm/setup-graalvm@v1
       with:
@@ -50,7 +50,7 @@ jobs:
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
-        xcopy target/neutrino-proxy-server ./../neutrino-proxy-server-${{ github.ref_name }}
+        xcopy target/neutrino-proxy-server.exe .
     - name: Archive zip (neutrino-proxy-server)
       uses: thedoctor0/zip-release@master
       with:
@@ -62,7 +62,7 @@ jobs:
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
-        xcopy target/neutrino-proxy-client ./../neutrino-proxy-client-${{ github.ref_name }}
+        xcopy target/neutrino-proxy-client.exe .
     - name: Archive zip (neutrino-proxy-client)
       uses: thedoctor0/zip-release@master
       with:
@@ -77,7 +77,7 @@ jobs:
         files: |
           neutrino-proxy-server/target/neutrino-proxy-server.jar
           neutrino-proxy-client/target/neutrino-proxy-client.jar
-          neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
-          neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+          neutrino-proxy-server.exe
+          neutrino-proxy-client.exe
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
