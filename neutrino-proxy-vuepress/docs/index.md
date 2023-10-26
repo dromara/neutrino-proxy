@@ -20,7 +20,7 @@ features: # 可选的
   - title: 端口映射
     details: 新增、编辑、删除、禁用实时生效。
   - title: Docker
-    details: 服务端支持Docker一键部署。
+    details: 服务端/客户端支持Docker一键部署。
   - title: 隧道SSL加密
     details: 隧道通信支持SSL，保护您的数据安全
   - title: 多种协议
