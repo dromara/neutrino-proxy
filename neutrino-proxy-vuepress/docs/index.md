@@ -137,7 +137,7 @@ postList: none
 或者加入我们的交流群：
 <div align="center">
     <img :src="$withBase('/img/qrcode/wxq.png')"  class="no-zoom" style="width:200px;margin: 10px;">
-    <p>中微子 微信群(添加我微信备注"进群")</p>
+    <p>中微子 微信群(添加我微信备注"中微子进群")</p>
 </div>
 <br/>
 
