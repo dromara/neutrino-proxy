@@ -49,6 +49,7 @@ jobs:
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+        chmod +x target/neutrino-proxy-server
         cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ github.ref_name }}
     - name: Archive zip (neutrino-proxy-server)
       uses: thedoctor0/zip-release@master
@@ -61,6 +62,7 @@ jobs:
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
+        chmod +x target/neutrino-proxy-client
         cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ github.ref_name }}
     - name: Archive zip (neutrino-proxy-client)
       uses: thedoctor0/zip-release@master
