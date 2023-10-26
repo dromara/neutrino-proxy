@@ -20,8 +20,8 @@ solon.logging.appender:
     rolling: "logs/${solon.app.name}_%d{yyyy-MM-dd}_%i.log"
 solon.logging.logger:
   "root":
-#    level: ${LOG_LEVEL:info}
-    level: info
+    level: ${LOG_LEVEL:info}
+#    level: info
 
 
 neutrino:
