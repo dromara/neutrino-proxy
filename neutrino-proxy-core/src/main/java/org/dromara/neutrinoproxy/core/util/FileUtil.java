@@ -5,6 +5,7 @@ import org.dromara.neutrinoproxy.core.base.MetaDataConstant;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -56,7 +57,7 @@ public class FileUtil {
 	 * @throws IOException
 	 */
 	public static String readContentAsString(String path) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path)))){
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path), StandardCharsets.UTF_8))){
 			return br.lines().collect(Collectors.joining("\n"));
 		} catch (Exception e) {
 			return null;
@@ -70,7 +71,7 @@ public class FileUtil {
 	 * @throws IOException
 	 */
 	public static String readContentAsString(InputStream in) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(in))){
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
 			return br.lines().collect(Collectors.joining("\n"));
 		} catch (Exception e) {
 			return null;
@@ -84,7 +85,7 @@ public class FileUtil {
 	 * @throws IOException
 	 */
 	public static List<String> readContentAsStringList(String path) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path)))){
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream(path), StandardCharsets.UTF_8))){
 			return br.lines().collect(Collectors.toList());
 		} catch (Exception e) {
 			return null;
