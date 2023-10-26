@@ -46,7 +46,7 @@ jobs:
           ${{ runner.os }}-maven-
     - name: Build with Maven (neutrino-proxy-server)
       run: |
-        set MAVEN_OPTS= -Duser.language=UTF-8 -Dfile.encoding=UTF-8
+        export MAVEN_OPTS="-Duser.language=UTF-8 -Dfile.encoding=UTF-8"
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
@@ -59,7 +59,7 @@ jobs:
         filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
-        set MAVEN_OPTS= -Duser.language=UTF-8 -Dfile.encoding=UTF-8
+        export MAVEN_OPTS="-Duser.language=UTF-8 -Dfile.encoding=UTF-8"
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
