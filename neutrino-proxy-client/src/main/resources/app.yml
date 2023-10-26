@@ -1,3 +1,6 @@
+solon:
+  config:
+    add: ./app.yml
 # 日志级别
 solon.logging.appender:
   console:

@@ -5,6 +5,8 @@ server:
 solon:
   app:
     name: neutrino-proxy-server
+  config:
+    add: ./app.yml
 #  aot:
 #    jvmArguments: --add-opens java.base/java.lang=ALL-UNNAMED
 # 日志级别
