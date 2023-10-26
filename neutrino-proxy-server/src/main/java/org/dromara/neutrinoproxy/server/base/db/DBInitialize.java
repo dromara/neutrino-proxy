@@ -33,6 +33,7 @@ import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
+import org.noear.solon.core.runtime.NativeDetector;
 import org.noear.wood.DbContext;
 import org.noear.wood.annotation.Db;
 
@@ -57,6 +58,10 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 
 	@Init
 	public void init() throws Throwable {
+        // aot 阶段，不初始化数据库
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
 		Assert.notNull(dbConfig.getType(), "neutrino.data.db.type不能为空!");
 		dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
 		Assert.notNull(dbTypeEnum, "neutrino.data.db.type取值异常!");

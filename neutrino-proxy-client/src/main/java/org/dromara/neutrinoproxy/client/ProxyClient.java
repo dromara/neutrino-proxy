@@ -3,6 +3,7 @@ package org.dromara.neutrinoproxy.client;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.Solon;
+import org.noear.solon.Utils;
 import org.noear.solon.annotation.SolonMain;
 
 /**
@@ -16,6 +17,11 @@ public class ProxyClient {
 
 	public static void main(String[] args) {
 		Solon.start(ProxyClient.class, args, app -> {
+            String loglevel = System.getenv("LOG_LEVEL");
+            if (Utils.isNotEmpty(loglevel)) {
+                app.cfg().put("solon.logging.logger.root.level", loglevel);
+            }
+
 			setAlias("neutrino.proxy.tunnel.server-ip", "serverIp");
 			setAlias("neutrino.proxy.tunnel.server-port", "serverPort");
 			setAlias("neutrino.proxy.tunnel.ssl-enable", "sslEnable");

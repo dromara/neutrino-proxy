@@ -12,7 +12,6 @@ solon.logging.appender:
     rolling: "logs/${neutrino.application.name}_%d{yyyy-MM-dd}_%i.log.gz"
 solon.logging.logger:
   "root":
-    #    level: ${LOG_LEVEL:info}
     level: info
 neutrino:
   application:
