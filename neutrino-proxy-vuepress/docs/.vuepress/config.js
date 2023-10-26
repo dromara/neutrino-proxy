@@ -30,7 +30,8 @@ module.exports = {
                     {text: '后台操作指南', link: '/pages/793dcc/'},
                 ]
             },
-            {text: '支持', link: '/pages/a3f096/'},
+            {text: '案例', link: '/pages/5d571c/'},
+            {text: '支持', link: '/pages/1ab20b/'},
             {text: '更新记录', link: '/pages/ff3519/'},
             {text: 'Gitee', link: 'https://gitee.com/dromara/neutrino-proxy'},
         ],
