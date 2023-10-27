@@ -7,6 +7,7 @@ export PATH=:$PATH:$JAVA_HOME/bin:$MAVEN_HOME/bin
 
 deployDir="deploy"
 serverDeployDir=$deployDir"/server"
+machine=macos
 
 #切到项目根目录
 cd ../..
@@ -16,6 +17,10 @@ mkdir -p $serverDeployDir
 # 删除原来的编译文件
 rm -rf $serverDeployDir/neutrino-proxy-server.jar
 rm -rf $serverDeployDir/neutrino-proxy-server
+rm -rf $serverDeployDir/neutrino-proxy-server-jar
+rm -rf $serverDeployDir/neutrino-proxy-server-jar.zip
+rm -rf $serverDeployDir/neutrino-proxy-server-${machine}-native
+rm -rf $serverDeployDir/neutrino-proxy-server-${machine}-native.zip
 
 # 不需要每次都重新编译一次前端代码，如果前端代码有变更，编译前需要手动执行`admin_build_docker.sh`
 ##前端页面打包
@@ -32,7 +37,25 @@ cd neutrino-proxy-server
 mvn clean native:compile -P native -DskipTests
 cd ..
 
+# 给执行权限
+chmod +x ./neutrino-proxy-server/target/neutrino-proxy-server
+
 # 拷贝到deploy目录下
 cp ./neutrino-proxy-server/target/neutrino-proxy-server.jar $serverDeployDir/neutrino-proxy-server.jar
 cp ./neutrino-proxy-server/target/neutrino-proxy-server $serverDeployDir/neutrino-proxy-server
 
+#打zip包，用于发版
+cd $serverDeployDir
+## jar
+mkdir neutrino-proxy-server-jar
+cp ../../neutrino-proxy-server/target/neutrino-proxy-server.jar ./neutrino-proxy-server-jar/neutrino-proxy-server.jar
+cp ../../neutrino-proxy-server/src/main/resources/app.yml ./neutrino-proxy-server-jar/app.yml
+zip -r neutrino-proxy-server-jar.zip ./neutrino-proxy-server-jar
+rm -rf ./neutrino-proxy-server-jar
+
+## native
+mkdir neutrino-proxy-server-${machine}-native
+cp ../../neutrino-proxy-server/target/neutrino-proxy-server ./neutrino-proxy-server-${machine}-native/neutrino-proxy-server
+cp ../../neutrino-proxy-server/src/main/resources/app.yml ./neutrino-proxy-server-${machine}-native/app.yml
+zip -r neutrino-proxy-server-${machine}-native.zip ./neutrino-proxy-server-${machine}-native
+rm -rf ./neutrino-proxy-server-${machine}-native
