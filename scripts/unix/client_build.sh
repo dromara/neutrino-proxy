@@ -11,15 +11,20 @@ clientDeployDir=$deployDir"/client"
 #切到项目根目录
 cd ../..
 #初始化文件夹
-#if [ ! -d "$deployDir" ];then
-#  mkdir $deployDir
-#fi
-#if [ ! -d "$clientDeployDir" ];then
-#  mkdir $clientDeployDir
-#fi
 mkdir -p $clientDeployDir
 rm -rf $clientDeployDir/neutrino-proxy-client.jar
+rm -rf $clientDeployDir/neutrino-proxy-client-jar
+rm -rf $clientDeployDir/neutrino-proxy-client-jar.zip
+
 #客户端打包
 mvn clean install -U -pl neutrino-proxy-client -am -Dmaven.test.skip=true
 # 拷贝到deploy目录下
 cp ./neutrino-proxy-client/target/neutrino-proxy-client.jar $clientDeployDir/neutrino-proxy-client.jar
+
+#打zip包，用于发版
+cd $clientDeployDir
+mkdir neutrino-proxy-client-jar
+cp ../../neutrino-proxy-client/target/neutrino-proxy-client.jar ./neutrino-proxy-client-jar/neutrino-proxy-client.jar
+cp ../../neutrino-proxy-client/src/main/resources/app.yml ./neutrino-proxy-client-jar/app.yml
+zip -r neutrino-proxy-client-jar.zip ./neutrino-proxy-client-jar
+rm -rf $clientDeployDir/neutrino-proxy-client-jar
