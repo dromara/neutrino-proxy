@@ -58,10 +58,10 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 
 	@Init
 	public void init() throws Throwable {
-        // aot 阶段，不初始化数据库
-        if (NativeDetector.isAotRuntime()) {
-            return;
-        }
+//        // aot 阶段，不初始化数据库
+//        if (NativeDetector.isAotRuntime()) {
+//            return;
+//        }
 		Assert.notNull(dbConfig.getType(), "neutrino.data.db.type不能为空!");
 		dbTypeEnum = DbTypeEnum.of(dbConfig.getType());
 		Assert.notNull(dbTypeEnum, "neutrino.data.db.type取值异常!");
