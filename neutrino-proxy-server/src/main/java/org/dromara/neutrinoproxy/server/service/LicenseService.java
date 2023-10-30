@@ -34,6 +34,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -238,6 +239,10 @@ public class LicenseService implements LifecycleBean {
      */
     @Init
     public void init() {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
     }
 

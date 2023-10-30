@@ -35,11 +35,9 @@ import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
+import org.noear.solon.core.runtime.NativeDetector;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +65,10 @@ public class JobInfoService implements IJobSource {
 
     @Init
     public void init() {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         jobHandlerMap.put("DataCleanJob", dataCleanJob);
         jobHandlerMap.put("DemoJob", demoJob);
         jobHandlerMap.put("FlowReportForDayJob", flowReportForDayJob);
@@ -107,6 +109,10 @@ public class JobInfoService implements IJobSource {
 
     @Override
     public List<JobInfo> sourceList() {
+        // aot 阶段，不查数据库
+        if (NativeDetector.isAotRuntime()) {
+            return Collections.emptyList();
+        }
         List<JobInfo> jobInfoList = Lists.newArrayList();
         List<JobInfoDO> jobInfoDOList = jobInfoMapper.findList();
         if (CollectionUtil.isEmpty(jobInfoDOList)) {

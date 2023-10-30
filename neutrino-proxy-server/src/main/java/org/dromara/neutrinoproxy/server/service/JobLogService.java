@@ -35,7 +35,9 @@ import org.dromara.neutrinoproxy.server.dal.entity.JobLogDO;
 import org.dromara.solonplugins.job.IJobCallback;
 import org.dromara.solonplugins.job.JobInfo;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.core.runtime.NativeDetector;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +55,10 @@ public class JobLogService implements IJobCallback {
 
 	@Override
 	public void executeLog(JobInfo jobInfo, String param, Throwable throwable) {
+        // aot 阶段，不查数据库
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
 		Integer code = 0;
 		String msg = "";
 		if (null == throwable) {

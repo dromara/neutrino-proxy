@@ -40,6 +40,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -295,6 +296,10 @@ public class PortMappingService implements LifecycleBean {
      */
     @Init
     public void init() {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
         // 未配置域名，则不需要处理域名映射逻辑
