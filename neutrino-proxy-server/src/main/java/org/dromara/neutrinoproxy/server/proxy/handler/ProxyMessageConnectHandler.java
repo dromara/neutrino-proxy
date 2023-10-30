@@ -50,7 +50,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "the license notfound!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "the license not found!"));
 			ctx.channel().close();
 			return;
 		}
@@ -69,7 +69,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(licenseDO.getId());
 
 		if (null == cmdChannel) {
-			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "server error，cmd channel notfound!"));
+			ctx.channel().writeAndFlush(ProxyMessage.buildErrMessage(ExceptionEnum.CONNECT_FAILED, "server error，cmd channel not found!"));
 			ctx.channel().close();
 			return;
 		}
