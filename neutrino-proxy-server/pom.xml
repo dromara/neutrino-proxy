@@ -62,6 +62,13 @@
         <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.yml</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>false</filtering>
 
