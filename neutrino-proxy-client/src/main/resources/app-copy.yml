@@ -1,36 +1,9 @@
-solon:
-  config:
-    add: ./app.yml
-  app:
-    name: neutrino-proxy-client
-    version: @revision@
-# 日志级别
-solon.logging.appender:
-  console:
-    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(${PID:-}) --- %-15([%15.15thread]) %-56(%cyan(%-40.40logger{39}%L)) : %msg%n"
-  file:
-    enable: true
-    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:-} --- %-15([%15.15thread]) %-56(%-40.40logger{39}%L) : %msg%n"
-    name: "logs/${neutrino.application.name}"
-    rolling: "logs/${neutrino.application.name}_%d{yyyy-MM-dd}_%i.log.gz"
 solon.logging.logger:
   "root":
     level: info
 
 neutrino:
-  application:
-    name: neutrino-proxy-client
-
   proxy:
-    protocol:
-      max-frame-length: 2097152
-      length-field-offset: 0
-      length-field-length: 4
-      initial-bytes-to-strip: 0
-      length-adjustment: 0
-      read-idle-time: 120
-      write-idle-time: 20
-      all-idle-time-seconds: 0
     tunnel:
       # 线程池相关配置，用于技术调优，可忽略
       thread-count: 50
