@@ -40,13 +40,13 @@ cd $clientDeployDir
 ## jar
 mkdir neutrino-proxy-client-jar
 cp ../../neutrino-proxy-client/target/neutrino-proxy-client.jar ./neutrino-proxy-client-jar/neutrino-proxy-client.jar
-cp ../../neutrino-proxy-client/src/main/resources/app.yml ./neutrino-proxy-client-jar/app.yml
+cp ../../neutrino-proxy-client/src/main/resources/app-copy.yml ./neutrino-proxy-client-jar/app.yml
 zip -r neutrino-proxy-client-jar.zip ./neutrino-proxy-client-jar
 rm -rf ./neutrino-proxy-client-jar
 
 ## native
 mkdir neutrino-proxy-client-${machine}-native
 cp ../../neutrino-proxy-client/target/neutrino-proxy-client ./neutrino-proxy-client-${machine}-native/neutrino-proxy-client
-cp ../../neutrino-proxy-client/src/main/resources/app.yml ./neutrino-proxy-client-${machine}-native/app.yml
+cp ../../neutrino-proxy-client/src/main/resources/app-copy.yml ./neutrino-proxy-client-${machine}-native/app.yml
 zip -r neutrino-proxy-client-${machine}-native.zip ./neutrino-proxy-client-${machine}-native
 rm -rf ./neutrino-proxy-client-${machine}-native

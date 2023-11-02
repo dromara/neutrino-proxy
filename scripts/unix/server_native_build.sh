@@ -49,13 +49,13 @@ cd $serverDeployDir
 ## jar
 mkdir neutrino-proxy-server-jar
 cp ../../neutrino-proxy-server/target/neutrino-proxy-server.jar ./neutrino-proxy-server-jar/neutrino-proxy-server.jar
-cp ../../neutrino-proxy-server/src/main/resources/app.yml ./neutrino-proxy-server-jar/app.yml
+cp ../../neutrino-proxy-server/src/main/resources/app-copy.yml ./neutrino-proxy-server-jar/app.yml
 zip -r neutrino-proxy-server-jar.zip ./neutrino-proxy-server-jar
 rm -rf ./neutrino-proxy-server-jar
 
 ## native
 mkdir neutrino-proxy-server-${machine}-native
 cp ../../neutrino-proxy-server/target/neutrino-proxy-server ./neutrino-proxy-server-${machine}-native/neutrino-proxy-server
-cp ../../neutrino-proxy-server/src/main/resources/app.yml ./neutrino-proxy-server-${machine}-native/app.yml
+cp ../../neutrino-proxy-server/src/main/resources/app-copy.yml ./neutrino-proxy-server-${machine}-native/app.yml
 zip -r neutrino-proxy-server-${machine}-native.zip ./neutrino-proxy-server-${machine}-native
 rm -rf ./neutrino-proxy-server-${machine}-native

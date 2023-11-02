@@ -25,6 +25,6 @@ cp ./neutrino-proxy-client/target/neutrino-proxy-client.jar $clientDeployDir/neu
 cd $clientDeployDir
 mkdir neutrino-proxy-client-jar
 cp ../../neutrino-proxy-client/target/neutrino-proxy-client.jar ./neutrino-proxy-client-jar/neutrino-proxy-client.jar
-cp ../../neutrino-proxy-client/src/main/resources/app.yml ./neutrino-proxy-client-jar/app.yml
+cp ../../neutrino-proxy-client/src/main/resources/app-copy.yml ./neutrino-proxy-client-jar/app.yml
 zip -r neutrino-proxy-client-jar.zip ./neutrino-proxy-client-jar
 rm -rf $clientDeployDir/neutrino-proxy-client-jar
