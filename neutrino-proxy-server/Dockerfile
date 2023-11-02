@@ -1,8 +1,8 @@
-FROM openjdk:17-jdk-alpine
+FROM openjdk:21-jdk-oracle
 #同步时间
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
-    apk update && apk add wget unzip vim && apk add -U tzdata && \
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+#    apk update && apk add wget unzip vim && apk add -U tzdata && \
+#    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
 RUN mkdir -p /root/neutrino-proxy/config
 WORKDIR /root/neutrino-proxy
 COPY ./target/neutrino-proxy-server.jar /root/neutrino-proxy/neutrino-proxy-server.jar
