@@ -23,8 +23,12 @@
 package org.dromara.neutrinoproxy.core;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.util.Attribute;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
 /**
@@ -70,28 +74,43 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
 
-        int frameLength = in.readInt();
-        if (in.readableBytes() < frameLength) {
+        int packageLength = in.readInt();
+        if (in.readableBytes() < packageLength) {
             return null;
         }
+
+        // 获取加密数据
+        byte[] encryptedBytes = new byte[packageLength];
+        in.readBytes(encryptedBytes);
+        in.release();
+
+        // 获取解密密钥
+        Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+        byte[] secureKey = secureKeyAttr.get();
+        // 解密
+        byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, encryptedBytes);
+
+        ByteBuf buf = Unpooled.wrappedBuffer(decryptedData);
+
         ProxyMessage proxyMessage = new ProxyMessage();
-        byte type = in.readByte();
-        long sn = in.readLong();
+        int frameLength = buf.readInt();
+        byte type = buf.readByte();
+        long sn = buf.readLong();
 
         proxyMessage.setSerialNumber(sn);
 
         proxyMessage.setType(type);
 
-        int infoLength = in.readInt();
+        int infoLength = buf.readInt();
         byte[] infoBytes = new byte[infoLength];
-        in.readBytes(infoBytes);
+        buf.readBytes(infoBytes);
         proxyMessage.setInfo(new String(infoBytes));
 
         byte[] data = new byte[frameLength - TYPE_SIZE - SERIAL_NUMBER_SIZE - INFO_LENGTH_SIZE - infoLength];
-        in.readBytes(data);
+        buf.readBytes(data);
         proxyMessage.setData(data);
 
-        in.release();
+        buf.release();
 
         return proxyMessage;
     }

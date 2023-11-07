@@ -22,7 +22,7 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, data);
         String m = new String(decryptedData);
         if ("ok".equals(m)) {
-            log.info("Successfully established encrypted link");
+            log.info("Encrypted link established successfully");
         } else {
             ctx.channel().close();
         }

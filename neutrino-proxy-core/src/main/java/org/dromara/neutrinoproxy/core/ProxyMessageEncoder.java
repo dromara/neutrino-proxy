@@ -23,8 +23,12 @@
 package org.dromara.neutrinoproxy.core;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.util.Attribute;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
 /**
@@ -40,6 +44,7 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ProxyMessage msg, ByteBuf out) throws Exception {
+
         int bodyLength = TYPE_SIZE + SERIAL_NUMBER_SIZE + INFO_LENGTH_SIZE;
         byte[] infoBytes = null;
         if (msg.getInfo() != null) {
@@ -51,21 +56,34 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             bodyLength += msg.getData().length;
         }
 
-        // write the total packet length but without length field's length.
-        out.writeInt(bodyLength);
+        ByteBuf buf = Unpooled.buffer(bodyLength);
 
-        out.writeByte(msg.getType());
-        out.writeLong(msg.getSerialNumber());
+        // write the total packet length but without length field's length.
+        buf.writeInt(bodyLength);
+
+        buf.writeByte(msg.getType());
+        buf.writeLong(msg.getSerialNumber());
 
         if (infoBytes != null) {
-            out.writeInt(infoBytes.length);
-            out.writeBytes(infoBytes);
+            buf.writeInt(infoBytes.length);
+            buf.writeBytes(infoBytes);
         } else {
-            out.writeInt(0x00);
+            buf.writeInt(0x00);
         }
 
         if (msg.getData() != null) {
-            out.writeBytes(msg.getData());
+            buf.writeBytes(msg.getData());
         }
+
+        // 执行加密
+        byte[] data = new byte[bodyLength];
+        buf.readBytes(data);
+        // 获取加密密钥
+        Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+        byte[] secureKey = secureKeyAttr.get();
+        // 执行加密
+        byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
+        out.writeByte(encryptedData.length);
+        out.writeBytes(encryptedData);
     }
 }
