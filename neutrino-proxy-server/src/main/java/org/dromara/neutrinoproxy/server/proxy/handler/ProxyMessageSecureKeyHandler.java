@@ -56,6 +56,10 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         // 发送回去，以示确认
         ctx.writeAndFlush(ProxyMessage.buildSecureKeyReturnMessage(encryptedSuccessInfoData));
         ctx.flush();
+
+        // 设置链路状态为安全，之后使用该链路传输的均会加密
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        booleanAttribute.set(true);
     }
 
     @Override

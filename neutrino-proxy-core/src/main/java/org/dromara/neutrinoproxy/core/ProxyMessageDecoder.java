@@ -74,23 +74,33 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
 
-        int packageLength = in.readInt();
-        if (in.readableBytes() < packageLength) {
-            return null;
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        Boolean isSecurity = booleanAttribute.get();
+
+        ByteBuf buf;
+
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity == true) {
+            int packageLength = in.readInt();
+            if (in.readableBytes() < packageLength) {
+                return null;
+            }
+
+            // 获取加密数据
+            byte[] encryptedBytes = new byte[packageLength];
+            in.readBytes(encryptedBytes);
+            in.release();
+
+            // 获取解密密钥
+            Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+            byte[] secureKey = secureKeyAttr.get();
+            // 解密
+            byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, encryptedBytes);
+
+            buf = Unpooled.wrappedBuffer(decryptedData);
+        } else {
+            buf = in;
         }
-
-        // 获取加密数据
-        byte[] encryptedBytes = new byte[packageLength];
-        in.readBytes(encryptedBytes);
-        in.release();
-
-        // 获取解密密钥
-        Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
-        byte[] secureKey = secureKeyAttr.get();
-        // 解密
-        byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, encryptedBytes);
-
-        ByteBuf buf = Unpooled.wrappedBuffer(decryptedData);
 
         ProxyMessage proxyMessage = new ProxyMessage();
         int frameLength = buf.readInt();

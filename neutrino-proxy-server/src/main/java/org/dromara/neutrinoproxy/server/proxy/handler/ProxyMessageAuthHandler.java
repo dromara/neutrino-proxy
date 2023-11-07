@@ -166,6 +166,10 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			}
 		}
 
+        // 存储状态为非安全,如果客户端响应以下的公钥信息，则在响应中设置为安全
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        booleanAttribute.set(false);
+
         // 生成获取SM2密钥对,私钥存入ctx，公钥拼装参数随Auth数据包返回
         KeyPairRecord record = SmEncryptUtil.generateSm2KeyPair();
 

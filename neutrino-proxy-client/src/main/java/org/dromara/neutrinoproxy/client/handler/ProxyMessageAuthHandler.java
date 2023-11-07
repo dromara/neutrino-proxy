@@ -45,6 +45,10 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			context.channel().close();
 		}
 
+        // 默认设置为非安全链路，需要服务端确认后，再设置为安全链路
+        Attribute<Boolean> booleanAttribute = context.attr(Constants.IS_SECURITY);
+        booleanAttribute.set(false);
+
         // 获取认证成功的后的公钥信息，并生成随机密码，加密发到服务端确认
         String publicKey = load.get("publicKey").getString();
         byte[] secureKey = SmEncryptUtil.generateSm4Key();

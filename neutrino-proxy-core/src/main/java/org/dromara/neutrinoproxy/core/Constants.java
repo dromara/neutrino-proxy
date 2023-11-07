@@ -42,6 +42,8 @@ public interface Constants {
 
     AttributeKey<byte[]> SECURE_KEY = AttributeKey.newInstance("secure_key");
 
+    AttributeKey<Boolean> IS_SECURITY = AttributeKey.newInstance("is_security");
+
     AttributeKey<Integer> LICENSE_ID = AttributeKey.newInstance("license_id");
 
     AttributeKey<String> TARGET_IP = AttributeKey.newInstance("targetIp");
@@ -62,6 +64,7 @@ public interface Constants {
     interface ProxyDataTypeName {
         String HEARTBEAT = "HEARTBEAT";
         String SECURE_KEY = "SECURE_KEY";
+        String IS_SECURITY = "IS_SECURITY";
         String AUTH = "AUTH";
         String CONNECT = "CONNECT";
         String DISCONNECT = "DISCONNECT";

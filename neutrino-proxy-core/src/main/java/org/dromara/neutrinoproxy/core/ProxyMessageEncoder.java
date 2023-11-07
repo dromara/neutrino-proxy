@@ -56,7 +56,17 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             bodyLength += msg.getData().length;
         }
 
-        ByteBuf buf = Unpooled.buffer(bodyLength);
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        Boolean isSecurity = booleanAttribute.get();
+
+        ByteBuf buf;
+
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity == true) {
+            buf = Unpooled.buffer(bodyLength);
+        } else {
+            buf = out;
+        }
 
         // write the total packet length but without length field's length.
         buf.writeInt(bodyLength);
@@ -75,15 +85,19 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             buf.writeBytes(msg.getData());
         }
 
-        // 执行加密
-        byte[] data = new byte[bodyLength];
-        buf.readBytes(data);
-        // 获取加密密钥
-        Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
-        byte[] secureKey = secureKeyAttr.get();
-        // 执行加密
-        byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
-        out.writeByte(encryptedData.length);
-        out.writeBytes(encryptedData);
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity == true) {
+            // 执行加密
+            byte[] data = new byte[bodyLength];
+            buf.readBytes(data);
+            // 获取加密密钥
+            Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+            byte[] secureKey = secureKeyAttr.get();
+            // 执行加密
+            byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
+            out.writeByte(encryptedData.length);
+            out.writeBytes(encryptedData);
+        }
+
     }
 }
