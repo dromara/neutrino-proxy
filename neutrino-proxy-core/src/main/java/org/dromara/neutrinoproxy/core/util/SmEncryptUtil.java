@@ -25,7 +25,7 @@ package org.dromara.neutrinoproxy.core.util;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.SmUtil;
-import lombok.Data;
+import org.dromara.neutrinoproxy.core.KeyPairRecord;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
@@ -37,14 +37,11 @@ import java.security.KeyPair;
  */
 public class SmEncryptUtil {
 
-    record Sm2KeyPairRecord(String privateKey, String publicKey) {
-    }
-
     /**
      * 生成SM2密钥对
      * @return
      */
-    public static Sm2KeyPairRecord generateSm2KeyPair() {
+    public static KeyPairRecord generateSm2KeyPair() {
         KeyPair keyPair = SecureUtil.generateKeyPair("SM2");
         byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();
         byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
@@ -52,7 +49,7 @@ public class SmEncryptUtil {
         String privateKey = HexUtil.encodeHexStr(privateKeyBytes);
         String publicKey = HexUtil.encodeHexStr(publicKeyBytes);
 
-        return new Sm2KeyPairRecord(privateKey, publicKey);
+        return new KeyPairRecord(privateKey, publicKey);
     }
 
     /**
@@ -98,6 +95,15 @@ public class SmEncryptUtil {
      */
     public static byte[] decryptBySm4(byte[] key, byte[] encryptedData) {
         return SmUtil.sm4(key).decrypt(encryptedData);
+    }
+
+    /**
+     * 使用SM3算法对内容生成摘要
+     * @param data
+     * @return
+     */
+    public static String digestBySm3(byte[] data) {
+        return SmUtil.sm3().digestHex(data);
     }
 
 }

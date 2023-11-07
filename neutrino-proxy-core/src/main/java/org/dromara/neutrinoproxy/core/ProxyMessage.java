@@ -24,6 +24,7 @@ package org.dromara.neutrinoproxy.core;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
 import org.noear.snack.ONode;
 
 import java.util.Arrays;
@@ -80,6 +81,11 @@ public class ProxyMessage {
     public static final byte TYPE_UDP_TRANSFER = 0x10;
 
     /**
+     * 安全密钥协商
+     */
+    public static final byte TYPE_SECURE_KEY = 0x11;
+
+    /**
      * 消息类型
      */
     private byte type;
@@ -117,11 +123,12 @@ public class ProxyMessage {
             .setInfo(info + "," + clientId);
     }
 
-    public static ProxyMessage buildAuthResultMessage(Integer code, String msg, String licenseKey) {
+    public static ProxyMessage buildAuthResultMessage(Integer code, String msg, String licenseKey, String publicKey) {
         ONode data = ONode.newObject();
         data.set("code", code);
         data.set("msg", msg);
         data.set("licenseKey", licenseKey);
+        data.set("publicKey", publicKey);
         return create().setType(TYPE_AUTH)
             .setInfo(data.toJson());
     }
@@ -134,6 +141,17 @@ public class ProxyMessage {
     public static ProxyMessage buildDisconnectMessage(String info) {
         return create().setType(TYPE_DISCONNECT)
             .setInfo(info);
+    }
+
+    public static ProxyMessage buildSecureKeyMessage(byte[] secureKey) {
+        return create().setType(TYPE_SECURE_KEY)
+            .setInfo(SmEncryptUtil.digestBySm3(secureKey))
+            .setData(secureKey);
+    }
+
+    public static ProxyMessage buildSecureKeyReturnMessage(byte[] content) {
+        return create().setType(TYPE_SECURE_KEY)
+            .setData(content);
     }
 
     public static ProxyMessage buildTransferMessage(String visitorId, byte[] data) {
