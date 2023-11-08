@@ -47,7 +47,9 @@ public enum ProxyDataTypeEnum {
 	PORT_MAPPING_SYNC(0x07, Constants.ProxyDataTypeName.PORT_MAPPING_SYNC, "PORT_MAPPING_SYNC"),
 	UDP_CONNECT(0x08, Constants.ProxyDataTypeName.UDP_CONNECT,"UDP_CONNECT"),
 	UDP_DISCONNECT(0x09, Constants.ProxyDataTypeName.UDP_DISCONNECT,"UDP_DISCONNECT"),
-	UDP_TRANSFER(0x10, Constants.ProxyDataTypeName.UDP_TRANSFER,"UDP_TRANSFER");
+	UDP_TRANSFER(0x10, Constants.ProxyDataTypeName.UDP_TRANSFER,"UDP_TRANSFER"),
+    SECURE_KEY(0x11, Constants.ProxyDataTypeName.SECURE_KEY, "SECURE_KEY"),
+    ;
 	private static Map<Integer,ProxyDataTypeEnum> cache = Stream.of(values()).collect(Collectors.toMap(ProxyDataTypeEnum::getType, Function.identity()));
 
 	private int type;

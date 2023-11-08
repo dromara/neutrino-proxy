@@ -23,10 +23,16 @@
 package org.dromara.neutrinoproxy.core;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.util.Attribute;
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
+@Slf4j
 /**
  *
  * @author: aoshiguchen
@@ -70,28 +76,55 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
 
-        int frameLength = in.readInt();
-        if (in.readableBytes() < frameLength) {
-            return null;
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        Boolean isSecurity = booleanAttribute.get();
+
+        ByteBuf buf;
+
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity != null && isSecurity) {
+            log.info("执行解密逻辑");
+            int packageLength = in.readInt();
+            if (in.readableBytes() < packageLength) {
+                return null;
+            }
+
+            // 获取加密数据
+            byte[] encryptedBytes = new byte[packageLength];
+            in.readBytes(encryptedBytes);
+            in.release();
+
+            // 获取解密密钥
+            Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+            byte[] secureKey = secureKeyAttr.get();
+            // 解密
+            byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, encryptedBytes);
+
+            buf = Unpooled.wrappedBuffer(decryptedData);
+        } else {
+            buf = in;
+            log.info("链路不加密解码");
         }
+
         ProxyMessage proxyMessage = new ProxyMessage();
-        byte type = in.readByte();
-        long sn = in.readLong();
+        int frameLength = buf.readInt();
+        byte type = buf.readByte();
+        long sn = buf.readLong();
 
         proxyMessage.setSerialNumber(sn);
 
         proxyMessage.setType(type);
 
-        int infoLength = in.readInt();
+        int infoLength = buf.readInt();
         byte[] infoBytes = new byte[infoLength];
-        in.readBytes(infoBytes);
+        buf.readBytes(infoBytes);
         proxyMessage.setInfo(new String(infoBytes));
 
         byte[] data = new byte[frameLength - TYPE_SIZE - SERIAL_NUMBER_SIZE - INFO_LENGTH_SIZE - infoLength];
-        in.readBytes(data);
+        buf.readBytes(data);
         proxyMessage.setData(data);
 
-        in.release();
+        buf.release();
 
         return proxyMessage;
     }

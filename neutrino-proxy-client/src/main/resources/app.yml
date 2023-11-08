@@ -23,7 +23,7 @@ neutrino:
 
   proxy:
     protocol:
-      max-frame-length: 2097152
+      max-frame-length: 1048576000
       length-field-offset: 0
       length-field-length: 4
       initial-bytes-to-strip: 0
@@ -40,11 +40,11 @@ neutrino:
       # 服务端IP
       server-ip: ${SERVER_IP:localhost}
       # 服务端端口(对应服务端app.yml中的tunnel.port、tunnel.ssl-port)
-      server-port: ${SERVER_PORT:9002}
+      server-port: ${SERVER_PORT:9000}
       # 是否启用SSL(注意：该配置必须和server-port对应上)
-      ssl-enable: ${SSL_ENABLE:true}
+      ssl-enable: ${SSL_ENABLE:false}
       # 客户端连接唯一凭证
-      license-key: ${LICENSE_KEY:}
+      license-key: ${LICENSE_KEY:b0a907332b474b25897c4dcb31fc7eb6}
       # 客户端唯一身份标识（可忽略，若不设置首次启动会自动生成）
       client-id: ${CLIENT_ID:}
       # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)

@@ -23,9 +23,10 @@
 package org.dromara.neutrinoproxy.server.proxy.handler;
 
 import cn.hutool.core.util.StrUtil;
-import org.dromara.neutrinoproxy.core.*;
+import io.netty.util.Attribute;
 import org.dromara.neutrinoproxy.core.*;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.constant.ClientConnectTypeEnum;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
@@ -76,6 +77,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
+        log.info("收到客户端的认证连接信息");
+
 		String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 		Date now = new Date();
 
@@ -90,7 +93,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 		if (StrUtil.isEmpty(licenseKey)) {
 			log.warn("[client connection] license cannot empty info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey, null));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -104,22 +107,22 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
-			log.warn("[client connection] license notfound info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
+			log.warn("[client connection] license not found info:{} ", info);
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey, null));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("license notfound!")
+					.setErr("license not found!")
 					.setCreateTime(now)
 			);
 			return;
 		}
 		if (EnableStatusEnum.DISABLE.getStatus().equals(licenseDO.getEnable())) {
 			log.warn("[client connection] the license disabled info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license disabled!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license disabled!", licenseKey, null));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -134,7 +137,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		UserDO userDO = userService.findById(licenseDO.getUserId());
 		if (null == userDO || EnableStatusEnum.DISABLE.getStatus().equals(userDO.getEnable())) {
 			log.warn("[client connection] the license invalid info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license invalid!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license invalid!", licenseKey, null));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -151,7 +154,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 			String _clientId = ProxyUtil.getClientIdByLicenseId(licenseDO.getId());
 			if (!clientId.equals(_clientId)) {
 				log.warn("[client connection] the license on another no used info:{} _clientId:{}", info, _clientId);
-				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license on another no used!", licenseKey));
+				ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "the license on another no used!", licenseKey, null));
 				ctx.channel().close();
 				clientConnectRecordService.add(new ClientConnectRecordDO()
 						.setIp(ip)
@@ -164,8 +167,20 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 				return;
 			}
 		}
+
+        // 存储状态为非安全,如果客户端响应以下的公钥信息，则在响应中设置为安全
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        booleanAttribute.set(false);
+
+        // 生成获取SM2密钥对,私钥存入ctx，公钥拼装参数随Auth数据包返回
+        KeyPairRecord record = SmEncryptUtil.generateSm2KeyPair();
+
+        // 私钥存入ctx
+        Attribute<String> attr = ctx.attr(Constants.SECURE_PRIVATE_KEY);
+        attr.set(record.privateKey());
+
 		// 发送认证成功消息
-		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "auth success!", licenseKey));
+		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "auth success!", licenseKey,  record.publicKey()));
 
 		clientConnectRecordService.add(new ClientConnectRecordDO()
 				.setIp(ip)

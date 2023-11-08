@@ -23,8 +23,13 @@
 package org.dromara.neutrinoproxy.core;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.util.Attribute;
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
 /**
@@ -32,6 +37,7 @@ import static org.dromara.neutrinoproxy.core.Constants.*;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
     public ProxyMessageEncoder() {
@@ -40,6 +46,7 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ProxyMessage msg, ByteBuf out) throws Exception {
+
         int bodyLength = TYPE_SIZE + SERIAL_NUMBER_SIZE + INFO_LENGTH_SIZE;
         byte[] infoBytes = null;
         if (msg.getInfo() != null) {
@@ -51,21 +58,50 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             bodyLength += msg.getData().length;
         }
 
-        // write the total packet length but without length field's length.
-        out.writeInt(bodyLength);
+        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
+        Boolean isSecurity = booleanAttribute.get();
 
-        out.writeByte(msg.getType());
-        out.writeLong(msg.getSerialNumber());
+        ByteBuf buf;
+
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity != null && isSecurity) {
+            log.info("执行加密逻辑");
+            buf = Unpooled.buffer(bodyLength);
+        } else {
+            log.info("不执行加密的链路编码");
+            buf = out;
+        }
+
+        // write the total packet length but without length field's length.
+        buf.writeInt(bodyLength);
+
+        buf.writeByte(msg.getType());
+        buf.writeLong(msg.getSerialNumber());
 
         if (infoBytes != null) {
-            out.writeInt(infoBytes.length);
-            out.writeBytes(infoBytes);
+            buf.writeInt(infoBytes.length);
+            buf.writeBytes(infoBytes);
         } else {
-            out.writeInt(0x00);
+            buf.writeInt(0x00);
         }
 
         if (msg.getData() != null) {
-            out.writeBytes(msg.getData());
+            buf.writeBytes(msg.getData());
         }
+
+        // 考虑isSecurity为null的情况，null的情况也为false
+        if (isSecurity != null && isSecurity) {
+            // 执行加密
+            byte[] data = new byte[bodyLength];
+            buf.readBytes(data);
+            // 获取加密密钥
+            Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
+            byte[] secureKey = secureKeyAttr.get();
+            // 执行加密
+            byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
+            out.writeByte(encryptedData.length);
+            out.writeBytes(encryptedData);
+        }
+
     }
 }
