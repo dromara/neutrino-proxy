@@ -27,10 +27,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.Attribute;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
 
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
+@Slf4j
 /**
  *
  * @author: aoshiguchen
@@ -80,7 +82,8 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
         ByteBuf buf;
 
         // 考虑isSecurity为null的情况，null的情况也为false
-        if (isSecurity == true) {
+        if (isSecurity != null && isSecurity) {
+            log.info("执行解密逻辑");
             int packageLength = in.readInt();
             if (in.readableBytes() < packageLength) {
                 return null;
@@ -100,6 +103,7 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             buf = Unpooled.wrappedBuffer(decryptedData);
         } else {
             buf = in;
+            log.info("链路不加密解码");
         }
 
         ProxyMessage proxyMessage = new ProxyMessage();

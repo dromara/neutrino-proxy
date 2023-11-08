@@ -77,6 +77,8 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
+        log.info("收到客户端的认证连接信息");
+
 		String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 		Date now = new Date();
 
@@ -105,7 +107,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		}
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
-			log.warn("[client connection] license notfound info:{} ", info);
+			log.warn("[client connection] license not found info:{} ", info);
 			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey, null));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
@@ -113,7 +115,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 					.setType(ClientConnectTypeEnum.CONNECT.getType())
 					.setMsg(licenseKey)
 					.setCode(SuccessCodeEnum.FAIL.getCode())
-					.setErr("license notfound!")
+					.setErr("license not found!")
 					.setCreateTime(now)
 			);
 			return;
@@ -175,7 +177,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
         // 私钥存入ctx
         Attribute<String> attr = ctx.attr(Constants.SECURE_PRIVATE_KEY);
-        attr.setIfAbsent(record.privateKey());
+        attr.set(record.privateKey());
 
 		// 发送认证成功消息
 		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "auth success!", licenseKey,  record.publicKey()));

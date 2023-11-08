@@ -64,7 +64,6 @@ public interface Constants {
     interface ProxyDataTypeName {
         String HEARTBEAT = "HEARTBEAT";
         String SECURE_KEY = "SECURE_KEY";
-        String IS_SECURITY = "IS_SECURITY";
         String AUTH = "AUTH";
         String CONNECT = "CONNECT";
         String DISCONNECT = "DISCONNECT";

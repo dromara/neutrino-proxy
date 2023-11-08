@@ -16,6 +16,7 @@ import org.noear.solon.annotation.Component;
 public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
+        log.info("收到服务端的加密确认");
         Attribute<byte[]> secureKeyAttr = ctx.attr(Constants.SECURE_KEY);
         byte[] secureKey = secureKeyAttr.get();
         byte[] data = proxyMessage.getData();

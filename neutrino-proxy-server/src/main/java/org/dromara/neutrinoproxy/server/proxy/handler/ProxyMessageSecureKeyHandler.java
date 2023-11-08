@@ -21,6 +21,8 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 
+        log.info("收到客户端的加密信息");
+
         // data为加密后的密码，info为加密密码的摘要
         byte[] data = proxyMessage.getData();
         String receivedDigest = proxyMessage.getInfo();

@@ -27,6 +27,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.util.Attribute;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
 
 import static org.dromara.neutrinoproxy.core.Constants.*;
@@ -36,6 +37,7 @@ import static org.dromara.neutrinoproxy.core.Constants.*;
  * @author: aoshiguchen
  * @date: 2022/6/16
  */
+@Slf4j
 public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
     public ProxyMessageEncoder() {
@@ -62,9 +64,11 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
         ByteBuf buf;
 
         // 考虑isSecurity为null的情况，null的情况也为false
-        if (isSecurity == true) {
+        if (isSecurity != null && isSecurity) {
+            log.info("执行加密逻辑");
             buf = Unpooled.buffer(bodyLength);
         } else {
+            log.info("不执行加密的链路编码");
             buf = out;
         }
 
@@ -86,7 +90,7 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
         }
 
         // 考虑isSecurity为null的情况，null的情况也为false
-        if (isSecurity == true) {
+        if (isSecurity != null && isSecurity) {
             // 执行加密
             byte[] data = new byte[bodyLength];
             buf.readBytes(data);
