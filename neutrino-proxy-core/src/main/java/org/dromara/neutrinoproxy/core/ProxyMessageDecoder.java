@@ -83,7 +83,6 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
 
         // 考虑isSecurity为null的情况，null的情况也为false
         if (isSecurity != null && isSecurity) {
-            log.info("执行解密逻辑");
             int packageLength = in.readInt();
             if (in.readableBytes() < packageLength) {
                 return null;
@@ -103,7 +102,6 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             buf = Unpooled.wrappedBuffer(decryptedData);
         } else {
             buf = in;
-            log.info("链路不加密解码");
         }
 
         ProxyMessage proxyMessage = new ProxyMessage();
