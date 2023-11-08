@@ -24,7 +24,7 @@ solon.logging.logger:
 neutrino:
   proxy:
     protocol:
-      max-frame-length: ${MAX_FRAME_LENGTH:2097152}
+      max-frame-length: ${MAX_FRAME_LENGTH:1048576000}
       length-field-offset: 0
       length-field-length: 4
       initial-bytes-to-strip: 0
