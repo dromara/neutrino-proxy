@@ -65,10 +65,8 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
         // 考虑isSecurity为null的情况，null的情况也为false
         if (isSecurity != null && isSecurity) {
-            log.info("执行加密逻辑");
-            buf = Unpooled.buffer(bodyLength);
+            buf = Unpooled.directBuffer(bodyLength);
         } else {
-            log.info("不执行加密的链路编码");
             buf = out;
         }
 
@@ -92,14 +90,15 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
         // 考虑isSecurity为null的情况，null的情况也为false
         if (isSecurity != null && isSecurity) {
             // 执行加密
-            byte[] data = new byte[bodyLength];
+            byte[] data = new byte[buf.writerIndex()];
             buf.readBytes(data);
+
             // 获取加密密钥
             Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
             byte[] secureKey = secureKeyAttr.get();
             // 执行加密
             byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
-            out.writeByte(encryptedData.length);
+            out.writeInt(encryptedData.length);
             out.writeBytes(encryptedData);
         }
 
