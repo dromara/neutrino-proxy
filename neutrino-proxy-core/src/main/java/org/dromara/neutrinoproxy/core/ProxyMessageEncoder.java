@@ -100,6 +100,7 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
             out.writeInt(encryptedData.length);
             out.writeBytes(encryptedData);
+            buf.release();
         }
 
     }
