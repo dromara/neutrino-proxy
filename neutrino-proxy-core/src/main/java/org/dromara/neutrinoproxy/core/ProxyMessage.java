@@ -24,7 +24,7 @@ package org.dromara.neutrinoproxy.core;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
 import org.noear.snack.ONode;
 
 import java.util.Arrays;
@@ -145,7 +145,7 @@ public class ProxyMessage {
 
     public static ProxyMessage buildSecureKeyMessage(byte[] secureKey) {
         return create().setType(TYPE_SECURE_KEY)
-            .setInfo(SmEncryptUtil.digestBySm3(secureKey))
+            .setInfo(EncryptUtil.digestBySm3(secureKey))
             .setData(secureKey);
     }
 

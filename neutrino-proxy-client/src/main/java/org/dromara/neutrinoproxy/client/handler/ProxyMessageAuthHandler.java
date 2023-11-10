@@ -9,7 +9,7 @@ import org.dromara.neutrinoproxy.core.ExceptionEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
 import org.noear.snack.ONode;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
@@ -51,13 +51,13 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
         // 获取认证成功的后的公钥信息，并生成随机密码，加密发到服务端确认
         String publicKey = load.get("publicKey").getString();
-        byte[] secureKey = SmEncryptUtil.generateSm4Key();
+        byte[] secureKey = EncryptUtil.generateAesKey();
         // 存储密码
         Attribute<byte[]> secureKeyAttr = context.attr(Constants.SECURE_KEY);
         secureKeyAttr.set(secureKey);
 
         // 使用SM2算法对密钥进行加密并发送到服务端
-        byte[] encryptSecureKey = SmEncryptUtil.encryptBySm2(publicKey, secureKey);
+        byte[] encryptSecureKey = EncryptUtil.encryptBySm2(publicKey, secureKey);
         context.writeAndFlush(ProxyMessage.buildSecureKeyMessage(encryptSecureKey));
         context.flush();
 	}

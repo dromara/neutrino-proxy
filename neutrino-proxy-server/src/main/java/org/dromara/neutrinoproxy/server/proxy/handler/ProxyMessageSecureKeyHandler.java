@@ -1,17 +1,20 @@
 package org.dromara.neutrinoproxy.server.proxy.handler;
 
 import cn.hutool.core.util.StrUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
+import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
+
+import java.util.Map;
 
 @Slf4j
 @Match(type= Constants.ProxyDataTypeName.SECURE_KEY)
@@ -27,7 +30,7 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         byte[] data = proxyMessage.getData();
         String receivedDigest = proxyMessage.getInfo();
 
-        String digest = SmEncryptUtil.digestBySm3(data);
+        String digest = EncryptUtil.digestBySm3(data);
         if (!digest.equals(receivedDigest)) {
             // 获取加密信息失败
             log.warn("密码协商失败");
@@ -46,22 +49,28 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         }
 
         // 解密传输密码
-        byte[] secureKey = SmEncryptUtil.decryptBySm2(privateKey, data);
+        byte[] secureKey = EncryptUtil.decryptBySm2(privateKey, data);
 
         // 传输密码存储ctx中
         Attribute<byte[]> secureKeyAttr = ctx.attr(Constants.SECURE_KEY);
         secureKeyAttr.setIfAbsent(secureKey);
 
         // 使用密码加密success给客户端表示密码已确认
-        byte[] encryptedSuccessInfoData = SmEncryptUtil.encryptBySm4(secureKey, "ok".getBytes());
+        byte[] encryptedSuccessInfoData = EncryptUtil.encryptByAes(secureKey, "ok".getBytes());
 
         // 发送回去，以示确认
         ctx.writeAndFlush(ProxyMessage.buildSecureKeyReturnMessage(encryptedSuccessInfoData));
         ctx.flush();
 
-        // 设置链路状态为安全，之后使用该链路传输的均会加密
-        Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
-        booleanAttribute.set(true);
+        // 设置该链路以及相关链路状态为安全，之后使用链路传输的数据均会加密
+        Integer licenseId = ctx.attr(Constants.LICENSE_ID).get();
+        ProxyUtil.setSecureKey(licenseId, secureKey);
+        ProxyUtil.setChannelSecurity(licenseId, ctx.channel());
+        Map<String, Channel> channelMap = ProxyUtil.getVisitorChannels(ctx.channel());
+        channelMap.values().forEach(channel -> ProxyUtil.setChannelSecurity(licenseId, channel));
+        if (licenseId != null) {
+            ProxyUtil.setLicenseIdRelativeChannelSecurity(licenseId);
+        }
     }
 
     @Override

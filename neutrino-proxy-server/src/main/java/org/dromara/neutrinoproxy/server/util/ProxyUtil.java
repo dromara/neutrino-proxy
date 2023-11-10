@@ -69,6 +69,8 @@ public class ProxyUtil {
 	 */
 	private static Map<Integer, String> licenseIdToClientIdMap = new HashMap<>();
 
+    private static Map<Integer, byte[]> licenseIdToSecureKeyMap = new ConcurrentHashMap<>();
+
 	/**
 	 * 初始化代理信息
 	 * @param licenseId licenseId
@@ -143,6 +145,9 @@ public class ProxyUtil {
 		if (!CollectionUtil.isEmpty(serverPorts)) {
 			cmdChannelAttachInfo.getServerPorts().addAll(serverPorts);
 		}
+
+        // 添加安全信息
+        setChannelSecurity(licenseId, cmdChannel);
 
 		licenseToCmdChannelMap.put(licenseId, cmdChannel);
 	}
@@ -421,4 +426,25 @@ public class ProxyUtil {
 	public static void removeClientIdByLicenseId(Integer licenseId) {
 		licenseIdToClientIdMap.remove(licenseId);
 	}
+
+    public static void setSecureKey(Integer licenseId, byte[] key) {
+        licenseIdToSecureKeyMap.put(licenseId, key);
+    }
+
+    public static void setLicenseIdRelativeChannelSecurity(Integer licenseId) {
+        Set<Integer> portSet = licenseToServerPortMap.get(licenseId);
+        for(Integer port : portSet) {
+            Channel cmdChannel = serverPortToCmdChannelMap.get(port);
+            setChannelSecurity(licenseId, cmdChannel);
+            Channel visitorChannel = serverPortToVisitorChannel.get(port);
+            setChannelSecurity(licenseId,visitorChannel);
+        }
+    }
+
+    public static void setChannelSecurity(Integer licenseId, Channel channel) {
+        if (channel != null && licenseIdToSecureKeyMap.containsKey(licenseId)) {
+            channel.attr(Constants.IS_SECURITY).set(true);
+            channel.attr(Constants.SECURE_KEY).set(licenseIdToSecureKeyMap.get(licenseId));
+        }
+    }
 }

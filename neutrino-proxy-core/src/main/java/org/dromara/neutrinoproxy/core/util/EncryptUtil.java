@@ -25,6 +25,8 @@ package org.dromara.neutrinoproxy.core.util;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.SmUtil;
+import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
+import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import org.dromara.neutrinoproxy.core.KeyPairRecord;
 
 import javax.crypto.SecretKey;
@@ -35,7 +37,7 @@ import java.security.KeyPair;
  *  @author: az
  *  @date: 2023/11/07
  */
-public class SmEncryptUtil {
+public class EncryptUtil {
 
     /**
      * 生成SM2密钥对
@@ -73,8 +75,7 @@ public class SmEncryptUtil {
     }
 
     public static byte[] generateSm4Key() {
-        SecretKey key = SecureUtil.generateKey("AES", 128);
-        return key.getEncoded();
+        return SecureUtil.generateKey("AES", 128).getEncoded();
     }
 
     /**
@@ -95,6 +96,32 @@ public class SmEncryptUtil {
      */
     public static byte[] decryptBySm4(byte[] key, byte[] encryptedData) {
         return SmUtil.sm4(key).decrypt(encryptedData);
+    }
+
+    public static byte[] generateAesKey() {
+        return SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
+    }
+
+    /**
+     * 使用AES算法加密数据
+     * @param key 密钥
+     * @param data 被加密数据
+     * @return 加密后的数据
+     */
+    public static byte[] encryptByAes(byte[] key, byte[] data) {
+        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
+        return aes.encrypt(data);
+    }
+
+    /**
+     * 使用AES法解密数据
+     * @param key 密钥
+     * @param encryptedData 已加密数据
+     * @return 解密后的数据
+     */
+    public static byte[] decryptByAes(byte[] key, byte[] encryptedData) {
+        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
+        return aes.decrypt(encryptedData);
     }
 
     /**

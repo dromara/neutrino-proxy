@@ -72,6 +72,8 @@ public class ProxyUtil {
 	private static String clientId;
 	private static final String CLIENT_ID_FILE = ".NEUTRINO_PROXY_CLIENT_ID";
 
+    private static byte[] secureKey;
+
 	public static void borrowTcpProxyChanel(Bootstrap tcpProxyTunnelBootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = tcpProxyChannelPool.poll();
 		if (null != channel) {
@@ -222,5 +224,14 @@ public class ProxyUtil {
 		}
 		return null;
 	}
+
+    public static void setSecureKey(byte[] key) {
+        secureKey = key;
+    }
+
+    public static void setChannelSecurity(Channel channel) {
+        channel.attr(Constants.IS_SECURITY).set(true);
+        channel.attr(Constants.SECURE_KEY).set(secureKey);
+    }
 
 }

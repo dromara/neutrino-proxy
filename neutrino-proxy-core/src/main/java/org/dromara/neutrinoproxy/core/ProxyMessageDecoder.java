@@ -22,13 +22,14 @@
 
 package org.dromara.neutrinoproxy.core;
 
+import cn.hutool.core.util.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
 
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
@@ -97,7 +98,9 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
             byte[] secureKey = secureKeyAttr.get();
             // 解密
-            byte[] decryptedData = SmEncryptUtil.decryptBySm4(secureKey, encryptedBytes);
+            log.info("DecoderKey:{}", HexUtil.encodeHexStr(secureKey));
+            log.info("DecoderBytes:{}", HexUtil.encodeHexStr(encryptedBytes));
+            byte[] decryptedData = EncryptUtil.decryptByAes(secureKey, encryptedBytes);
 
             buf = Unpooled.wrappedBuffer(decryptedData);
         } else {
@@ -123,6 +126,10 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
         proxyMessage.setData(data);
 
         buf.release();
+
+        if (isSecurity != null && isSecurity) {
+            log.info("【ProxyMessage】-type:{},编码解密", proxyMessage.getType());
+        }
 
         return proxyMessage;
     }
