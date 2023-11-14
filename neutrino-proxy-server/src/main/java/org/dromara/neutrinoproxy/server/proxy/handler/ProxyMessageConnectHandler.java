@@ -92,6 +92,9 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 			ProxyUtil.remoteProxyConnectAttachment(visitorId);
 			proxyAttachment.execute();
 		}
+
+        // 设置加密
+        ProxyUtil.setChannelSecurity(licenseDO.getId(), ctx.channel());
 	}
 
 	@Override

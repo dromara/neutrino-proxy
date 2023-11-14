@@ -56,12 +56,15 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							channel.attr(Constants.NEXT_CHANNEL).set(realServerChannel);
 							realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
 
-							// 远程绑定
+							// 通知服务端进行远程绑定,此绑定信息不加密，该条消息为身份标识
 							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getTunnel().getLicenseKey()));
 
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
 							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
 							ProxyUtil.setRealServerChannelVisitorId(realServerChannel, visitorId);
+
+                            // 连接信息发送后，将该通道设置为加密
+                            ProxyUtil.setChannelSecurity(channel);
 						}
 
 						@Override

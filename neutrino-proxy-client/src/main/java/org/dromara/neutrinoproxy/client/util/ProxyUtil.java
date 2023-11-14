@@ -72,6 +72,8 @@ public class ProxyUtil {
 	private static String clientId;
 	private static final String CLIENT_ID_FILE = ".NEUTRINO_PROXY_CLIENT_ID";
 
+    private static byte[] secureKey;
+
 	public static void borrowTcpProxyChanel(Bootstrap tcpProxyTunnelBootstrap, final ProxyChannelBorrowListener borrowListener) {
 		Channel channel = tcpProxyChannelPool.poll();
 		if (null != channel) {
@@ -89,6 +91,10 @@ public class ProxyUtil {
 	}
 
 	public static void returnTcpProxyChanel(Channel proxyChanel) {
+        if (proxyChanel != null) {
+            proxyChanel.attr(Constants.IS_SECURITY).set(null);
+            proxyChanel.attr(Constants.SECURE_KEY).set(null);
+        }
 		if (tcpProxyChannelPool.size() > MAX_POOL_SIZE) {
 			proxyChanel.close();
 		} else {
@@ -121,6 +127,10 @@ public class ProxyUtil {
 	}
 
 	public static void returnUdpProxyChanel(Channel proxyChanel) {
+        if (proxyChanel != null) {
+            proxyChanel.attr(Constants.IS_SECURITY).set(null);
+            proxyChanel.attr(Constants.SECURE_KEY).set(null);
+        }
 		if (udpProxyChannelPool.size() > MAX_POOL_SIZE) {
 			proxyChanel.close();
 		} else {
@@ -222,5 +232,17 @@ public class ProxyUtil {
 		}
 		return null;
 	}
+
+    public static void setSecureKey(byte[] key) {
+        secureKey = key;
+    }
+
+    public static void setChannelSecurity(Channel channel) {
+        if (null == secureKey) {
+            return;
+        }
+        channel.attr(Constants.IS_SECURITY).set(true);
+        channel.attr(Constants.SECURE_KEY).set(secureKey);
+    }
 
 }

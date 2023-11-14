@@ -38,15 +38,15 @@ public class ProxyUtil {
 	/**
 	 * 服务端口 -> 指令通道映射
 	 */
-	private static Map<Integer, Channel> serverPortToCmdChannelMap = new ConcurrentHashMap<>();
+	private static final Map<Integer, Channel> serverPortToCmdChannelMap = new ConcurrentHashMap<>();
 	/**
 	 * license -> 指令通道映射
 	 */
-	private static Map<Integer, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
+	private static final Map<Integer, Channel> licenseToCmdChannelMap = new ConcurrentHashMap<>();
 	/**
 	 * 服务端口 -> 访问通道映射
 	 */
-	private static Map<Integer, Channel> serverPortToVisitorChannel = new ConcurrentHashMap<>();
+	private static final Map<Integer, Channel> serverPortToVisitorChannel = new ConcurrentHashMap<>();
 
 	/**
 	 * cmdChannelAttachInfo.getUserChannelMap() 读写锁
@@ -55,19 +55,21 @@ public class ProxyUtil {
 	/**
 	 * 访问者ID生成器
 	 */
-	private static AtomicLong visitorIdProducer = new AtomicLong(0);
+	private static final AtomicLong visitorIdProducer = new AtomicLong(0);
 	/**
 	 * 代理 - connect附加映射
 	 */
-	private static Map<String, ProxyAttachment> proxyConnectAttachmentMap = new HashMap<>();
+	private static final Map<String, ProxyAttachment> proxyConnectAttachmentMap = new HashMap<>();
 	/**
 	 * 子域名 - 服务端端口映射
 	 */
-	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
+	private static final Map<String, Integer> subdomainToServerPort = new HashMap<>();
 	/**
 	 * licenseId - 客户端Id映射
 	 */
-	private static Map<Integer, String> licenseIdToClientIdMap = new HashMap<>();
+	private static final Map<Integer, String> licenseIdToClientIdMap = new HashMap<>();
+
+    private static final Map<Integer, byte[]> licenseIdToSecureKeyMap = new ConcurrentHashMap<>();
 
 	/**
 	 * 初始化代理信息
@@ -421,4 +423,22 @@ public class ProxyUtil {
 	public static void removeClientIdByLicenseId(Integer licenseId) {
 		licenseIdToClientIdMap.remove(licenseId);
 	}
+
+    public static void setSecureKey(Integer licenseId, byte[] key) {
+        licenseIdToSecureKeyMap.put(licenseId, key);
+    }
+
+    public static void setLicenseIdRelativeProxyChannelSecurity(Integer licenseId) {
+        Set<Integer> portSet = licenseToServerPortMap.get(licenseId);
+        for(Integer port : portSet) {
+            // TODO 代理客户端
+        }
+    }
+
+    public static void setChannelSecurity(Integer licenseId, Channel channel) {
+        if (channel != null && licenseIdToSecureKeyMap.containsKey(licenseId)) {
+            channel.attr(Constants.IS_SECURITY).set(true);
+            channel.attr(Constants.SECURE_KEY).set(licenseIdToSecureKeyMap.get(licenseId));
+        }
+    }
 }

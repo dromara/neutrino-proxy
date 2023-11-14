@@ -22,13 +22,14 @@
 
 package org.dromara.neutrinoproxy.core;
 
+import cn.hutool.core.util.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.util.Attribute;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
 
 import static org.dromara.neutrinoproxy.core.Constants.*;
 
@@ -89,6 +90,9 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
         // 考虑isSecurity为null的情况，null的情况也为false
         if (isSecurity != null && isSecurity) {
+
+            log.info("【ProxyMessage】-type:{},编码加密", msg.getType());
+
             // 执行加密
             byte[] data = new byte[buf.writerIndex()];
             buf.readBytes(data);
@@ -97,9 +101,10 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
             Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
             byte[] secureKey = secureKeyAttr.get();
             // 执行加密
-            byte[] encryptedData = SmEncryptUtil.encryptBySm4(secureKey, data);
+            byte[] encryptedData = EncryptUtil.encryptByAes(secureKey, data);
             out.writeInt(encryptedData.length);
             out.writeBytes(encryptedData);
+            buf.release();
         }
 
     }

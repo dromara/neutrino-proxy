@@ -26,7 +26,7 @@ import cn.hutool.core.util.StrUtil;
 import io.netty.util.Attribute;
 import org.dromara.neutrinoproxy.core.*;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.dromara.neutrinoproxy.core.util.SmEncryptUtil;
+import org.dromara.neutrinoproxy.core.util.EncryptUtil;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.constant.ClientConnectTypeEnum;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
@@ -173,11 +173,13 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
         booleanAttribute.set(false);
 
         // 生成获取SM2密钥对,私钥存入ctx，公钥拼装参数随Auth数据包返回
-        KeyPairRecord record = SmEncryptUtil.generateSm2KeyPair();
+        KeyPairRecord record = EncryptUtil.generateSm2KeyPair();
 
         // 私钥存入ctx
-        Attribute<String> attr = ctx.attr(Constants.SECURE_PRIVATE_KEY);
-        attr.set(record.privateKey());
+        ctx.attr(Constants.SECURE_PRIVATE_KEY).set(record.privateKey());
+
+        // 存储licenseId
+        ctx.attr(Constants.LICENSE_ID).set(licenseDO.getId());
 
 		// 发送认证成功消息
 		ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.SUCCESS.getCode(), "auth success!", licenseKey,  record.publicKey()));
