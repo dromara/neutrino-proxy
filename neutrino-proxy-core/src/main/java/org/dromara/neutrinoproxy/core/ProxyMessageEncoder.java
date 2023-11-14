@@ -22,6 +22,7 @@
 
 package org.dromara.neutrinoproxy.core;
 
+import cn.hutool.core.util.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;

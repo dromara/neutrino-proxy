@@ -111,7 +111,6 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
         long sn = buf.readLong();
 
         proxyMessage.setSerialNumber(sn);
-
         proxyMessage.setType(type);
 
         int infoLength = buf.readInt();

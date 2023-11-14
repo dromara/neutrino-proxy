@@ -28,9 +28,8 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
             Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
             booleanAttribute.set(true);
 
-            // 设置代理通道为安全，之后使用代理通道传输的消息均会加密
+            // 全局存储密钥
             ProxyUtil.setSecureKey(secureKey);
-            ProxyUtil.setProxyChannelSecurity();
 
             log.info("Encrypted link established successfully");
         } else {

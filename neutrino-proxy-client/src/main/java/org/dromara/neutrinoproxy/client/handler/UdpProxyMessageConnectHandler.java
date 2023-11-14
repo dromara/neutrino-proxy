@@ -46,6 +46,9 @@ public class UdpProxyMessageConnectHandler implements ProxyMessageHandler {
                         .setTargetIp(udpBaseInfo.getTargetIp())
                         .setTargetPort(udpBaseInfo.getTargetPort())
                 ).setData(proxyConfig.getTunnel().getLicenseKey().getBytes()));
+
+                // connect类型的消息不加密，用于标识身份，发送标识消息后，再将通道设置加密标识
+                ProxyUtil.setChannelSecurity(channel);
             }
 
             @Override

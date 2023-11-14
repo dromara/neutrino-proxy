@@ -83,9 +83,7 @@ public class ProxyUtil {
 
 		tcpProxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
-                Channel newChannel = future.channel();
-                setChannelSecurity(newChannel);
-				borrowListener.success(newChannel);
+				borrowListener.success(future.channel());
 			} else {
 				borrowListener.error(future.cause());
 			}
@@ -93,6 +91,10 @@ public class ProxyUtil {
 	}
 
 	public static void returnTcpProxyChanel(Channel proxyChanel) {
+        if (proxyChanel != null) {
+            proxyChanel.attr(Constants.IS_SECURITY).set(null);
+            proxyChanel.attr(Constants.SECURE_KEY).set(null);
+        }
 		if (tcpProxyChannelPool.size() > MAX_POOL_SIZE) {
 			proxyChanel.close();
 		} else {
@@ -117,9 +119,7 @@ public class ProxyUtil {
 
 		tcpProxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
-                Channel newChannel = future.channel();
-                setChannelSecurity(newChannel);
-				borrowListener.success(newChannel);
+				borrowListener.success(future.channel());
 			} else {
 				borrowListener.error(future.cause());
 			}
@@ -127,6 +127,10 @@ public class ProxyUtil {
 	}
 
 	public static void returnUdpProxyChanel(Channel proxyChanel) {
+        if (proxyChanel != null) {
+            proxyChanel.attr(Constants.IS_SECURITY).set(null);
+            proxyChanel.attr(Constants.SECURE_KEY).set(null);
+        }
 		if (udpProxyChannelPool.size() > MAX_POOL_SIZE) {
 			proxyChanel.close();
 		} else {
@@ -239,25 +243,6 @@ public class ProxyUtil {
         }
         channel.attr(Constants.IS_SECURITY).set(true);
         channel.attr(Constants.SECURE_KEY).set(secureKey);
-    }
-
-    /**
-     * 设置代理通道为安全
-     */
-    public static void setProxyChannelSecurity() {
-        if (null == secureKey) {
-            return;
-        }
-        tcpProxyChannelPool.forEach(channel -> {
-            channel.attr(Constants.IS_SECURITY).set(true);
-            channel.attr(Constants.SECURE_KEY).set(secureKey);
-        });
-
-        udpProxyChannelPool.forEach(channel -> {
-            channel.attr(Constants.IS_SECURITY).set(true);
-            channel.attr(Constants.SECURE_KEY).set(secureKey);
-        });
-
     }
 
 }
