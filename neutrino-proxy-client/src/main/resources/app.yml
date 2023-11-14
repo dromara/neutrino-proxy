@@ -34,15 +34,16 @@ neutrino:
     tunnel:
       # 线程池相关配置，用于技术调优，可忽略
       thread-count: 50
+      sm2-encrypt-enable: ${SM2_ENCRYPT_ENABLE:false}
       # 隧道SSL证书配置
       key-store-password: ${STORE_PASS:123456}
       jks-path: ${JKS_PATH:classpath:/test.jks}
       # 服务端IP
       server-ip: ${SERVER_IP:localhost}
       # 服务端端口(对应服务端app.yml中的tunnel.port、tunnel.ssl-port)
-      server-port: ${SERVER_PORT:9000}
+      server-port: ${SERVER_PORT:9002}
       # 是否启用SSL(注意：该配置必须和server-port对应上)
-      ssl-enable: ${SSL_ENABLE:false}
+      ssl-enable: ${SSL_ENABLE:true}
       # 客户端连接唯一凭证
       license-key: ${LICENSE_KEY:b0a907332b474b25897c4dcb31fc7eb6}
       # 客户端唯一身份标识（可忽略，若不设置首次启动会自动生成）

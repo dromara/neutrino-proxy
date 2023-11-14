@@ -24,6 +24,7 @@ public class ProxyClient {
 
 			setAlias("neutrino.proxy.tunnel.server-ip", "serverIp");
 			setAlias("neutrino.proxy.tunnel.server-port", "serverPort");
+            setAlias("neutrino.proxy.tunnel.sm2-encrypt-enable", "sm2EncryptEnable");
 			setAlias("neutrino.proxy.tunnel.ssl-enable", "sslEnable");
 			setAlias("neutrino.proxy.tunnel.jks-path", "jksPath");
 			setAlias("neutrino.proxy.tunnel.key-store-password", "keyStorePassword");
