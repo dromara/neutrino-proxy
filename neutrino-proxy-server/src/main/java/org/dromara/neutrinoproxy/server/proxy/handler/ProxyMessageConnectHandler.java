@@ -94,7 +94,7 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		}
 
         // 设置加密
-        ProxyUtil.setChannelSecurity(licenseDO.getId(), visitorChannel);
+        ProxyUtil.setChannelSecurity(licenseDO.getId(), ctx.channel());
 	}
 
 	@Override

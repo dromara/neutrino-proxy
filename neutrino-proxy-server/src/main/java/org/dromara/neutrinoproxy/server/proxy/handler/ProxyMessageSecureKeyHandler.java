@@ -66,11 +66,6 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         Integer licenseId = ctx.attr(Constants.LICENSE_ID).get();
         ProxyUtil.setSecureKey(licenseId, secureKey);
         ProxyUtil.setChannelSecurity(licenseId, ctx.channel());
-        Map<String, Channel> channelMap = ProxyUtil.getVisitorChannels(ctx.channel());
-        channelMap.values().forEach(channel -> ProxyUtil.setChannelSecurity(licenseId, channel));
-        if (licenseId != null) {
-            ProxyUtil.setLicenseIdRelativeChannelSecurity(licenseId);
-        }
     }
 
     @Override

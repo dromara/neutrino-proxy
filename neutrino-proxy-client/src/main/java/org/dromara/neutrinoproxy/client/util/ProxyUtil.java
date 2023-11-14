@@ -83,7 +83,9 @@ public class ProxyUtil {
 
 		tcpProxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
-				borrowListener.success(future.channel());
+                Channel newChannel = future.channel();
+                setChannelSecurity(newChannel);
+				borrowListener.success(newChannel);
 			} else {
 				borrowListener.error(future.cause());
 			}
@@ -115,7 +117,9 @@ public class ProxyUtil {
 
 		tcpProxyTunnelBootstrap.connect().addListener((ChannelFutureListener) future -> {
 			if (future.isSuccess()) {
-				borrowListener.success(future.channel());
+                Channel newChannel = future.channel();
+                setChannelSecurity(newChannel);
+				borrowListener.success(newChannel);
 			} else {
 				borrowListener.error(future.cause());
 			}
@@ -230,8 +234,30 @@ public class ProxyUtil {
     }
 
     public static void setChannelSecurity(Channel channel) {
+        if (null == secureKey) {
+            return;
+        }
         channel.attr(Constants.IS_SECURITY).set(true);
         channel.attr(Constants.SECURE_KEY).set(secureKey);
+    }
+
+    /**
+     * 设置代理通道为安全
+     */
+    public static void setProxyChannelSecurity() {
+        if (null == secureKey) {
+            return;
+        }
+        tcpProxyChannelPool.forEach(channel -> {
+            channel.attr(Constants.IS_SECURITY).set(true);
+            channel.attr(Constants.SECURE_KEY).set(secureKey);
+        });
+
+        udpProxyChannelPool.forEach(channel -> {
+            channel.attr(Constants.IS_SECURITY).set(true);
+            channel.attr(Constants.SECURE_KEY).set(secureKey);
+        });
+
     }
 
 }

@@ -24,11 +24,13 @@ public class ProxyMessageSecureKeyHandler implements ProxyMessageHandler {
         byte[] decryptedData = EncryptUtil.decryptByAes(secureKey, data);
         String m = new String(decryptedData);
         if ("ok".equals(m)) {
-            // 设置当前链路为安全，之后使用该链路传输的消息均会加密
+            // 设置当前cmd通道为安全，之后使用该通道传输的消息均会加密
             Attribute<Boolean> booleanAttribute = ctx.attr(Constants.IS_SECURITY);
             booleanAttribute.set(true);
 
+            // 设置代理通道为安全，之后使用代理通道传输的消息均会加密
             ProxyUtil.setSecureKey(secureKey);
+            ProxyUtil.setProxyChannelSecurity();
 
             log.info("Encrypted link established successfully");
         } else {

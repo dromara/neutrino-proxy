@@ -98,8 +98,6 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
             Attribute<byte[]> secureKeyAttr = ctx.attr(SECURE_KEY);
             byte[] secureKey = secureKeyAttr.get();
             // 解密
-            log.info("DecoderKey:{}", HexUtil.encodeHexStr(secureKey));
-            log.info("DecoderBytes:{}", HexUtil.encodeHexStr(encryptedBytes));
             byte[] decryptedData = EncryptUtil.decryptByAes(secureKey, encryptedBytes);
 
             buf = Unpooled.wrappedBuffer(decryptedData);

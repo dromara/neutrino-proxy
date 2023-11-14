@@ -62,7 +62,6 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
 							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
 							ProxyUtil.setRealServerChannelVisitorId(realServerChannel, visitorId);
-                            ProxyUtil.setChannelSecurity(channel);
 						}
 
 						@Override
