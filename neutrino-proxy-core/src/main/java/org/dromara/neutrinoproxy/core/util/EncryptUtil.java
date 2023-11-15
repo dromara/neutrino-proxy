@@ -27,10 +27,15 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.util.encoders.Hex;
 import org.dromara.neutrinoproxy.core.KeyPairRecord;
 
 import javax.crypto.SecretKey;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 /**
  *  国密算法加解密工具
@@ -44,14 +49,25 @@ public class EncryptUtil {
      * @return
      */
     public static KeyPairRecord generateSm2KeyPair() {
-        KeyPair keyPair = SecureUtil.generateKeyPair("SM2");
-        byte[] privateKeyBytes = keyPair.getPrivate().getEncoded();
-        byte[] publicKeyBytes = keyPair.getPublic().getEncoded();
 
-        String privateKey = HexUtil.encodeHexStr(privateKeyBytes);
-        String publicKey = HexUtil.encodeHexStr(publicKeyBytes);
+        String privateKeyHex = null;
+        String publicKeyHex = null;
 
-        return new KeyPairRecord(privateKey, publicKey);
+        KeyPair keyPair = Sm2Util.createECKeyPair();
+
+        PrivateKey privateKey = keyPair.getPrivate();
+        if (privateKey instanceof BCECPrivateKey) {
+            //获取32字节十六进制私钥串
+            privateKeyHex = ((BCECPrivateKey) privateKey).getD().toString(16);
+        }
+
+        PublicKey publicKey = keyPair.getPublic();
+        if (publicKey instanceof BCECPublicKey) {
+            //获取65字节非压缩缩的十六进制公钥串(0x04)
+            publicKeyHex = Hex.toHexString(((BCECPublicKey) publicKey).getQ().getEncoded(false));
+        }
+
+        return new KeyPairRecord(privateKeyHex, publicKeyHex);
     }
 
     /**
@@ -61,7 +77,7 @@ public class EncryptUtil {
      * @return 加密后的字节数组
      */
     public static byte[] encryptBySm2(String publicKey, byte[] data) {
-        return SmUtil.sm2(null, publicKey).encrypt(data);
+        return Sm2Util.encrypt(publicKey, data);
     }
 
     /**
@@ -71,7 +87,7 @@ public class EncryptUtil {
      * @return 解密后的字节数组
      */
     public static byte[] decryptBySm2(String privateKey, byte[] data) {
-        return SmUtil.sm2(privateKey, null).decrypt(data);
+        return Sm2Util.decrypt(privateKey, data);
     }
 
     public static byte[] generateSm4Key() {
@@ -99,7 +115,7 @@ public class EncryptUtil {
     }
 
     public static byte[] generateAesKey() {
-        return SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
+        return AesUtil.generateKey();
     }
 
     /**
@@ -109,8 +125,7 @@ public class EncryptUtil {
      * @return 加密后的数据
      */
     public static byte[] encryptByAes(byte[] key, byte[] data) {
-        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-        return aes.encrypt(data);
+        return AesUtil.encrypt(key, data);
     }
 
     /**
@@ -120,8 +135,7 @@ public class EncryptUtil {
      * @return 解密后的数据
      */
     public static byte[] decryptByAes(byte[] key, byte[] encryptedData) {
-        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-        return aes.decrypt(encryptedData);
+        return AesUtil.decrypt(key, encryptedData);
     }
 
     /**
