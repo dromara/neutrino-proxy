@@ -17,72 +17,72 @@
 
 （4）使用Hutool里的HttpUtil工具包，对每个文件进行下载，记录下载使用时间，重复执行10次
 
-## 测试结果
+## 3、测试结果
 
 序号| 加密方式 | 文件大小 |响应时间（ms）
----|------|------|---
-1| 不加密  | 1KB  |4
-2| SM2+AES | 1KB  |21
-3| SSL  | 1KB  |67
-4| 不加密  | 10KB |3
+---|---|---|---
+1| 不加密 | 1KB |4
+2| SM2+AES | 1KB |21
+3| SSL | 1KB |67
+4| 不加密 | 10KB |3
 5| SM2+AES | 10KB |7
-6| SSL  | 10KB |4
-7| 不加密  | 20KB |4
+6| SSL | 10KB |4
+7| 不加密 | 20KB |4
 8| SM2+AES | 20KB |6
-9| SSL  | 20KB |5
-10| 不加密  | 50KB |4
+9| SSL | 20KB |5
+10| 不加密 | 50KB |4
 11| SM2+AES | 50KB |7
-12| SSL  | 50KB |6
-13| 不加密  | 100KB |6
+12| SSL | 50KB |6
+13| 不加密 | 100KB |6
 14| SM2+AES | 100KB |8
-15| SSL  | 100KB |6
-16| 不加密  | 1MB  |19
-17| SM2+AES | 1MB  |30
-18| SSL  | 1MB  |19
-19| 不加密  | 2MB  |21
-20| SM2+AES | 2MB  |40
-21| SSL  | 2MB  |24
-22| 不加密  | 5MB  |31
-23| SM2+AES | 5MB  |51
-24| SSL  | 5MB  |36
-25| 不加密  | 10MB |44
+15| SSL | 100KB |6
+16| 不加密 | 1MB |19
+17| SM2+AES | 1MB |30
+18| SSL | 1MB |19
+19| 不加密 | 2MB |21
+20| SM2+AES | 2MB |40
+21| SSL | 2MB |24
+22| 不加密 | 5MB |31
+23| SM2+AES | 5MB |51
+24| SSL | 5MB |36
+25| 不加密 | 10MB |44
 26| SM2+AES | 10MB |85
-27| SSL  | 10MB |47
-28| 不加密  | 20MB |63
+27| SSL | 10MB |47
+28| 不加密 | 20MB |63
 29| SM2+AES | 20MB |139
-30| SSL  | 20MB |92
-31| 不加密  | 100MB |323
+30| SSL | 20MB |92
+31| 不加密 | 100MB |323
 32| SM2+AES | 100MB |590
-33| SSL  | 100MB |322
-34| 不加密  | 500MB |1414
+33| SSL | 100MB |322
+34| 不加密 | 500MB |1414
 35| SM2+AES | 500MB |2797
-36| SSL  | 500MB |1561
+36| SSL | 500MB |1561
 
-## 测试结论
+## 4、测试结论
 
-从测试结果可以看出，在请求的文件大小小于50KB时，SM2+AES的方式比SSL的方式效率高，当请求的文件大小大于50KB时，SSL的方式比SM2+AES的方式效率高。
+从测试结果可以看出，SSL加密的方式在大部分情况下比SM2+AES的加密方式效率高。
 
-## 测试使用的代码
+## 5、测试使用的代码
 ```java
-    public static void main(String[] args) {
-        int serialNumber = 1;
-        int[] ports = new int[]{9101, 9102, 9103};
-        Map<Integer, String> portMap = new HashMap<>();
-        portMap.put(9101, "不加密");
-        portMap.put(9102, "SM2+AES");
-        portMap.put(9103, "SSL");
-        HttpUtil.downloadBytes("http://127.0.0.1:9101/1KB"); // 使用不加密通道做一下测试，避免初始化时耗时过高
-        String[] fileNames = "1KB,10KB,20KB,50KB,100KB,1MB,2MB,5MB,10MB,20MB,100MB,500MB".split(",");
-        for (String fileName : fileNames) {
-            for (int port : ports) {
-                String url = String.format("http://127.0.0.1:%s/%s", port, fileName);
-                long startTime = System.currentTimeMillis();
-                HttpUtil.downloadBytes(url);
-                long endTime = System.currentTimeMillis();
-                long resTimeMs = endTime - startTime;
-                String record = String.format("%s|%s|%s|%s", serialNumber++, portMap.get(port), fileName, resTimeMs);
-                System.out.println(record);
-            }
+public static void main(String[] args) {
+    int serialNumber = 1;
+    int[] ports = new int[]{9101, 9102, 9103};
+    Map<Integer, String> portMap = new HashMap<>();
+    portMap.put(9101, "不加密");
+    portMap.put(9102, "SM2+AES");
+    portMap.put(9103, "SSL");
+    HttpUtil.downloadBytes("http://127.0.0.1:9101/1KB"); // 使用不加密通道做一下测试，避免初始化时耗时过高
+    String[] fileNames = "1KB,10KB,20KB,50KB,100KB,1MB,2MB,5MB,10MB,20MB,100MB,500MB".split(",");
+    for (String fileName : fileNames) {
+        for (int port : ports) {
+            String url = String.format("http://127.0.0.1:%s/%s", port, fileName);
+            long startTime = System.currentTimeMillis();
+            HttpUtil.downloadBytes(url);
+            long endTime = System.currentTimeMillis();
+            long resTimeMs = endTime - startTime;
+            String record = String.format("%s|%s|%s|%s", serialNumber++, portMap.get(port), fileName, resTimeMs);
+            System.out.println(record);
         }
     }
+}
 ```
