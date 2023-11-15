@@ -61,3 +61,28 @@
 ## 测试结论
 
 从测试结果可以看出，在请求的文件大小小于50KB时，SM2+AES的方式比SSL的方式效率高，当请求的文件大小大于50KB时，SSL的方式比SM2+AES的方式效率高。
+
+## 测试使用的代码
+```java
+    public static void main(String[] args) {
+        int serialNumber = 1;
+        int[] ports = new int[]{9101, 9102, 9103};
+        Map<Integer, String> portMap = new HashMap<>();
+        portMap.put(9101, "不加密");
+        portMap.put(9102, "SM2+AES");
+        portMap.put(9103, "SSL");
+        HttpUtil.downloadBytes("http://127.0.0.1:9101/1KB"); // 使用不加密通道做一下测试，避免初始化时耗时过高
+        String[] fileNames = "1KB,10KB,20KB,50KB,100KB,1MB,2MB,5MB,10MB,20MB,100MB,500MB".split(",");
+        for (String fileName : fileNames) {
+            for (int port : ports) {
+                String url = String.format("http://127.0.0.1:%s/%s", port, fileName);
+                long startTime = System.currentTimeMillis();
+                HttpUtil.downloadBytes(url);
+                long endTime = System.currentTimeMillis();
+                long resTimeMs = endTime - startTime;
+                String record = String.format("%s|%s|%s|%s", serialNumber++, portMap.get(port), fileName, resTimeMs);
+                System.out.println(record);
+            }
+        }
+    }
+```
