@@ -37,6 +37,7 @@ public class ProxyConfig {
 		private String jksPath;
 		private String serverIp;
 		private Integer serverPort;
+        private Boolean sm2EncryptEnable;
 		private Boolean sslEnable;
 		private Integer obtainLicenseInterval;
 		private String licenseKey;

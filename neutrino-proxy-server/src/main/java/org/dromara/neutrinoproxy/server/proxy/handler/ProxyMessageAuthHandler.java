@@ -77,8 +77,6 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-        log.info("收到客户端的认证连接信息");
-
 		String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 		Date now = new Date();
 

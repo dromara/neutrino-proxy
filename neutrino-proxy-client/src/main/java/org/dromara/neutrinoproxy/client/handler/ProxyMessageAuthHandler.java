@@ -31,7 +31,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		String info = proxyMessage.getInfo();
         ONode load = ONode.load(info);
         Integer code = load.get("code").getInt();
-		log.info("Auth result:{}", info);
+		log.info("Auth result: {}", load.get("msg").getString());
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");
@@ -44,6 +44,11 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		){
 			context.channel().close();
 		}
+
+        // 是否进行通道加密
+        if (!proxyConfig.getTunnel().getSm2EncryptEnable()) {
+            return;
+        }
 
         // 默认设置为非安全链路，需要服务端确认后，再设置为安全链路
         Attribute<Boolean> booleanAttribute = context.attr(Constants.IS_SECURITY);
