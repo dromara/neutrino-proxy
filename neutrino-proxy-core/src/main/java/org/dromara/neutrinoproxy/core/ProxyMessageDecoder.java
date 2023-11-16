@@ -124,10 +124,6 @@ public class ProxyMessageDecoder extends LengthFieldBasedFrameDecoder {
 
         buf.release();
 
-        if (isSecurity != null && isSecurity) {
-            log.info("【ProxyMessage】-type:{},编码解密", proxyMessage.getType());
-        }
-
         return proxyMessage;
     }
 }

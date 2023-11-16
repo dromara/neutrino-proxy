@@ -90,9 +90,6 @@ public class ProxyMessageEncoder extends MessageToByteEncoder<ProxyMessage> {
 
         // 考虑isSecurity为null的情况，null的情况也为false
         if (isSecurity != null && isSecurity) {
-
-            log.info("【ProxyMessage】-type:{},编码加密", msg.getType());
-
             // 执行加密
             byte[] data = new byte[buf.writerIndex()];
             buf.readBytes(data);
