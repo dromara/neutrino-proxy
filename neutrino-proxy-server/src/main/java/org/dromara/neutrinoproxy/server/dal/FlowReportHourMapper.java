@@ -45,8 +45,8 @@ public interface FlowReportHourMapper extends BaseMapper<FlowReportHourDO> {
 
     default List<FlowReportHourDO> findListByDateRange(Date startDate, Date endDate) {
         return this.selectList(new LambdaQueryWrapper<FlowReportHourDO>()
-                .ge(FlowReportHourDO::getDateStr, startDate)
-                .le(FlowReportHourDO::getDateStr, endDate)
+                .ge(FlowReportHourDO::getDate, startDate)
+                .le(FlowReportHourDO::getDate, endDate)
         );
     }
 
