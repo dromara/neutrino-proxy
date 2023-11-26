@@ -146,9 +146,13 @@ postList: none
 
 <div class="cardListContainer">
     <div class="card-list">
-        <a href="https://www.xigexb.com" target="_blank" class="card-item row-3" style="background-color:#102863;--random-color:#102863;color:#FFFFFF;">
+        <a href="https://www.xigexb.com?from=neutrino-proxy" target="_blank" class="card-item row-3" style="background-color:#102863;--random-color:#102863;color:#FFFFFF;">
             <img src="img/sponsor/xigexiaobao.jpg" class="no-zoom"> 
-            <div><p class="name">喜鸽小宝</p> <p class="desc">一个爱好写代码的同学</p></div>
+            <div><p class="name">喜鸽小宝</p> <p class="desc">一个爱好写代码的同学。</p></div>
+        </a>
+        <a href="https://7bu.top?from=neutrino-proxy" target="_blank" class="card-item row-3" style="background-color:#c6ddff;--random-color:#c6ddff;color:#000000;">
+            <img src="img/sponsor/7bu.ico" class="no-zoom"> 
+            <div><p class="name">去不图床</p> <p class="desc">杜老师说旗下付费图片外链平台。</p></div>
         </a>
     </div>
 </div>
