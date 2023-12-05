@@ -92,6 +92,12 @@ public class PortMappingDO {
 	 * {@link EnableStatusEnum}
 	 */
 	private Integer enable;
+
+    /**
+     * 安全组Id
+     */
+    private Integer securityGroupId;
+
 	/**
 	 * 创建时间
 	 */
