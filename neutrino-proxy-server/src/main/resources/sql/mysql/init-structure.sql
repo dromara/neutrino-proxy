@@ -50,6 +50,35 @@ CREATE TABLE IF NOT EXISTS `port_group` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
+#安全组
+CREATE TABLE IF NOT EXISTS `security_group` (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `name` varchar(20) NOT NULL COMMENT '安全组名称',
+    `description` varchar(255) COMMENT '安全组描述',
+    `user_id` int NOT NULL COMMENT '用户ID',
+    `enable` int(1) NOT NULL COMMENT '启用状态',
+    `create_time` datetime(3) NOT NULL COMMENT '创建时间',
+    `update_time` datetime(3) NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+#安全组规则
+CREATE TABLE IF NOT EXISTS `security_rule` (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `group_id` int NOT NULL COMMENT '关联安全组',
+    `name` varchar(20) NOT NULL COMMENT '规则名称',
+    `description` varchar(255) NOT NULL COMMENT '规则描述',
+    `rule` text NOT NULL COMMENT '规则内容',
+    `pass_type` int(1) NOT NULL COMMENT '放行类型',
+    `priority` int(1) NOT NULL COMMENT '优先级',
+    `user_id` int NOT NULL COMMENT '用户ID',
+    `enable` int(1) NOT NULL COMMENT '启用状态',
+    `create_time` datetime(3) NOT NULL COMMENT '创建时间',
+    `update_time` datetime(3) NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `I_group_id_priority` (`group_id`, `priority`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 #############################代理配置相关表#############################
 #license表
 CREATE TABLE IF NOT EXISTS `license` (
@@ -207,3 +236,4 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     KEY `I_flow_report_month_user_id` (`user_id`),
     KEY `I_flow_report_month_license_id` (`license_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

@@ -38,7 +38,7 @@ public class SecurityGroupDO {
      * 启用状态
      * {@link EnableStatusEnum}
      */
-    private Integer enable;
+    private EnableStatusEnum enable;
     /**
      * 创建时间
      */

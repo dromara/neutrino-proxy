@@ -6,8 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SecurityRulePassTypeEnum {
-    REJECT(0, "reject"),
-    ALLOW(1, "allow")
+    DENY(-1, "DENY"),
+    ALLOW(1, "allow"),
+    NONE(0, "none")
     ;
 
     private final Integer code;

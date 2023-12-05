@@ -10,7 +10,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
-import org.noear.solon.core.util.IpUtil;
 
 import java.util.Date;
 
@@ -18,7 +17,7 @@ import java.util.Date;
 @ToString
 @Accessors(chain = true)
 @TableName("security_rule")
-public class SecurityRule {
+public class SecurityRuleDO {
 
     @TableId(type = IdType.AUTO)
     private Integer id;
@@ -68,7 +67,7 @@ public class SecurityRule {
      * 启用状态
      * {@link EnableStatusEnum}
      */
-    private Integer enable;
+    private EnableStatusEnum enable;
     /**
      * 创建时间
      */
@@ -83,16 +82,16 @@ public class SecurityRule {
      * @param ip
      * @return
      */
-    public boolean allow(String ip) {
+    public SecurityRulePassTypeEnum allow(String ip) {
 
-        // 被判断的IP地址为空，不允许访问
+        // 被判断的IP地址为空，不做判断
         if (StrUtil.isEmpty(ip)) {
-            return false;
+            return SecurityRulePassTypeEnum.NONE;
         }
 
         // 没有规则，默认允许访问
         if (StrUtil.isEmpty(rule)) {
-            return true;
+            return SecurityRulePassTypeEnum.ALLOW;
         }
 
         // ipv6只适配单ip形式
@@ -107,14 +106,16 @@ public class SecurityRule {
 
             // 单个ip,ipv6在此步已处理，后面不需要额外判断ipv6的情况
             if (rule.matches("(\\d+\\.){3}\\d+") || isIpv6) {
-                return passType == SecurityRulePassTypeEnum.ALLOW && rule.equals(ip);
+                if (rule.equals(ip)) {
+                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
+                }
             }
 
             // 范围类型
             if (rule.matches("(\\d+\\.){3}\\d+-(\\d+\\.){3}\\d+")) {
                 String[] ipRange = rule.split("-");
                 if (ipRange[0].compareTo(ip) <= 0 && ip.compareTo(ipRange[1]) <= 0) {
-                    return passType == SecurityRulePassTypeEnum.ALLOW;
+                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }
 
@@ -124,18 +125,18 @@ public class SecurityRule {
                 Long beginIp = Ipv4Util.getBeginIpLong(netIp[0], Integer.valueOf(netIp[1]));
                 Long endIp = Ipv4Util.getEndIpLong(netIp[0], Integer.valueOf(netIp[1]));
                 if (beginIp <= ipLong && ipLong <= endIp) {
-                    return passType == SecurityRulePassTypeEnum.ALLOW;
+                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }
 
             if (rule.equalsIgnoreCase("ALL") || rule.equals("0.0.0.0") || rule.equals("0..0.0.0/0")) {
-                return passType == SecurityRulePassTypeEnum.ALLOW;
+                return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
             }
 
         }
 
-        // 都没有匹配到，默认放行
-        return true;
+        // 都没有匹配到
+        return SecurityRulePassTypeEnum.NONE;
     }
 
 }
