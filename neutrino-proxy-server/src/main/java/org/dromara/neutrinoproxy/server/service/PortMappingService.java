@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -168,7 +169,7 @@ public class PortMappingService implements LifecycleBean {
         return new PortMappingCreateRes();
     }
 
-    public PortMappingUpdateRes update(PortMappingUpdateReq req) {
+    public void update(PortMappingUpdateReq req) {
         LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
         ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
         if (!SystemContextHolder.isAdmin()) {
@@ -185,16 +186,7 @@ public class PortMappingService implements LifecycleBean {
         ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
         PortMappingDO portMappingDO = new PortMappingDO();
-        portMappingDO.setId(req.getId());
-        portMappingDO.setProtocal(req.getProtocal());
-        portMappingDO.setSubdomain(req.getSubdomain());
-        portMappingDO.setLicenseId(req.getLicenseId());
-        portMappingDO.setServerPort(req.getServerPort());
-        portMappingDO.setClientIp(req.getClientIp());
-        portMappingDO.setClientPort(req.getClientPort());
-        portMappingDO.setProxyResponses(req.getProxyResponses());
-        portMappingDO.setProxyTimeoutMs(req.getProxyTimeoutMs());
-        portMappingDO.setDescription(req.getDescription());
+        BeanUtil.copyProperties(req, portMappingDO);
         portMappingDO.setUpdateTime(new Date());
         portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
         portMappingMapper.updateById(portMappingDO);
@@ -208,7 +200,6 @@ public class PortMappingService implements LifecycleBean {
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
-        return new PortMappingUpdateRes();
     }
 
     public PortMappingDetailRes detail(Integer id) {

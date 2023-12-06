@@ -173,6 +173,7 @@ export default {
     protocalName: '协议',
     supportStatus: '支持状态',
     domainName: '域名',
+    securityGroup: '安全组',
     defaultPassType: '默认放行类型',
     ruleName: '规则名称',
     rule: '规则内容',
@@ -180,9 +181,10 @@ export default {
     priority: '优先级',
     ruleConfig: '规则配置',
     portMappingBindSecurityGroup: '绑定安全组',
-    securityGroupBindPortMapping: '绑定端口映射',
+    securityGroupBindPortMapping: '端口映射绑定',
     bind: '绑定',
-    unbind: '解绑'
+    unbind: '解绑',
+    bindOtherSecurityGroup: '已绑定其他安全组'
   },
   button: {
     lookOver: '查看'
