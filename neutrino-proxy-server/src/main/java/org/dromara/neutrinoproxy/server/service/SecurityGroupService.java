@@ -61,6 +61,10 @@ public class SecurityGroupService {
             .eq(SecurityGroupDO::getUserId, SystemContextHolder.getUserId()));
     }
 
+    public SecurityGroupDO queryGroupOne(Integer groupId) {
+        return securityGroupMapper.selectById(groupId);
+    }
+
     public void createGroup(SecurityGroupCreateReq req) {
         SecurityGroupDO groupDO = new SecurityGroupDO();
         BeanUtil.copyProperties(req, groupDO);
@@ -80,8 +84,8 @@ public class SecurityGroupService {
     }
 
     public void setGroupStatus(Integer groupId, EnableStatusEnum statusEnum) {
-        SecurityGroupDO groupDO = securityGroupMap.get(groupId);
-        if (groupDO == null || groupDO.getEnable() == EnableStatusEnum.DISABLE) {
+        SecurityGroupDO groupDO = securityGroupMapper.selectById(groupId);
+        if (groupDO == null) {
             throw new RuntimeException("指定的安全组不存在");
         }
         groupDO.setEnable(statusEnum);

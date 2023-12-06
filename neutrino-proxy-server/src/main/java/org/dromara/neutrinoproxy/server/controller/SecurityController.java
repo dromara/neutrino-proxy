@@ -36,6 +36,12 @@ public class SecurityController {
         return groupDOList.stream().map(SecurityGroupDO::toRes).collect(Collectors.toList());
     }
 
+    @Get
+    @Mapping("/group/getOne")
+    public SecurityGroupRes getGroupOne(Integer groupId) {
+        return groupService.queryGroupOne(groupId).toRes();
+    }
+
     @Post
     @Mapping("/group/create")
     public void createGroup(SecurityGroupCreateReq req) {
@@ -50,7 +56,7 @@ public class SecurityController {
 
     /**
      * 将级联删除对应规则,并更新缓存
-     * @param groupId
+     * @param groupId 安全组Id
      */
     @Post
     @Mapping("/group/delete")

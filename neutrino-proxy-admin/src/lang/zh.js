@@ -48,6 +48,8 @@ export default {
     user: '用户管理',
     system: '系统管理',
     portPool: '端口池管理',
+    securityGroup: '安全组管理',
+    securityRule: '安全规则管理',
     portGroup: '端口分组管理',
     protocal: '协议管理',
     proxy: '代理配置',
@@ -128,6 +130,7 @@ export default {
     confirm: '确 定',
     userId: '用户ID',
     userName: '用户名',
+    name: '名称',
     group: '分组',
     groupName: '分组名称',
     groupPossessor: '分组所属',
@@ -169,7 +172,17 @@ export default {
     totalFlow: '总流量',
     protocalName: '协议',
     supportStatus: '支持状态',
-    domainName: '域名'
+    domainName: '域名',
+    defaultPassType: '默认放行类型',
+    ruleName: '规则名称',
+    rule: '规则内容',
+    passType: '放行类型',
+    priority: '优先级',
+    ruleConfig: '规则配置',
+    portMappingBindSecurityGroup: '绑定安全组',
+    securityGroupBindPortMapping: '绑定端口映射',
+    bind: '绑定',
+    unbind: '解绑'
   },
   button: {
     lookOver: '查看'
