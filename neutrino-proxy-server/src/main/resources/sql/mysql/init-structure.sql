@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `security_group` (
     `description` varchar(255) COMMENT '安全组描述',
     `user_id` int NOT NULL COMMENT '用户ID',
     `enable` int(1) NOT NULL COMMENT '启用状态',
+    `default_pass_type` int(1) NOT NULL COMMENT '默认放行类型',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`)

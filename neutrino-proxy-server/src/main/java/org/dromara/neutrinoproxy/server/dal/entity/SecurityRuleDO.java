@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.dal.entity;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.net.Ipv4Util;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -10,6 +11,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleRes;
 
 import java.util.Date;
 
@@ -137,6 +139,13 @@ public class SecurityRuleDO {
 
         // 都没有匹配到
         return SecurityRulePassTypeEnum.NONE;
+    }
+
+    public SecurityRuleRes toRes() {
+        SecurityRuleRes res = new SecurityRuleRes();
+        BeanUtil.copyProperties(this, res);
+        res.setPassType(this.passType.getDesc());
+        return res;
     }
 
 }

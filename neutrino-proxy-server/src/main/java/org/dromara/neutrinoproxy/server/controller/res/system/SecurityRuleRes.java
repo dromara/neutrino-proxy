@@ -8,7 +8,7 @@ import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
 @Data
 @ToString
 @Accessors(chain = true)
-public class SecurityRuleListRes {
+public class SecurityRuleRes {
 
     private Integer id;
 
@@ -41,7 +41,7 @@ public class SecurityRuleListRes {
      * 放行类型，reject 或 allow
      * {@link SecurityRulePassTypeEnum}
      */
-    private SecurityRulePassTypeEnum passType;
+    private String passType;
 
     /**
      * 优先级，数字越小，优先级越高

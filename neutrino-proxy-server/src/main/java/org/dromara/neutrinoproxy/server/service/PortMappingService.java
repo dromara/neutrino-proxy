@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -73,6 +74,9 @@ public class PortMappingService implements LifecycleBean {
     private ProxyConfig proxyConfig;
     @Inject
     private DBInitialize dbInitialize;
+
+    /** 端口到安全组Id的映射 */
+    private final Map<Integer, Integer> portToSecurityGroupMap = new ConcurrentHashMap<>();
 
     public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
         if (StringUtils.isNotEmpty(req.getDescription())) {
@@ -281,6 +285,28 @@ public class PortMappingService implements LifecycleBean {
         }
     }
 
+    public void portBindSecurityGroup(Integer portMappingId, Integer groupId) {
+        PortMappingDO mappingDO = portMappingMapper.findById(portMappingId);
+        if (mappingDO == null) {
+            throw new RuntimeException("指定的端口映射不存在");
+        }
+        mappingDO.setSecurityGroupId(groupId);
+        mappingDO.setUpdateTime(new Date());
+        portMappingMapper.updateById(mappingDO);
+        portToSecurityGroupMap.put(mappingDO.getServerPort(), groupId);
+    }
+
+    public void portUnbindSecurityGroup(Integer portMappingId) {
+        PortMappingDO mappingDO = portMappingMapper.findById(portMappingId);
+        if (mappingDO == null) {
+            throw new RuntimeException("指定的端口映射不存在");
+        }
+        mappingDO.setSecurityGroupId(null);
+        mappingDO.setUpdateTime(new Date());
+        portMappingMapper.updateById(mappingDO);
+        portToSecurityGroupMap.remove(mappingDO.getServerPort());
+    }
+
     /**
      * 根据license查询可用的端口映射列表
      *
@@ -290,6 +316,11 @@ public class PortMappingService implements LifecycleBean {
     public List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
         return portMappingMapper.findEnableListByLicenseId(licenseId);
     }
+
+    public Integer getSecurityGroupIdByMappingPor(Integer port) {
+        return portToSecurityGroupMap.get(port);
+    }
+
 
     /**
      * 服务端项目停止、启动时，更新在线状态为离线
@@ -315,6 +346,9 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
+            if (item.getSecurityGroupId() != null) {
+                portToSecurityGroupMap.put(item.getServerPort(), item.getSecurityGroupId());
+            }
         });
     }
 

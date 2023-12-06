@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.dal.entity;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -7,6 +8,8 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupRes;
 
 import java.util.Date;
 
@@ -39,6 +42,13 @@ public class SecurityGroupDO {
      * {@link EnableStatusEnum}
      */
     private EnableStatusEnum enable;
+
+    /**
+     * 默认放行类型
+     * {@link SecurityRulePassTypeEnum}
+     */
+    private SecurityRulePassTypeEnum defaultPassType;
+
     /**
      * 创建时间
      */
@@ -47,6 +57,14 @@ public class SecurityGroupDO {
      * 更新时间
      */
     private Date updateTime;
+
+    public SecurityGroupRes toRes() {
+        SecurityGroupRes res = new SecurityGroupRes();
+        BeanUtil.copyProperties(this, res);
+        res.setEnable(enable.getDesc());
+        res.setDefaultPassType(defaultPassType.getDesc());
+        return res;
+    }
 
 
 }

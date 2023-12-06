@@ -9,11 +9,15 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
+import org.dromara.neutrinoproxy.server.service.PortMappingService;
+import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
+import org.noear.solon.annotation.Inject;
 
 import java.net.InetSocketAddress;
 
@@ -24,6 +28,12 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+
+    @Inject
+    private SecurityGroupService securityGroupService;
+
+    @Inject
+    private PortMappingService portMappingService;
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -64,7 +74,11 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
-
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPor(sa.getPort()))) {
+            // 不在安全组规则放行范围内
+            ctx.channel().close();
+            return;
+        }
 
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
         if (null == cmdChannel) {

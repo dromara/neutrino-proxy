@@ -13,6 +13,8 @@ import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.noear.solon.annotation.*;
 
+import java.util.List;
+
 /**
  * 端口映射
  * @author: aoshiguchen
@@ -119,4 +121,27 @@ public class PortMappingController {
 
 		portMappingService.delete(req.getId());
 	}
+
+    /**
+     * 绑定安全组
+     * @param portMappingId 端口映射Id
+     * @param securityGroupId 安全组Id
+     */
+    @Post
+    @Mapping("/bind/security-group")
+    public void bindSecurityGroup(Integer portMappingId, Integer securityGroupId) {
+        portMappingService.portBindSecurityGroup(portMappingId, securityGroupId);
+    }
+
+    /**
+     * 安全组解绑
+     * @param portMappingId 端口映射Id
+     */
+    @Post
+    @Mapping("/unbind/security-group")
+    public void unbindSecurityGroup(Integer portMappingId) {
+        portMappingService.portUnbindSecurityGroup(portMappingId);
+    }
+
+
 }

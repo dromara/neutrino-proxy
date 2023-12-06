@@ -1,108 +1,117 @@
 package org.dromara.neutrinoproxy.server.controller;
 
-import org.dromara.neutrinoproxy.server.base.page.PageInfo;
+import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupCreateReq;
 import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListReq;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleListRes;
-import org.noear.solon.annotation.Controller;
-import org.noear.solon.annotation.Get;
-import org.noear.solon.annotation.Mapping;
-import org.noear.solon.annotation.Post;
+import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleCreateReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleUpdateReq;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleRes;
+import org.dromara.neutrinoproxy.server.dal.entity.SecurityGroupDO;
+import org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO;
+import org.dromara.neutrinoproxy.server.service.PortMappingService;
+import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
+import org.noear.solon.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Mapping("/security")
 public class SecurityController {
 
+    @Inject
+    private SecurityGroupService groupService;
+
+    @Inject
+    private PortMappingService portMappingService;
 
     /**
      * 获取当前用户权限下的安全组
      */
     @Get
     @Mapping("/group/s")
-    public List<SecurityGroupListReq> getGroups() {
-
-        return null;
+    public List<SecurityGroupRes> getGroups() {
+        List<SecurityGroupDO> groupDOList = groupService.queryGroupList();
+        return groupDOList.stream().map(SecurityGroupDO::toRes).collect(Collectors.toList());
     }
 
     @Post
     @Mapping("/group/create")
     public void createGroup(SecurityGroupCreateReq req) {
-
+        groupService.createGroup(req);
     }
 
     @Post
     @Mapping("/group/update")
     public void updateGroup(SecurityGroupUpdateReq req) {
-
+        groupService.updateGroup(req);
     }
 
     /**
-     * 将级联删除对应规则
+     * 将级联删除对应规则,并更新缓存
      * @param groupId
      */
     @Post
     @Mapping("/group/delete")
-    public void updateGroup(Integer groupId) {
-
+    public void deleteGroup(Integer groupId) {
+        groupService.deleteGroup(groupId);
     }
 
     @Post
     @Mapping("/group/enable")
     public void enableGroup(Integer groupId) {
-
+        groupService.setGroupStatus(groupId, EnableStatusEnum.ENABLE);
     }
 
     @Post
     @Mapping("/group/disable")
     public void disableGroup(Integer groupId) {
-
+        groupService.setGroupStatus(groupId, EnableStatusEnum.DISABLE);
     }
 
     @Post
     @Mapping("/port/bind/group")
     public void portBindGroup(Integer portId, Integer groupId) {
-
+        portMappingService.portBindGroup(portId, groupId);
     }
 
     @Get
     @Mapping("/rule/s")
-    public List<SecurityRuleListRes> getRulesByGroupId(Integer groupId) {
-
-        return null;
+    public List<SecurityRuleRes> getRulesByGroupId(Integer groupId) {
+        List<SecurityRuleDO> ruleDOList = groupService.queryRuleListByGroupId(groupId);
+        return ruleDOList.stream().map(SecurityRuleDO::toRes).collect(Collectors.toList());
     }
 
     @Post
     @Mapping("/rule/create")
-    public void createRule() {
-
+    public void createRule(SecurityRuleCreateReq req) {
+        groupService.createRule(req);
     }
 
     @Post
     @Mapping("/rule/update")
-    public void updateRule() {
-
+    public void updateRule(SecurityRuleUpdateReq req) {
+        groupService.updateRule(req);
     }
 
     @Post
     @Mapping("/rule/delete")
     public void deleteRule(Integer ruleId) {
-
+        groupService.deleteRule(ruleId);
     }
 
 
     @Post
     @Mapping("/rule/enable")
     public void enableRule(Integer ruleId) {
-
+        groupService.setRuleStatus(ruleId, EnableStatusEnum.ENABLE);
     }
 
     @Post
     @Mapping("/rule/disable")
     public void disableRule(Integer ruleId) {
-
+        groupService.setRuleStatus(ruleId, EnableStatusEnum.DISABLE);
     }
 
 }
