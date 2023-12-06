@@ -1,6 +1,8 @@
 package org.dromara.neutrinoproxy.server.dal.entity;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -61,8 +63,10 @@ public class SecurityGroupDO {
     public SecurityGroupRes toRes() {
         SecurityGroupRes res = new SecurityGroupRes();
         BeanUtil.copyProperties(this, res);
-        res.setEnable(enable.getDesc());
-        res.setDefaultPassType(defaultPassType.getDesc());
+        res.setEnable(enable.getDesc())
+            .setDefaultPassType(defaultPassType.getDesc())
+            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
+            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT));
         return res;
     }
 

@@ -70,12 +70,6 @@ public class SecurityController {
         groupService.setGroupStatus(groupId, EnableStatusEnum.DISABLE);
     }
 
-    @Post
-    @Mapping("/port/bind/group")
-    public void portBindGroup(Integer portId, Integer groupId) {
-        portMappingService.portBindGroup(portId, groupId);
-    }
-
     @Get
     @Mapping("/rule/s")
     public List<SecurityRuleRes> getRulesByGroupId(Integer groupId) {

@@ -1,12 +1,14 @@
 package org.dromara.neutrinoproxy.server.controller.res.system;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
 
 import java.util.Date;
 
 @Data
+@Accessors(chain = true)
 public class SecurityGroupRes {
 
     private Integer id;
@@ -36,11 +38,11 @@ public class SecurityGroupRes {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
     /**
      * 更新时间
      */
-    private Date updateTime;
+    private String updateTime;
 
 
 

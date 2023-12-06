@@ -21,6 +21,7 @@ import org.dromara.neutrinoproxy.server.dal.entity.SecurityGroupDO;
 import org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import java.util.Date;
 import java.util.List;
@@ -42,7 +43,7 @@ public class SecurityGroupService {
     // 允许通过控制的缓存，缓存类型最近最久未使用缓存，容量100，超时时间5分钟
     private final Cache<String, Boolean> ipAllowControlCache = CacheUtil.newLRUCache(100, 1000 * 60 * 5);
 
-    @Init
+    @Init(index = 100)
     public synchronized void init() {
         securityGroupMap.clear();
         List<SecurityGroupDO> groupDOList = securityGroupMapper.selectList(Wrappers.lambdaQuery(SecurityGroupDO.class)
@@ -63,7 +64,10 @@ public class SecurityGroupService {
     public void createGroup(SecurityGroupCreateReq req) {
         SecurityGroupDO groupDO = new SecurityGroupDO();
         BeanUtil.copyProperties(req, groupDO);
-        groupDO.setUserId(SystemContextHolder.getUserId());
+        groupDO.setEnable(EnableStatusEnum.ENABLE)
+            .setUserId(SystemContextHolder.getUserId())
+            .setCreateTime(new Date())
+            .setUpdateTime(new Date());
         securityGroupMapper.insert(groupDO);
         init();
     }
@@ -87,7 +91,7 @@ public class SecurityGroupService {
 
     /**
      * 删除安全组，并级联删除安全组下的规则，删除后，需缓存
-     * @param groupId
+     * @param groupId 安全组Id
      */
     public void deleteGroup(Integer groupId) {
         securityGroupMapper.deleteById(groupId);
@@ -106,7 +110,10 @@ public class SecurityGroupService {
     public void createRule(SecurityRuleCreateReq req) {
         SecurityRuleDO ruleDO = new SecurityRuleDO();
         BeanUtil.copyProperties(req, ruleDO);
-        ruleDO.setUserId(SystemContextHolder.getUserId());
+        ruleDO.setUserId(SystemContextHolder.getUserId())
+                .setCreateTime(new Date())
+                .setEnable(EnableStatusEnum.ENABLE)
+                .setUpdateTime(new Date());
         securityRuleMapper.insert(ruleDO);
         clearCache();
     }

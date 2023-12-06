@@ -1,6 +1,8 @@
 package org.dromara.neutrinoproxy.server.dal.entity;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.net.Ipv4Util;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -80,9 +82,9 @@ public class SecurityRuleDO {
     private Date updateTime;
 
     /**
-     * 判断当前规则是否允许指定ip同行
-     * @param ip
-     * @return
+     * 判断当前规则是否允许指定ip放行
+     * @param ip 指定的IP
+     * @return 放行状态
      */
     public SecurityRulePassTypeEnum allow(String ip) {
 
@@ -124,8 +126,8 @@ public class SecurityRuleDO {
             // 掩码类型
             if (rule.matches("(\\d+\\.){3}\\d+/\\d+")) {
                 String[] netIp = rule.split("/");
-                Long beginIp = Ipv4Util.getBeginIpLong(netIp[0], Integer.valueOf(netIp[1]));
-                Long endIp = Ipv4Util.getEndIpLong(netIp[0], Integer.valueOf(netIp[1]));
+                Long beginIp = Ipv4Util.getBeginIpLong(netIp[0], Integer.parseInt(netIp[1]));
+                Long endIp = Ipv4Util.getEndIpLong(netIp[0], Integer.parseInt(netIp[1]));
                 if (beginIp <= ipLong && ipLong <= endIp) {
                     return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
@@ -144,7 +146,11 @@ public class SecurityRuleDO {
     public SecurityRuleRes toRes() {
         SecurityRuleRes res = new SecurityRuleRes();
         BeanUtil.copyProperties(this, res);
-        res.setPassType(this.passType.getDesc());
+        res.setPassType(this.passType.getDesc())
+            .setEnable(this.getEnable().getDesc())
+            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
+            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT))
+        ;
         return res;
     }
 

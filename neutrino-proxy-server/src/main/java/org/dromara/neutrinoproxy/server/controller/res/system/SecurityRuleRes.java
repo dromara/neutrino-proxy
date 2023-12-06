@@ -3,7 +3,10 @@ package org.dromara.neutrinoproxy.server.controller.res.system;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
+
+import java.util.Date;
 
 @Data
 @ToString
@@ -47,5 +50,19 @@ public class SecurityRuleRes {
      * 优先级，数字越小，优先级越高
      */
     private Integer priority;
+
+    /**
+     * 启用状态
+     */
+    private String enable;
+
+    /**
+     * 创建时间
+     */
+    private String createTime;
+    /**
+     * 更新时间
+     */
+    private String updateTime;
 
 }
