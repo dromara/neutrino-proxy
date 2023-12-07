@@ -135,7 +135,7 @@ public class SecurityRuleDO {
                 }
             }
 
-            if (rule.equalsIgnoreCase("ALL") || rule.equals("0.0.0.0") || rule.equals("0..0.0.0/0")) {
+            if (rule.equalsIgnoreCase("ALL") || rule.equals("0.0.0.0") || rule.equals("0.0.0.0/0")) {
                 return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
             }
 
