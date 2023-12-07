@@ -8,7 +8,7 @@
       <el-button size="mini" @click="handleCancelClick">{{cancelText}}</el-button>
       <el-button type="primary" size="mini" @click="handleCommitClick">{{okText}}</el-button>
     </div>
-    <el-link slot="reference" :underline="false" :type="type" :size="size" :icon="icon" :disabled="disabled" style="width: 100%;text-align: left;">{{buttonText}}</el-link>
+    <el-link slot="reference" :underline="false" :type="type" :size="size" :icon="icon" :disabled="disabled" style="text-align: left; font-size: 12px">{{buttonText}}</el-link>
   </el-popover>
 </template>
 

@@ -500,6 +500,9 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      if (row.securityGroupId === 0) {
+        this.temp.securityGroupId = null
+      }
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true

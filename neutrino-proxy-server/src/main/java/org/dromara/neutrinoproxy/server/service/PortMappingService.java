@@ -187,6 +187,9 @@ public class PortMappingService implements LifecycleBean {
 
         PortMappingDO portMappingDO = new PortMappingDO();
         BeanUtil.copyProperties(req, portMappingDO);
+        if (req.getSecurityGroupId() == null) {
+            portMappingDO.setSecurityGroupId(0);
+        }
         portMappingDO.setUpdateTime(new Date());
         portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
         portMappingMapper.updateById(portMappingDO);
@@ -292,7 +295,7 @@ public class PortMappingService implements LifecycleBean {
         if (mappingDO == null) {
             throw new RuntimeException("指定的端口映射不存在");
         }
-        mappingDO.setSecurityGroupId(null);
+        mappingDO.setSecurityGroupId(0);
         mappingDO.setUpdateTime(new Date());
         portMappingMapper.updateById(mappingDO);
         portToSecurityGroupMap.remove(mappingDO.getServerPort());

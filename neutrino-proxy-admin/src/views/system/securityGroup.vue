@@ -24,7 +24,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.defaultPassType')">
         <template slot-scope="scope">
-          <span>{{scope.row.defaultPassType}}</span>
+          <el-tag type="success" v-if="scope.row.defaultPassType == 'allow'">允许</el-tag>
+          <el-tag type="info" v-if="scope.row.defaultPassType == 'deny'">拒绝</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.createTime')">
@@ -45,14 +46,14 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')"  class-name="small-padding fixed-width" style="display:flex;justify-content:center">
         <template slot-scope="scope">
-          <div>
-            <el-link :underline="false" type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-link>
-            <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)">{{$t('table.disable')}}</el-link>
-            <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)">{{$t('table.enable')}}</el-link>
-            <el-link :underline="false" type="primary" size="mini" @click="handleGoRulePage(scope.row)">{{$t('table.ruleConfig')}}</el-link>
+          <div >
+            <el-link :underline="false" type="primary" size="mini" @click="handleUpdate(scope.row)" style="font-size: 12px">{{$t('table.edit')}}</el-link>
+            <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size: 12px">{{$t('table.disable')}}</el-link>
+            <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size: 12px">{{$t('table.enable')}}</el-link>
+            <el-link :underline="false" type="primary" size="mini" @click="handleGoRulePage(scope.row)" style="font-size: 12px">{{$t('table.ruleConfig')}}</el-link>
           </div>
           <el-dropdown>
-            <span class="el-dropdown-link">
+            <span class="el-dropdown-link" style="font-size: 12px">
               更多操作<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
@@ -60,7 +61,7 @@
                 <LinkPopover @handleCommitClick="handleDelete(scope.row)" style="width: 100%"/>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-link :underline="false" type="primary" size="mini" @click="handlePortMapping(scope.row)">{{$t('table.securityGroupBindPortMapping')}}</el-link>
+                <el-link :underline="false" type="primary" size="mini" @click="handlePortMapping(scope.row)" style="font-size: 12px">{{$t('table.securityGroupBindPortMapping')}}</el-link>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -198,7 +199,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           update: '编辑',
           create: '新建'
         },
-        passTypeList: [{key: 'allow', value: 1}, {key: 'deny', value: -1}],
+        passTypeList: [{key: '允许', value: 1}, {key: '拒绝', value: 0}],
         dialogPvVisible: false,
         pvData: [],
         rules: {
@@ -326,6 +327,7 @@ import LinkPopover from '../../components/Link/linkPopover'
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
+        this.temp.defaultPassType = row.defaultPassType == 'allow' ? 1 : 0
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
@@ -409,3 +411,8 @@ import LinkPopover from '../../components/Link/linkPopover'
     }
   }
 </script>
+<style>
+  .filter-container {
+    text-align: right;
+  }
+</style>

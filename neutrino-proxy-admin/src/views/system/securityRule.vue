@@ -35,8 +35,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.passType')">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.passType == 'allow'" effect="dark">{{scope.row.passType}}</el-tag>
-          <el-tag type="info" v-if="scope.row.passType == 'deny'" effect="dark">{{scope.row.passType}}</el-tag>
+          <el-tag type="success" v-if="scope.row.passType == 'allow'" effect="dark">允许</el-tag>
+          <el-tag type="info" v-if="scope.row.passType == 'deny'" effect="dark">拒绝</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.priority')">
@@ -62,11 +62,10 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)">{{$t('table.disable')}}</el-button>
-          <el-button v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)">{{$t('table.enable')}}</el-button>
-<!--          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
-            <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px"/>
+          <el-link type="primary" :underline="false" size="mini" @click="handleUpdate(scope.row)" style="font-size:12px">{{$t('table.edit')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size:12px">{{$t('table.disable')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size:12px">{{$t('table.enable')}}</el-link>
+          <LinkPopover @handleCommitClick="handleDelete(scope.row)"/>
         </template>
       </el-table-column>
     </el-table>
@@ -132,7 +131,7 @@
 import {fetchGroupOne, fetchRuleList, createRule, updateRule, deleteRule, enableRule, disableRule} from '@/api/securityGroup'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
-import ButtonPopover from '../../components/Button/buttonPopover'
+import LinkPopover from '../../components/Link/linkPopover'
 
   export default {
     name: 'complexTable',
@@ -140,7 +139,7 @@ import ButtonPopover from '../../components/Button/buttonPopover'
       waves
     },
     components: {
-      ButtonPopover
+      LinkPopover
     },
     data() {
       return {
@@ -164,7 +163,7 @@ import ButtonPopover from '../../components/Button/buttonPopover'
           update: '编辑',
           create: '新建'
         },
-        passTypeList: [{key: 'allow', value: 1}, {key: 'deny', value: 0}],
+        passTypeList: [{key: '允许', value: 1}, {key: '拒绝', value: 0}],
         dialogPvVisible: false,
         pvData: [],
         rules: {
@@ -304,6 +303,7 @@ import ButtonPopover from '../../components/Button/buttonPopover'
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
+        this.temp.passType = row.passType == 'allow' ? 1 : 0
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true

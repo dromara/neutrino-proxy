@@ -97,7 +97,7 @@ public class PortMappingDO {
     /**
      * 安全组Id
      */
-    private Integer securityGroupId;
+    private Integer securityGroupId = 0; // 设置为null不生效，不知道为啥
 
 	/**
 	 * 创建时间
