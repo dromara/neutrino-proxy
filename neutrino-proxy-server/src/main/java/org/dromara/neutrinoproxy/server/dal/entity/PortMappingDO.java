@@ -21,6 +21,7 @@
  */
 package org.dromara.neutrinoproxy.server.dal.entity;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -92,6 +93,12 @@ public class PortMappingDO {
 	 * {@link EnableStatusEnum}
 	 */
 	private Integer enable;
+
+    /**
+     * 安全组Id
+     */
+    private Integer securityGroupId = 0; // 设置为null不生效，不知道为啥
+
 	/**
 	 * 创建时间
 	 */
@@ -101,23 +108,9 @@ public class PortMappingDO {
 	 */
 	private Date updateTime;
 
-
     public PortMappingListRes toRes() {
         PortMappingListRes res = new PortMappingListRes();
-        res.setId(id);
-        res.setLicenseId(licenseId);
-        res.setProtocal(protocal);
-        res.setSubdomain(subdomain);
-        res.setServerPort(serverPort);
-        res.setClientIp(clientIp);
-        res.setClientPort(clientPort);
-        res.setDescription(description);
-        res.setIsOnline(isOnline);
-        res.setProxyResponses(proxyResponses);
-        res.setProxyTimeoutMs(proxyTimeoutMs);
-        res.setEnable(enable);
-        res.setCreateTime(createTime);
-        res.setUpdateTime(updateTime);
+        BeanUtil.copyProperties(this, res);
         return res;
     }
 }

@@ -101,6 +101,12 @@ public class PortMappingListRes {
 	 * 描述
 	 */
 	private String description;
+
+    /**
+     * 安全组Id
+     */
+    private Integer securityGroupId;
+
 	/**
 	 * 创建时间
 	 */

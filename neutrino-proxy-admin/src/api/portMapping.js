@@ -44,3 +44,22 @@ export function updateEnableStatus(id, enable) {
     }
   })
 }
+
+export function portMappingBindSecurityGroup(id, securityGroupId) {
+  return request({
+    url: '/port-mapping/bind/security-group',
+    method: 'post',
+    data: {
+      id: id,
+      securityGroupId: securityGroupId
+    }
+  })
+}
+
+export function portMappingUnbindSecurityGroup(id) {
+  return request({
+    url: `/port-mapping/unbind/security-group?id=${id}`,
+    method: 'post'
+  })
+}
+

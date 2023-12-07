@@ -176,6 +176,12 @@
             <template slot="append">毫秒</template>
           </el-input>
         </el-form-item>
+        <el-form-item  :label="$t('table.securityGroup')" prop="securityGroup">
+          <el-select style="width: 280px;" class="filter-item" v-model="temp.securityGroupId" clearable >
+            <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('描述')" prop="description">
           <el-input v-model="temp.description"></el-input>
         </el-form-item>
@@ -204,6 +210,7 @@
 
 <script>
 import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
+import { fetchGroupList } from '@/api/securityGroup'
 import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
@@ -325,6 +332,7 @@ export default {
         licenseId:null,
       },
       more: true,
+      securityGroupList: []
     }
   },
   filters: {
@@ -359,6 +367,7 @@ export default {
     this.getLicenseList()
     this.getLicenseAuthList()
     this.getProtocalList()
+    this.fetchSecurityGroupList()
   },
   methods: {
     getList() {
@@ -378,6 +387,13 @@ export default {
           this.listQuery.userId = curUser.id
         }
         this.getList()
+      })
+    },
+    fetchSecurityGroupList () {
+      fetchGroupList().then(res => {
+        if(res.data.code == 0) {
+          this.securityGroupList = res.data.data
+        }
       })
     },
     getDomainNameBindInfo() {
@@ -484,6 +500,9 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      if (row.securityGroupId === 0) {
+        this.temp.securityGroupId = null
+      }
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true

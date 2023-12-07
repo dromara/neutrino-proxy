@@ -13,6 +13,8 @@ import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.noear.solon.annotation.*;
 
+import java.util.List;
+
 /**
  * 端口映射
  * @author: aoshiguchen
@@ -64,7 +66,7 @@ public class PortMappingController {
 
 	@Post
 	@Mapping("/update")
-	public PortMappingUpdateRes update(PortMappingUpdateReq req) {
+	public void update(PortMappingUpdateReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
 		ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
@@ -89,7 +91,7 @@ public class PortMappingController {
 			req.setProxyTimeoutMs(0L);
 		}
 
-		return portMappingService.update(req);
+        portMappingService.update(req);
 	}
 
 	@Get
@@ -119,4 +121,26 @@ public class PortMappingController {
 
 		portMappingService.delete(req.getId());
 	}
+
+    /**
+     * 绑定安全组
+     * @param req portMappingId和securityGroupId
+     */
+    @Post
+    @Mapping("/bind/security-group")
+    public void bindSecurityGroup(PortMappingBindSecurityGroupReq req) {
+        portMappingService.portBindSecurityGroup(req.getId(), req.getSecurityGroupId());
+    }
+
+    /**
+     * 安全组解绑
+     * @param id 端口映射Id
+     */
+    @Post
+    @Mapping("/unbind/security-group")
+    public void unbindSecurityGroup(Integer id) {
+        portMappingService.portUnbindSecurityGroup(id);
+    }
+
+
 }
