@@ -2,9 +2,13 @@ server:
   # 服务端web端口，用于支持HTTP接口，管理后台页面访问
   port: 8888
 # 日志级别
-solon.logging.logger:
-  "root":
-    level: info
+solon.logging:
+  logger:
+    "root":
+      level: info
+  appender:
+    file:
+      level: info
 
 neutrino:
   proxy:
