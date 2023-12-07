@@ -86,7 +86,7 @@ public class SecurityRuleDO {
      * @param ip 指定的IP
      * @return 放行状态
      */
-    public SecurityRulePassTypeEnum allow(String ip) {
+    public SecurityRulePassTypeEnum judge(String ip) {
 
         // 被判断的IP地址为空，不做判断
         if (StrUtil.isEmpty(ip)) {
@@ -108,9 +108,11 @@ public class SecurityRuleDO {
         String[] rules = this.rule.split(",");
         for (String rule : rules) {
 
+            rule = rule.trim();
+
             // 单个ip,ipv6在此步已处理，后面不需要额外判断ipv6的情况
             if (rule.matches("(\\d+\\.){3}\\d+") || isIpv6) {
-                if (rule.equals(ip)) {
+                if (rule.equalsIgnoreCase(ip)) {
                     return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }

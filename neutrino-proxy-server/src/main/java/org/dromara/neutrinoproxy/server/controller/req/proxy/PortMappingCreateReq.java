@@ -62,6 +62,12 @@ public class PortMappingCreateReq {
 	 * 代理超时时间
 	 */
 	private Long proxyTimeoutMs;
+
+    /**
+     * 安全组Id
+     */
+    private Integer securityGroupId;
+
 	/**
 	 * 描述
 	 */

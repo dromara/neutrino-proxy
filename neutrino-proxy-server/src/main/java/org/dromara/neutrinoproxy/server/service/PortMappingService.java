@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.solon.annotation.Db;
@@ -77,7 +78,7 @@ public class PortMappingService implements LifecycleBean {
     private DBInitialize dbInitialize;
 
     /** 端口到安全组Id的映射 */
-    private final Map<Integer, Integer> portToSecurityGroupMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Integer> mappingPortToSecurityGroupMap = new ConcurrentHashMap<>();
 
     public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
         if (StringUtils.isNotEmpty(req.getDescription())) {
@@ -166,6 +167,9 @@ public class PortMappingService implements LifecycleBean {
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
+
+        updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
+
         return new PortMappingCreateRes();
     }
 
@@ -203,6 +207,8 @@ public class PortMappingService implements LifecycleBean {
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
         }
+
+        updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
     }
 
     public PortMappingDetailRes detail(Integer id) {
@@ -277,6 +283,8 @@ public class PortMappingService implements LifecycleBean {
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
         }
+
+        updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), null);
     }
 
     public void portBindSecurityGroup(Integer portMappingId, Integer groupId) {
@@ -287,7 +295,7 @@ public class PortMappingService implements LifecycleBean {
         mappingDO.setSecurityGroupId(groupId);
         mappingDO.setUpdateTime(new Date());
         portMappingMapper.updateById(mappingDO);
-        portToSecurityGroupMap.put(mappingDO.getServerPort(), groupId);
+        updateMappingPortToSecurityGroupMap(mappingDO.getServerPort(), groupId);
     }
 
     public void portUnbindSecurityGroup(Integer portMappingId) {
@@ -298,7 +306,7 @@ public class PortMappingService implements LifecycleBean {
         mappingDO.setSecurityGroupId(0);
         mappingDO.setUpdateTime(new Date());
         portMappingMapper.updateById(mappingDO);
-        portToSecurityGroupMap.remove(mappingDO.getServerPort());
+        updateMappingPortToSecurityGroupMap(mappingDO.getServerPort(), null);
     }
 
     /**
@@ -311,8 +319,8 @@ public class PortMappingService implements LifecycleBean {
         return portMappingMapper.findEnableListByLicenseId(licenseId);
     }
 
-    public Integer getSecurityGroupIdByMappingPor(Integer port) {
-        return portToSecurityGroupMap.get(port);
+    public Integer getSecurityGroupIdByMappingPort(Integer port) {
+        return mappingPortToSecurityGroupMap.get(port);
     }
 
 
@@ -327,11 +335,22 @@ public class PortMappingService implements LifecycleBean {
         }
         portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
+        List<PortMappingDO> allMappingDOList = portMappingMapper.selectList(Wrappers.lambdaQuery(PortMappingDO.class));
+        allMappingDOList.forEach(item -> {
+            Integer securityGroupId = item.getSecurityGroupId();
+            if (securityGroupId != null && securityGroupId > 0) {
+                updateMappingPortToSecurityGroupMap(item.getServerPort(), item.getSecurityGroupId());
+            }
+        });
+
         // 未配置域名，则不需要处理域名映射逻辑
         if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName())) {
             return;
         }
-        List<PortMappingDO> portMappingDOList = portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc()).isNotNull(PortMappingDO::getSubdomain));
+        List<PortMappingDO> portMappingDOList = allMappingDOList.stream()
+            .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()) && item.getSubdomain() != null)
+            .collect(Collectors.toList());
+//      List<PortMappingDO> portMappingDOList =  portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc()).isNotNull(PortMappingDO::getSubdomain));
         if (CollectionUtil.isEmpty(portMappingDOList)) {
             return;
         }
@@ -340,10 +359,16 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
-            if (item.getSecurityGroupId() != null) {
-                portToSecurityGroupMap.put(item.getServerPort(), item.getSecurityGroupId());
-            }
+
         });
+    }
+
+    private void updateMappingPortToSecurityGroupMap(Integer serverPort, Integer securityGroupId) {
+        if (securityGroupId == null || securityGroupId == 0) {
+            mappingPortToSecurityGroupMap.remove(serverPort);
+            return;
+        }
+        mappingPortToSecurityGroupMap.put(serverPort, securityGroupId);
     }
 
     @Override

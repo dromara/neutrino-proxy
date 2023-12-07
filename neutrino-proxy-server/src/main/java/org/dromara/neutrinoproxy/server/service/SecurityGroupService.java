@@ -149,24 +149,30 @@ public class SecurityGroupService {
      * @return 是否放行
      */
     public boolean judgeAllow(String ip, Integer groupId) {
-
+        ip = ip.toLowerCase();
         // 不能判断当前连接的IP，保守处理，拒绝放行
         if (StrUtil.isEmpty(ip)) {
+            log.debug("【安全组】不能正确获取到IP地址，保守处理，拒绝放行");
             return false;
         }
 
         // 黑名单规则，没有该安全组，则放行
         if (groupId == null) {
+            log.debug("【安全组】{}：该IP访问的端口映射没有绑定安全组（1）， 放行", ip);
             return true;
         }
         SecurityGroupDO groupDO = securityGroupMap.get(groupId);
         if (groupDO == null) {
+            log.debug("【安全组】{}：该IP访问的端口映射没有绑定安全组（2）， 放行", ip);
             return true;
         }
 
+        Boolean allow = null;
         String judgeAllowMapKey = ip + groupId;
         if (ipAllowControlCache.containsKey(judgeAllowMapKey)) {
-            return ipAllowControlCache.get(judgeAllowMapKey);
+            allow = ipAllowControlCache.get(judgeAllowMapKey);
+            log.debug("【安全组】{}-安全组{}：该IP在缓存中，缓存策略为{}", ip, groupId, allow ? "允许" : "拒绝");
+            return allow;
         }
 
         List<SecurityRuleDO>  ruleDOList = securityRuleMapper.selectList(Wrappers.lambdaQuery(SecurityRuleDO.class)
@@ -174,15 +180,16 @@ public class SecurityGroupService {
             .eq(SecurityRuleDO::getEnable, EnableStatusEnum.ENABLE)
             .orderByAsc(SecurityRuleDO::getPriority)
         );
-        Boolean allow = null;
         for (SecurityRuleDO ruleDO : ruleDOList) {
-            SecurityRulePassTypeEnum passType = ruleDO.allow(ip);
+            SecurityRulePassTypeEnum passType = ruleDO.judge(ip);
             if (passType == SecurityRulePassTypeEnum.ALLOW) {
                 allow = true;
+                log.debug("【安全组】{}-安全组{}：匹配到安全规则{}行为：{}", ip, groupId, ruleDO.getId(), "允许");
                 break;
             }
             if (passType == SecurityRulePassTypeEnum.DENY) {
                 allow = false;
+                log.info("【安全组】{}-安全组{}：匹配到安全规则{}行为：{}", ip, groupId, ruleDO.getId(), "拒绝");
                 break;
             }
         }
@@ -190,6 +197,7 @@ public class SecurityGroupService {
         // 当前IP没有匹配到任何一条规则，则使用安全组默认规则
         if (allow == null) {
             allow = groupDO.getDefaultPassType() == SecurityRulePassTypeEnum.ALLOW;
+            log.debug("【安全组】{}-安全组{}：使用安全组默认放行类型：{}", ip, groupId, allow ? "允许" : "拒绝");
         }
 
         ipAllowControlCache.put(judgeAllowMapKey, allow);

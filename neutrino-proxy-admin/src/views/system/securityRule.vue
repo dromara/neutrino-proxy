@@ -86,7 +86,7 @@
         <el-form-item>
           <div style="line-height: 28px; color: cornflowerblue">
             <div>规则描述:</div>
-            <div>单个ip：192.168.1.1,0:0:0:0:0:0:10.0.0.1, ipv6只支持单个ip判断</div>
+            <div>单个ip：192.168.1.1, AA22:BB11:1122:CDEF:1234:AA99:7654:7410, ipv6只支持单个ip判断</div>
             <div>范围类型：192.168.1.0-192.168.1.255</div>
             <div>掩码类型：192.168.1.0/24</div>
             <div>泛型：0.0.0.0/ALL</div>

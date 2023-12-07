@@ -29,11 +29,9 @@ import java.net.InetSocketAddress;
 @Slf4j
 public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
-    @Inject
-    private SecurityGroupService securityGroupService;
+    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
 
-    @Inject
-    private PortMappingService portMappingService;
+    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -74,7 +72,7 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPor(sa.getPort()))) {
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
             // 不在安全组规则放行范围内
             ctx.channel().close();
             return;

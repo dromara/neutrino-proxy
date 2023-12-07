@@ -31,11 +31,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    @Inject
-    private SecurityGroupService securityGroupService;
+    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
 
-    @Inject
-    private PortMappingService portMappingService;
+    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
@@ -130,7 +128,7 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // 判断IP是否在该端口绑定的安全组允许的规则内
         InetSocketAddress sa = (InetSocketAddress) ctx.channel().localAddress();
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPor(sa.getPort()))) {
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
             // 不在安全组规则放行范围内
             ctx.channel().close();
             return;
