@@ -29,4 +29,4 @@ CREATE TABLE IF NOT EXISTS `security_rule` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 # port_mapping表增加字段
-ALTER TABLE `port_mapping` ADD COLUMN IF NOT EXISTS `security_group_id` int DEFAULT 0 COMMENT '安全组Id';
+ALTER TABLE `port_mapping` ADD COLUMN `security_group_id` int DEFAULT 0 COMMENT '安全组Id';
