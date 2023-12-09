@@ -2,6 +2,7 @@ package org.dromara.neutrinoproxy.core.util;
 
 import cn.hutool.core.net.Ipv4Util;
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetSocketAddress;
 
@@ -22,27 +23,14 @@ public class IpUtil extends org.noear.solon.core.util.IpUtil {
      * @return 返回找到的第一个公网地址
      */
     public static String getRealRemoteIp(String httpContent) {
-        String headerContent = httpContent.split("\r\n\r\n")[0];
-        String[] lines = headerContent.split("\r\n");
-        String firstLine = lines[0];
-        if (!(firstLine.endsWith("HTTP/1.1") || firstLine.endsWith("HTTP/1.0"))) {
-            return null;
+        String ip = HttpUtil.getHeaderValue(httpContent, "X-Forwarded-For");
+        if (StringUtils.isEmpty(ip)) {
+            ip = HttpUtil.getHeaderValue(httpContent, "X-Real-IP");
         }
-        for (int i = 1; i < lines.length; i++) {
-            String line = lines[i];
-            // 匹配有ipv4地址格式的header
-            if (!line.matches(".*(\\d+\\.){3}\\d+")) {
-                continue;
-            }
-            // 截取IP地址
-            String ip = line.substring(line.charAt(':'));
-            if (!Ipv4Util.isInnerIP(ip)) {
-                return ip;
-            }
+        if (StringUtils.isNotEmpty(ip) && !Ipv4Util.isInnerIP(ip)) {
+            return ip;
         }
         return null;
     }
-
-
 
 }

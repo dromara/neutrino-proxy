@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.util.HttpUtil;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
@@ -78,7 +79,7 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
 
         String httpContent = new String(bytes);
-        String host = getHost(httpContent);
+        String host = HttpUtil.getHostIgnorePort(httpContent);// getHost(httpContent);
         log.debug("HttpProxy host: {}", host);
         if (StringUtils.isBlank(host)) {
             ctx.channel().close();
@@ -170,24 +171,5 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // 当出现异常就关闭连接
         ctx.close();
-    }
-
-    private String getHost(String req) {
-        String[] lines = req.split("\r\n");
-        String firstLine = lines[0];
-        if (!(firstLine.endsWith("HTTP/1.1") || firstLine.endsWith("HTTP/1.0"))) {
-            return null;
-        }
-        for (int i = 1; i < lines.length; i++) {
-            String line = lines[i];
-            if (!line.startsWith("Host: ")) {
-                continue;
-            }
-            // 域名
-            String domain = line.substring(6);
-            // 去掉域名后面的端口号
-            return domain.replaceAll(":.*", "");
-        }
-        return null;
     }
 }
