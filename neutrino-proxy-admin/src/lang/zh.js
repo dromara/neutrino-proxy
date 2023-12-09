@@ -179,7 +179,7 @@ export default {
     rule: '规则内容',
     passType: '放行类型',
     priority: '优先级',
-    ruleConfig: '规则配置',
+    ruleConfig: '配置规则',
     portMappingBindSecurityGroup: '绑定安全组',
     securityGroupBindPortMapping: '端口映射绑定',
     bind: '绑定',

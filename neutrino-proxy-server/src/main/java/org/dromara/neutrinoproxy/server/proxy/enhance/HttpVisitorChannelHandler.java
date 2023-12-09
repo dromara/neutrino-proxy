@@ -10,12 +10,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
+import org.dromara.neutrinoproxy.server.service.PortMappingService;
+import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
+import org.noear.solon.annotation.Inject;
 
 import java.net.InetSocketAddress;
 
@@ -25,6 +29,11 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+
+    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
+
+    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
+
     /**
      * 域名
      */
@@ -87,6 +96,14 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
             ctx.channel().close();
             return;
         }
+
+        // 判断IP是否在该端口绑定的安全组允许的规则内
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
+            // 不在安全组规则放行范围内
+            ctx.channel().close();
+            return;
+        }
+
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(serverPort);
         if (null == cmdChannel) {
             ctx.channel().close();
