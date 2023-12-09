@@ -76,9 +76,13 @@ public class SecurityGroupService {
         init();
     }
 
+    /**
+     * 更新时不允许更新默认放行类型
+     * @param req 安全组更新参数
+     */
     public void updateGroup(SecurityGroupUpdateReq req) {
         SecurityGroupDO groupDO = securityGroupMapper.selectById(req.getId());
-        BeanUtil.copyProperties(req, groupDO);
+        BeanUtil.copyProperties(req, groupDO, "defaultPassType");
         securityGroupMapper.updateById(groupDO);
         init();
     }

@@ -18,8 +18,4 @@ public class SecurityGroupUpdateReq {
      */
     private String description;
 
-    /**
-     * 通过类型
-     */
-    private SecurityRulePassTypeEnum defaultPassType;
 }

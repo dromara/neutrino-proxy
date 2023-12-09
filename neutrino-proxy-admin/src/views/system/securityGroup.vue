@@ -81,7 +81,7 @@
 
         <el-form-item  :label="$t('table.defaultPassType')" prop="defaultPassType">
           <el-tooltip class="item" effect="dark" content="当IP地址不能匹配任何规则时，默认执行的放行类型" placement="bottom">
-            <el-select style="width: 380px" class="filter-item" v-model="temp.defaultPassType">
+            <el-select style="width: 380px" class="filter-item" v-model="temp.defaultPassType" :disabled="dialogStatus === 'update'">
               <el-option v-for="item in  passTypeList" :key="item.key" :label="item.key" :value="item.value">
               </el-option>
             </el-select>

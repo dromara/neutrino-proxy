@@ -38,6 +38,16 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket datagramPacket) throws Exception {
         log.debug("chid>>>{}", ctx.channel().id().asLongText());
+        Channel visitorChannel = ctx.channel();
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
+
+        // 判断IP是否在该端口绑定的安全组允许的规则内
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
+            // 不在安全组规则放行范围内
+            ctx.channel().close();
+            return;
+        }
+
         byte[] bytes = new byte[datagramPacket.content().readableBytes()];
         datagramPacket.content().readBytes(bytes);
         datagramPacket.content().resetReaderIndex();
@@ -86,8 +96,6 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
             return;
         }
 
-        Channel visitorChannel = ctx.channel();
-        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
 
         // 没有指令通道，直接结束

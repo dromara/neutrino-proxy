@@ -106,9 +106,9 @@
          
         </el-form-item>
 
-        <el-form-item :label="$t('table.priority')" prop="priority">
+        <!-- <el-form-item :label="$t('table.priority')" prop="priority">
           <el-input-number v-model="temp.priority" :min="1" :max="1000" :placeholder="$t('table.priority')"></el-input-number>
-        </el-form-item>
+        </el-form-item> -->
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -175,7 +175,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           name: [{ required: true, message: '安全组名称必填', trigger: 'blur' }],
           rule: [{ required: true, message: '规则内容必填', trigger: 'blur' }],
           // passType: [{ required: true, message: '放行类型必选', trigger: 'blur' }],
-          priority: [{ required: true, message: '优先级必填', trigger: 'blur' }]
+          // priority: [{ required: true, message: '优先级必填', trigger: 'blur' }]
         },
         downloadLoading: false,
         checkBoxData:[], //表单勾选的行
