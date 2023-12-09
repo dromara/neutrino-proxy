@@ -47,10 +47,10 @@
       <el-table-column align="center" :label="$t('table.actions')"  class-name="small-padding fixed-width" style="display:flex;justify-content:center">
         <template slot-scope="scope">
           <div >
+            <el-link :underline="false" type="primary" size="mini" @click="handleGoRulePage(scope.row)" style="font-size: 12px">{{$t('table.ruleConfig')}}</el-link>
             <el-link :underline="false" type="primary" size="mini" @click="handleUpdate(scope.row)" style="font-size: 12px">{{$t('table.edit')}}</el-link>
             <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size: 12px">{{$t('table.disable')}}</el-link>
             <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size: 12px">{{$t('table.enable')}}</el-link>
-            <el-link :underline="false" type="primary" size="mini" @click="handleGoRulePage(scope.row)" style="font-size: 12px">{{$t('table.ruleConfig')}}</el-link>
           </div>
           <el-dropdown>
             <span class="el-dropdown-link" style="font-size: 12px">
@@ -80,10 +80,12 @@
         </el-form-item>
 
         <el-form-item  :label="$t('table.defaultPassType')" prop="defaultPassType">
-          <el-select style="width: 380px" class="filter-item" v-model="temp.defaultPassType">
-            <el-option v-for="item in  passTypeList" :key="item.key" :label="item.key" :value="item.value">
-            </el-option>
-          </el-select>
+          <el-tooltip class="item" effect="dark" content="当IP地址不能匹配任何规则时，默认执行的放行类型" placement="bottom">
+            <el-select style="width: 380px" class="filter-item" v-model="temp.defaultPassType">
+              <el-option v-for="item in  passTypeList" :key="item.key" :label="item.key" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-tooltip>
         </el-form-item>
 
       </el-form>

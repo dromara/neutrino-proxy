@@ -96,10 +96,14 @@
         
 
         <el-form-item  :label="$t('table.passType')" prop="passType">
-          <el-select class="filter-item" v-model="temp.passType">
-            <el-option v-for="item in  passTypeList" :key="item.key" :label="item.key" :value="item.value">
-            </el-option>
-          </el-select>
+          <el-tooltip class="item" effect="dark" :content="temp.passTypeTooltip" placement="right">
+            <!-- <el-button>右边</el-button> -->
+            <el-select class="filter-item" v-model="temp.passType" disabled>
+              <el-option v-for="item in  passTypeList" :key="item.key" :label="item.key" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-tooltip>
+         
         </el-form-item>
 
         <el-form-item :label="$t('table.priority')" prop="priority">
@@ -155,6 +159,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           description: '',
           rule: '',
           passType: undefined,
+          passTypeTooltip: '',
           priority: 1
         },
         dialogFormVisible: false,
@@ -169,7 +174,7 @@ import LinkPopover from '../../components/Link/linkPopover'
         rules: {
           name: [{ required: true, message: '安全组名称必填', trigger: 'blur' }],
           rule: [{ required: true, message: '规则内容必填', trigger: 'blur' }],
-          passType: [{ required: true, message: '放行类型必选', trigger: 'blur' }],
+          // passType: [{ required: true, message: '放行类型必选', trigger: 'blur' }],
           priority: [{ required: true, message: '优先级必填', trigger: 'blur' }]
         },
         downloadLoading: false,
@@ -269,9 +274,13 @@ import LinkPopover from '../../components/Link/linkPopover'
       resetTemp() {
         this.temp = {
           id: undefined,
+          groupId: this.groupId,
           name: '',
           description: '',
-          defaultPassType: undefined
+          rule: '',
+          passType: this.group.defaultPassType == 'allow' ? 0 : 1,
+          passTypeTooltip: `安全组已设置默认${(this.group.defaultPassType == 'allow' ? '允许' : '拒绝')}`,
+          priority: 1
         }
       },
       handleCreate() {
@@ -304,6 +313,7 @@ import LinkPopover from '../../components/Link/linkPopover'
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
         this.temp.passType = row.passType == 'allow' ? 1 : 0
+        this.temp.passTypeTooltip = `安全组已设置默认${(this.group.defaultPassType == 'allow' ? '允许' : '拒绝')}`,
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
