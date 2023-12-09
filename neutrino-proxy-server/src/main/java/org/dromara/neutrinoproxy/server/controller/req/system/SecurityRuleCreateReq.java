@@ -52,6 +52,6 @@ public class SecurityRuleCreateReq {
     /**
      * 优先级，数字越小，优先级越高
      */
-    private Integer priority;
+    private Integer priority = 1;
 
 }

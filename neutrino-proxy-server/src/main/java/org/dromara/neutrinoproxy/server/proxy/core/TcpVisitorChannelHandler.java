@@ -52,6 +52,14 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
             return;
         }
 
+        // 判断IP是否在该端口绑定的安全组允许的规则内
+        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
+        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
+            // 不在安全组规则放行范围内
+            ctx.channel().close();
+            return;
+        }
+
         // 代理通道可写，则设置访问通道可读。代理通道不可写，则设置访问通道不可读
         visitorChannel.config().setAutoRead(proxyChannel.isWritable());
 

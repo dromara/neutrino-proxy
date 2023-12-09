@@ -60,7 +60,7 @@ public class SecurityRuleDO {
     /**
      * 优先级，数字越小，优先级越高
      */
-    private Integer priority;
+    private Integer priority = 1;
 
     /**
      * 用户id
