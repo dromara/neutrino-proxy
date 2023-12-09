@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
@@ -51,10 +52,16 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
             ctx.channel().close();
             return;
         }
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.readBytes(bytes);
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
+        String ip = IpUtil.getRealRemoteIp(new String(bytes));
+        if (StringUtils.isEmpty(ip)) {
+            ip = IpUtil.getRemoteIp(ctx);
+        }
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
+        if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
             // 不在安全组规则放行范围内
             ctx.channel().close();
             return;
@@ -64,8 +71,6 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         visitorChannel.config().setAutoRead(proxyChannel.isWritable());
 
         // 转发代理数据
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
         String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
         proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(visitorId, bytes));
 
