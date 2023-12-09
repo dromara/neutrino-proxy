@@ -77,7 +77,8 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
 
-        String host = getHost(bytes);
+        String httpContent = new String(bytes);
+        String host = getHost(httpContent);
         log.debug("HttpProxy host: {}", host);
         if (StringUtils.isBlank(host)) {
             ctx.channel().close();
@@ -98,7 +99,11 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         }
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
+        String ip = IpUtil.getRealRemoteIp(httpContent);
+        if (ip == null) {
+            ip = IpUtil.getRemoteIp(ctx);
+        }
+        if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
             // 不在安全组规则放行范围内
             ctx.channel().close();
             return;
@@ -167,8 +172,7 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         ctx.close();
     }
 
-    private String getHost(byte[] buf) {
-        String req = new String(buf);
+    private String getHost(String req) {
         String[] lines = req.split("\r\n");
         String firstLine = lines[0];
         if (!(firstLine.endsWith("HTTP/1.1") || firstLine.endsWith("HTTP/1.0"))) {
