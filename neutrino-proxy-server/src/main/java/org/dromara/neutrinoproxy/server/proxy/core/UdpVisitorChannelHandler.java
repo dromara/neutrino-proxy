@@ -42,9 +42,7 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
+        if (!securityGroupService.judgeAllow(datagramPacket.sender().getAddress().getHostAddress(), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
             return;
         }
 
@@ -134,13 +132,6 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // 判断IP是否在该端口绑定的安全组允许的规则内
-        InetSocketAddress sa = (InetSocketAddress) ctx.channel().localAddress();
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
-            return;
-        }
         super.channelActive(ctx);
     }
 
