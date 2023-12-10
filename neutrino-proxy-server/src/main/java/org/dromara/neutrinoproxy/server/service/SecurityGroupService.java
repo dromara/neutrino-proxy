@@ -73,6 +73,10 @@ public class SecurityGroupService {
             //描述字段为模糊查询，在应用层处理，否则sqlite不支持
             req.setName("%" + req.getName() + "%");
         }
+        if (StringUtils.isNotEmpty(req.getDescription())) {
+            //描述字段为模糊查询，在应用层处理，否则sqlite不支持
+            req.setDescription("%" + req.getDescription() + "%");
+        }
         Page<SecurityGroupDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         List<SecurityGroupDO> list = securityGroupMapper.selectByCondition(page, req);
         if (CollectionUtils.isEmpty(list)) {

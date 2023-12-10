@@ -72,6 +72,8 @@ public class SecurityController {
     @Post
     @Mapping("/group/delete")
     public void deleteGroup(Integer groupId) {
+        ParamCheckUtil.checkNotNull(groupId, "groupId");
+
         groupService.deleteGroup(groupId);
     }
 

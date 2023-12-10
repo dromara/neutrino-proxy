@@ -8,6 +8,12 @@
             <if test="req.name != null and req.name != '' ">
                 AND sg.name like #{req.name}
             </if>
+            <if test="req.description != null and req.description != '' ">
+                AND sg.description like #{req.description}
+            </if>
+            <if test="req.defaultPassType != null">
+                AND sg.default_pass_type like #{req.defaultPassType}
+            </if>
             <if test="req.enable != null">
                 AND sg.enable like #{req.enable}
             </if>

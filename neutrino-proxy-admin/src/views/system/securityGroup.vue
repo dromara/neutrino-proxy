@@ -2,6 +2,7 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input v-model="listQuery.name" style="width:145px;margin-right:10px" placeholder="请输入名称" />
+      <el-input v-model="listQuery.description" style="width:145px;margin-right:10px" placeholder="请输入描述" />
       <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
@@ -119,34 +120,34 @@
     </el-dialog>
 
     <el-dialog :title="$t('table.securityGroupBindPortMapping')+'---'+forBindProtMappingSecurityGroup.name+'安全组'" :visible.sync="dialogBindPortMappingVisible" width="90%">
-      <el-table :key='tableKey' :data="portMappingList" v-loading="listLoading" element-loading-text="给我一点时间" border fit align="center" width="100%"
+      <el-table :key='tableKey' :data="portMappingList" v-loading="listLoading" element-loading-text="给我一点时间" border width="100%"
         highlight-current-row style="width: 100%">
         <el-table-column align="center" :label="$t('table.id')" width="50">
           <template slot-scope="scope">
             <span>{{ scope.row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.licenseName')" width="130">
+        <el-table-column align="center" :label="$t('table.licenseName')">
           <template slot-scope="scope">
             <span>{{ scope.row.licenseName }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.protocalName')" width="100">
+        <el-table-column align="center" :label="$t('table.protocalName')" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.protocal }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.domainName')" width="200">
+        <el-table-column align="center" :label="$t('table.domainName')">
           <template slot-scope="scope">
             <span>{{ scope.row.domain }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.serverPort')" width="80">
+        <el-table-column align="center" :label="$t('table.serverPort')" width="100">
           <template slot-scope="scope">
             <span>{{ scope.row.serverPort }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.proxyClient')" width="120">
+        <el-table-column align="center" :label="$t('table.proxyClient')" width="200">
           <template slot-scope="scope">
             <span>{{ scope.row.clientIp }}:{{ scope.row.clientPort }}</span>
           </template>
@@ -156,12 +157,12 @@
             <span>{{ scope.row.description }}</span>
           </template>
         </el-table-column>
-        <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
+        <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="120">
           <template slot-scope="scope">
             <el-tag :type="scope.row.enable | statusFilter">{{ scope.row.enable | statusName }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="$t('table.actions')" width="120" class-name="small-padding fixed-width">
+        <el-table-column align="center" :label="$t('table.actions')" width="150" class-name="small-padding fixed-width">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" v-if="!scope.row.securityGroupId" @click="handleBind(scope.row)">{{$t('table.bind')}}</el-button>
             <el-button type="danger" size="mini" v-if="scope.row.securityGroupId && scope.row.securityGroupId == forBindProtMappingSecurityGroup.id" @click="handleUnbind(scope.row)">{{$t('table.unbind')}}</el-button>
@@ -204,6 +205,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           current: 1,
           size: 10,
           name: undefined,
+          description: undefined,
           enable: undefined
         },
         listLoading: true,
@@ -381,7 +383,7 @@ import LinkPopover from '../../components/Link/linkPopover'
         })
       },
       handleDelete(row) {
-        deleteGroup(row.id).then(response => {
+        deleteGroup({groupId: row.id}).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',

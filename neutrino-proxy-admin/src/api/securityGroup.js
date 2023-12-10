@@ -31,11 +31,11 @@ export function createGroup(data) {
   })
 }
 
-export function updateGroup(data) {
+export function updateGroup(query) {
   return request({
     url: `/security/group/update`,
     method: 'post',
-    data
+    params: query
   })
 }
 
@@ -55,22 +55,6 @@ export function updateGroupEnableStatus(id, enable) {
       id: id,
       enable: enable
     }
-  })
-}
-
-export function enableGroup(query) {
-  return request({
-    url: '/security/group/enable',
-    method: 'post',
-    params: query
-  })
-}
-
-export function disableGroup(query) {
-  return request({
-    url: '/security/group/disable',
-    method: 'post',
-    params: query
   })
 }
 
