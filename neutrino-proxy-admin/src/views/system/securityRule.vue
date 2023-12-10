@@ -39,11 +39,11 @@
           <el-tag type="info" v-if="scope.row.passType == 'deny'" effect="dark">拒绝</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.priority')">
-        <template slot-scope="scope">
-          <span>{{scope.row.priority}}</span>
-        </template>
-      </el-table-column>
+<!--      <el-table-column align="center" :label="$t('table.priority')">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span>{{scope.row.priority}}</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
           <span>{{scope.row.createTime}}</span>
@@ -56,15 +56,14 @@
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="150">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.enable == '启用'">{{scope.row.enable}}</el-tag>
-          <el-tag type="warning" v-if="scope.row.enable == '禁用'">{{scope.row.enable}}</el-tag>
+          <el-tag :type="scope.row.enable | statusFilter">{{ scope.row.enable | statusName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-link type="primary" :underline="false" size="mini" @click="handleUpdate(scope.row)" style="font-size:12px">{{$t('table.edit')}}</el-link>
-          <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size:12px">{{$t('table.disable')}}</el-link>
-          <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size:12px">{{$t('table.enable')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='1'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size:12px">{{$t('table.disable')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size:12px">{{$t('table.enable')}}</el-link>
           <LinkPopover @handleCommitClick="handleDelete(scope.row)"/>
         </template>
       </el-table-column>
@@ -93,7 +92,7 @@
             <div>每个类型中间以英文逗号分隔,形如 192.168.1.1,192.168.3.0/24 是正确的 </div>
           </div>
         </el-form-item>
-        
+
 
         <el-form-item  :label="$t('table.passType')" prop="passType">
           <el-tooltip class="item" effect="dark" :content="temp.passTypeTooltip" placement="right">
@@ -103,7 +102,7 @@
               </el-option>
             </el-select>
           </el-tooltip>
-         
+
         </el-form-item>
 
         <!-- <el-form-item :label="$t('table.priority')" prop="priority">
@@ -132,7 +131,7 @@
 </template>
 
 <script>
-import {fetchGroupOne, fetchRuleList, createRule, updateRule, deleteRule, enableRule, disableRule} from '@/api/securityGroup'
+import {fetchGroupDetail, fetchRuleList, createRule, updateRule, deleteRule, enableRule, disableRule} from '@/api/securityGroup'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import LinkPopover from '../../components/Link/linkPopover'
@@ -206,7 +205,7 @@ import LinkPopover from '../../components/Link/linkPopover'
       if (queryParam && typeof queryParam === 'object' && queryParam.groupId) {
         this.groupId = queryParam.groupId
         localStorage.setItem('groupId', this.groupId)
-        this.getGroupOne()
+        this.getGroupDetail()
         this.getList()
         return
       }
@@ -214,11 +213,11 @@ import LinkPopover from '../../components/Link/linkPopover'
       const groupId = localStorage.getItem('groupId')
       if (groupId) {
         this.groupId = parseInt(groupId)
-        this.getGroupOne()
+        this.getGroupDetail()
         this.getList()
         return
-      } 
-      
+      }
+
       this.$notify({
           title: '错误',
           message: '没有获取到安全组信息',
@@ -228,8 +227,8 @@ import LinkPopover from '../../components/Link/linkPopover'
       this.$router.push(`/system/securityGroup`)
     },
     methods: {
-      getGroupOne () {
-        fetchGroupOne(this.groupId).then(response => {
+      getGroupDetail () {
+        fetchGroupDetail({id: this.groupId}).then(response => {
           this.group = response.data.data
         })
       },
@@ -244,7 +243,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           return
         }
         this.listLoading = true
-        fetchRuleList(this.groupId).then(response => {
+        fetchRuleList({groupId: this.groupId}).then(response => {
           this.list = response.data.data
           this.listLoading = false
         })
@@ -342,7 +341,7 @@ import LinkPopover from '../../components/Link/linkPopover'
         })
       },
       handleDelete(row) {
-        deleteRule(row.id).then(response => {
+        deleteRule({ruleId: row.id}).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',

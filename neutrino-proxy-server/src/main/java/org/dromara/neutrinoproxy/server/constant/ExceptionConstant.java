@@ -67,7 +67,10 @@ public enum ExceptionConstant {
 
 	PORT_GROUP_NAME_ALREADY_EXIST(16000,"端口分组名称[{}]已经存在"),
 	PORT_GROUP_NAME_DOES_NOT_EXIST(16001,"端口分组不存在"),
-	DEFAULT_GROUP_FORBID_DELETE(16002,"默认分组禁止删除")
+	DEFAULT_GROUP_FORBID_DELETE(16002,"默认分组禁止删除"),
+
+    // 安全组管理(17000)
+    SECURITY_GROUP_NOT_EXIST(17000, "安全组不存在"),
 	;
 
 	private int code;

@@ -4,29 +4,37 @@ import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import jdk.jshell.Snippet;
+import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.solon.annotation.Db;
+import org.dromara.neutrinoproxy.server.base.page.PageInfo;
+import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupCreateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleCreateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleUpdateReq;
+import org.dromara.neutrinoproxy.server.controller.req.system.*;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupDetailRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupUpdateEnableStatueRes;
 import org.dromara.neutrinoproxy.server.dal.SecurityGroupMapper;
 import org.dromara.neutrinoproxy.server.dal.SecurityRuleMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.SecurityGroupDO;
 import org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO;
+import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.core.runtime.NativeDetector;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -45,6 +53,10 @@ public class SecurityGroupService {
 
     @Init(index = 100)
     public synchronized void init() {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         securityGroupMap.clear();
         List<SecurityGroupDO> groupDOList = securityGroupMapper.selectList(Wrappers.lambdaQuery(SecurityGroupDO.class)
             .eq(SecurityGroupDO::getEnable, EnableStatusEnum.ENABLE));
@@ -56,19 +68,41 @@ public class SecurityGroupService {
         ipAllowControlCache.clear();
     }
 
-    public List<SecurityGroupDO> queryGroupList() {
-        return securityGroupMapper.selectList(Wrappers.lambdaQuery(SecurityGroupDO.class)
-            .eq(SecurityGroupDO::getUserId, SystemContextHolder.getUserId()));
+    public PageInfo<SecurityGroupListRes> groupPage(PageQuery pageQuery, SecurityGroupListReq req) {
+        if (StringUtils.isNotEmpty(req.getName())) {
+            //描述字段为模糊查询，在应用层处理，否则sqlite不支持
+            req.setName("%" + req.getName() + "%");
+        }
+        Page<SecurityGroupDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
+        List<SecurityGroupDO> list = securityGroupMapper.selectByCondition(page, req);
+        if (CollectionUtils.isEmpty(list)) {
+            PageInfo.of(null, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        }
+        List<SecurityGroupListRes> respList = list.stream().map(SecurityGroupDO::toListRes).collect(Collectors.toList());
+        return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
-    public SecurityGroupDO queryGroupOne(Integer groupId) {
-        return securityGroupMapper.selectById(groupId);
+    public List<SecurityGroupListRes> groupList() {
+        List<SecurityGroupDO> list = securityGroupMapper.selectList(Wrappers.lambdaQuery(SecurityGroupDO.class)
+            .eq(SecurityGroupDO::getUserId, SystemContextHolder.getUserId()));
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(SecurityGroupDO::toListRes).collect(Collectors.toList());
+    }
+
+    public SecurityGroupDetailRes groupDetail(SecurityGroupDetailReq req) {
+        SecurityGroupDO securityGroupDO = securityGroupMapper.selectById(req.getId());
+        if (null != securityGroupDO) {
+            return securityGroupDO.toDetailRes();
+        }
+        return null;
     }
 
     public void createGroup(SecurityGroupCreateReq req) {
         SecurityGroupDO groupDO = new SecurityGroupDO();
         BeanUtil.copyProperties(req, groupDO);
-        groupDO.setEnable(EnableStatusEnum.ENABLE)
+        groupDO.setEnable(EnableStatusEnum.ENABLE.getStatus())
             .setUserId(SystemContextHolder.getUserId())
             .setCreateTime(new Date())
             .setUpdateTime(new Date());
@@ -87,16 +121,6 @@ public class SecurityGroupService {
         init();
     }
 
-    public void setGroupStatus(Integer groupId, EnableStatusEnum statusEnum) {
-        SecurityGroupDO groupDO = securityGroupMapper.selectById(groupId);
-        if (groupDO == null) {
-            throw new RuntimeException("指定的安全组不存在");
-        }
-        groupDO.setEnable(statusEnum);
-        securityGroupMapper.updateById(groupDO);
-        init();
-    }
-
     /**
      * 删除安全组，并级联删除安全组下的规则，删除后，需缓存
      * @param groupId 安全组Id
@@ -106,6 +130,15 @@ public class SecurityGroupService {
         securityRuleMapper.delete(Wrappers.lambdaQuery(SecurityRuleDO.class)
             .eq(SecurityRuleDO::getGroupId, groupId));
         init();
+    }
+
+    public SecurityGroupUpdateEnableStatueRes updateGroupEnableStatueReq(SecurityGroupUpdateEnableStatueReq req) {
+        SecurityGroupDO groupDO = securityGroupMapper.selectById(req.getId());
+        ParamCheckUtil.checkNotNull(groupDO, ExceptionConstant.SECURITY_GROUP_NOT_EXIST);
+
+        securityGroupMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        init();
+        return new SecurityGroupUpdateEnableStatueRes();
     }
 
     public List<SecurityRuleDO> queryRuleListByGroupId(Integer groupId) {
@@ -120,7 +153,7 @@ public class SecurityGroupService {
         BeanUtil.copyProperties(req, ruleDO);
         ruleDO.setUserId(SystemContextHolder.getUserId())
                 .setCreateTime(new Date())
-                .setEnable(EnableStatusEnum.ENABLE)
+                .setEnable(EnableStatusEnum.ENABLE.getStatus())
                 .setUpdateTime(new Date());
         securityRuleMapper.insert(ruleDO);
         clearCache();
@@ -140,7 +173,7 @@ public class SecurityGroupService {
 
     public void setRuleStatus(Integer ruleId, EnableStatusEnum statusEnum) {
         SecurityRuleDO ruleDO = securityRuleMapper.selectById(ruleId);
-        ruleDO.setEnable(statusEnum);
+        ruleDO.setEnable(statusEnum.getStatus());
         ruleDO.setUpdateTime(new Date());
         securityRuleMapper.updateById(ruleDO);
         clearCache();

@@ -54,7 +54,7 @@ public class SecurityRuleRes {
     /**
      * 启用状态
      */
-    private String enable;
+    private Integer enable;
 
     /**
      * 创建时间

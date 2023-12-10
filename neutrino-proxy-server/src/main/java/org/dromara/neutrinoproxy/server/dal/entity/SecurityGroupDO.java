@@ -11,7 +11,8 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupDetailRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListRes;
 
 import java.util.Date;
 
@@ -38,12 +39,11 @@ public class SecurityGroupDO {
      * 用户id
      */
     private Integer userId;
-
     /**
      * 启用状态
      * {@link EnableStatusEnum}
      */
-    private EnableStatusEnum enable;
+    private Integer enable;
 
     /**
      * 默认放行类型
@@ -60,15 +60,21 @@ public class SecurityGroupDO {
      */
     private Date updateTime;
 
-    public SecurityGroupRes toRes() {
-        SecurityGroupRes res = new SecurityGroupRes();
+    public SecurityGroupListRes toListRes() {
+        SecurityGroupListRes res = new SecurityGroupListRes();
         BeanUtil.copyProperties(this, res);
-        res.setEnable(enable.getDesc())
-            .setDefaultPassType(defaultPassType.getDesc())
+        res.setDefaultPassType(defaultPassType.getDesc())
             .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
             .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT));
         return res;
     }
 
-
+    public SecurityGroupDetailRes toDetailRes() {
+        SecurityGroupDetailRes res = new SecurityGroupDetailRes();
+        BeanUtil.copyProperties(this, res);
+        res.setDefaultPassType(defaultPassType.getDesc())
+            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
+            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT));
+        return res;
+    }
 }

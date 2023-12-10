@@ -1,6 +1,12 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-input v-model="listQuery.name" style="width:145px;margin-right:10px" placeholder="请输入名称" />
+      <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
+        <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{
+          $t('table.search') }}</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
@@ -40,8 +46,7 @@
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.enable == '启用'">{{scope.row.enable}}</el-tag>
-          <el-tag type="danger" v-if="scope.row.enable == '禁用'">{{scope.row.enable}}</el-tag>
+          <el-tag :type="scope.row.enable | statusFilter">{{ scope.row.enable | statusName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')"  class-name="small-padding fixed-width" style="display:flex;justify-content:center">
@@ -49,8 +54,8 @@
           <div >
             <el-link :underline="false" type="primary" size="mini" @click="handleGoRulePage(scope.row)" style="font-size: 12px">{{$t('table.ruleConfig')}}</el-link>
             <el-link :underline="false" type="primary" size="mini" @click="handleUpdate(scope.row)" style="font-size: 12px">{{$t('table.edit')}}</el-link>
-            <el-link :underline="false" v-if="scope.row.enable =='启用'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size: 12px">{{$t('table.disable')}}</el-link>
-            <el-link :underline="false" v-if="scope.row.enable =='禁用'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size: 12px">{{$t('table.enable')}}</el-link>
+            <el-link :underline="false" v-if="scope.row.enable =='1'" size="mini" type="warning" @click="handleModifyStatus(scope.row, 2)" style="font-size: 12px">{{$t('table.disable')}}</el-link>
+            <el-link :underline="false" v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)" style="font-size: 12px">{{$t('table.enable')}}</el-link>
           </div>
           <el-dropdown>
             <span class="el-dropdown-link" style="font-size: 12px">
@@ -68,6 +73,13 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination-container">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                     :current-pageInfo.sync="listQuery.current" :pageInfo-sizes="[10, 20, 30, 50]" :pageInfo-size="listQuery.size"
+                     layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="120px" style='width: 500px; margin-left:10px;'>
@@ -170,10 +182,9 @@
 </template>
 
 <script>
-import {fetchGroupList, createGroup, updateGroup, deleteGroup, enableGroup, disableGroup} from '@/api/securityGroup'
+import {fetchGroupPage, createGroup, updateGroup, deleteGroup, updateGroupEnableStatus} from '@/api/securityGroup'
 import { fetchList as fetchPortMappingList, portMappingBindSecurityGroup, portMappingUnbindSecurityGroup} from '@/api/portMapping'
 import waves from '@/directive/waves' // 水波纹指令
-import { parseTime } from '@/utils'
 import LinkPopover from '../../components/Link/linkPopover'
 
   export default {
@@ -188,12 +199,23 @@ import LinkPopover from '../../components/Link/linkPopover'
       return {
         tableKey: 0,
         list: [],
+        total: null,
+        listQuery: {
+          current: 1,
+          size: 10,
+          name: undefined,
+          enable: undefined
+        },
         listLoading: true,
         temp: {
           id: undefined,
           name: '',
           description: '',
           defaultPassType: undefined
+        },
+        selectObj: {
+          statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
+          onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }]
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -257,10 +279,23 @@ import LinkPopover from '../../components/Link/linkPopover'
     methods: {
       getList() {
         this.listLoading = true
-        fetchGroupList().then(response => {
-          this.list = response.data.data
+        fetchGroupPage(this.listQuery).then(response => {
+          this.list = response.data.data.records
+          this.total = response.data.data.total
           this.listLoading = false
         })
+      },
+      handleFilter() {
+        this.listQuery.current = 1
+        this.getList()
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val
+        this.getList()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val
+        this.getList()
       },
       getPortMappingList() {
         this.portMappingListLoading = true
@@ -270,27 +305,16 @@ import LinkPopover from '../../components/Link/linkPopover'
           this.portMappingListQuery.current = response.data.data.current
           this.portMappingListLoading = false
         })
-    },
-      handleEnableStatus(row) {
-        enableGroup(row.id).then(response => {
-          if (response.data.code === 0) {
-            this.$message({
-              message: '操作成功',
-              type: 'success'
-            })
-            this.getList()
-          }
-        })
       },
-      handleDisableStatus(row) {
-        disableGroup(row.id).then(response => {
-          if (response.data.code === 0) {
+      handleModifyStatus(row, enable) {
+        updateGroupEnableStatus(row.id, enable).then(response => {
+          if (response.data.data.code === 0) {
             this.$message({
               message: '操作成功',
               type: 'success'
             })
-            this.getList()
           }
+          this.getList()
         })
       },
       resetTemp() {
@@ -413,8 +437,3 @@ import LinkPopover from '../../components/Link/linkPopover'
     }
   }
 </script>
-<style>
-  .filter-container {
-    text-align: right;
-  }
-</style>

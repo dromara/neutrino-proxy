@@ -1,16 +1,17 @@
 package org.dromara.neutrinoproxy.server.controller;
 
+import org.dromara.neutrinoproxy.server.base.page.PageInfo;
+import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupCreateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityGroupUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleCreateReq;
-import org.dromara.neutrinoproxy.server.controller.req.system.SecurityRuleUpdateReq;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupRes;
+import org.dromara.neutrinoproxy.server.controller.req.system.*;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupDetailRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupUpdateEnableStatueRes;
 import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleRes;
-import org.dromara.neutrinoproxy.server.dal.entity.SecurityGroupDO;
 import org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
+import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
 
 import java.util.List;
@@ -30,16 +31,26 @@ public class SecurityController {
      * 获取当前用户权限下的安全组
      */
     @Get
+    @Mapping("/group/page")
+    public PageInfo<SecurityGroupListRes> groupPage(PageQuery pageQuery, SecurityGroupListReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return groupService.groupPage(pageQuery, req);
+    }
+
+    @Get
     @Mapping("/group/list")
-    public List<SecurityGroupRes> groupList() {
-        List<SecurityGroupDO> groupDOList = groupService.queryGroupList();
-        return groupDOList.stream().map(SecurityGroupDO::toRes).collect(Collectors.toList());
+    public List<SecurityGroupListRes> groupList() {
+        return groupService.groupList();
     }
 
     @Get
     @Mapping("/group/detail")
-    public SecurityGroupRes getGroupOne(Integer groupId) {
-        return groupService.queryGroupOne(groupId).toRes();
+    public SecurityGroupDetailRes groupDetail(SecurityGroupDetailReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
+
+        return groupService.groupDetail(req);
     }
 
     @Post
@@ -65,15 +76,13 @@ public class SecurityController {
     }
 
     @Post
-    @Mapping("/group/enable")
-    public void enableGroup(Integer groupId) {
-        groupService.setGroupStatus(groupId, EnableStatusEnum.ENABLE);
-    }
+    @Mapping("/group/update/enable-status")
+    public SecurityGroupUpdateEnableStatueRes updateGroupEnableStatueReq(SecurityGroupUpdateEnableStatueReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
+        ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
 
-    @Post
-    @Mapping("/group/disable")
-    public void disableGroup(Integer groupId) {
-        groupService.setGroupStatus(groupId, EnableStatusEnum.DISABLE);
+        return groupService.updateGroupEnableStatueReq(req);
     }
 
     @Get

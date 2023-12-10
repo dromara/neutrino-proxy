@@ -1,24 +1,31 @@
 import request from '@/utils/request'
 
-const baseUri = '/security';
+export function fetchGroupPage(query) {
+  return request({
+    url: '/security/group/page',
+    method: 'get',
+    params: query
+  })
+}
 
 export function fetchGroupList() {
   return request({
-    url: `${baseUri}/group/list`,
+    url: '/security/group/list',
     method: 'get'
   })
 }
 
-export function fetchGroupOne(groupId) {
+export function fetchGroupDetail(query) {
   return request({
-    url: `${baseUri}/group/detail?groupId=${groupId}`,
-    method: 'get'
+    url: '/security/group/detail',
+    method: 'get',
+    params: query
   })
 }
 
 export function createGroup(data) {
   return request({
-    url: `${baseUri}/group/create`,
+    url: `/security/group/create`,
     method: 'post',
     data
   })
@@ -26,43 +33,58 @@ export function createGroup(data) {
 
 export function updateGroup(data) {
   return request({
-    url: `${baseUri}/group/update`,
+    url: `/security/group/update`,
     method: 'post',
     data
   })
 }
 
-export function deleteGroup(groupId) {
+export function deleteGroup(data) {
   return request({
-    url: `${baseUri}/group/delete?groupId=${groupId}`,
-    method: 'post'
+    url: '/security/group/delete',
+    method: 'post',
+    data
   })
 }
 
-export function enableGroup(groupId) {
+export function updateGroupEnableStatus(id, enable) {
   return request({
-    url: `${baseUri}/group/enable?groupId=${groupId}`,
-    method: 'post'
+    url: '/security/group/update/enable-status',
+    method: 'post',
+    data: {
+      id: id,
+      enable: enable
+    }
   })
 }
 
-export function disableGroup(groupId) {
+export function enableGroup(query) {
   return request({
-    url: `${baseUri}/group/disable?groupId=${groupId}`,
-    method: 'post'
+    url: '/security/group/enable',
+    method: 'post',
+    params: query
   })
 }
 
-export function fetchRuleList(groupId) {
+export function disableGroup(query) {
   return request({
-    url: `${baseUri}/rule/list?groupId=${groupId}`,
-    method: 'get'
+    url: '/security/group/disable',
+    method: 'post',
+    params: query
+  })
+}
+
+export function fetchRuleList(query) {
+  return request({
+    url: '/security/rule/list',
+    method: 'get',
+    params: query
   })
 }
 
 export function createRule(data) {
   return request({
-    url: `${baseUri}/rule/create`,
+    url: `/security/rule/create`,
     method: 'post',
     data
   })
@@ -70,28 +92,29 @@ export function createRule(data) {
 
 export function updateRule(data) {
   return request({
-    url: `${baseUri}/rule/update`,
+    url: `/security/rule/update`,
     method: 'post',
     data
   })
 }
-export function deleteRule(ruleId) {
+export function deleteRule(query) {
   return request({
-    url: `${baseUri}/rule/delete?ruleId=${ruleId}`,
-    method: 'post'
+    url: '/security/rule/delete',
+    method: 'post',
+    params: query
   })
 }
 
 export function enableRule(ruleId) {
   return request({
-    url: `${baseUri}/rule/enable?ruleId=${ruleId}`,
+    url: `/security/rule/enable?ruleId=${ruleId}`,
     method: 'post'
   })
 }
 
 export function disableRule(ruleId) {
   return request({
-    url: `${baseUri}/rule/disable?ruleId=${ruleId}`,
+    url: `/security/rule/disable?ruleId=${ruleId}`,
     method: 'post'
   })
 }

@@ -71,7 +71,7 @@ public class SecurityRuleDO {
      * 启用状态
      * {@link EnableStatusEnum}
      */
-    private EnableStatusEnum enable;
+    private Integer enable;
     /**
      * 创建时间
      */
@@ -149,7 +149,6 @@ public class SecurityRuleDO {
         SecurityRuleRes res = new SecurityRuleRes();
         BeanUtil.copyProperties(this, res);
         res.setPassType(this.passType.getDesc())
-            .setEnable(this.getEnable().getDesc())
             .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
             .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT))
         ;
