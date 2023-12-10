@@ -59,7 +59,7 @@ public class SecurityGroupService {
         }
         securityGroupMap.clear();
         List<SecurityGroupDO> groupDOList = securityGroupMapper.selectList(Wrappers.lambdaQuery(SecurityGroupDO.class)
-            .eq(SecurityGroupDO::getEnable, EnableStatusEnum.ENABLE));
+            .eq(SecurityGroupDO::getEnable, EnableStatusEnum.ENABLE.getStatus()));
         groupDOList.forEach(securityGroupDO -> securityGroupMap.put(securityGroupDO.getId(), securityGroupDO));
         ipAllowControlCache.clear();
     }
@@ -212,7 +212,7 @@ public class SecurityGroupService {
 
         List<SecurityRuleDO>  ruleDOList = securityRuleMapper.selectList(Wrappers.lambdaQuery(SecurityRuleDO.class)
             .eq(SecurityRuleDO::getGroupId, groupId)
-            .eq(SecurityRuleDO::getEnable, EnableStatusEnum.ENABLE)
+            .eq(SecurityRuleDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
             .orderByAsc(SecurityRuleDO::getPriority)
         );
         for (SecurityRuleDO ruleDO : ruleDOList) {
