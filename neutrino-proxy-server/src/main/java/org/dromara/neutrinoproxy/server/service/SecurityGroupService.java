@@ -156,7 +156,7 @@ public class SecurityGroupService {
         ip = ip.toLowerCase();
         // 不能判断当前连接的IP，保守处理，拒绝放行
         if (StrUtil.isEmpty(ip)) {
-            log.debug("[SecurityGroup] cannot get remote ip,this pack  be reject");
+            log.debug("[SecurityGroup] cannot get remote ip,this pack be reject");
             return false;
         }
 
