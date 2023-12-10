@@ -4,14 +4,14 @@ const baseUri = '/security';
 
 export function fetchGroupList() {
   return request({
-    url: `${baseUri}/group/s`,
+    url: `${baseUri}/group/list`,
     method: 'get'
   })
 }
 
 export function fetchGroupOne(groupId) {
   return request({
-    url: `${baseUri}/group/getOne?groupId=${groupId}`,
+    url: `${baseUri}/group/detail?groupId=${groupId}`,
     method: 'get'
   })
 }
@@ -55,7 +55,7 @@ export function disableGroup(groupId) {
 
 export function fetchRuleList(groupId) {
   return request({
-    url: `${baseUri}/rule/s?groupId=${groupId}`,
+    url: `${baseUri}/rule/list?groupId=${groupId}`,
     method: 'get'
   })
 }

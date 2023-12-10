@@ -30,14 +30,14 @@ public class SecurityController {
      * 获取当前用户权限下的安全组
      */
     @Get
-    @Mapping("/group/s")
-    public List<SecurityGroupRes> getGroups() {
+    @Mapping("/group/list")
+    public List<SecurityGroupRes> groupList() {
         List<SecurityGroupDO> groupDOList = groupService.queryGroupList();
         return groupDOList.stream().map(SecurityGroupDO::toRes).collect(Collectors.toList());
     }
 
     @Get
-    @Mapping("/group/getOne")
+    @Mapping("/group/detail")
     public SecurityGroupRes getGroupOne(Integer groupId) {
         return groupService.queryGroupOne(groupId).toRes();
     }
@@ -77,8 +77,8 @@ public class SecurityController {
     }
 
     @Get
-    @Mapping("/rule/s")
-    public List<SecurityRuleRes> getRulesByGroupId(Integer groupId) {
+    @Mapping("/rule/list")
+    public List<SecurityRuleRes> getRuleListByGroupId(Integer groupId) {
         List<SecurityRuleDO> ruleDOList = groupService.queryRuleListByGroupId(groupId);
         return ruleDOList.stream().map(SecurityRuleDO::toRes).collect(Collectors.toList());
     }
