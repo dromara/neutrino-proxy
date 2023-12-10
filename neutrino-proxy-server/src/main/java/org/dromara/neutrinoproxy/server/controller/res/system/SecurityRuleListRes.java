@@ -3,7 +3,6 @@ package org.dromara.neutrinoproxy.server.controller.res.system;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
 
 import java.util.Date;
@@ -11,7 +10,7 @@ import java.util.Date;
 @Data
 @ToString
 @Accessors(chain = true)
-public class SecurityRuleRes {
+public class SecurityRuleListRes {
 
     private Integer id;
 
@@ -44,7 +43,7 @@ public class SecurityRuleRes {
      * 放行类型，reject 或 allow
      * {@link SecurityRulePassTypeEnum}
      */
-    private String passType;
+    private Integer passType;
 
     /**
      * 优先级，数字越小，优先级越高
@@ -59,10 +58,10 @@ public class SecurityRuleRes {
     /**
      * 创建时间
      */
-    private String createTime;
+    private Date createTime;
     /**
      * 更新时间
      */
-    private String updateTime;
+    private Date updateTime;
 
 }

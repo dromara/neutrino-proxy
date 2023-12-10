@@ -1,8 +1,6 @@
 package org.dromara.neutrinoproxy.server.dal.entity;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.net.Ipv4Util;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -13,7 +11,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleListRes;
 
 import java.util.Date;
 
@@ -55,7 +53,7 @@ public class SecurityRuleDO {
      * 放行类型，reject 或 allow
      * {@link SecurityRulePassTypeEnum}
      */
-    private SecurityRulePassTypeEnum passType;
+    private Integer passType;
 
     /**
      * 优先级，数字越小，优先级越高
@@ -113,7 +111,7 @@ public class SecurityRuleDO {
             // 单个ip,ipv6在此步已处理，后面不需要额外判断ipv6的情况
             if (rule.matches("(\\d+\\.){3}\\d+") || isIpv6) {
                 if (rule.equalsIgnoreCase(ip)) {
-                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
+                    return SecurityRulePassTypeEnum.ALLOW.getType().equals(passType) ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }
 
@@ -121,7 +119,7 @@ public class SecurityRuleDO {
             if (rule.matches("(\\d+\\.){3}\\d+-(\\d+\\.){3}\\d+")) {
                 String[] ipRange = rule.split("-");
                 if (ipRange[0].compareTo(ip) <= 0 && ip.compareTo(ipRange[1]) <= 0) {
-                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
+                    return SecurityRulePassTypeEnum.ALLOW.getType().equals(passType) ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }
 
@@ -131,12 +129,12 @@ public class SecurityRuleDO {
                 Long beginIp = Ipv4Util.getBeginIpLong(netIp[0], Integer.parseInt(netIp[1]));
                 Long endIp = Ipv4Util.getEndIpLong(netIp[0], Integer.parseInt(netIp[1]));
                 if (beginIp <= ipLong && ipLong <= endIp) {
-                    return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
+                    return SecurityRulePassTypeEnum.ALLOW.getType().equals(passType) ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
                 }
             }
 
             if (rule.equalsIgnoreCase("ALL") || rule.equals("0.0.0.0") || rule.equals("0.0.0.0/0")) {
-                return passType == SecurityRulePassTypeEnum.ALLOW ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
+                return SecurityRulePassTypeEnum.ALLOW.getType().equals(passType) ? SecurityRulePassTypeEnum.ALLOW : SecurityRulePassTypeEnum.DENY;
             }
 
         }
@@ -145,13 +143,9 @@ public class SecurityRuleDO {
         return SecurityRulePassTypeEnum.NONE;
     }
 
-    public SecurityRuleRes toRes() {
-        SecurityRuleRes res = new SecurityRuleRes();
+    public SecurityRuleListRes toListRes() {
+        SecurityRuleListRes res = new SecurityRuleListRes();
         BeanUtil.copyProperties(this, res);
-        res.setPassType(this.passType.getDesc())
-            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
-            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT))
-        ;
         return res;
     }
 

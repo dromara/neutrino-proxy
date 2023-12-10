@@ -31,7 +31,7 @@ public class SecurityGroupDetailRes {
      * 默认放行类型
      * {@link SecurityRulePassTypeEnum}
      */
-    private String defaultPassType;
+    private Integer defaultPassType;
 
     /**
      * 创建时间

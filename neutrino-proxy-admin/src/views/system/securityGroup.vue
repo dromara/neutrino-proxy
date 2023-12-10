@@ -3,11 +3,15 @@
     <div class="filter-container">
       <el-input v-model="listQuery.name" style="width:145px;margin-right:10px" placeholder="请输入名称" />
       <el-input v-model="listQuery.description" style="width:145px;margin-right:10px" placeholder="请输入描述" />
+      <el-select v-model="listQuery.defaultPassType" placeholder="请选择默认放行类型" clearable style="width:145px;margin-right:10px">
+        <el-option v-for="item in selectObj.passType" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
       <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{
-          $t('table.search') }}</el-button>
+          $t('table.search') }}
+      </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
@@ -31,18 +35,17 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.defaultPassType')">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.defaultPassType == 'allow'">允许</el-tag>
-          <el-tag type="info" v-if="scope.row.defaultPassType == 'deny'">拒绝</el-tag>
+          <el-tag :type="scope.row.defaultPassType | statusFilter">{{ scope.row.defaultPassType | passTypeName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.createTime}}</span>
+          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.updateTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.updateTime}}</span>
+          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')">
@@ -186,6 +189,7 @@
 import {fetchGroupPage, createGroup, updateGroup, deleteGroup, updateGroupEnableStatus} from '@/api/securityGroup'
 import { fetchList as fetchPortMappingList, portMappingBindSecurityGroup, portMappingUnbindSecurityGroup} from '@/api/portMapping'
 import waves from '@/directive/waves' // 水波纹指令
+import { parseTime } from '@/utils'
 import LinkPopover from '../../components/Link/linkPopover'
 
   export default {
@@ -206,6 +210,7 @@ import LinkPopover from '../../components/Link/linkPopover'
           size: 10,
           name: undefined,
           description: undefined,
+          defaultPassType: undefined,
           enable: undefined
         },
         listLoading: true,
@@ -217,7 +222,9 @@ import LinkPopover from '../../components/Link/linkPopover'
         },
         selectObj: {
           statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
-          onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }]
+          onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }],
+          passType: [{ label: '允许', value: 1 }, { label: '拒绝', value: 2 }]
+
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -255,6 +262,13 @@ import LinkPopover from '../../components/Link/linkPopover'
       }
     },
     filters: {
+      passTypeName(type) {
+        const statusMap = {
+          1: '允许',
+          2: '拒绝'
+        }
+        return statusMap[type]
+      },
       statusName(status) {
         const statusMap = {
           1: '启用',
@@ -355,8 +369,7 @@ import LinkPopover from '../../components/Link/linkPopover'
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.defaultPassType = row.defaultPassType == 'allow' ? 1 : 0
-        this.temp.timestamp = new Date(this.temp.timestamp)
+        // this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -396,7 +409,9 @@ import LinkPopover from '../../components/Link/linkPopover'
         })
       },
       handleGoRulePage (row) {
-        this.$router.push(`/system/securityRule?groupId=${row.id}`)
+        this.$router.push({ path: '/system/securityRule', query: { groupId: row.id }})
+
+        // this.$router.push(`/system/securityRule?groupId=${row.id}`)
       },
       handlePortMapping(row) {
         this.dialogBindPortMappingVisible = true

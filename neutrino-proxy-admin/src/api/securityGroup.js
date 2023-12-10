@@ -58,6 +58,14 @@ export function updateGroupEnableStatus(id, enable) {
   })
 }
 
+export function fetchRulePage(query) {
+  return request({
+    url: '/security/rule/page',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchRuleList(query) {
   return request({
     url: '/security/rule/list',
@@ -89,16 +97,13 @@ export function deleteRule(query) {
   })
 }
 
-export function enableRule(ruleId) {
+export function updateRuleEnableStatus(id, enable) {
   return request({
-    url: `/security/rule/enable?ruleId=${ruleId}`,
-    method: 'post'
-  })
-}
-
-export function disableRule(ruleId) {
-  return request({
-    url: `/security/rule/disable?ruleId=${ruleId}`,
-    method: 'post'
+    url: '/security/rule/update/enable-status',
+    method: 'post',
+    data: {
+      id: id,
+      enable: enable
+    }
   })
 }

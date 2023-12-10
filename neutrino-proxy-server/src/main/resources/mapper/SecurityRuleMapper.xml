@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.neutrinoproxy.server.dal.SecurityRuleMapper">
+
+    <select id="selectByCondition" resultType="org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO">
+        SELECT sr.* from security_rule sr
+        <where>
+            <if test="req.groupId != null">
+                AND sr.group_id = ${req.groupId}
+            </if>
+            <if test="req.name != null and req.name != '' ">
+                AND sr.name like #{req.name}
+            </if>
+            <if test="req.description != null and req.description != '' ">
+                AND sr.description like #{req.description}
+            </if>
+            <if test="req.passType != null">
+                AND sr.pass_type like #{req.passType}
+            </if>
+            <if test="req.enable != null">
+                AND sr.enable like #{req.enable}
+            </if>
+        </where>
+        order by sr.id DESC
+    </select>
+</mapper>

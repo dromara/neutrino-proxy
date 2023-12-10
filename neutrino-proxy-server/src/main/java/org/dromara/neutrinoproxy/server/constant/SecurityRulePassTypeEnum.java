@@ -11,6 +11,6 @@ public enum SecurityRulePassTypeEnum {
     NONE(-1, "none")
     ;
 
-    private final Integer code;
+    private final Integer type;
     private final String desc;
 }

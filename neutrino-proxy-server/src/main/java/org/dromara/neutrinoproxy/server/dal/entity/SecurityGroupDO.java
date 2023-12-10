@@ -49,7 +49,7 @@ public class SecurityGroupDO {
      * 默认放行类型
      * {@link SecurityRulePassTypeEnum}
      */
-    private SecurityRulePassTypeEnum defaultPassType;
+    private Integer defaultPassType;
 
     /**
      * 创建时间
@@ -63,18 +63,12 @@ public class SecurityGroupDO {
     public SecurityGroupListRes toListRes() {
         SecurityGroupListRes res = new SecurityGroupListRes();
         BeanUtil.copyProperties(this, res);
-        res.setDefaultPassType(defaultPassType.getDesc())
-            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
-            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT));
         return res;
     }
 
     public SecurityGroupDetailRes toDetailRes() {
         SecurityGroupDetailRes res = new SecurityGroupDetailRes();
         BeanUtil.copyProperties(this, res);
-        res.setDefaultPassType(defaultPassType.getDesc())
-            .setCreateTime(DateUtil.format(this.getCreateTime(), DatePattern.NORM_DATETIME_FORMAT))
-            .setUpdateTime(DateUtil.format(this.getUpdateTime(), DatePattern.NORM_DATETIME_FORMAT));
         return res;
     }
 }

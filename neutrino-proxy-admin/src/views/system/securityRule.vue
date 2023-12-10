@@ -6,7 +6,18 @@
       <div style="text-align: center;font-size:14px; color: #606266">{{group.description}}</div>
     </div>
 
-    <div class="filter-container" align="right">
+    <div class="filter-container">
+      <el-input v-model="listQuery.name" style="width:145px;margin-right:10px" placeholder="请输入名称" />
+      <el-input v-model="listQuery.description" style="width:145px;margin-right:10px" placeholder="请输入描述" />
+<!--      <el-select v-model="listQuery.passType" placeholder="请选择默认放行类型" clearable style="width:145px;margin-right:10px">-->
+<!--          <el-option v-for="item in selectObj.passType" :key="item.value" :label="item.label" :value="item.value" />-->
+<!--      </el-select>-->
+      <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
+          <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{
+          $t('table.search') }}
+      </el-button>
       <el-button class="filter-item" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
@@ -35,8 +46,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.passType')">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.passType == 'allow'" effect="dark">允许</el-tag>
-          <el-tag type="info" v-if="scope.row.passType == 'deny'" effect="dark">拒绝</el-tag>
+          <el-tag :type="scope.row.passType | statusFilter">{{ scope.row.passType | passTypeName }}</el-tag>
         </template>
       </el-table-column>
 <!--      <el-table-column align="center" :label="$t('table.priority')">-->
@@ -46,12 +56,12 @@
 <!--      </el-table-column>-->
       <el-table-column align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.createTime}}</span>
+          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.updateTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.updateTime}}</span>
+          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="150">
@@ -62,12 +72,19 @@
       <el-table-column align="center" :label="$t('table.actions')" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-link type="primary" :underline="false" size="mini" @click="handleUpdate(scope.row)" style="font-size:12px">{{$t('table.edit')}}</el-link>
-          <el-link :underline="false" v-if="scope.row.enable =='1'" size="mini" type="warning" @click="handleDisableStatus(scope.row)" style="font-size:12px">{{$t('table.disable')}}</el-link>
-          <el-link :underline="false" v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleEnableStatus(scope.row)" style="font-size:12px">{{$t('table.enable')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='1'" size="mini" type="warning" @click="handleModifyStatus(scope.row, 2)" style="font-size:12px">{{$t('table.disable')}}</el-link>
+          <el-link :underline="false" v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)" style="font-size:12px">{{$t('table.enable')}}</el-link>
           <LinkPopover @handleCommitClick="handleDelete(scope.row)"/>
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination-container">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                     :current-pageInfo.sync="listQuery.current" :pageInfo-sizes="[10, 20, 30, 50]" :pageInfo-size="listQuery.size"
+                     layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="4vh">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="100px" style='margin-left:50px;margin-right: 150px'>
@@ -131,7 +148,7 @@
 </template>
 
 <script>
-import {fetchGroupDetail, fetchRuleList, createRule, updateRule, deleteRule, enableRule, disableRule} from '@/api/securityGroup'
+import {fetchGroupDetail, fetchRulePage, createRule, updateRule, deleteRule, updateRuleEnableStatus} from '@/api/securityGroup'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import LinkPopover from '../../components/Link/linkPopover'
@@ -150,6 +167,16 @@ import LinkPopover from '../../components/Link/linkPopover'
         group: {},
         tableKey: 0,
         list: [],
+        total: null,
+        listQuery: {
+          current: 1,
+          size: 10,
+          groupId: undefined,
+          name: undefined,
+          description: undefined,
+          passType: undefined,
+          enable: undefined
+        },
         listLoading: true,
         temp: {
           id: undefined,
@@ -160,6 +187,12 @@ import LinkPopover from '../../components/Link/linkPopover'
           passType: undefined,
           passTypeTooltip: '',
           priority: 1
+        },
+        selectObj: {
+            statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
+            onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }],
+            passType: [{ label: '允许', value: 1 }, { label: '拒绝', value: 2 }]
+
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -181,6 +214,13 @@ import LinkPopover from '../../components/Link/linkPopover'
       }
     },
     filters: {
+      passTypeName(type) {
+        const statusMap = {
+          1: '允许',
+          2: '拒绝'
+        }
+        return statusMap[type]
+      },
       statusName(status) {
         const statusMap = {
           1: '启用',
@@ -201,39 +241,29 @@ import LinkPopover from '../../components/Link/linkPopover'
     },
     created() {
       // eslint-disable-next-line no-sequences
-      const queryParam = this.$route.query
-      if (queryParam && typeof queryParam === 'object' && queryParam.groupId) {
-        this.groupId = queryParam.groupId
-        localStorage.setItem('groupId', this.groupId)
-        this.getGroupDetail()
-        this.getList()
-        return
+      if (this.$route.query.groupId) {
+          this.listQuery.groupId = this.$route.query.groupId
+      } else {
+          this.$notify({
+              title: '错误',
+              message: '没有获取到安全组信息',
+              type: 'error',
+              duration: 3000
+          })
+          this.$router.push(`/system/securityGroup`)
+          return
       }
-
-      const groupId = localStorage.getItem('groupId')
-      if (groupId) {
-        this.groupId = parseInt(groupId)
-        this.getGroupDetail()
-        this.getList()
-        return
-      }
-
-      this.$notify({
-          title: '错误',
-          message: '没有获取到安全组信息',
-          type: 'error',
-          duration: 3000
-        })
-      this.$router.push(`/system/securityGroup`)
+      this.getGroupDetail()
+      this.getList()
     },
     methods: {
       getGroupDetail () {
-        fetchGroupDetail({id: this.groupId}).then(response => {
+        fetchGroupDetail({id: this.listQuery.groupId}).then(response => {
           this.group = response.data.data
         })
       },
       getList() {
-        if (!this.groupId) {
+        if (!this.listQuery.groupId) {
           this.$notify({
               title: '错误',
               message: '没有获取到安全组信息',
@@ -243,10 +273,23 @@ import LinkPopover from '../../components/Link/linkPopover'
           return
         }
         this.listLoading = true
-        fetchRuleList({groupId: this.groupId}).then(response => {
-          this.list = response.data.data
+        fetchRulePage(this.listQuery).then(response => {
+          this.list = response.data.data.records
+          this.total = response.data.data.total
           this.listLoading = false
         })
+      },
+      handleFilter() {
+        this.listQuery.current = 1
+        this.getList()
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val
+        this.getList()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val
+        this.getList()
       },
       handleEnableStatus(row) {
         enableRule(row.id).then(response => {
@@ -270,10 +313,21 @@ import LinkPopover from '../../components/Link/linkPopover'
           }
         })
       },
+      handleModifyStatus(row, enable) {
+        updateRuleEnableStatus(row.id, enable).then(response => {
+          if (response.data.data.code === 0) {
+            this.$message({
+              message: '操作成功',
+              type: 'success'
+            })
+          }
+          this.getList()
+        })
+      },
       resetTemp() {
         this.temp = {
           id: undefined,
-          groupId: this.groupId,
+          groupId: this.listQuery.groupId,
           name: '',
           description: '',
           rule: '',
@@ -293,7 +347,7 @@ import LinkPopover from '../../components/Link/linkPopover'
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.temp.groupId = this.groupId
+            this.temp.groupId = this.listQuery.groupId
             createRule(this.temp).then(response => {
               if (response.data.code === 0) {
                 this.dialogFormVisible = false
@@ -324,7 +378,7 @@ import LinkPopover from '../../components/Link/linkPopover'
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             const tempData = Object.assign({}, this.temp)
-            tempData.groupId = this.groupId
+            tempData.groupId = this.listQuery.groupId
             updateRule(tempData).then(response => {
               if (response.data.code === 0) {
                 this.$notify({

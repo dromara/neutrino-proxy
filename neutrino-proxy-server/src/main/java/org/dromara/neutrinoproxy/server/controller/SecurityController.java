@@ -2,20 +2,14 @@ package org.dromara.neutrinoproxy.server.controller;
 
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.req.system.*;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupDetailRes;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListRes;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupUpdateEnableStatueRes;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityRuleRes;
-import org.dromara.neutrinoproxy.server.dal.entity.SecurityRuleDO;
+import org.dromara.neutrinoproxy.server.controller.res.system.*;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @Mapping("/security")
@@ -88,10 +82,17 @@ public class SecurityController {
     }
 
     @Get
+    @Mapping("/rule/page")
+    public PageInfo<SecurityRuleListRes> rulePage(PageQuery pageQuery, SecurityRuleListReq req) {
+        ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
+
+        return groupService.rulePage(pageQuery, req);
+    }
+
+    @Get
     @Mapping("/rule/list")
-    public List<SecurityRuleRes> getRuleListByGroupId(Integer groupId) {
-        List<SecurityRuleDO> ruleDOList = groupService.queryRuleListByGroupId(groupId);
-        return ruleDOList.stream().map(SecurityRuleDO::toRes).collect(Collectors.toList());
+    public List<SecurityRuleListRes> getRuleListByGroupId(SecurityRuleListReq req) {
+        return groupService.ruleList(req);
     }
 
     @Post
@@ -114,15 +115,13 @@ public class SecurityController {
 
 
     @Post
-    @Mapping("/rule/enable")
-    public void enableRule(Integer ruleId) {
-        groupService.setRuleStatus(ruleId, EnableStatusEnum.ENABLE);
-    }
+    @Mapping("/rule/update/enable-status")
+    public SecurityRuleUpdateEnableStatueRes updateRuleEnableStatueReq(SecurityRuleUpdateEnableStatueReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        ParamCheckUtil.checkNotNull(req.getId(), "id");
+        ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
 
-    @Post
-    @Mapping("/rule/disable")
-    public void disableRule(Integer ruleId) {
-        groupService.setRuleStatus(ruleId, EnableStatusEnum.DISABLE);
+        return groupService.updateRuleEnableStatueReq(req);
     }
 
 }

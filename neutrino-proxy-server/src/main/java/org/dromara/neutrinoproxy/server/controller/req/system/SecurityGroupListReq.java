@@ -17,6 +17,6 @@ public class SecurityGroupListReq {
     /**
      * 通过类型
      */
-    private SecurityRulePassTypeEnum defaultPassType;
+    private Integer defaultPassType;
     private Integer enable;
 }

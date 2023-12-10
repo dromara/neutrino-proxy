@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `security_group` (
     `description` VARCHAR(255),
     `user_id` INTEGER NOT NULL,
     `enable` INTEGER NOT NULL,
-    `default_pass_type` VARCHAR(20) NOT NULL,
+    `default_pass_type` INTEGER NOT NULL,
     `create_time` TIMESTAMP NOT NULL,
     `update_time` TIMESTAMP NOT NULL,
     PRIMARY KEY (`id`)
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `security_rule` (
     `name` VARCHAR(20) NOT NULL,
     `description` VARCHAR(255) NOT NULL,
     `rule` text NOT NULL,
-    `pass_type` VARCHAR(20) NOT NULL,
+    `pass_type` INTEGER NOT NULL,
     `priority` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
     `enable` INTEGER NOT NULL,

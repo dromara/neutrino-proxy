@@ -18,6 +18,6 @@ public class SecurityGroupCreateReq {
     /**
      * 通过类型
      */
-    private SecurityRulePassTypeEnum defaultPassType;
+    private Integer defaultPassType;
 
 }

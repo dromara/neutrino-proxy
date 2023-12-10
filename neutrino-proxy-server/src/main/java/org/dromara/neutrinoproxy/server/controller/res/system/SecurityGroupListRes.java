@@ -5,6 +5,8 @@ import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
 
+import java.util.Date;
+
 @Data
 @Accessors(chain = true)
 public class SecurityGroupListRes {
@@ -31,16 +33,16 @@ public class SecurityGroupListRes {
      * 默认放行类型
      * {@link SecurityRulePassTypeEnum}
      */
-    private String defaultPassType;
+    private Integer defaultPassType;
 
     /**
      * 创建时间
      */
-    private String createTime;
+    private Date createTime;
     /**
      * 更新时间
      */
-    private String updateTime;
+    private Date updateTime;
 
 
 

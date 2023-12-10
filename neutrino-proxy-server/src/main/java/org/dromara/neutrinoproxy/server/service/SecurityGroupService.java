@@ -4,6 +4,7 @@ import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -17,9 +18,7 @@ import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
 import org.dromara.neutrinoproxy.server.constant.SecurityRulePassTypeEnum;
 import org.dromara.neutrinoproxy.server.controller.req.system.*;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupDetailRes;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupListRes;
-import org.dromara.neutrinoproxy.server.controller.res.system.SecurityGroupUpdateEnableStatueRes;
+import org.dromara.neutrinoproxy.server.controller.res.system.*;
 import org.dromara.neutrinoproxy.server.dal.SecurityGroupMapper;
 import org.dromara.neutrinoproxy.server.dal.SecurityRuleMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.SecurityGroupDO;
@@ -70,17 +69,17 @@ public class SecurityGroupService {
 
     public PageInfo<SecurityGroupListRes> groupPage(PageQuery pageQuery, SecurityGroupListReq req) {
         if (StringUtils.isNotEmpty(req.getName())) {
-            //描述字段为模糊查询，在应用层处理，否则sqlite不支持
+            //在应用层处理，否则sqlite不支持
             req.setName("%" + req.getName() + "%");
         }
         if (StringUtils.isNotEmpty(req.getDescription())) {
-            //描述字段为模糊查询，在应用层处理，否则sqlite不支持
+            //在应用层处理，否则sqlite不支持
             req.setDescription("%" + req.getDescription() + "%");
         }
         Page<SecurityGroupDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
         List<SecurityGroupDO> list = securityGroupMapper.selectByCondition(page, req);
         if (CollectionUtils.isEmpty(list)) {
-            PageInfo.of(null, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+            return PageInfo.of(null, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
         }
         List<SecurityGroupListRes> respList = list.stream().map(SecurityGroupDO::toListRes).collect(Collectors.toList());
         return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
@@ -145,11 +144,32 @@ public class SecurityGroupService {
         return new SecurityGroupUpdateEnableStatueRes();
     }
 
-    public List<SecurityRuleDO> queryRuleListByGroupId(Integer groupId) {
-        return securityRuleMapper.selectList(Wrappers.lambdaQuery(SecurityRuleDO.class)
-            .eq(SecurityRuleDO::getGroupId, groupId)
-            .orderByAsc(SecurityRuleDO::getPriority)
+    public PageInfo<SecurityRuleListRes> rulePage(PageQuery pageQuery, SecurityRuleListReq req) {
+        if (StringUtils.isNotEmpty(req.getName())) {
+            //在应用层处理，否则sqlite不支持
+            req.setName("%" + req.getName() + "%");
+        }
+        if (StringUtils.isNotEmpty(req.getDescription())) {
+            //在应用层处理，否则sqlite不支持
+            req.setDescription("%" + req.getDescription() + "%");
+        }
+        Page<SecurityRuleDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
+        List<SecurityRuleDO> list = securityRuleMapper.selectByCondition(page, req);
+        if (CollectionUtils.isEmpty(list)) {
+            return PageInfo.of(null, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+        }
+        List<SecurityRuleListRes> respList = list.stream().map(SecurityRuleDO::toListRes).collect(Collectors.toList());
+        return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
+    }
+
+    public List<SecurityRuleListRes> ruleList(SecurityRuleListReq req) {
+        List<SecurityRuleDO> list = securityRuleMapper.selectList(new LambdaQueryWrapper<SecurityRuleDO>()
+                .eq(null != req.getGroupId(), SecurityRuleDO::getGroupId, req.getGroupId())
         );
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(SecurityRuleDO::toListRes).collect(Collectors.toList());
     }
 
     public void createRule(SecurityRuleCreateReq req) {
@@ -175,12 +195,13 @@ public class SecurityGroupService {
         clearCache();
     }
 
-    public void setRuleStatus(Integer ruleId, EnableStatusEnum statusEnum) {
-        SecurityRuleDO ruleDO = securityRuleMapper.selectById(ruleId);
-        ruleDO.setEnable(statusEnum.getStatus());
-        ruleDO.setUpdateTime(new Date());
-        securityRuleMapper.updateById(ruleDO);
+    public SecurityRuleUpdateEnableStatueRes updateRuleEnableStatueReq(SecurityRuleUpdateEnableStatueReq req) {
+        SecurityRuleDO ruleDO = securityRuleMapper.selectById(req.getId());
+        ParamCheckUtil.checkNotNull(ruleDO, ExceptionConstant.SECURITY_RULE_NOT_EXIST);
+
+        securityRuleMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
         clearCache();
+        return new SecurityRuleUpdateEnableStatueRes();
     }
 
     /**
@@ -235,7 +256,7 @@ public class SecurityGroupService {
 
         // 当前IP没有匹配到任何一条规则，则使用安全组默认规则
         if (allow == null) {
-            allow = groupDO.getDefaultPassType() == SecurityRulePassTypeEnum.ALLOW;
+            allow = SecurityRulePassTypeEnum.ALLOW.getType().equals(groupDO.getDefaultPassType());
             log.debug("[SecurityGroup] ip:{} groupId{} use security group default strategy:{}", ip, groupId, allow ? "allow" : "reject");
         }
 

@@ -71,6 +71,8 @@ public enum ExceptionConstant {
 
     // 安全组管理(17000)
     SECURITY_GROUP_NOT_EXIST(17000, "安全组不存在"),
+	SECURITY_RULE_NOT_EXIST(17001, "安全规则不存在"),
+
 	;
 
 	private int code;

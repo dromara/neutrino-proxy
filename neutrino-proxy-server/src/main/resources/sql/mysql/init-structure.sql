@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `security_group` (
     `description` varchar(255) COMMENT '安全组描述',
     `user_id` int NOT NULL COMMENT '用户ID',
     `enable` int NOT NULL COMMENT '是否启用(1、启用 2、禁用)',
-    `default_pass_type` varchar(20) NOT NULL COMMENT '默认放行类型',
+    `default_pass_type` int NOT NULL COMMENT '默认放行类型',
     `create_time` datetime(3) NOT NULL COMMENT '创建时间',
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`)
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `security_rule` (
     `name` varchar(20) NOT NULL COMMENT '规则名称',
     `description` varchar(255) NOT NULL COMMENT '规则描述',
     `rule` text NOT NULL COMMENT '规则内容',
-    `pass_type` varchar(20) NOT NULL COMMENT '放行类型',
+    `pass_type` int NOT NULL COMMENT '放行类型',
     `priority` int(1) NOT NULL COMMENT '优先级',
     `user_id` int NOT NULL COMMENT '用户ID',
     `enable` int NOT NULL COMMENT '是否启用(1、启用 2、禁用)',
