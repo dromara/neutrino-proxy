@@ -35,7 +35,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.defaultPassType')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.defaultPassType | statusFilter">{{ scope.row.defaultPassType | passTypeName }}</el-tag>
+          <el-tag :type="scope.row.defaultPassType | passTypeFilter">{{ scope.row.defaultPassType | passTypeName }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.createTime')">
@@ -265,7 +265,14 @@ import LinkPopover from '../../components/Link/linkPopover'
       passTypeName(type) {
         const statusMap = {
           1: '允许',
-          2: '拒绝'
+          0: '拒绝'
+        }
+        return statusMap[type]
+      },
+      passTypeFilter(type) {
+        const statusMap = {
+          1: 'success',
+          0: 'danger'
         }
         return statusMap[type]
       },

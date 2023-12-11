@@ -46,7 +46,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.passType')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.passType | statusFilter">{{ scope.row.passType | passTypeName }}</el-tag>
+          <el-tag :type="scope.row.passType | passTypeFilter">{{ scope.row.passType | passTypeName }}</el-tag>
         </template>
       </el-table-column>
 <!--      <el-table-column align="center" :label="$t('table.priority')">-->
@@ -217,7 +217,14 @@ import LinkPopover from '../../components/Link/linkPopover'
       passTypeName(type) {
         const statusMap = {
           1: '允许',
-          2: '拒绝'
+          0: '拒绝'
+        }
+        return statusMap[type]
+      },
+      passTypeFilter(type) {
+        const statusMap = {
+          1: 'success',
+          0: 'danger'
         }
         return statusMap[type]
       },
@@ -331,8 +338,8 @@ import LinkPopover from '../../components/Link/linkPopover'
           name: '',
           description: '',
           rule: '',
-          passType: this.group.defaultPassType == 'allow' ? 0 : 1,
-          passTypeTooltip: `安全组已设置默认${(this.group.defaultPassType == 'allow' ? '允许' : '拒绝')}`,
+          passType: this.group.defaultPassType == 1 ? 0 : 1,
+          passTypeTooltip: `安全组已设置默认${(this.group.defaultPassType == 1 ? '允许' : '拒绝')}`,
           priority: 1
         }
       },
@@ -365,8 +372,8 @@ import LinkPopover from '../../components/Link/linkPopover'
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.passType = row.passType == 'allow' ? 1 : 0
-        this.temp.passTypeTooltip = `安全组已设置默认${(this.group.defaultPassType == 'allow' ? '允许' : '拒绝')}`,
+        this.temp.passType = row.passType
+        this.temp.passTypeTooltip = `安全组已设置默认${(this.group.defaultPassType == 1 ? '允许' : '拒绝')}`,
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
