@@ -7,18 +7,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
-import org.dromara.neutrinoproxy.server.service.PortMappingService;
-import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
-import org.noear.solon.annotation.Inject;
 
 import java.net.InetSocketAddress;
 
@@ -29,10 +24,6 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
-
-    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
-
-    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -55,18 +46,6 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
         byte[] bytes = new byte[buf.readableBytes()];
         buf.readBytes(bytes);
 
-        // 判断IP是否在该端口绑定的安全组允许的规则内
-        String ip = IpUtil.getRealRemoteIp(new String(bytes));
-        if (StringUtils.isEmpty(ip)) {
-            ip = IpUtil.getRemoteIp(ctx);
-        }
-        InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
-        if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
-            return;
-        }
-
         // 代理通道可写，则设置访问通道可读。代理通道不可写，则设置访问通道不可读
         visitorChannel.config().setAutoRead(proxyChannel.isWritable());
 
@@ -83,13 +62,6 @@ public class TcpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBu
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel visitorChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
-
-        // 判断IP是否在该端口绑定的安全组允许的规则内
-        if (!securityGroupService.judgeAllow(IpUtil.getRemoteIp(ctx), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
-            return;
-        }
 
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(sa.getPort());
         if (null == cmdChannel) {

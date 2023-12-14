@@ -14,6 +14,7 @@ import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
 import org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelServer;
+import org.dromara.neutrinoproxy.server.proxy.security.HttpVisitorSecurityChannelHandler;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
@@ -55,7 +56,8 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                             }
                             ch.pipeline().addLast(createSslHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }
                     });
             bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpsProxyPort()).sync();

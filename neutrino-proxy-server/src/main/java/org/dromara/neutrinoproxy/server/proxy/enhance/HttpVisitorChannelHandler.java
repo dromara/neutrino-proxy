@@ -1,6 +1,5 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
-import cn.hutool.core.util.StrUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,17 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.util.HttpUtil;
-import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
-import org.dromara.neutrinoproxy.server.service.PortMappingService;
-import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
-import org.noear.solon.annotation.Inject;
 
 import java.net.InetSocketAddress;
 
@@ -31,26 +25,8 @@ import java.net.InetSocketAddress;
 @Slf4j
 public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
-
-    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
-
-    /**
-     * 域名
-     */
-    private String domainName;
-
-    public HttpVisitorChannelHandler(String domainName) {
-        this.domainName = domainName;
-    }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
-        if (StrUtil.isBlank(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-
         byte[] bytes = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(bytes);
         byteBuf.resetReaderIndex();
@@ -78,38 +54,9 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
 
-        String httpContent = new String(bytes);
-        String host = HttpUtil.getHostIgnorePort(httpContent);// getHost(httpContent);
-        log.debug("HttpProxy host: {}", host);
-        if (StringUtils.isBlank(host)) {
-            ctx.channel().close();
-            return;
-        }
-        if (!host.endsWith(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-        int index = host.lastIndexOf("." + domainName);
-        String subdomain = host.substring(0, index);
 
         // 根据域名拿到绑定的映射对应的cmdChannel
-        Integer serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
-        if (null == serverPort) {
-            ctx.channel().close();
-            return;
-        }
-
-        // 判断IP是否在该端口绑定的安全组允许的规则内
-        String ip = IpUtil.getRealRemoteIp(httpContent);
-        if (ip == null) {
-            ip = IpUtil.getRemoteIp(ctx);
-        }
-        if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
-            return;
-        }
-
+        Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(serverPort);
         if (null == cmdChannel) {
             ctx.channel().close();

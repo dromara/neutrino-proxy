@@ -49,6 +49,8 @@ public interface Constants {
     AttributeKey<Boolean> IS_UDP_KEY =  AttributeKey.newInstance("isUdp");
     AttributeKey<InetSocketAddress> SENDER = AttributeKey.newInstance("sender");
 
+    AttributeKey<Integer> SERVER_PORT = AttributeKey.newInstance("serverPort");
+
 
     int HEADER_SIZE = 4;
     int TYPE_SIZE = 1;

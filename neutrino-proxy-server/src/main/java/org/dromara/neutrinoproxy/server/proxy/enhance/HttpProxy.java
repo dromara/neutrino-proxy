@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
 import org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelServer;
+import org.dromara.neutrinoproxy.server.proxy.security.HttpVisitorSecurityChannelHandler;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
@@ -46,7 +47,8 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }
                     });
             bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpProxyPort()).sync();
