@@ -223,7 +223,7 @@ import LinkPopover from '../../components/Link/linkPopover'
         selectObj: {
           statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
           onlineOptions: [{ label: '在线', value: 1 }, { label: '离线', value: 2 }],
-          passType: [{ label: '允许', value: 1 }, { label: '拒绝', value: 2 }]
+          passType: [{ label: '允许', value: 1 }, { label: '拒绝', value: 0 }]
 
         },
         dialogFormVisible: false,
