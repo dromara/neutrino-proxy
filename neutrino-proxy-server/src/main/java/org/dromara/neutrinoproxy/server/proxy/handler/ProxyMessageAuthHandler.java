@@ -90,7 +90,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 
 		if (StrUtil.isEmpty(licenseKey)) {
 			log.warn("[client connection] license cannot empty info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不能为空!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license cannot be empty!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
@@ -105,7 +105,7 @@ public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 		LicenseDO licenseDO = licenseService.findByKey(licenseKey);
 		if (null == licenseDO) {
 			log.warn("[client connection] license notfound info:{} ", info);
-			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license不存在!", licenseKey));
+			ctx.channel().writeAndFlush(ProxyMessage.buildAuthResultMessage(ExceptionEnum.AUTH_FAILED.getCode(), "license not found!", licenseKey));
 			ctx.channel().close();
 			clientConnectRecordService.add(new ClientConnectRecordDO()
 					.setIp(ip)
