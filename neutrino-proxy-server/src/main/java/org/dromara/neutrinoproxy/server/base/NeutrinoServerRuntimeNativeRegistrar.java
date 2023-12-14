@@ -3,28 +3,8 @@ package org.dromara.neutrinoproxy.server.base;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.base.rest.ResponseBody;
 import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
-import org.dromara.neutrinoproxy.server.dal.ClientConnectRecordMapper;
-import org.dromara.neutrinoproxy.server.dal.FlowReportDayMapper;
-import org.dromara.neutrinoproxy.server.dal.FlowReportHourMapper;
-import org.dromara.neutrinoproxy.server.dal.FlowReportMinuteMapper;
-import org.dromara.neutrinoproxy.server.dal.FlowReportMonthMapper;
-import org.dromara.neutrinoproxy.server.dal.JobInfoMapper;
-import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
-import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
-import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
-import org.dromara.neutrinoproxy.server.dal.UserLoginRecordMapper;
-import org.dromara.neutrinoproxy.server.dal.UserMapper;
-import org.dromara.neutrinoproxy.server.dal.UserTokenMapper;
-import org.dromara.neutrinoproxy.server.service.ClientConnectRecordService;
-import org.dromara.neutrinoproxy.server.service.JobInfoService;
-import org.dromara.neutrinoproxy.server.service.JobLogService;
-import org.dromara.neutrinoproxy.server.service.LicenseService;
-import org.dromara.neutrinoproxy.server.service.PortGroupService;
-import org.dromara.neutrinoproxy.server.service.PortMappingService;
-import org.dromara.neutrinoproxy.server.service.PortPoolService;
-import org.dromara.neutrinoproxy.server.service.ReportService;
-import org.dromara.neutrinoproxy.server.service.UserLoginRecordService;
-import org.dromara.neutrinoproxy.server.service.UserService;
+import org.dromara.neutrinoproxy.server.dal.*;
+import org.dromara.neutrinoproxy.server.service.*;
 import org.dromara.solonplugins.job.JobBean;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.aot.RuntimeNativeMetadata;
@@ -56,6 +36,8 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
         metadata.registerLambdaSerialization(ReportService.class);
         metadata.registerLambdaSerialization(UserLoginRecordService.class);
         metadata.registerLambdaSerialization(UserService.class);
+        metadata.registerLambdaSerialization(SecurityGroupService.class);
+
 
         metadata.registerLambdaSerialization(LicenseMapper.class);
         metadata.registerLambdaSerialization(ClientConnectRecordMapper.class);
@@ -69,6 +51,9 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
         metadata.registerLambdaSerialization(UserLoginRecordMapper.class);
         metadata.registerLambdaSerialization(UserMapper.class);
         metadata.registerLambdaSerialization(UserTokenMapper.class);
+        metadata.registerLambdaSerialization(SecurityGroupMapper.class);
+        metadata.registerLambdaSerialization(SecurityRuleMapper.class);
+
 
         metadata.registerReflection(HomeDataView.class, MemberCategory.DECLARED_FIELDS);
         metadata.registerReflection(HomeDataView.Last7dFlow.class, MemberCategory.DECLARED_FIELDS);

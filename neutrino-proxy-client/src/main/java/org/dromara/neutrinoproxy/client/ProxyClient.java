@@ -28,7 +28,9 @@ public class ProxyClient {
 			setAlias("neutrino.proxy.tunnel.jks-path", "jksPath");
 			setAlias("neutrino.proxy.tunnel.key-store-password", "keyStorePassword");
 			setAlias("neutrino.proxy.tunnel.license-key", "licenseKey");
-		});
+
+            log.info("NeutrinoProxy Client ：{}", app.cfg().get("solon.app.version"));
+        });
 	}
 
 	/**

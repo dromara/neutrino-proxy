@@ -3,7 +3,7 @@ solon:
     add: ./app.yml
   app:
     name: neutrino-proxy-client
-    version: @revision@
+    version: 2.0.1
 # 日志级别
 solon.logging.appender:
   console:
