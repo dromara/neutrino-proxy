@@ -65,12 +65,6 @@ public class UdpVisitorChannelHandler extends SimpleChannelInboundHandler<Datagr
             Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         });
 
-//        String visitorId = ProxyUtil.getVisitorIdByChannel(ctx.channel());
-//        if (StringUtils.isNotBlank(visitorId)) {
-//            // UDP代理隧道已就绪，直接转发
-//            proxyAttachment.execute();
-//            return;
-//        }
         Channel proxyChannel = ctx.channel().attr(Constants.NEXT_CHANNEL).get();
         if (null != proxyChannel && proxyChannel.isActive()) {
             // UDP代理隧道已就绪，直接转发
