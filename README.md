@@ -88,6 +88,9 @@
 <a href="https://gitee.com/songyinyin" target="_blank">
 <img src="assets/developer/songyinyin.png" width="11%">
 </a>
+<a href="https://gitee.com/nichenxyx" target="_blank">
+<img src="assets/developer/NichenFly.jpg" width="11%">
+</a>
 </p>
 
 #  ❤️ 感谢
