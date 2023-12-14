@@ -172,4 +172,16 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         // 当出现异常就关闭连接
         ctx.close();
     }
+
+    @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+
+        // 通知代理客户端
+        Channel visitorChannel = ctx.channel();
+        Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
+        if (null != proxyChannel) {
+            proxyChannel.config().setOption(ChannelOption.AUTO_READ, visitorChannel.isWritable());
+        }
+        super.channelWritabilityChanged(ctx);
+    }
 }
