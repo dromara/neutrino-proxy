@@ -38,4 +38,12 @@ public class LicenseUpdateReq {
 	 * license名称
 	 */
 	private String name;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 }

@@ -82,7 +82,8 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		ctx.channel().attr(Constants.LICENSE_ID).set(licenseDO.getId());
 		ctx.channel().attr(Constants.NEXT_CHANNEL).set(visitorChannel);
 		visitorChannel.attr(Constants.NEXT_CHANNEL).set(ctx.channel());
-		// 代理客户端与后端服务器连接成功，修改用户连接为可读状态
+        visitorChannel.attr(Constants.LICENSE_ID).set(licenseDO.getId());
+        // 代理客户端与后端服务器连接成功，修改用户连接为可读状态
 		visitorChannel.config().setOption(ChannelOption.AUTO_READ, true);
 
 		// 获取代理附加对象

@@ -21,6 +21,7 @@
  */
 package org.dromara.neutrinoproxy.server.dal.entity;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -59,6 +60,14 @@ public class LicenseDO {
 	 * 用户ID
 	 */
 	private Integer userId;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 	/**
 	 * 是否在线
 	 * {@link OnlineStatusEnum}
@@ -80,14 +89,7 @@ public class LicenseDO {
 
     public LicenseListRes toRes() {
         LicenseListRes res = new LicenseListRes();
-        res.setId(id);
-        res.setName(name);
-        res.setKey(key);
-        res.setUserId(userId);
-        res.setIsOnline(isOnline);
-        res.setEnable(enable);
-        res.setCreateTime(createTime);
-        res.setUpdateTime(updateTime);
+        BeanUtil.copyProperties(this, res);
         return res;
     }
 }

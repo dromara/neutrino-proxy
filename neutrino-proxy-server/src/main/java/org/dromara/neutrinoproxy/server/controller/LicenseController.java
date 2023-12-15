@@ -70,6 +70,8 @@ public class LicenseController {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
 		ParamCheckUtil.checkNotNull(req.getUserId(), "userId");
+        ParamCheckUtil.checkBytesDesc(req.getUpLimitRate(), "upLimitRate");
+        ParamCheckUtil.checkBytesDesc(req.getDownLimitRate(), "downLimitRate");
 
 		return licenseService.create(req);
 	}
@@ -81,6 +83,8 @@ public class LicenseController {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 		ParamCheckUtil.checkNotEmpty(req.getName(), "name");
+        ParamCheckUtil.checkBytesDesc(req.getUpLimitRate(), "upLimitRate");
+        ParamCheckUtil.checkBytesDesc(req.getDownLimitRate(), "downLimitRate");
 
 		return licenseService.update(req);
 	}

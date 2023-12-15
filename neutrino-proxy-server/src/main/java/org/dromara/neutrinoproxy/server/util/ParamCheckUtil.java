@@ -103,4 +103,20 @@ public class ParamCheckUtil {
         }
     }
 
+    /**
+     * 校验字节描述
+     * @param str
+     * @param params
+     */
+    public static void checkBytesDesc(String str, Object... params) {
+        // 允许为空
+        if (StrUtil.isEmpty(str)) {
+            return;
+        }
+        Long bytes = StringUtil.parseBytes(str);
+        if (null == bytes || bytes <= 0) {
+            throw ServiceException.create(ExceptionConstant.BYTES_DESC_INVALID, params);
+        }
+    }
+
 }

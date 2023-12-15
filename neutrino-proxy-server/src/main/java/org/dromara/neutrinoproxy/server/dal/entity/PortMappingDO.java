@@ -70,6 +70,14 @@ public class PortMappingDO {
 	 * 客户端端口
 	 */
 	private Integer clientPort;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 	/**
 	 * 描述
 	 */

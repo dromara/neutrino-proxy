@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
@@ -41,7 +42,9 @@ public class TcpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapt
             ctx.channel().close();
             return;
         }
+
         // 继续传播
+        ctx.channel().attr(Constants.SERVER_PORT).set(sa.getPort());
         buf.resetReaderIndex();
         ctx.fireChannelRead(buf);
     }

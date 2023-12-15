@@ -43,6 +43,8 @@ public class PortMappingController {
         ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
         ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
 		ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
+        ParamCheckUtil.checkBytesDesc(req.getUpLimitRate(), "upLimitRate");
+        ParamCheckUtil.checkBytesDesc(req.getDownLimitRate(), "downLimitRate");
         if (StringUtils.isBlank(req.getClientIp())) {
             // 没传客户端ip，默认为127.0.0.1
             req.setClientIp("127.0.0.1");
@@ -60,6 +62,9 @@ public class PortMappingController {
 		if (null == req.getProxyTimeoutMs()) {
 			req.setProxyTimeoutMs(0L);
 		}
+        if (null == req.getSecurityGroupId()) {
+            req.setSecurityGroupId(0);
+        }
 
 		return portMappingService.create(req);
 	}
@@ -73,6 +78,8 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
 		ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
 		ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
+        ParamCheckUtil.checkBytesDesc(req.getUpLimitRate(), "upLimitRate");
+        ParamCheckUtil.checkBytesDesc(req.getDownLimitRate(), "downLimitRate");
 		if (StringUtils.isBlank(req.getClientIp())) {
 			// 没传客户端ip，默认为127.0.0.1
 			req.setClientIp("127.0.0.1");
@@ -90,6 +97,9 @@ public class PortMappingController {
 		if (null == req.getProxyTimeoutMs()) {
 			req.setProxyTimeoutMs(0L);
 		}
+        if (null == req.getSecurityGroupId()) {
+            req.setSecurityGroupId(0);
+        }
 
         portMappingService.update(req);
 	}

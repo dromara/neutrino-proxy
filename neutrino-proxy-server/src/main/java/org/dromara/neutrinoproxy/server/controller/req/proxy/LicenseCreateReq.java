@@ -38,4 +38,12 @@ public class LicenseCreateReq {
 	 * 用户ID
 	 */
 	private Integer userId;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 }

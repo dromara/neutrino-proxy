@@ -40,8 +40,8 @@ public enum ExceptionConstant {
 	NO_PERMISSION_VISIT(5, "当前用户无权访问该资源"),
 	PARAMS_NOT_NULL(10, "参数[{}]不能为空"),
 	PARAMS_NOT_EMPTY(11, "参数[{}]不能为空"),
-
 	FILED_LENGTH_OUT(12 ,"{}不能超出长度{}"),
+    BYTES_DESC_INVALID(13, "参数[{}]字节描述不合法"),
 
 	// 用户管理(11000)
 	// license管理(12000)

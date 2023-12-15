@@ -1,7 +1,10 @@
 package org.dromara.neutrinoproxy.server.service;
 
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
 import com.google.common.collect.Sets;
@@ -29,7 +32,9 @@ import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
+import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
+import org.dromara.neutrinoproxy.server.util.StringUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
@@ -63,6 +68,8 @@ public class LicenseService implements LifecycleBean {
     private VisitorChannelService visitorChannelService;
     @Inject
     private DBInitialize dbInitialize;
+    // 流量限制缓存
+    private final Cache<Integer, FlowLimitBO> flowLimitCache = CacheUtil.newLRUCache(200, 1000 * 60 * 5);
 
     public PageInfo<LicenseListRes> page(PageQuery pageQuery, LicenseListReq req) {
         Page<LicenseDO> page = licenseMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<LicenseDO>()
@@ -128,15 +135,21 @@ public class LicenseService implements LifecycleBean {
         String key = UUID.randomUUID().toString().replaceAll("-", "");
         Date now = new Date();
 
-        licenseMapper.insert(new LicenseDO()
-                .setName(req.getName())
-                .setKey(key)
-                .setUserId(req.getUserId())
-                .setIsOnline(OnlineStatusEnum.OFFLINE.getStatus())
-                .setEnable(EnableStatusEnum.ENABLE.getStatus())
-                .setCreateTime(now)
-                .setUpdateTime(now)
-        );
+        licenseDO = new LicenseDO()
+            .setName(req.getName())
+            .setKey(key)
+            .setUserId(req.getUserId())
+            .setUpLimitRate(req.getUpLimitRate())
+            .setDownLimitRate(req.getDownLimitRate())
+            .setIsOnline(OnlineStatusEnum.OFFLINE.getStatus())
+            .setEnable(EnableStatusEnum.ENABLE.getStatus())
+            .setCreateTime(now)
+            .setUpdateTime(now);
+
+        licenseMapper.insert(licenseDO);
+
+        // 刷新流量限制缓存
+        refreshFlowLimitCache(licenseDO.getId(), licenseDO.getUpLimitRate(), licenseDO.getDownLimitRate());
         return new LicenseCreateRes();
     }
 
@@ -147,7 +160,17 @@ public class LicenseService implements LifecycleBean {
         LicenseDO licenseCheck = licenseMapper.checkRepeat(oldLicenseDO.getUserId(), req.getName(), Sets.newHashSet(oldLicenseDO.getId()));
         ParamCheckUtil.checkMustNull(licenseCheck, ExceptionConstant.LICENSE_NAME_CANNOT_REPEAT);
 
-        licenseMapper.update(req.getId(), req.getName(), new Date());
+        licenseMapper.update(null, new LambdaUpdateWrapper<LicenseDO>()
+            .eq(LicenseDO::getId, req.getId())
+            .set(LicenseDO::getName, req.getName())
+            .set(LicenseDO::getUpLimitRate, req.getUpLimitRate())
+            .set(LicenseDO::getDownLimitRate, req.getDownLimitRate())
+            .set(LicenseDO::getUpdateTime, new Date())
+        );
+
+        // 刷新流量限制缓存
+        refreshFlowLimitCache(req.getId(), req.getUpLimitRate(), req.getDownLimitRate());
+
         return new LicenseUpdateRes();
     }
 
@@ -200,6 +223,8 @@ public class LicenseService implements LifecycleBean {
         licenseMapper.deleteById(id);
         // 更新VisitorChannel
         visitorChannelService.updateVisitorChannelByLicenseId(id, EnableStatusEnum.DISABLE.getStatus());
+        // 删除流量限制缓存
+        flowLimitCache.remove(id);
     }
 
     /**
@@ -243,9 +268,50 @@ public class LicenseService implements LifecycleBean {
         if (NativeDetector.isAotRuntime()) {
             return;
         }
+        // 服务刚启动，所以默认所有license都是离线状态。解决服务突然关闭，在线状态来不及更新的问题
         licenseMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+        // 刷新流量限制缓存
+        List<LicenseDO> licenseDOList = licenseMapper.listAll();
+        if (CollectionUtils.isEmpty(licenseDOList)) {
+            for (LicenseDO licenseDO : licenseDOList) {
+                refreshFlowLimitCache(licenseDO.getId(), licenseDO.getUpLimitRate(), licenseDO.getDownLimitRate());
+            }
+        }
     }
 
+
+    /**
+     * 刷新流量限制缓存
+     * @param id
+     * @param upLimitRate
+     * @param downLimitRate
+     */
+    private void refreshFlowLimitCache(Integer id, String upLimitRate, String downLimitRate) {
+        if (null == id) {
+            return;
+        }
+        flowLimitCache.put(id, new FlowLimitBO()
+            .setUpLimitRate(StringUtil.parseBytes(upLimitRate))
+            .setDownLimitRate(StringUtil.parseBytes(downLimitRate))
+        );
+    }
+
+    /**
+     * 获取license的流量限制
+     * @param licenseId
+     * @return
+     */
+    public FlowLimitBO getFlowLimit(Integer licenseId) {
+        FlowLimitBO res = flowLimitCache.get(licenseId);
+        if (null == res) {
+            LicenseDO licenseDO = licenseMapper.queryById(licenseId);
+            if (null != licenseDO) {
+                refreshFlowLimitCache(licenseId, licenseDO.getUpLimitRate(), licenseDO.getDownLimitRate());
+                res = flowLimitCache.get(licenseId);
+            }
+        }
+        return res;
+    }
 
     @Override
     public void start() throws Throwable {

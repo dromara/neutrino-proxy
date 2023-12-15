@@ -66,7 +66,6 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             ctx.channel().close();
             return;
         }
-        ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
 
         // 判断IP是否在该端口绑定的安全组允许的规则内
         String ip = IpUtil.getRealRemoteIp(httpContent);
@@ -80,6 +79,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
         }
 
         // 继续传播
+        ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
         buf.resetReaderIndex();
         ctx.fireChannelRead(buf);
     }

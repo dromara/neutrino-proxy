@@ -32,6 +32,14 @@ public class LicenseListRes {
 	 * 用户名
 	 */
 	private String userName;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 	/**
 	 * 是否在线
 	 * {@link OnlineStatusEnum}

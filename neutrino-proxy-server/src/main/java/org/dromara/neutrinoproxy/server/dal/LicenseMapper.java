@@ -89,14 +89,6 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
         return this.selectById(id);
     }
 
-    default void update(Integer id, String name, Date updateTime) {
-        this.update(null, new LambdaUpdateWrapper<LicenseDO>()
-                .eq(LicenseDO::getId, id)
-                .set(LicenseDO::getName, name)
-                .set(LicenseDO::getUpdateTime, updateTime)
-        );
-    }
-
     default List<LicenseDO> findByIds(Set<Integer> ids) {
         return selectBatchIds(ids);
     }

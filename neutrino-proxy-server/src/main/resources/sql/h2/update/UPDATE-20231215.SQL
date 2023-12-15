@@ -27,4 +27,12 @@ CREATE TABLE IF NOT EXISTS `security_rule` (
     PRIMARY KEY (`id`)
 );
 CREATE INDEX IF NOT EXISTS I_security_rule_group_id ON security_rule(group_id);
+
+# port_mapping表增加字段
 ALTER TABLE `port_mapping` ADD COLUMN `security_group_id` INTEGER DEFAULT 0;
+ALTER TABLE `port_mapping` ADD COLUMN `up_limit_rate` varchar(20) DEFAULT NULL;
+ALTER TABLE `port_mapping` ADD COLUMN `down_limit_rate` varchar(20) DEFAULT NULL;
+
+# license表增加字段
+ALTER TABLE `license` ADD COLUMN `up_limit_rate` varchar(20) DEFAULT NULL;
+ALTER TABLE `license` ADD COLUMN `down_limit_rate` varchar(20) DEFAULT NULL;

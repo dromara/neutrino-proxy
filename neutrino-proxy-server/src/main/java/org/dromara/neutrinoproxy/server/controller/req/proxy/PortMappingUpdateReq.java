@@ -58,6 +58,14 @@ public class PortMappingUpdateReq {
 	 * 客户端端口
 	 */
 	private Integer clientPort;
+    /**
+     * 上传限速
+     */
+    private String upLimitRate;
+    /**
+     * 下载限速
+     */
+    private String downLimitRate;
 	/**
 	 * 代理响应数量（响应数据包数量，如果没有拆包则等于数据条数）
 	 */

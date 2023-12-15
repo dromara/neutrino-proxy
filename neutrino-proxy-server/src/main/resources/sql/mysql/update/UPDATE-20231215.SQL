@@ -30,3 +30,9 @@ CREATE TABLE IF NOT EXISTS `security_rule` (
 
 # port_mapping表增加字段
 ALTER TABLE `port_mapping` ADD COLUMN `security_group_id` int DEFAULT 0 COMMENT '安全组Id';
+ALTER TABLE `port_mapping` ADD COLUMN `up_limit_rate` varchar(20) DEFAULT NULL COMMENT '上传限速';
+ALTER TABLE `port_mapping` ADD COLUMN `down_limit_rate` varchar(20) DEFAULT NULL COMMENT '下载限速';
+
+# license表增加字段
+ALTER TABLE `license` ADD COLUMN `up_limit_rate` varchar(20) DEFAULT NULL COMMENT '上传限速';
+ALTER TABLE `license` ADD COLUMN `down_limit_rate` varchar(20) DEFAULT NULL COMMENT '下载限速';

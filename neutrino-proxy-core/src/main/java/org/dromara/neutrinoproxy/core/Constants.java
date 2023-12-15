@@ -51,6 +51,8 @@ public interface Constants {
 
     AttributeKey<Integer> SERVER_PORT = AttributeKey.newInstance("serverPort");
 
+    AttributeKey<Boolean> FLOW_LIMITER_FLAG = AttributeKey.newInstance("flowLimiterFlag");
+
 
     int HEADER_SIZE = 4;
     int TYPE_SIZE = 1;

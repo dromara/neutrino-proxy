@@ -22,6 +22,7 @@ import org.dromara.neutrinoproxy.server.proxy.core.TcpVisitorChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.core.UdpVisitorChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.security.TcpVisitorSecurityChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.security.UdpVisitorSecurityChannelHandler;
+import org.dromara.neutrinoproxy.server.proxy.security.VisitorFlowLimiterChannelHandler;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
@@ -76,7 +77,8 @@ public class ProxyConfiguration implements LifecycleBean {
             }
             ch.pipeline().addFirst(new BytesMetricsHandler());
 //            ch.pipeline().addLast(new ChannelTrafficShapingHandler(1024 * 1024 * 20, 1024 * 1024 * 20, 100, 20000));
-            ch.pipeline().addLast(new TcpVisitorSecurityChannelHandler());
+            ch.pipeline().addLast("security", new TcpVisitorSecurityChannelHandler());
+            ch.pipeline().addLast(new VisitorFlowLimiterChannelHandler());
             ch.pipeline().addLast(new TcpVisitorChannelHandler());
             }
         });
@@ -114,7 +116,8 @@ public class ProxyConfiguration implements LifecycleBean {
                     if (null != proxyConfig.getServer().getUdp().getTransferLogEnable() && proxyConfig.getServer().getUdp().getTransferLogEnable()) {
                         ch.pipeline().addFirst(new LoggingHandler(UdpVisitorChannelHandler.class));
                     }
-                    pipeline.addLast(udpServerWorkerGroup, new UdpVisitorSecurityChannelHandler());
+                    pipeline.addLast(udpServerWorkerGroup, "security", new UdpVisitorSecurityChannelHandler());
+                    ch.pipeline().addLast(new VisitorFlowLimiterChannelHandler());
                     pipeline.addLast(udpServerWorkerGroup, new UdpVisitorChannelHandler());
                 }
             });

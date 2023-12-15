@@ -39,17 +39,17 @@
           <span>{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.licenseName')" width="130">
+      <el-table-column align="center" :label="$t('table.licenseName')" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.licenseName }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.protocalName')" width="100">
+      <el-table-column align="center" :label="$t('table.protocalName')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.domainName')" width="200">
+      <el-table-column align="center" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
           <span>{{ scope.row.domain }}</span>
         </template>
@@ -64,17 +64,22 @@
           <span>{{ scope.row.clientIp }}:{{ scope.row.clientPort }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('限速')" width="100">
+        <template slot-scope="scope">
+          <span>{{scope.row.upLimitRate ? scope.row.upLimitRate : '--'}} / {{scope.row.downLimitRate ? scope.row.downLimitRate : '--'}}</span>
+        </template>
+      </el-table-column>
       <el-table-column align="center" :label="$t('table.desc')" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" :label="$t('table.createTime')">
-        <template slot-scope="scope">
-          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
+<!--      <el-table-column width="150px" align="center" :label="$t('table.createTime')">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column width="150px" align="center" :label="$t('table.updateTime')">
         <template slot-scope="scope">
           <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
@@ -180,6 +185,12 @@
             <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('上传限速')" prop="upLimitRate">
+          <el-input v-model="temp.upLimitRate" placeholder="如：10240B、500K、1M"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('下载限速')" prop="downLimitRate">
+          <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
         </el-form-item>
         <el-form-item :label="$t('描述')" prop="description">
           <el-input v-model="temp.description"></el-input>

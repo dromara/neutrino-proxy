@@ -2,7 +2,6 @@ package org.dromara.neutrinoproxy.server;
 
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.solonplugins.job.annotation.EnableJob;
-import org.noear.snack.core.utils.StringUtil;
 import org.noear.solon.Solon;
 import org.noear.solon.Utils;
 import org.noear.solon.annotation.SolonMain;

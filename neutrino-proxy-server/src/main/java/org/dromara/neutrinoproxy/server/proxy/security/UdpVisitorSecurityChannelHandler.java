@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.noear.solon.Solon;
@@ -32,6 +33,7 @@ public class UdpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapt
         }
 
         // 继续传播
+        ctx.channel().attr(Constants.SERVER_PORT).set(sa.getPort());
         ctx.fireChannelRead(msg);
     }
 }

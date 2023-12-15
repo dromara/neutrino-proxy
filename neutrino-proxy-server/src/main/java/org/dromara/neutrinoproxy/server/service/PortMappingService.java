@@ -1,9 +1,12 @@
 package org.dromara.neutrinoproxy.server.service;
 
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -36,19 +39,17 @@ import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
+import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
+import org.dromara.neutrinoproxy.server.util.StringUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
 import org.noear.solon.core.runtime.NativeDetector;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -76,9 +77,17 @@ public class PortMappingService implements LifecycleBean {
     private ProxyConfig proxyConfig;
     @Inject
     private DBInitialize dbInitialize;
+    @Inject
+    private LicenseService licenseService;
 
     /** 端口到安全组Id的映射 */
     private final Map<Integer, Integer> mappingPortToSecurityGroupMap = new ConcurrentHashMap<>();
+    // 服务端端口到端口映射id的映射
+    private final Cache<Integer, Integer> serverPortToPortMappingIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
+    // 端口映射id到licenseId
+    private final Cache<Integer, Integer> idToLicenseIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
+    // 流量限制缓存
+    private final Cache<Integer, FlowLimitBO> flowLimitCache = CacheUtil.newLRUCache(500, 1000 * 60 * 5);
 
     public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
         if (StringUtils.isNotEmpty(req.getDescription())) {
@@ -153,6 +162,8 @@ public class PortMappingService implements LifecycleBean {
         portMappingDO.setServerPort(req.getServerPort());
         portMappingDO.setClientIp(req.getClientIp());
         portMappingDO.setClientPort(req.getClientPort());
+        portMappingDO.setUpLimitRate(req.getUpLimitRate());
+        portMappingDO.setDownLimitRate(req.getDownLimitRate());
         portMappingDO.setProxyResponses(req.getProxyResponses());
         portMappingDO.setProxyTimeoutMs(req.getProxyTimeoutMs());
         portMappingDO.setDescription(req.getDescription());
@@ -169,6 +180,13 @@ public class PortMappingService implements LifecycleBean {
         }
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
+
+        // 更新端口到映射的缓存
+        serverPortToPortMappingIdCache.put(req.getServerPort(), portMappingDO.getId());
+        // 更新端口映射到licenseId的缓存
+        idToLicenseIdCache.put(portMappingDO.getId(), portMappingDO.getLicenseId());
+        // 刷新流量限制缓存
+        refreshFlowLimitCache(portMappingDO.getId(), portMappingDO.getUpLimitRate(), portMappingDO.getDownLimitRate());
 
         return new PortMappingCreateRes();
     }
@@ -189,15 +207,25 @@ public class PortMappingService implements LifecycleBean {
         PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
         ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-        PortMappingDO portMappingDO = new PortMappingDO();
-        BeanUtil.copyProperties(req, portMappingDO);
-        if (req.getSecurityGroupId() == null) {
-            portMappingDO.setSecurityGroupId(0);
-        }
-        portMappingDO.setUpdateTime(new Date());
-        portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-        portMappingMapper.updateById(portMappingDO);
+        // 更新端口映射
+        portMappingMapper.update(null, new LambdaUpdateWrapper<PortMappingDO>()
+            .eq(PortMappingDO::getId, req.getId())
+            .set(PortMappingDO::getProtocal, req.getProtocal())
+            .set(PortMappingDO::getSubdomain, req.getSubdomain())
+            .set(PortMappingDO::getServerPort, req.getServerPort())
+            .set(PortMappingDO::getClientIp, req.getClientIp())
+            .set(PortMappingDO::getClientPort, req.getClientPort())
+            .set(PortMappingDO::getUpLimitRate, req.getUpLimitRate())
+            .set(PortMappingDO::getDownLimitRate, req.getDownLimitRate())
+            .set(PortMappingDO::getProxyTimeoutMs, req.getProxyTimeoutMs())
+            .set(PortMappingDO::getProxyResponses, req.getProxyResponses())
+            .set(PortMappingDO::getSecurityGroupId, req.getSecurityGroupId())
+            .set(PortMappingDO::getDescription, req.getDescription())
+            .set(PortMappingDO::getUpdateTime, new Date())
+        );
+
         // 更新VisitorChannel
+        PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
         visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
         // 删除老的域名映射
         if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal()) && StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
@@ -209,6 +237,13 @@ public class PortMappingService implements LifecycleBean {
         }
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
+
+        // 更新端口到映射的缓存
+        serverPortToPortMappingIdCache.put(req.getServerPort(), req.getId());
+        // 更新端口映射到licenseId的缓存
+        idToLicenseIdCache.put(portMappingDO.getId(), portMappingDO.getLicenseId());
+        // 刷新流量限制缓存
+        refreshFlowLimitCache(req.getId(), req.getUpLimitRate(), req.getDownLimitRate());
     }
 
     public PortMappingDetailRes detail(Integer id) {
@@ -285,6 +320,11 @@ public class PortMappingService implements LifecycleBean {
         }
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), null);
+
+        // 删除id到licenseId的映射
+        idToLicenseIdCache.remove(id);
+        // 删除流量限制缓存
+        flowLimitCache.remove(id);
     }
 
     public void portBindSecurityGroup(Integer portMappingId, Integer groupId) {
@@ -333,6 +373,7 @@ public class PortMappingService implements LifecycleBean {
         if (NativeDetector.isAotRuntime()) {
             return;
         }
+        // 服务刚启动，所以默认所有license都是离线状态。解决服务突然关闭，在线状态来不及更新的问题
         portMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
         List<PortMappingDO> allMappingDOList = portMappingMapper.selectList(Wrappers.lambdaQuery(PortMappingDO.class));
@@ -341,6 +382,12 @@ public class PortMappingService implements LifecycleBean {
             if (securityGroupId != null && securityGroupId > 0) {
                 updateMappingPortToSecurityGroupMap(item.getServerPort(), item.getSecurityGroupId());
             }
+            // 更新端口到映射的缓存
+            serverPortToPortMappingIdCache.put(item.getServerPort(), item.getId());
+            // 更新端口映射到licenseId的缓存
+            idToLicenseIdCache.put(item.getId(), item.getLicenseId());
+            // 刷新流量限制缓存
+            refreshFlowLimitCache(item.getId(), item.getUpLimitRate(), item.getDownLimitRate());
         });
 
         // 未配置域名，则不需要处理域名映射逻辑
@@ -350,7 +397,6 @@ public class PortMappingService implements LifecycleBean {
         List<PortMappingDO> portMappingDOList = allMappingDOList.stream()
             .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()) && item.getSubdomain() != null)
             .collect(Collectors.toList());
-//      List<PortMappingDO> portMappingDOList =  portMappingMapper.selectList(new LambdaQueryWrapper<PortMappingDO>().eq(PortMappingDO::getProtocal, NetworkProtocolEnum.HTTP.getDesc()).isNotNull(PortMappingDO::getSubdomain));
         if (CollectionUtil.isEmpty(portMappingDOList)) {
             return;
         }
@@ -361,6 +407,84 @@ public class PortMappingService implements LifecycleBean {
             ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
 
         });
+    }
+
+    /**
+     * 刷新流量限制缓存
+     * @param id
+     * @param upLimitRate
+     * @param downLimitRate
+     */
+    private void refreshFlowLimitCache(Integer id, String upLimitRate, String downLimitRate) {
+        if (null == id) {
+            return;
+        }
+        flowLimitCache.put(id, new FlowLimitBO()
+            .setUpLimitRate(StringUtil.parseBytes(upLimitRate))
+            .setDownLimitRate(StringUtil.parseBytes(downLimitRate))
+        );
+    }
+
+    /**
+     * 获取license的流量限制
+     * @param id
+     * @return
+     */
+    public FlowLimitBO getFlowLimit(Integer id) {
+        FlowLimitBO res = flowLimitCache.get(id);
+        if (null == res) {
+            PortMappingDO portMappingDO = portMappingMapper.findById(id);
+            if (null != portMappingDO) {
+                refreshFlowLimitCache(id, portMappingDO.getUpLimitRate(), portMappingDO.getDownLimitRate());
+                res = flowLimitCache.get(id);
+            }
+        }
+        return res;
+    }
+
+    public Integer getPortMappingIdByServerPort(Integer serverPort) {
+        if (null == serverPort) {
+            return null;
+        }
+        Integer id = serverPortToPortMappingIdCache.get(serverPort);
+        if (null != id) {
+            return id;
+        }
+        List<PortMappingDO> portMappingDOList = portMappingMapper.findListByServerPort(serverPort);
+        // 不存在 或者 有多条记录，都不处理
+        if (CollectionUtils.isEmpty(portMappingDOList) || portMappingDOList.size() > 1) {
+            return null;
+        }
+        id = portMappingDOList.get(0).getId();
+        serverPortToPortMappingIdCache.put(serverPort, id);
+        return id;
+    }
+
+    public Integer getLicenseIdById(Integer id) {
+        Integer licenseId = idToLicenseIdCache.get(id);
+        if (null == licenseId) {
+            PortMappingDO portMappingDO = portMappingMapper.findById(id);
+            if (null != portMappingDO) {
+                licenseId = portMappingDO.getLicenseId();
+                idToLicenseIdCache.put(id, licenseId);
+            }
+        }
+        return licenseId;
+    }
+
+    public FlowLimitBO getFlowLimitByServerPort(Integer serverPort) {
+        Integer id = getPortMappingIdByServerPort(serverPort);
+        if (null == id) {
+            return null;
+        }
+        FlowLimitBO res = getFlowLimit(id);
+        if (null == res || (null == res.getUpLimitRate() && null == res.getDownLimitRate())) {
+            Integer licenseId = getLicenseIdById(id);
+            if (null != licenseId) {
+                res = licenseService.getFlowLimit(licenseId);
+            }
+        }
+        return res;
     }
 
     private void updateMappingPortToSecurityGroupMap(Integer serverPort, Integer securityGroupId) {

@@ -36,6 +36,11 @@
           <span>{{scope.row.key}}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('限速')" width="100">
+        <template slot-scope="scope">
+          <span>{{scope.row.upLimitRate ? scope.row.upLimitRate : '--'}} / {{scope.row.downLimitRate ? scope.row.downLimitRate : '--'}}</span>
+        </template>
+      </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
         <template slot-scope="scope">
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
@@ -84,6 +89,12 @@
         </el-form-item>
         <el-form-item :label="$t('License名称')" prop="name">
           <el-input v-model="temp.name"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('上传限速')" prop="upLimitRate">
+          <el-input v-model="temp.upLimitRate" placeholder="如：10240B、500K、1M"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('下载限速')" prop="downLimitRate">
+          <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
