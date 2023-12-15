@@ -32,10 +32,10 @@ jobs:
         npm install
         npm run build:docker·
         cp -rf ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
-    - name: GitHub Action for GraalVM JDK 17
+    - name: GitHub Action for GraalVM JDK 21
       uses: graalvm/setup-graalvm@v1
       with:
-        java-version: '21.0.1' # for a specific JDK 17; or '17' for the latest JDK 17
+        java-version: '21.0.1' # for a specific JDK 21
         distribution: 'graalvm' # New 'distribution' option
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache local Maven repository

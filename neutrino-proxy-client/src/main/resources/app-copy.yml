@@ -8,22 +8,22 @@ neutrino:
       # 线程池相关配置，用于技术调优，可忽略
       thread-count: 50
       # 隧道SSL证书配置
-      key-store-password: ${STORE_PASS:123456}
-      jks-path: ${JKS_PATH:classpath:/test.jks}
+      key-store-password: 123456
+      jks-path: classpath:/test.jks
       # 服务端IP
-      server-ip: ${SERVER_IP:localhost}
+      server-ip: localhost
       # 服务端端口(对应服务端app.yml中的tunnel.port、tunnel.ssl-port)
-      server-port: ${SERVER_PORT:9002}
+      server-port: 9002
       # 是否启用SSL(注意：该配置必须和server-port对应上)
-      ssl-enable: ${SSL_ENABLE:true}
+      ssl-enable: true
       # 客户端连接唯一凭证
-      license-key: ${LICENSE_KEY:}
+      license-key:
       # 客户端唯一身份标识（可忽略，若不设置首次启动会自动生成）
-      client-id: ${CLIENT_ID:}
+      client-id:
       # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
-      transfer-log-enable: ${CLIENT_LOG:false}
+      transfer-log-enable: false
       # 是否开启心跳日志
-      heartbeat-log-enable: ${HEARTBEAT_LOG:false}
+      heartbeat-log-enable: false
       # 重连设置
       reconnection:
         # 重连间隔（秒）
@@ -38,4 +38,4 @@ neutrino:
         # udp傀儡端口范围
         puppet-port-range: 10000-10500
         # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
-        transfer-log-enable: ${CLIENT_LOG:false}
+        transfer-log-enable: false
