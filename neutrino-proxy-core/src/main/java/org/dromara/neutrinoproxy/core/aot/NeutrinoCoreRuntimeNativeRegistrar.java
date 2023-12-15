@@ -8,6 +8,7 @@ import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.aot.hint.MemberCategory;
 import org.noear.solon.core.AppContext;
 
+import java.nio.ByteBuffer;
 import java.util.Set;
 
 /**
@@ -19,6 +20,11 @@ public class NeutrinoCoreRuntimeNativeRegistrar implements RuntimeNativeRegistra
     public void register(AppContext context, RuntimeNativeMetadata metadata) {
         Set<Class<?>> channelInboundClasses = ClassUtil.scanPackageBySuper("org.dromara.neutrinoproxy", SimpleChannelInboundHandler.class);
         for (Class<?> clazz : channelInboundClasses) {
+            metadata.registerReflection(clazz, MemberCategory.INVOKE_DECLARED_METHODS);
+        }
+
+        Set<Class<?>> byteBufferClasses = ClassUtil.scanPackageBySuper("java", ByteBuffer.class);
+        for (Class<?> clazz : byteBufferClasses) {
             metadata.registerReflection(clazz, MemberCategory.INVOKE_DECLARED_METHODS);
         }
 
