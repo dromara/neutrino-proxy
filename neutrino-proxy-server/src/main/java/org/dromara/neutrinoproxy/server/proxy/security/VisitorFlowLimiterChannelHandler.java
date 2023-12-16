@@ -18,8 +18,6 @@ import org.noear.solon.Solon;
  */
 @Slf4j
 public class VisitorFlowLimiterChannelHandler extends ChannelInboundHandlerAdapter {
-
-    private final LicenseService licenseService = Solon.context().getBean(LicenseService.class);
     private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
     @Override
@@ -38,7 +36,7 @@ public class VisitorFlowLimiterChannelHandler extends ChannelInboundHandlerAdapt
             }
             if (null != upLimitRate || null != downLimitRate) {
                 // 如果不全为空，则需要做限速
-                ctx.pipeline().addAfter("security", "trafficShaping", new ChannelTrafficShapingHandler(downLimitRate == null ? 0 : downLimitRate, upLimitRate == null ? 0 : upLimitRate, 100, 600000));
+                ctx.pipeline().addAfter("flowLimiter", "trafficShaping", new ChannelTrafficShapingHandler(downLimitRate == null ? 0 : downLimitRate, upLimitRate == null ? 0 : upLimitRate, 100, 600000));
             }
 
             // 每个连接第一次处理之后。无论是否限速，该连接后续都不在处理，避免频繁执行影响性能

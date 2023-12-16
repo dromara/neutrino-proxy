@@ -48,8 +48,8 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast("security", new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
-                            ch.pipeline().addLast(new VisitorFlowLimiterChannelHandler());
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }
                     });

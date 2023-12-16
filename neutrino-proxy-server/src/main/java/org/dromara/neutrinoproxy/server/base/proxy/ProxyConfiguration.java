@@ -77,8 +77,8 @@ public class ProxyConfiguration implements LifecycleBean {
             }
             ch.pipeline().addFirst(new BytesMetricsHandler());
 //            ch.pipeline().addLast(new ChannelTrafficShapingHandler(1024 * 1024 * 20, 1024 * 1024 * 20, 100, 20000));
-            ch.pipeline().addLast("security", new TcpVisitorSecurityChannelHandler());
-            ch.pipeline().addLast(new VisitorFlowLimiterChannelHandler());
+            ch.pipeline().addLast(new TcpVisitorSecurityChannelHandler());
+            ch.pipeline().addLast("flowLimiter", new VisitorFlowLimiterChannelHandler());
             ch.pipeline().addLast(new TcpVisitorChannelHandler());
             }
         });
@@ -116,8 +116,8 @@ public class ProxyConfiguration implements LifecycleBean {
                     if (null != proxyConfig.getServer().getUdp().getTransferLogEnable() && proxyConfig.getServer().getUdp().getTransferLogEnable()) {
                         ch.pipeline().addFirst(new LoggingHandler(UdpVisitorChannelHandler.class));
                     }
-                    pipeline.addLast(udpServerWorkerGroup, "security", new UdpVisitorSecurityChannelHandler());
-                    ch.pipeline().addLast(new VisitorFlowLimiterChannelHandler());
+                    pipeline.addLast(udpServerWorkerGroup, new UdpVisitorSecurityChannelHandler());
+                    ch.pipeline().addLast("flowLimiter", new VisitorFlowLimiterChannelHandler());
                     pipeline.addLast(udpServerWorkerGroup, new UdpVisitorChannelHandler());
                 }
             });
