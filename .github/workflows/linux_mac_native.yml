@@ -30,7 +30,7 @@ jobs:
       run: |
         cd neutrino-proxy-admin
         npm install
-        npm run build:docker·
+        npm run build:docker
         cp -rf ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
     - name: GitHub Action for GraalVM JDK 21
       uses: graalvm/setup-graalvm@v1
