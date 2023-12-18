@@ -15,7 +15,7 @@ public class StringUtil {
     private static final Integer BYTES_MUL_GB = BYTES_MUL_MB * 1024;
     private static final String[] BYTES_UNIT_STR = {"B", "K", "KB", "M", "MB", "G", "GB"};
     private static final Integer[] BYTES_UNIT_MUL = {1, BYTES_MUL_KB, BYTES_MUL_KB, BYTES_MUL_MB, BYTES_MUL_MB, BYTES_MUL_GB, BYTES_MUL_GB};
-    private static final String BYTES_DESC_REGEX = "\\s*(\\d+)\\s*(B|K|KB|M|MB|G|GB)\\s*";
+    private static final String BYTES_DESC_REGEX = "\\s*(\\d+\\.*\\d*)\\s*(B|K|KB|M|MB|G|GB)\\s*";
     private static final Pattern BYTES_DESC_PATTERN = Pattern.compile(BYTES_DESC_REGEX);
 
     /**
@@ -46,14 +46,14 @@ public class StringUtil {
             if (!found) {
                 return null;
             }
-            Integer n = Integer.parseInt(matcher.group(1));
+            Double n = Double.parseDouble(matcher.group(1));
             String unit = matcher.group(2);
             Integer unitIndex = getBytesUnitIndex(unit);
             if (null == unitIndex) {
                 return null;
             }
 
-            return (long)n * BYTES_UNIT_MUL[unitIndex];
+            return (long)(n * BYTES_UNIT_MUL[unitIndex]);
         } catch (Exception e) {
             // ignore
         }
