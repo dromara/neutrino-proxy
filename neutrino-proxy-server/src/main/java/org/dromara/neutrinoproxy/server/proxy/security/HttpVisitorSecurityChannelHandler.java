@@ -39,47 +39,52 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
         }
 
         ByteBuf buf = (ByteBuf) msg;
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
 
-        // 获取Host请求头
-        String httpContent = new String(bytes);
-        String host = HttpUtil.getHostIgnorePort(httpContent);
-
-        log.debug("HttpProxy host: {}", host);
-        if (StringUtils.isBlank(host)) {
-            ctx.channel().close();
-            return;
-        }
-
-        // 根据Host匹配端口映射
-        if (!host.endsWith(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-        int index = host.lastIndexOf("." + domainName);
-        String subdomain = host.substring(0, index);
-
-        // 根据域名拿到绑定的映射对应的cmdChannel
-        Integer serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
+        Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
         if (null == serverPort) {
-            ctx.channel().close();
-            return;
-        }
+            // 获取Host请求头
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.readBytes(bytes);
+            String httpContent = new String(bytes);
+            String host = HttpUtil.getHostIgnorePort(httpContent);
 
-        // 判断IP是否在该端口绑定的安全组允许的规则内
-        String ip = IpUtil.getRealRemoteIp(httpContent);
-        if (ip == null) {
-            ip = IpUtil.getRemoteIp(ctx);
-        }
-        if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
-            // 不在安全组规则放行范围内
-            ctx.channel().close();
-            return;
+            log.debug("HttpProxy host: {}", host);
+            if (StringUtils.isBlank(host)) {
+                ctx.channel().close();
+                return;
+            }
+
+            // 根据Host匹配端口映射
+            if (!host.endsWith(domainName)) {
+                ctx.channel().close();
+                return;
+            }
+            int index = host.lastIndexOf("." + domainName);
+            String subdomain = host.substring(0, index);
+
+            // 根据域名拿到绑定的映射对应的cmdChannel
+            serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
+            if (null == serverPort) {
+                ctx.channel().close();
+                return;
+            }
+
+            // 判断IP是否在该端口绑定的安全组允许的规则内
+            String ip = IpUtil.getRealRemoteIp(httpContent);
+            if (ip == null) {
+                ip = IpUtil.getRemoteIp(ctx);
+            }
+            if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
+                // 不在安全组规则放行范围内
+                ctx.channel().close();
+                return;
+            }
+
+            ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
+            ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
         }
 
         // 继续传播
-        ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
         buf.resetReaderIndex();
         ctx.fireChannelRead(buf);
     }

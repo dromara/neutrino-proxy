@@ -50,6 +50,8 @@ public interface Constants {
     AttributeKey<InetSocketAddress> SENDER = AttributeKey.newInstance("sender");
 
     AttributeKey<Integer> SERVER_PORT = AttributeKey.newInstance("serverPort");
+    AttributeKey<String> REAL_REMOTE_IP = AttributeKey.newInstance("realRemoteIp");
+
 
     AttributeKey<Boolean> FLOW_LIMITER_FLAG = AttributeKey.newInstance("flowLimiterFlag");
 
