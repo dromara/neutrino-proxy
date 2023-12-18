@@ -44,6 +44,13 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Set vars
+      shell: bash
+      run: |
+        OS=$(echo '${{ runner.os }}' | awk '{print tolower($0)}')
+        [[ $OS == 'ubuntu' ]] && echo "OS=linux" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+        [[ $OS == 'macos' ]] && echo "OS=darwin" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+        echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
     - name: Build with Maven (neutrino-proxy-server)
       run: |
         set MAVEN_OPTS="-Duser.language=UTF-8 -Dfile.encoding=UTF-8"
@@ -56,7 +63,7 @@ jobs:
       with:
         type: 'zip'
         path: 'neutrino-proxy-server.exe'
-        filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
+        filename: neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         set MAVEN_OPTS="-Duser.language=UTF-8 -Dfile.encoding=UTF-8"
@@ -69,7 +76,7 @@ jobs:
       with:
         type: 'zip'
         path: 'neutrino-proxy-client.exe'
-        filename: neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+        filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
     # GitHub 上创建 release
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -78,7 +85,7 @@ jobs:
         files: |
           neutrino-proxy-server/target/neutrino-proxy-server.jar
           neutrino-proxy-client/target/neutrino-proxy-client.jar
-          neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
-          neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+          neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
+          neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}

@@ -45,34 +45,41 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Set vars
+      shell: bash
+      run: |
+        OS=$(echo '${{ runner.os }}' | awk '{print tolower($0)}')
+        [[ $OS == 'ubuntu' ]] && echo "OS=linux" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+        [[ $OS == 'macos' ]] && echo "OS=darwin" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+        echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
     - name: Build with Maven (neutrino-proxy-server)
       run: |
         mvn clean install -pl neutrino-proxy-core -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-server 
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
         chmod +x target/neutrino-proxy-server
-        cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ github.ref_name }}
-        cp target/classes/app-copy.yml ./../neutrino-proxy-server-${{ github.ref_name }}/app.yml
+        cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ env.VERSION }}
+        cp target/classes/app-copy.yml ./../neutrino-proxy-server-${{ env.VERSION }}/app.yml
     - name: Archive zip (neutrino-proxy-server)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-server-${{ github.ref_name }}'
-        filename: neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
+        path: 'neutrino-proxy-server-${{ env.VERSION }}'
+        filename: neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
         chmod +x target/neutrino-proxy-client
-        cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ github.ref_name }}
-        cp target/classes/app-copy.yml ./../neutrino-proxy-client-${{ github.ref_name }}/app.yml
+        cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ env.VERSION }}
+        cp target/classes/app-copy.yml ./../neutrino-proxy-client-${{ env.VERSION }}/app.yml
     - name: Archive zip (neutrino-proxy-client)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-client-${{ github.ref_name }}'
-        filename: neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+        path: 'neutrino-proxy-client-${{ env.VERSION }}'
+        filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
     # GitHub 上创建 release
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -81,7 +88,7 @@ jobs:
         files: |
           neutrino-proxy-server/target/neutrino-proxy-server.jar
           neutrino-proxy-client/target/neutrino-proxy-client.jar
-          neutrino-proxy-server-${{ matrix.os }}-${{ github.ref_name }}.zip
-          neutrino-proxy-client-${{ matrix.os }}-${{ github.ref_name }}.zip
+          neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
+          neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
         prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
