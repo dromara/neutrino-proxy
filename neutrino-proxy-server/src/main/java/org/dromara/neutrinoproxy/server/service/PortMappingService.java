@@ -138,7 +138,9 @@ public class PortMappingService implements LifecycleBean {
             }
         });
         //sorted [userId asc] [licenseId asc] [createTime asc]
-        respList = respList.stream().sorted(Comparator.comparing(PortMappingListRes::getUserId).thenComparing(PortMappingListRes::getLicenseId).thenComparing(PortMappingListRes::getCreateTime)).collect(Collectors.toList());
+        respList = respList.stream()
+            .filter(e -> null != e.getUserId())
+            .sorted(Comparator.comparing(PortMappingListRes::getUserId).thenComparing(PortMappingListRes::getLicenseId).thenComparing(PortMappingListRes::getCreateTime)).collect(Collectors.toList());
         return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
