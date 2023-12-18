@@ -80,6 +80,18 @@ jobs:
         type: 'zip'
         path: 'neutrino-proxy-client-${{ env.VERSION }}'
         filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
+    # 上传构建产物
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: neutrino-proxy-server-client-${{ env.OS }}-${{ env.VERSION }}
+        path: |
+          neutrino-proxy-server/target/neutrino-proxy-server.jar
+          neutrino-proxy-client/target/neutrino-proxy-client.jar
+          neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
+          neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
+        # 保存时间，默认 90 天
+        retention-days: 5
     # GitHub 上创建 release
     - name: Release
       uses: softprops/action-gh-release@v1
