@@ -59,12 +59,16 @@ jobs:
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
         chmod +x target/neutrino-proxy-server
         cp target/neutrino-proxy-server ./../neutrino-proxy-server-${{ env.VERSION }}
-        cp target/classes/app-copy.yml ./../neutrino-proxy-server-${{ env.VERSION }}/app.yml
+        cp target/neutrino-proxy-server.jar ./../neutrino-proxy-server.jar
+        cp target/classes/app-copy.yml ./../app.yml
     - name: Archive zip (neutrino-proxy-server)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-server-${{ env.VERSION }}'
+        # path: 'neutrino-proxy-server-${{ env.VERSION }}'
+        files: |
+          neutrino-proxy-server-${{ env.VERSION }}
+          app.yml
         filename: neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
     - name: Build with Maven (neutrino-proxy-client)
       run: |
@@ -73,12 +77,16 @@ jobs:
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress
         chmod +x target/neutrino-proxy-client
         cp target/neutrino-proxy-client ./../neutrino-proxy-client-${{ env.VERSION }}
-        cp target/classes/app-copy.yml ./../neutrino-proxy-client-${{ env.VERSION }}/app.yml
+        cp target/neutrino-proxy-client.jar ./../neutrino-proxy-client.jar
+        cp target/classes/app-copy.yml ./../app.yml
     - name: Archive zip (neutrino-proxy-client)
       uses: thedoctor0/zip-release@master
       with:
         type: 'zip'
-        path: 'neutrino-proxy-client-${{ env.VERSION }}'
+        # path: 'neutrino-proxy-client-${{ env.VERSION }}'
+        files: |
+          neutrino-proxy-client-${{ env.VERSION }}
+          app.yml
         filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
     # 上传构建产物
     - name: Upload artifact
@@ -86,8 +94,8 @@ jobs:
       with:
         name: neutrino-proxy-server-client-${{ env.OS }}-${{ env.VERSION }}
         path: |
-          neutrino-proxy-server/target/neutrino-proxy-server.jar
-          neutrino-proxy-client/target/neutrino-proxy-client.jar
+          neutrino-proxy-server.jar
+          neutrino-proxy-client.jar
           neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}.zip
           neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}.zip
         # 保存时间，默认 90 天
