@@ -13,12 +13,12 @@ features: # 可选的
     details: 首页图表、报表管理多维度流量监控。全方位掌握实时、历史代理数据。
   - title: 域名映射
     details: HTTP代理绑定子域名，开发调试三方回调更方便。
-  - title: 用户/License
-    details: 支持多用户、多客户端使用。后台禁用实时生效。
-  - title: 端口池
-    details: 对外端口统一管理，支持用户、License独占端口。
-  - title: 端口映射
-    details: 新增、编辑、删除、禁用实时生效。
+  - title: 管理后台
+    details: 使用端口池统一管理对外代理端口，支持多用户、多客户端使用。端口/用户/License/端口映射在后台禁用实时生效。
+  - title: 安全组
+    details: 安全组模块支持黑/白名单IP访问限制。
+  - title: 限速
+    details: 支持对License、端口映射限制上传、下载速率
   - title: Docker
     details: 服务端/客户端支持Docker一键部署。
   - title: 隧道SSL加密
