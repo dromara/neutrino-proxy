@@ -1,7 +1,7 @@
 # NeutrinoProxy2.0.1发布，新增IP访问拦截+限速支持
 
 ## 项目简介
-- [中微子代理(neutrino-proxy)](https://gitee.com/asgc/neutrino-proxy) 是一款基于netty的内网穿透神器。该项目采用最为宽松的MIT协议，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
+- [中微子代理(neutrino-proxy)](https://gitee.com/asgc/neutrino-proxy) 是一款基于Solon、Netty的内网穿透神器。该项目采用最为宽松的MIT协议，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 - 市面上基于内网穿透的常见产品有：花生壳、TeamView、cpolar等。
 - 常见的使用场景：
     - 本地开发调试第三方回调
