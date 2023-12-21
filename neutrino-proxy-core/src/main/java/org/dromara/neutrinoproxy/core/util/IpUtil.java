@@ -27,7 +27,7 @@ public class IpUtil extends org.noear.solon.core.util.IpUtil {
         if (StringUtils.isEmpty(ip)) {
             ip = HttpUtil.getHeaderValue(httpContent, "X-Real-IP");
         }
-        if (StringUtils.isNotEmpty(ip) && !Ipv4Util.isInnerIP(ip)) {
+        if (StringUtils.isNotEmpty(ip)) {
             return ip;
         }
         return null;
