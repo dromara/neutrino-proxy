@@ -2,10 +2,12 @@ package org.dromara.neutrinoproxy.core.util;
 
 import cn.hutool.core.net.Ipv4Util;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetSocketAddress;
 
+@Slf4j
 public class IpUtil extends org.noear.solon.core.util.IpUtil {
 
     public static String getRemoteIp(ChannelHandlerContext ctx) {
@@ -28,6 +30,7 @@ public class IpUtil extends org.noear.solon.core.util.IpUtil {
             ip = HttpUtil.getHeaderValue(httpContent, "X-Real-IP");
         }
         if (StringUtils.isNotEmpty(ip)) {
+            log.debug("obtain http header ip：{}", ip);
             return ip;
         }
         return null;
