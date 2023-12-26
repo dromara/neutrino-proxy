@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.base;
 
+import org.apache.ibatis.type.SimpleTypeRegistry;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.base.rest.ResponseBody;
 import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
@@ -75,6 +76,8 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
 
         metadata.registerReflection(JobBean.class, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
 
+        // 解决mybatis调用deleteBatchIds报错“java.lang.ClassNotFoundException: Cannot find class: org.apache.ibatis.type.SimpleTypeRegistry”
+        metadata.registerReflection(SimpleTypeRegistry.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
     }
 
 }
