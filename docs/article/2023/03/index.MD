@@ -20,7 +20,7 @@
 > 从1.9.0之前的版本升级需要注意：
 - 在项目`neutrino-proxy-server/src/main/resources/sql`目录下找到mysql/sqlite的增量sql文件`UPDATE-20230922.SQL`,执行更新自己的中微子代理数据库
 - 参照[官网服务端配置](https://dromara.gitee.io/neutrino-proxy/pages/f2d0f1)调整现有的服务端配置
-- 参照[官网客户端配置](https://dromara.gitee.io/neutrino-proxy/pages/50ce10)吊证现有的客户端配置
+- 参照[官网客户端配置](https://dromara.gitee.io/neutrino-proxy/pages/50ce10)调整现有的客户端配置
 - 从[仓库发行版](https://gitee.com/dromara/neutrino-proxy/releases)下载最新版本的客户端(neutrino-proxy-client.jar)、服务端(neutrino-proxy-server.jar、 neutrino-proxy-admin.zip)部署文件。若为服务端是docker镜像部署，则更新镜像重启即可
 
 ## 项目简介
