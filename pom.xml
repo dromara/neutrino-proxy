@@ -20,6 +20,7 @@
         <module>neutrino-proxy-core</module>
         <module>neutrino-proxy-client</module>
         <module>neutrino-proxy-server</module>
+        <module>neutrino-proxy-client-sdk</module>
     </modules>
 
     <properties>
