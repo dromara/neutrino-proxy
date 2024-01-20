@@ -16,12 +16,8 @@
     <dependencies>
         <dependency>
             <groupId>org.dromara.neutrino-proxy</groupId>
-            <artifactId>neutrino-proxy-core</artifactId>
+            <artifactId>neutrino-proxy-client-sdk</artifactId>
             <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon-lib</artifactId>
         </dependency>
     </dependencies>
 
