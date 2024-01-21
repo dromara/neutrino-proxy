@@ -7,9 +7,10 @@ import org.noear.solon.Solon;
 
 
 public class BeanHandler implements IBeanHandler {
+
      @Override
      public Dispatcher getDispatcher(){
-         return Solon.context().getBean(Dispatcher.class);
+         return Solon.context().getBean("dispatcher");
     }
 
     @Override

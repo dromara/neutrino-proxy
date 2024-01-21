@@ -5,6 +5,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.sdk.util.ProxyUtil;
@@ -21,7 +22,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * @date: 2022/6/16
  */
 @Slf4j
-public  class IAbProxyClientService {
+@Data
+public class IAbProxyClientService {
 
     public ProxyConfig proxyConfig;
 
@@ -40,7 +42,7 @@ public  class IAbProxyClientService {
 	 */
     public static final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor(new CustomThreadFactory("ClientReconnect"));
 
-    public void init_i(){
+    public void init(){
         reconnectExecutor.scheduleWithFixedDelay(this::reconnect, 10, proxyConfig.getTunnel().getReconnection().getIntervalSeconds(), TimeUnit.SECONDS);
         try {
             this.start();
