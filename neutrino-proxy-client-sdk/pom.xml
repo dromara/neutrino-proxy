@@ -11,13 +11,23 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
-    <artifactId>neutrino-proxy-client</artifactId>
+    <artifactId>neutrino-proxy-client-sdk</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.dromara.neutrino-proxy</groupId>
-            <artifactId>neutrino-proxy-client-sdk</artifactId>
+            <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon-lib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.5</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
