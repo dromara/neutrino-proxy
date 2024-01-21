@@ -1,5 +1,6 @@
-package org.dromara.neutrinoproxy.client.sdk.config;
+package org.dromara.neutrinoproxy.client.config;
 
+import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.aot.RuntimeNativeMetadata;
 import org.noear.solon.aot.RuntimeNativeRegistrar;

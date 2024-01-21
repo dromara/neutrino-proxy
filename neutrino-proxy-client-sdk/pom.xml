@@ -3,32 +3,67 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>neutrino-proxy</artifactId>
-        <groupId>org.dromara.neutrino-proxy</groupId>
-        <version>${revision}</version>
-        <relativePath>../pom.xml</relativePath>
+        <groupId>org.noear</groupId>
+        <artifactId>solon-parent</artifactId>
+        <version>2.5.12</version>
+        <relativePath />
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
 
+    <groupId>org.dromara.neutrino-proxy</groupId>
     <artifactId>neutrino-proxy-client-sdk</artifactId>
-
+    <version>${revision}</version>
+    <packaging>jar</packaging>
+    <properties>
+        <revision>2.0.1</revision>
+        <lombok.version>1.18.30</lombok.version>
+        <hutool.version>5.8.20</hutool.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.dromara.neutrino-proxy</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.noear</groupId>
+                    <artifactId>solon-test</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.noear</groupId>
+                    <artifactId>solon.aot</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.noear</groupId>
+                    <artifactId>solon.logging.logback</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>cn.hutool</groupId>
+                    <artifactId>hutool-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>cn.hutool</groupId>
+                    <artifactId>hutool-cache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon-lib</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>${lombok.version}</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>4.5</version>
-            <scope>compile</scope>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.20.0</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

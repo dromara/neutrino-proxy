@@ -19,6 +19,15 @@
             <artifactId>neutrino-proxy-client-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon-lib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon.aot</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

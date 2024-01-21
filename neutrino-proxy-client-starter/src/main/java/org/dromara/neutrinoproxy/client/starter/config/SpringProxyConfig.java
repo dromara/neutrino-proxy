@@ -1,14 +1,18 @@
-package org.dromara.neutrinoproxy.client.sdk.config;
+package org.dromara.neutrinoproxy.client.starter.config;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  *
- * @author: aoshiguchen
- * @date: 2022/6/16
+ * @author: gc.x
+ * @date: 2024/1/21
  */
 @Data
-public class ProxyConfig {
+@ConfigurationProperties(prefix = "neutrino.proxy")
+@Component
+public class SpringProxyConfig {
 	private Protocol protocol;
 	private Tunnel tunnel;
 	private Client client;

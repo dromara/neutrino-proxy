@@ -21,21 +21,20 @@
  */
 package org.dromara.neutrinoproxy.client.sdk.util;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.sdk.core.ProxyChannelBorrowListener;
 import org.dromara.neutrinoproxy.core.Constants;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.util.AttributeKey;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
-import org.noear.solon.Solon;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -180,11 +179,10 @@ public class ProxyUtil {
 		realServerChannels.clear();
 	}
 
-	public static String getClientId() {
+	public static String getClientId(ProxyConfig proxyConfig) {
 		if (StringUtils.isNotBlank(clientId)) {
 			return clientId;
 		}
-		ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
 		if (StringUtils.isNotBlank(proxyConfig.getTunnel().getClientId())) {
 			clientId = proxyConfig.getTunnel().getClientId();
 			return clientId;

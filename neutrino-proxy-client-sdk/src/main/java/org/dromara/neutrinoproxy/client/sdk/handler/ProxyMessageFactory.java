@@ -24,20 +24,25 @@ import java.util.List;
 public abstract class ProxyMessageFactory extends IProxyConfiguration {
 
     public abstract void beanInject(String beanName, Object t);
-    public abstract Object getBean(String beanName);
+    public abstract Object getBean(String beanName,Class c);
+
+    public abstract void stop();
+    public abstract boolean isAotRuntime();
 
     public void start(ProxyConfig proxyConfig){
         init(proxyConfig);
         IAbProxyClientService  clientService=new IAbProxyClientService();
         clientService.setProxyConfig(proxyConfig);
-        clientService.setCmdTunnelBootstrap((Bootstrap) getBean("cmdTunnelBootstrap"));
-        clientService.setUdpServerBootstrap((Bootstrap) getBean("udpServerBootstrap"));
+        clientService.setCmdTunnelBootstrap((Bootstrap) getBean("cmdTunnelBootstrap",Bootstrap.class));
+        clientService.setUdpServerBootstrap((Bootstrap) getBean("udpServerBootstrap",Bootstrap.class));
+        clientService.setIsAotRuntime(isAotRuntime());
         clientService.init();
     }
 
     public void init(ProxyConfig proxyConfig){
         NioEventLoopGroup tunnelWorkGroup = super.tunnelWorkGroup(proxyConfig);
         beanInject("tunnelWorkGroup",tunnelWorkGroup);
+        Object tunnelWorkGroup1 = getBean("tunnelWorkGroup",NioEventLoopGroup.class);
         NioEventLoopGroup tcpRealServerWorkGroup = super.tcpRealServerWorkGroup(proxyConfig);
         beanInject("tcpRealServerWorkGroup",tcpRealServerWorkGroup);
         NioEventLoopGroup udpServerGroup = super.udpServerGroup(proxyConfig);
@@ -54,13 +59,13 @@ public abstract class ProxyMessageFactory extends IProxyConfiguration {
         beanInject("realServerBootstrap",realServerBootstrap);
         Bootstrap udpServerBootstrap = super.udpServerBootstrap(proxyConfig, udpServerGroup, udpWorkGroup);
         beanInject("udpServerBootstrap",udpServerBootstrap);
-        NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar = super.neutrinoCoreRuntimeNativeRegistrar();
-        beanInject("neutrinoCoreRuntimeNativeRegistrar",neutrinoCoreRuntimeNativeRegistrar);
+//        NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar = super.neutrinoCoreRuntimeNativeRegistrar();
+//        beanInject("neutrinoCoreRuntimeNativeRegistrar",neutrinoCoreRuntimeNativeRegistrar);
         dispatcher(proxyConfig, tcpProxyTunnelBootstrap, realServerBootstrap);
     }
     public  void dispatcher(ProxyConfig proxyConfig, Bootstrap tcpProxyTunnelBootstrap, Bootstrap realServerBootstrap) {
         List<ProxyMessageHandler> list = Lists.newArrayList(
-            new ProxyMessageAuthHandler(proxyConfig),
+            new ProxyMessageAuthHandler(proxyConfig,()->stop()),
             new ProxyMessageConnectHandler(tcpProxyTunnelBootstrap,realServerBootstrap,proxyConfig),
             new ProxyMessageDisconnectHandler(),
             new ProxyMessageErrorHandler(),

@@ -1,10 +1,11 @@
 package org.dromara.neutrinoproxy.client.sdk.handler;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.core.*;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.noear.snack.ONode;
 
 /**
  * 异常信息处理器
@@ -18,8 +19,8 @@ public class ProxyMessageErrorHandler implements ProxyMessageHandler {
 	@Override
 	public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
 		log.info("error: {}", proxyMessage.getInfo());
-        ONode load = ONode.load(proxyMessage.getInfo());
-        Integer code = load.get("code").getInt();
+        JSONObject load = JSONUtil.parseObj(proxyMessage.getInfo());
+        Integer code = load.getInt("code");
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			System.exit(0);
 		}

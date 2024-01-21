@@ -1,6 +1,8 @@
-package org.dromara.neutrinoproxy.client.sdk.config;
+package org.dromara.neutrinoproxy.client.config;
 
 import lombok.Data;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 
 /**
  *
@@ -8,9 +10,13 @@ import lombok.Data;
  * @date: 2022/6/16
  */
 @Data
-public class ProxyConfig {
+@Component
+public class SolonProxyConfig {
+	@Inject("${neutrino.proxy.protocol}")
 	private Protocol protocol;
+	@Inject("${neutrino.proxy.tunnel}")
 	private Tunnel tunnel;
+	@Inject("${neutrino.proxy.client}")
 	private Client client;
 
 	@Data

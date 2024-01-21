@@ -1,12 +1,16 @@
 package org.dromara.neutrinoproxy.client.handler;
 
+import cn.hutool.core.bean.BeanUtil;
+import org.dromara.neutrinoproxy.client.config.SolonProxyConfig;
 import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 import org.noear.solon.Solon;
 
 
+
 public class BeanHandler implements IBeanHandler {
+
 
      @Override
      public Dispatcher getDispatcher(){
@@ -15,6 +19,8 @@ public class BeanHandler implements IBeanHandler {
 
     @Override
     public ProxyConfig getProxyConfig() {
-       return Solon.context().getBean(ProxyConfig.class);
+        SolonProxyConfig solonProxyConfig = Solon.context().getBean(SolonProxyConfig.class);
+        ProxyConfig proxyConfig = BeanUtil.toBean(solonProxyConfig, ProxyConfig.class);
+        return proxyConfig;
     }
 }

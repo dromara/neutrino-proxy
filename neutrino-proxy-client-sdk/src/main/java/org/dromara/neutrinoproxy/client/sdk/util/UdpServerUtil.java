@@ -11,7 +11,7 @@ import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.sdk.constant.Constants;
 import org.dromara.neutrinoproxy.client.sdk.core.CustomThreadFactory;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.noear.solon.core.runtime.NativeDetector;
+import java.util.concurrent.TimeUnit;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -46,9 +46,9 @@ public class UdpServerUtil {
      * 2、维护一个UDP服务池，用于需要响应的UDP转发
      * @param proxyConfig
      */
-    public static void initCache(ProxyConfig proxyConfig, Bootstrap udpServerBootstrap) {
+    public static void initCache(ProxyConfig proxyConfig, Bootstrap udpServerBootstrap,Boolean isAotRuntime) {
         // aot 阶段，不初始化UDP服务
-        if (NativeDetector.isAotRuntime()) {
+        if (isAotRuntime) {
             return;
         }
         if (null == proxyConfig.getClient().getUdp() || StringUtils.isEmpty(proxyConfig.getClient().getUdp().getPuppetPortRange())) {

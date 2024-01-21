@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.client.sdk.handler;
 
+import cn.hutool.json.JSONUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -12,7 +13,6 @@ import org.dromara.neutrinoproxy.core.ProxyDataTypeEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.noear.snack.ONode;
 
 import java.net.InetSocketAddress;
 
@@ -26,7 +26,7 @@ public class UdpProxyMessageTransferHandler implements ProxyMessageHandler {
 
     @Override
     public void handle(ChannelHandlerContext ctx, ProxyMessage proxyMessage) {
-        final ProxyMessage.UdpBaseInfo udpBaseInfo = ONode.deserialize(proxyMessage.getInfo(), ProxyMessage.UdpBaseInfo.class);
+        final ProxyMessage.UdpBaseInfo udpBaseInfo = JSONUtil.toBean(proxyMessage.getInfo(),ProxyMessage.UdpBaseInfo.class);
         log.debug("[UDP transfer]info:{} data:{}", proxyMessage.getInfo(), new String(proxyMessage.getData()));
         Channel channel = UdpServerUtil.takeChannel(udpBaseInfo, ctx.channel());
         if (null == channel) {
