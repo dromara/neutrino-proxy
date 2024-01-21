@@ -22,8 +22,8 @@ import org.dromara.neutrinoproxy.core.dispatcher.Match;
 @Match(type = Constants.ProxyDataTypeName.UDP_CONNECT)
 public class UdpProxyMessageConnectHandler implements ProxyMessageHandler {
 
-    private ProxyConfig proxyConfig;
-    private Bootstrap udpProxyTunnelBootstrap;
+    private final ProxyConfig proxyConfig;
+    private final Bootstrap udpProxyTunnelBootstrap;
 
     public UdpProxyMessageConnectHandler(ProxyConfig proxyConfig,Bootstrap udpProxyTunnelBootstrap){
         this.proxyConfig=proxyConfig;

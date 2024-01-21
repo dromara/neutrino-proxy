@@ -21,9 +21,9 @@ import org.dromara.neutrinoproxy.core.dispatcher.Match;
 @Match(type = Constants.ProxyDataTypeName.CONNECT)
 public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 
-	private Bootstrap tcpProxyTunnelBootstrap;
-	private Bootstrap realServerBootstrap;
-	private ProxyConfig proxyConfig;
+	private final Bootstrap tcpProxyTunnelBootstrap;
+	private final Bootstrap realServerBootstrap;
+	private final ProxyConfig proxyConfig;
 
     public ProxyMessageConnectHandler(Bootstrap tcpProxyTunnelBootstrap,Bootstrap realServerBootstrap,ProxyConfig proxyConfig){
         this.proxyConfig=proxyConfig;
@@ -39,48 +39,43 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		String ip = serverInfo[0];
 		int port = Integer.parseInt(serverInfo[1]);
 		// 连接真实的、被代理的服务
-		realServerBootstrap.connect(ip, port).addListener(new ChannelFutureListener() {
+		realServerBootstrap.connect(ip, port).addListener((ChannelFutureListener) future -> {
+            // 连接后端服务器成功
+            if (future.isSuccess()) {
+                final Channel realServerChannel = future.channel();
 
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
+                realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
-				// 连接后端服务器成功
-				if (future.isSuccess()) {
-					final Channel realServerChannel = future.channel();
+                // 获取连接
+                ProxyUtil.borrowTcpProxyChanel(tcpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
 
-					realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
+                    @Override
+                    public void success(Channel channel) {
+                        // 连接绑定
+                        channel.attr(Constants.NEXT_CHANNEL).set(realServerChannel);
+                        realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
 
-					// 获取连接
-					ProxyUtil.borrowTcpProxyChanel(tcpProxyTunnelBootstrap, new ProxyChannelBorrowListener() {
+                        // 远程绑定
+                        channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getTunnel().getLicenseKey()));
 
-						@Override
-						public void success(Channel channel) {
-							// 连接绑定
-							channel.attr(Constants.NEXT_CHANNEL).set(realServerChannel);
-							realServerChannel.attr(Constants.NEXT_CHANNEL).set(channel);
+                        realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
+                        ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
+                        ProxyUtil.setRealServerChannelVisitorId(realServerChannel, visitorId);
+                    }
 
-							// 远程绑定
-							channel.writeAndFlush(ProxyMessage.buildConnectMessage(visitorId + "@" + proxyConfig.getTunnel().getLicenseKey()));
+                    @Override
+                    public void error(Throwable cause) {
+                        ProxyMessage proxyMessage1 = new ProxyMessage();
+                        proxyMessage1.setType(ProxyMessage.TYPE_DISCONNECT);
+                        proxyMessage1.setInfo(visitorId);
+                        cmdChannel.writeAndFlush(proxyMessage1);
+                    }
+                });
 
-							realServerChannel.config().setOption(ChannelOption.AUTO_READ, true);
-							ProxyUtil.addRealServerChannel(visitorId, realServerChannel);
-							ProxyUtil.setRealServerChannelVisitorId(realServerChannel, visitorId);
-						}
-
-						@Override
-						public void error(Throwable cause) {
-							ProxyMessage proxyMessage = new ProxyMessage();
-							proxyMessage.setType(ProxyMessage.TYPE_DISCONNECT);
-							proxyMessage.setInfo(visitorId);
-							cmdChannel.writeAndFlush(proxyMessage);
-						}
-					});
-
-				} else {
-					cmdChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(visitorId));
-				}
-			}
-		});
+            } else {
+                cmdChannel.writeAndFlush(ProxyMessage.buildDisconnectMessage(visitorId));
+            }
+        });
 	}
 
 	@Override
