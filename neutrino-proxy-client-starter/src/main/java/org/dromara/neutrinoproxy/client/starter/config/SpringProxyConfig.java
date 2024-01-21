@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "neutrino.proxy")
 @Component
 public class SpringProxyConfig {
+    private Boolean enable=false;
 	private Protocol protocol;
 	private Tunnel tunnel;
 	private Client client;
