@@ -180,8 +180,8 @@ public abstract class IProxyConfiguration {
         return bootstrap;
     }
 
-    public NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar() {
-        return new NeutrinoCoreRuntimeNativeRegistrar();
-    }
+//    public NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar() {
+//        return new NeutrinoCoreRuntimeNativeRegistrar();
+//    }
 
 }

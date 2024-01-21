@@ -3,7 +3,9 @@ package org.dromara.neutrinoproxy.client.config;
 import org.dromara.neutrinoproxy.client.handler.BeanHandler;
 import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
 import org.dromara.neutrinoproxy.client.sdk.handler.ProxyMessageFactory;
+import org.dromara.neutrinoproxy.core.aot.NeutrinoCoreRuntimeNativeRegistrar;
 import org.noear.solon.Solon;
+import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.runtime.NativeDetector;
@@ -31,7 +33,7 @@ public class ProxyConfiguration extends ProxyMessageFactory {
     }
 
     @Override
-    public Object getBean(String beanName) {
+    public Object getBean(String beanName,Class c) {
         return Solon.context().getBean(beanName);
     }
 
@@ -43,5 +45,10 @@ public class ProxyConfiguration extends ProxyMessageFactory {
     @Override
     public boolean isAotRuntime() {
         return NativeDetector.isAotRuntime();
+    }
+
+    @Bean
+    public NeutrinoCoreRuntimeNativeRegistrar neutrinoCoreRuntimeNativeRegistrar(){
+        return new NeutrinoCoreRuntimeNativeRegistrar();
     }
 }
