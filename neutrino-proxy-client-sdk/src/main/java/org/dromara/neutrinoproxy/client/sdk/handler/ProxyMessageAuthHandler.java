@@ -1,5 +1,7 @@
 package org.dromara.neutrinoproxy.client.sdk.handler;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
@@ -8,8 +10,6 @@ import org.dromara.neutrinoproxy.core.ExceptionEnum;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
 import org.dromara.neutrinoproxy.core.ProxyMessageHandler;
 import org.dromara.neutrinoproxy.core.dispatcher.Match;
-import org.noear.snack.ONode;
-import org.noear.solon.Solon;
 
 /**
  * 认证信息处理器
@@ -21,21 +21,24 @@ import org.noear.solon.Solon;
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {
 	private ProxyConfig proxyConfig;
 
-    public ProxyMessageAuthHandler(ProxyConfig proxyConfig){
+    private Runnable stop;
+
+    public ProxyMessageAuthHandler(ProxyConfig proxyConfig,Runnable stop){
         this.proxyConfig=proxyConfig;
+        this.stop=stop;
     }
 	@Override
 	public void handle(ChannelHandlerContext context, ProxyMessage proxyMessage) {
 		String info = proxyMessage.getInfo();
-        ONode load = ONode.load(info);
-        Integer code = load.get("code").getInt();
+        JSONObject load = JSONUtil.parseObj(info);
+        Integer code = load.getInt("code");
 		log.info("Auth result:{}", info);
 		if (ExceptionEnum.AUTH_FAILED.getCode().equals(code)) {
 			// 客户端认证失败，直接停止服务
 			log.info("client auth failed , client stop.");
 			context.channel().close();
 			if (!proxyConfig.getTunnel().getReconnection().getUnlimited()) {
-				Solon.stop();
+				stop.run();
 			}
 		} else if (ExceptionEnum.CONNECT_FAILED.getCode().equals(code) ||
 				ExceptionEnum.LICENSE_CANNOT_REPEAT_CONNECT.getCode().equals(code)

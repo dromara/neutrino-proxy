@@ -7,12 +7,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
-import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.sdk.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
-import org.noear.solon.Solon;
 
 /**
  * 处理与服务端之间的数据传输

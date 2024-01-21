@@ -26,12 +26,16 @@ public abstract class ProxyMessageFactory extends IProxyConfiguration {
     public abstract void beanInject(String beanName, Object t);
     public abstract Object getBean(String beanName);
 
+    public abstract void stop();
+    public abstract boolean isAotRuntime();
+
     public void start(ProxyConfig proxyConfig){
         init(proxyConfig);
         IAbProxyClientService  clientService=new IAbProxyClientService();
         clientService.setProxyConfig(proxyConfig);
         clientService.setCmdTunnelBootstrap((Bootstrap) getBean("cmdTunnelBootstrap"));
         clientService.setUdpServerBootstrap((Bootstrap) getBean("udpServerBootstrap"));
+        clientService.setIsAotRuntime(isAotRuntime());
         clientService.init();
     }
 
@@ -60,7 +64,7 @@ public abstract class ProxyMessageFactory extends IProxyConfiguration {
     }
     public  void dispatcher(ProxyConfig proxyConfig, Bootstrap tcpProxyTunnelBootstrap, Bootstrap realServerBootstrap) {
         List<ProxyMessageHandler> list = Lists.newArrayList(
-            new ProxyMessageAuthHandler(proxyConfig),
+            new ProxyMessageAuthHandler(proxyConfig,()->stop()),
             new ProxyMessageConnectHandler(tcpProxyTunnelBootstrap,realServerBootstrap,proxyConfig),
             new ProxyMessageDisconnectHandler(),
             new ProxyMessageErrorHandler(),

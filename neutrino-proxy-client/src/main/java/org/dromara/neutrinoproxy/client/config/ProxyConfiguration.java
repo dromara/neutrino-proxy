@@ -6,6 +6,7 @@ import org.dromara.neutrinoproxy.client.sdk.handler.ProxyMessageFactory;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.core.BeanWrap;
+import org.noear.solon.core.runtime.NativeDetector;
 
 /**
  * 代理配置
@@ -32,5 +33,15 @@ public class ProxyConfiguration extends ProxyMessageFactory {
     @Override
     public Object getBean(String beanName) {
         return Solon.context().getBean(beanName);
+    }
+
+    @Override
+    public void stop() {
+        Solon.stop();
+    }
+
+    @Override
+    public boolean isAotRuntime() {
+        return NativeDetector.isAotRuntime();
     }
 }
