@@ -50,3 +50,4 @@ neutrino:
         puppet-port-range: 10000-10500
         # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
         transfer-log-enable: ${CLIENT_LOG:false}
+    enable: true

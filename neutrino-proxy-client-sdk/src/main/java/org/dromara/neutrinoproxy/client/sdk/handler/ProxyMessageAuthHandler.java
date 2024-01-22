@@ -19,9 +19,8 @@ import org.dromara.neutrinoproxy.core.dispatcher.Match;
 @Slf4j
 @Match(type = Constants.ProxyDataTypeName.AUTH)
 public class ProxyMessageAuthHandler implements ProxyMessageHandler {
-	private ProxyConfig proxyConfig;
-
-    private Runnable stop;
+	private final ProxyConfig proxyConfig;
+    private final Runnable stop;
 
     public ProxyMessageAuthHandler(ProxyConfig proxyConfig,Runnable stop){
         this.proxyConfig=proxyConfig;

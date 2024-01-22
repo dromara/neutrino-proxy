@@ -20,7 +20,7 @@ import org.dromara.neutrinoproxy.core.ProxyMessage;
 @Slf4j
 public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>{
     private static volatile Boolean transferLogEnable = Boolean.FALSE;
-    private IBeanHandler beanHandler;
+    private final IBeanHandler beanHandler;
 
     public CmdChannelHandler(IBeanHandler beanHandler) {
         this.beanHandler = beanHandler;
@@ -31,7 +31,7 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage){
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
             log.debug("[CMD Channel]Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
@@ -58,13 +58,13 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         log.error("[CMD Channel]Client CmdChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
         ctx.close();
     }
 
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt){
         if(evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent)evt;
             switch (event.state()) {
