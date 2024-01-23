@@ -1,7 +1,6 @@
 package org.dromara.neutrinoproxy.client.config;
 
 import org.dromara.neutrinoproxy.client.handler.BeanHandler;
-import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
 import org.dromara.neutrinoproxy.client.sdk.handler.ProxyMessageFactory;
 import org.dromara.neutrinoproxy.core.aot.NeutrinoCoreRuntimeNativeRegistrar;
 import org.noear.solon.Solon;
