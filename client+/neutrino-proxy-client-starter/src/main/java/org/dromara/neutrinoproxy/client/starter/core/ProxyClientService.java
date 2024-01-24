@@ -26,10 +26,10 @@ public class ProxyClientService implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if(springProxyConfig.getEnable()){
-            log.info("启动中....");
+            log.info("start....");
             ProxyConfig proxyConfig = BeanUtil.toBean(springProxyConfig, ProxyConfig.class);
             proxyConfiguration.start(proxyConfig);
-            log.info("启动成功....");
+            log.info("start success!");
         }
     }
 }
