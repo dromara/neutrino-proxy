@@ -23,9 +23,9 @@ public class ProxyClientService{
     private SolonProxyConfig solonProxyConfig;
 	@Init
 	public void init() {
-        log.info("启动中....");
+        log.info("start....");
         ProxyConfig proxyConfig = BeanUtil.toBean(solonProxyConfig, ProxyConfig.class);
         proxyConfiguration.start(proxyConfig);
-        log.info("启动成功....");
+        log.info("start success!");
 	}
 }

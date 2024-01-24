@@ -38,13 +38,13 @@ neutrino:
       key-store-password: ${STORE_PASS:123456}
       jks-path: ${JKS_PATH:classpath:/test.jks}
       # 服务端IP
-      server-ip: ${SERVER_IP:194.36.209.36}
+      server-ip: ${SERVER_IP:}
       # 服务端端口(对应服务端app.yml中的tunnel.port、tunnel.ssl-port)
       server-port: ${SERVER_PORT:9002}
       # 是否启用SSL(注意：该配置必须和server-port对应上)
       ssl-enable: ${SSL_ENABLE:true}
       # 客户端连接唯一凭证
-      license-key: ${LICENSE_KEY:2d45b54680d54726b1cfd183b0307c58}
+      license-key: ${LICENSE_KEY:}
       # 客户端唯一身份标识（可忽略，若不设置首次启动会自动生成）
       client-id: ${CLIENT_ID:}
       # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
