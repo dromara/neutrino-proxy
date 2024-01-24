@@ -3,7 +3,11 @@ package org.dromara.neutrinoproxy.client.starter.ssh;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
-
+/**
+ *
+ * @author: gc.x
+ * @date: 2024/1/21
+ */
 @Slf4j
 public class SSHProxyFactoryImpl implements SSHProxyFactory {
     private SSHProxy connection;

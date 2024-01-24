@@ -1,7 +1,11 @@
 package org.dromara.neutrinoproxy.client.starter.ssh;
 
 import lombok.Data;
-
+/**
+ *
+ * @author: gc.x
+ * @date: 2024/1/21
+ */
 @Data
 public class SSHProxy {
     private String sshId;

@@ -3,7 +3,11 @@ package org.dromara.neutrinoproxy.client.starter.ssh;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
+/**
+ *
+ * @author: gc.x
+ * @date: 2024/1/21
+ */
 public class SSHConnectionServiceImpl implements SSHConnectionService {
 
     private Map<String, SSHProxy> connections;
