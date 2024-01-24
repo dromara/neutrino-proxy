@@ -85,13 +85,13 @@
                 </excludes>
             </resource>
         </resources>
-        <plugins>
-            <!-- 配置打包插件（并打包成胖包） -->
-            <plugin>
-                <groupId>org.noear</groupId>
-                <artifactId>solon-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+<!--        <plugins>-->
+<!--            &lt;!&ndash; 配置打包插件（并打包成胖包） &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.noear</groupId>-->
+<!--                <artifactId>solon-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
     </build>
 
 </project>
