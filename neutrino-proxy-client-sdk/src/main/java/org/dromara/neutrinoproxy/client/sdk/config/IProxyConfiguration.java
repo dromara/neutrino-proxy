@@ -14,7 +14,6 @@ import org.dromara.neutrinoproxy.client.sdk.core.*;
 import org.dromara.neutrinoproxy.client.sdk.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.ProxyMessageDecoder;
 import org.dromara.neutrinoproxy.core.ProxyMessageEncoder;
-import org.dromara.neutrinoproxy.core.aot.NeutrinoCoreRuntimeNativeRegistrar;
 
 import java.net.InetSocketAddress;
 
@@ -26,7 +25,6 @@ import java.net.InetSocketAddress;
 
 public abstract class IProxyConfiguration {
 
-    public abstract IBeanHandler getBeanHandler();
 
     public NioEventLoopGroup tunnelWorkGroup(ProxyConfig proxyConfig) {
         return new NioEventLoopGroup(proxyConfig.getTunnel().getThreadCount());
@@ -76,7 +74,7 @@ public abstract class IProxyConfiguration {
                         proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
                 ch.pipeline().addLast(new ProxyMessageEncoder());
                 ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-                ch.pipeline().addLast(new CmdChannelHandler(getBeanHandler()));
+                ch.pipeline().addLast(new CmdChannelHandler());
             }
         });
         return bootstrap;
@@ -103,7 +101,7 @@ public abstract class IProxyConfiguration {
                         proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
                 ch.pipeline().addLast(new ProxyMessageEncoder());
                 ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-                ch.pipeline().addLast(new TcpProxyChannelHandler(getBeanHandler()));
+                ch.pipeline().addLast(new TcpProxyChannelHandler());
             }
         });
         return bootstrap;
@@ -129,7 +127,7 @@ public abstract class IProxyConfiguration {
                         proxyConfig.getProtocol().getLengthAdjustment(), proxyConfig.getProtocol().getInitialBytesToStrip()));
                 ch.pipeline().addLast(new ProxyMessageEncoder());
                 ch.pipeline().addLast(new IdleStateHandler(proxyConfig.getProtocol().getReadIdleTime(), proxyConfig.getProtocol().getWriteIdleTime(), proxyConfig.getProtocol().getAllIdleTimeSeconds()));
-                ch.pipeline().addLast(new UdpProxyChannelHandler(getBeanHandler()));
+                ch.pipeline().addLast(new UdpProxyChannelHandler());
             }
         });
         return bootstrap;

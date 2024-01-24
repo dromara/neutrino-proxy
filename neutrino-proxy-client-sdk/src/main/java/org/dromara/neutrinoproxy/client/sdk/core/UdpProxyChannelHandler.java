@@ -6,10 +6,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
+import org.dromara.neutrinoproxy.client.sdk.handler.ProxyMessageFactory;
 import org.dromara.neutrinoproxy.client.sdk.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 
 /**
  * 处理与服务端之间的数据传输
@@ -19,16 +20,13 @@ import org.dromara.neutrinoproxy.core.ProxyMessage;
 @Slf4j
 public class UdpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
 
-    private IBeanHandler beanHandler;
-    public UdpProxyChannelHandler(IBeanHandler beanHandler) {
-        this.beanHandler = beanHandler;
-    }
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage)  {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType()) {
             log.debug("[UDP Proxy Channel]Client ProxyChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
-        beanHandler.getDispatcher().dispatch(ctx, proxyMessage);
+        Dispatcher dispatcher = (Dispatcher) ProxyMessageFactory.beanManager.get("dispatcher").getBean();
+        dispatcher.dispatch(ctx,proxyMessage);
     }
 
     @Override
@@ -54,13 +52,13 @@ public class UdpProxyChannelHandler extends SimpleChannelInboundHandler<ProxyMes
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
         log.error("[UDP Proxy Channel]Client ProxyChannel Error channelId:{}", ctx.channel().id().asLongText(), cause);
         ctx.close();
     }
 
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt)  {
         if(evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent)evt;
             switch (event.state()) {

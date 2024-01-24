@@ -6,11 +6,12 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.client.sdk.config.IBeanHandler;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
+import org.dromara.neutrinoproxy.client.sdk.handler.ProxyMessageFactory;
 import org.dromara.neutrinoproxy.client.sdk.util.ProxyUtil;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
+import org.dromara.neutrinoproxy.core.dispatcher.Dispatcher;
 
 /**
  * 处理与服务端之间的数据传输
@@ -20,11 +21,10 @@ import org.dromara.neutrinoproxy.core.ProxyMessage;
 @Slf4j
 public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>{
     private static volatile Boolean transferLogEnable = Boolean.FALSE;
-    private final IBeanHandler beanHandler;
 
-    public CmdChannelHandler(IBeanHandler beanHandler) {
-        this.beanHandler = beanHandler;
-        ProxyConfig proxyConfig = beanHandler.getProxyConfig();
+
+    public CmdChannelHandler() {
+        ProxyConfig proxyConfig = (ProxyConfig) ProxyMessageFactory.beanManager.get("proxyConfig").getBean();
         if (null != proxyConfig.getClient() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
             transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
         }
@@ -35,7 +35,9 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
             log.debug("[CMD Channel]Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
         }
-        beanHandler.getDispatcher().dispatch(ctx, proxyMessage);
+//        beanHandler.getDispatcher().dispatch(ctx, proxyMessage);
+        Dispatcher dispatcher = (Dispatcher) ProxyMessageFactory.beanManager.get("dispatcher").getBean();
+        dispatcher.dispatch(ctx,proxyMessage);
     }
 
     @Override
