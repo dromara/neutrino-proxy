@@ -97,12 +97,12 @@ public class IAbProxyClientService {
 						// 连接成功，向服务器发送客户端认证信息（licenseKey）
 						ProxyUtil.setCmdChannel(future.channel());
 						future.channel().writeAndFlush(ProxyMessage.buildAuthMessage(proxyConfig.getTunnel().getLicenseKey(), ProxyUtil.getClientId(proxyConfig)));
-						log.info("[CmdChannel] connect proxy server success. channelId:{}", future.channel().id().asLongText());
+						log.info("[CmdChannel] connect proxy server {}:{} success. channelId:{}", proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort(), future.channel().id().asLongText());
 
 //						reconnectServiceEnable = true;
 						reconnectCount = 0;
 					} else {
-						log.info("[CmdChannel] connect proxy server failed!");
+						log.info("[CmdChannel] connect proxy server {}:{} failed!", proxyConfig.getTunnel().getServerIp(), proxyConfig.getTunnel().getServerPort());
 					}
 				}
 			}).sync();
