@@ -32,6 +32,13 @@ public class SSHConnectionServiceImpl implements SSHConnectionService {
         connections.put(connection.getSshId(), connection);
         return sshId;
     }
+    @Override
+    public String addConnection(SSHProxy sshProxy) {
+        String sshId = UUID.randomUUID().toString();
+        sshProxy.setSshId(sshId);
+        connections.put(sshProxy.getSshId(), sshProxy);
+        return sshId;
+    }
 
     @Override
     public void openTunnel(String sshId) {

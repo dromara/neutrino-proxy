@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.client.sdk.config.ProxyConfig;
 import org.dromara.neutrinoproxy.client.starter.config.ProxyConfiguration;
 import org.dromara.neutrinoproxy.client.starter.config.SpringProxyConfig;
+import org.dromara.neutrinoproxy.client.starter.ssh.SSHConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -30,6 +31,12 @@ public class ProxyClientService implements ApplicationRunner {
             ProxyConfig proxyConfig = BeanUtil.toBean(springProxyConfig, ProxyConfig.class);
             proxyConfiguration.start(proxyConfig);
             log.info("start success!");
+        }
+        if(springProxyConfig.getSshEnable()){
+            springProxyConfig.getSshProxys().forEach(sshProxy -> {
+                String sshId = SSHConnectionFactory.factory.addConnection(sshProxy);
+                SSHConnectionFactory.factory.openTunnel(sshId);
+            });
         }
     }
 }
