@@ -1,8 +1,11 @@
 package org.dromara.neutrinoproxy.client.starter.config;
 
 import lombok.Data;
+import org.dromara.neutrinoproxy.client.starter.ssh.SSHProxy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  *
@@ -14,9 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringProxyConfig {
     private Boolean enable=false;
+    private Boolean sshEnable=false;
 	private Protocol protocol;
 	private Tunnel tunnel;
 	private Client client;
+    private List<SSHProxy> sshProxys;
 
 	@Data
 	public static class Protocol {
