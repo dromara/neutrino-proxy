@@ -4,8 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.javpower</groupId>
     <artifactId>neutrino-proxy-client-spring-boot-starter</artifactId>
-    <version>${revision}</version>
-    <packaging>jar</packaging>
+    <version>2.0.1</version>
+    <name>neutrino-proxy-client-spring-boot-starter</name>
+    <description>a tool about easy neutrino-proxy-client</description>
     <url>https://github.com/javpower/neutrino-proxy</url>
     <licenses>
         <license>
@@ -28,7 +29,7 @@
         </developer>
     </developers>
     <properties>
-        <mica-auto.vaersion>2.3.2</mica-auto.vaersion>
+        <mica-auto.version>2.3.2</mica-auto.version>
         <spring-boot.version>2.7.13</spring-boot.version>
         <revision>2.0.1</revision>
     </properties>
@@ -67,12 +68,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
         </dependency>
-        <dependency>
-            <groupId>net.dreamlu</groupId>
-            <artifactId>mica-auto</artifactId>
-            <version>${mica-auto.vaersion}</version>
-            <scope>provided</scope>
-        </dependency>
         <!--SSH中转隧道-->
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -84,7 +79,12 @@
             <artifactId>jzlib</artifactId>
             <version>1.1.3</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.dreamlu</groupId>
+            <artifactId>mica-auto</artifactId>
+            <version>${mica-auto.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -116,9 +116,20 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <encoding>UTF-8</encoding>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
@@ -126,7 +137,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.gc.easy.EasyHttpApplication</mainClass>
+                    <mainClass>org.dromara.neutrinoproxy.client.starter.SpringProxyClient</mainClass>
                     <skip>true</skip>
                 </configuration>
             </plugin>
@@ -197,5 +208,4 @@
 
         </plugins>
     </build>
-
 </project>
