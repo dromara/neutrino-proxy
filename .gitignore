@@ -60,3 +60,5 @@ logs
 data
 **/cert/**
 neutrino-proxy-server/src/main/resources/static/**
+
+client+/neutrino-proxy-client-chrome-plugin
