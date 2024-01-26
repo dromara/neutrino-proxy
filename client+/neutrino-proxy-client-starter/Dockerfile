@@ -9,7 +9,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN mkdir -p /root/neutrino-proxy/config
 WORKDIR /root/neutrino-proxy
 COPY ./target/neutrino-proxy-client.jar /root/neutrino-proxy/neutrino-proxy-client.jar
-COPY ./src/main/resources/app-copy.yml /root/neutrino-proxy/config/app.yml
+COPY src/main/resources/app-copy.yml /root/neutrino-proxy/config/app.yml
 #VOLUME ["/root/neutrino-proxy"]
 ENTRYPOINT ["java","-jar","neutrino-proxy-client.jar","config=./config/app.yml"]
 
