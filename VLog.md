@@ -79,3 +79,7 @@
 - 支持对用户、license限速
 - 修复HTTP(S)映射时使用tcp端口访问正常，使用域名访问偶现一直loading的问题
 - 修复HTTP(S)映射时使用映射的域名上传文件时，连接中断的问题
+
+## 2.0.2
+- 升级solon版本到2.7.0-M2，解决不在当前目录下启动时找不到配置文件的问题
+- client抽出sdk（还需测试windows原生部署、进一步抽出neutrino-proxy-sdk）
