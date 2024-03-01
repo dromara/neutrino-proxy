@@ -15,6 +15,7 @@ import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
 
 /**
+ * HTTP 访问安全检测
  * @author: aoshiguchen
  * @date: 2023/12/14
  */

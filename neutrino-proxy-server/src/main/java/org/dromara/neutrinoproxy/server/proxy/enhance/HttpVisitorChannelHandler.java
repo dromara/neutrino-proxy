@@ -19,6 +19,7 @@ import org.noear.solon.Solon;
 import java.net.InetSocketAddress;
 
 /**
+ * HTTP 访客处理器
  * @author: aoshiguchen
  * @date: 2023/5/27
  */
@@ -53,7 +54,6 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
 
         // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
-
 
         // 根据域名拿到绑定的映射对应的cmdChannel
         Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();

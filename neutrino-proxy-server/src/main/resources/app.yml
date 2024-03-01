@@ -59,7 +59,7 @@ neutrino:
         # https代理端口，默认443 （需要配置域名、证书）
         https-proxy-port: ${HTTPS_PROXY_PORT:443}
         # 如果不配置，则不支持域名映射
-        domain-name: ${DOMAIN_NAME:}
+        domain-name: ${DOMAIN_NAME:server.com}
         # https证书配置
         key-store-password: ${HTTPS_STORE_PASS:}
         jks-path: ${HTTPS_JKS_PATH:}

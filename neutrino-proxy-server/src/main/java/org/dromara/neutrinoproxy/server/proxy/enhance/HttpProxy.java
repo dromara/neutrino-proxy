@@ -19,7 +19,8 @@ import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
 
 /**
- * HTTP代理
+ * 应用加载完成事件（即启动完成）- 判断是否配置域名-配置了域名则启动HTTP代理
+ * 默认端口 80
  * @author: aoshiguchen
  * @date: 2023/4/2
  */
