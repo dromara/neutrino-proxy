@@ -61,7 +61,8 @@ export const asyncRouterMap = [
     },
     children: [
       { path: 'license', component: _import('proxy/license'), name: 'license', meta: { title: 'license' }},
-      { path: 'portMapping', component: _import('proxy/portMapping'), name: 'portMapping', meta: { title: 'portMapping' }}
+      { path: 'portMapping', component: _import('proxy/portMapping'), name: 'portMapping', meta: { title: 'portMapping' }},
+      { path: 'domainMapping', component: _import('proxy/domainMapping'), name: 'domainMapping', meta: { title: 'domainMapping' }}
     ]
   },
   {

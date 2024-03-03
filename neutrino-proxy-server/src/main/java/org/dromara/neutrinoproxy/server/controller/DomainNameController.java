@@ -12,7 +12,7 @@ import org.noear.solon.annotation.Mapping;
  * @date: 2023/4/2
  */
 @Slf4j
-@Mapping("/domain-name")
+@Mapping("/domain")
 @Controller
 public class DomainNameController {
     @Inject
