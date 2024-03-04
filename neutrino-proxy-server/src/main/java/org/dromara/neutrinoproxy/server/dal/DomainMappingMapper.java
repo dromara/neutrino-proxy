@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainMappingDto;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainMappingDO;
 
@@ -64,9 +65,9 @@ public interface DomainMappingMapper extends BaseMapper<DomainMappingDO> {
 		);
 	}
 
-	default List<DomainMappingDO> findListByServerPort(Integer serverPort) {
+	default List<DomainMappingDO> findListByServerPort(String domain) {
 		return this.selectList(new LambdaQueryWrapper<DomainMappingDO>()
-				.eq(DomainMappingDO::getServerPort, serverPort)
+				.eq(DomainMappingDO::getDomain, domain)
 		);
 	}
 
@@ -76,37 +77,14 @@ public interface DomainMappingMapper extends BaseMapper<DomainMappingDO> {
 		);
 	}
 
-	default DomainMappingDO findByLicenseIdAndServerPort(Integer licenseId, Integer serverPort) {
+	default DomainMappingDO findByLicenseIdAndServerPort(Integer licenseId, String domain) {
 		return this.selectOne(new LambdaQueryWrapper<DomainMappingDO>()
 				.eq(DomainMappingDO::getLicenseId, licenseId)
-				.eq(DomainMappingDO::getServerPort, serverPort)
+				.eq(DomainMappingDO::getDomain, domain)
 				.last("limit 1")
 		);
 	}
 
-	default void updateOnlineStatus(Integer licenseId,Integer serverPort, Integer isOnline, Date updateTime) {
-		this.update(null, new LambdaUpdateWrapper<DomainMappingDO>()
-				.eq(DomainMappingDO::getLicenseId, licenseId)
-				.eq(DomainMappingDO::getServerPort, serverPort)
-				.set(DomainMappingDO::getIsOnline, isOnline)
-				.set(DomainMappingDO::getUpdateTime, updateTime)
-		);
-	}
 
-	default void updateOnlineStatus(Integer licenseId, Integer isOnline, Date updateTime) {
-		this.update(null, new LambdaUpdateWrapper<DomainMappingDO>()
-				.eq(DomainMappingDO::getLicenseId, licenseId)
-				.set(DomainMappingDO::getIsOnline, isOnline)
-				.set(DomainMappingDO::getUpdateTime, updateTime)
-		);
-	}
-
-	default void updateOnlineStatus(Integer isOnline, Date updateTime) {
-		this.update(null, new LambdaUpdateWrapper<DomainMappingDO>()
-				.set(DomainMappingDO::getIsOnline, isOnline)
-				.set(DomainMappingDO::getUpdateTime, updateTime)
-		);
-	}
-
-	List<DomainMappingDO> selectDomainMappingByCondition(IPage<DomainMappingDO> page, @Param("req") PortMappingListReq req);
+	List<DomainMappingDO> selectDomainMappingByCondition(IPage<DomainMappingDO> page, @Param("req") DomainMappingDto req);
 }

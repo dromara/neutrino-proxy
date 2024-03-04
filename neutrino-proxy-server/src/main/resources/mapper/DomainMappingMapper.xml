@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.dromara.neutrinoproxy.server.dal.PortMappingMapper">
+<mapper namespace="org.dromara.neutrinoproxy.server.dal.DomainMappingMapper">
     
-    <select id="selectDomainMappingByCondition" resultType="org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO">
-        SELECT pm.*
-        FROM port_mapping  pm
+    <select id="selectDomainMappingByCondition" resultType="org.dromara.neutrinoproxy.server.dal.entity.DomainMappingDO">
+        SELECT pm.*,l.is_online as isOnline
+        FROM domain_mapping  pm
         LEFT JOIN license l ON pm.license_id = l.`id`
         <where>
             <if test="req.userId != null">

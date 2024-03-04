@@ -37,44 +37,22 @@ public class DomainController {
 
     @Get
     @Mapping("/page")
-    public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
+    public PageInfo<DomainMappingDto> page(PageQuery pageQuery, DomainMappingDto req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
         return domainMappingService.page(pageQuery, req);
     }
 
     @Post
     @Mapping("/modify")
-    public PortMappingCreateRes create(PortMappingCreateReq req) {
-        ParamCheckUtil.checkNotNull(req, "req");
-        ParamCheckUtil.checkNotNull(req.getLicenseId(), "licenseId");
-        ParamCheckUtil.checkNotNull(req.getServerPort(), "serverPort");
-        ParamCheckUtil.checkNotNull(req.getClientPort(), "clientPort");
-        ParamCheckUtil.checkNotEmpty(req.getProtocal(), "protocal");
-        ParamCheckUtil.checkMaxLength(req.getDescription(), 50, "描述", "50");
-        ParamCheckUtil.checkBytesDesc(req.getUpLimitRate(), "upLimitRate");
-        ParamCheckUtil.checkBytesDesc(req.getDownLimitRate(), "downLimitRate");
-        if (StringUtils.isBlank(req.getClientIp())) {
-            // 没传客户端ip，默认为127.0.0.1
-            req.setClientIp("127.0.0.1");
+    public PortMappingCreateRes modify(DomainMappingDto req) {
+        if (StringUtils.isBlank(req.getTargetPath())) {// targetPath，默认为127.0.0.1
+            req.setTargetPath("127.0.0.1");
         }
-        NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
-        ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
-        if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
-            // 目前仅HTTP支持绑定域名
-            req.setSubdomain(null);
-        }
-        req.setProtocal(networkProtocolEnum.getDesc());
-        if (null == req.getProxyResponses()) {
-            req.setProxyResponses(0);
-        }
-        if (null == req.getProxyTimeoutMs()) {
-            req.setProxyTimeoutMs(0L);
-        }
+        req.setProtocal(NetworkProtocolEnum.HTTP.getDesc());
         if (null == req.getSecurityGroupId()) {
             req.setSecurityGroupId(0);
         }
-
-        return domainMappingService.create(req);
+        return domainMappingService.modify(req);
     }
 
     @Get
@@ -86,20 +64,13 @@ public class DomainController {
     @Post
     @Mapping("/update/enable-status")
     public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
-        ParamCheckUtil.checkNotNull(req, "req");
-        ParamCheckUtil.checkNotNull(req.getId(), "id");
-        ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
-
         return domainMappingService.updateEnableStatus(req);
     }
 
     @Post
-    @Mapping("/delete")
-    public void delete(PortMappingDeleteReq req) {
-        ParamCheckUtil.checkNotNull(req, "req");
-        ParamCheckUtil.checkNotNull(req.getId(), "id");
-
-        domainMappingService.delete(req.getId());
+    @Mapping("/delete/{id}")
+    public void delete(Integer id) {
+        domainMappingService.delete(id);
     }
 
     /**
@@ -109,7 +80,7 @@ public class DomainController {
     @Post
     @Mapping("/bind/security-group")
     public void bindSecurityGroup(PortMappingBindSecurityGroupReq req) {
-        domainMappingService.portBindSecurityGroup(req.getId(), req.getSecurityGroupId());
+        domainMappingService.domainBindSecurityGroup(req.getId(), req.getSecurityGroupId());
     }
 
     /**
@@ -119,7 +90,7 @@ public class DomainController {
     @Post
     @Mapping("/unbind/security-group")
     public void unbindSecurityGroup(Integer id) {
-        domainMappingService.portUnbindSecurityGroup(id);
+        domainMappingService.domainUnbindSecurityGroup(id);
     }
 
 

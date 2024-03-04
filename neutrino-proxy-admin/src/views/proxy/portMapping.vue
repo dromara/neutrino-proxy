@@ -105,9 +105,7 @@
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
-          <ButtonPopover @handleCommitClick="handleDelete2(scope.row)" style="margin-left: 10px" />
-
+          <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px" />
         </template>
       </el-table-column>
     </el-table>
@@ -122,26 +120,9 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px"
         style='width: 400px; margin-left:50px;'>
-        <!--        <el-form-item :label="$t('License')" prop="licenseId">-->
-        <!--          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">-->
-        <!--            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
-
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
             @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
-          <!--          <DropdownTable
-            :columns="countryColumns"
-            :data="licenseList"
-            v-model="temp.licenseId"
-            :value="temp.licenseName"
-            @rowClick="selectedFeeItem"
-            disabled
-            :disabled="dialogStatus==='update'"
-            style="width: 280px"
-          />-->
         </el-form-item>
         <el-form-item :label="$t('协议')" prop="protocal">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
@@ -232,20 +213,6 @@ import ButtonPopover from '../../components/Button/buttonPopover'
 import DropdownTable from '../../components/Dropdown/DropdownTable'
 // 下拉选择加载组件
 import loadSelect from "@/components/Select/SelectLoadMore";
-
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
-
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
-
 export default {
   name: 'complexTable',
   directives: {
@@ -277,7 +244,6 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        importance: undefined,
         title: undefined,
         type: undefined,
         userId: undefined,
@@ -288,7 +254,6 @@ export default {
         description: undefined
 
       },
-      importanceOptions: [1, 2, 3],
       calendarTypeOptions,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
@@ -367,9 +332,6 @@ export default {
       }
       return statusMap[status]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
-    }
   },
   created() {
     this.getDomainNameBindInfo()
@@ -570,29 +532,6 @@ export default {
           }
         })
       }).catch(() => { })
-    },
-    handleDelete2(row) {
-      deletePortMapping(row.id).then(response => {
-        if (response.data.code === 0) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-          this.getList()
-        }
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal, this.list)
-        excel.export_json_to_excel(tHeader, data, 'table-list')
-        this.downloadLoading = false
-      })
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => {

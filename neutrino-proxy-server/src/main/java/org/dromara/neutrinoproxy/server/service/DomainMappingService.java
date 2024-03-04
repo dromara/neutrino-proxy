@@ -77,13 +77,13 @@ public class DomainMappingService implements LifecycleBean {
     /**
      * 域名 到 域名解析id的映射
      */
-    private final Cache<Integer, Integer> domainToDomainMappingIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
+    private final Cache<String, Integer> domainToDomainMappingIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
     // 域名解析id到licenseId
     private final Cache<Integer, Integer> idToLicenseIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
     // 流量限制缓存
     private final Cache<Integer, FlowLimitBO> flowLimitCache = CacheUtil.newLRUCache(500, 1000 * 60 * 5);
 
-    public PageInfo<DomainMappingDto> page(PageQuery pageQuery, PortMappingListReq req) {
+    public PageInfo<DomainMappingDto> page(PageQuery pageQuery, DomainMappingDto req) {
         if (StringUtils.isNotEmpty(req.getDescription())) {
             //描述字段为模糊查询，在应用层处理，否则sqlite不支持
             req.setDescription("%" + req.getDescription() + "%");
@@ -145,55 +145,42 @@ public class DomainMappingService implements LifecycleBean {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
         }
-        PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getDomain());
-        ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
+//        PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getDomain());
+//        ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
         ParamCheckUtil.checkExpression(null == domainMappingMapper.findByDomain(req.getDomain(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getDomain());
         ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(req.getDomain(), null), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
 
         Date now = new Date();
-        PortMappingDO portMappingDO = ;
-        portMappingDO.setLicenseId(req.getLicenseId());
-        portMappingDO.setProtocal(req.getProtocal());
-        portMappingDO.setSubdomain(req.getSubdomain());
-        portMappingDO.setServerPort(req.getServerPort());
-        portMappingDO.setClientIp(req.getClientIp());
-        portMappingDO.setClientPort(req.getClientPort());
-        portMappingDO.setUpLimitRate(req.getUpLimitRate());
-        portMappingDO.setDownLimitRate(req.getDownLimitRate());
-        portMappingDO.setProxyResponses(req.getProxyResponses());
-        portMappingDO.setProxyTimeoutMs(req.getProxyTimeoutMs());
-        portMappingDO.setDescription(req.getDescription());
-        portMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
-        portMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-        portMappingDO.setCreateTime(now);
-        portMappingDO.setUpdateTime(now);
-        domainMappingMapper.insert(portMappingDO);
+        DomainMappingDO domainMappingDO = (DomainMappingDO) req;
+        domainMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
+        domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+        domainMappingDO.setCreateTime(now);
+        domainMappingDO.setUpdateTime(now);
+        domainMappingMapper.insert(domainMappingDO);
         // 更新VisitorChannel
-        visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+//        visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-            ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
+        if (NetworkProtocolEnum.isHttp(domainMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(domainMappingDO.getDomain())) {
+//            ProxyUtil.setSubdomainToServerPort(domainMappingDO.getDomain(), domainMappingDO.getServerPort());
         }
 
-        updateMappingDomainToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
+        updateMappingDomainToSecurityGroupMap(domainMappingDO.getDomain(), req.getSecurityGroupId());
 
         // 更新端口到映射的缓存
-        domainToDomainMappingIdCache.put(req.getServerPort(), portMappingDO.getId());
+        domainToDomainMappingIdCache.put(req.getDomain(), domainMappingDO.getId());
         // 更新端口映射到licenseId的缓存
-        idToLicenseIdCache.put(portMappingDO.getId(), portMappingDO.getLicenseId());
+        idToLicenseIdCache.put(domainMappingDO.getId(), domainMappingDO.getLicenseId());
         // 刷新流量限制缓存
-        refreshFlowLimitCache(portMappingDO.getId(), portMappingDO.getUpLimitRate(), portMappingDO.getDownLimitRate());
+        refreshFlowLimitCache(domainMappingDO.getId(), domainMappingDO.getUpLimitRate(), domainMappingDO.getDownLimitRate());
 
         return new PortMappingCreateRes();
     }
 
-
-
     public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
-        PortMappingDO portMappingDO = domainMappingMapper.findById(req.getId());
-        ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        DomainMappingDO domainMappingDO = domainMappingMapper.findById(req.getId());
+        ParamCheckUtil.checkNotNull(domainMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-        LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+        LicenseDO licenseDO = licenseMapper.findById(domainMappingDO.getLicenseId());
         ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
         if (!SystemContextHolder.isAdmin()) {
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
@@ -202,21 +189,21 @@ public class DomainMappingService implements LifecycleBean {
         domainMappingMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
 
         // 更新VisitorChannel
-        portMappingDO.setEnable(req.getEnable());
+        domainMappingDO.setEnable(req.getEnable());
         if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
-            visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+//            visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
         } else {
-            visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+//            visitorChannelService.removeVisitorChannelByPortMapping(domainMappingDO);
         }
 
         return new PortMappingUpdateEnableStatusRes();
     }
 
     public void delete(Integer id) {
-        PortMappingDO portMappingDO = domainMappingMapper.findById(id);
-        ParamCheckUtil.checkNotNull(portMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        DomainMappingDO domainMappingDO = domainMappingMapper.findById(id);
+        ParamCheckUtil.checkNotNull(domainMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-        LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+        LicenseDO licenseDO = licenseMapper.findById(domainMappingDO.getLicenseId());
         if (null != licenseDO && !SystemContextHolder.isAdmin()) {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
@@ -225,13 +212,14 @@ public class DomainMappingService implements LifecycleBean {
         domainMappingMapper.deleteById(id);
 
         // 更新VisitorChannel
-        visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+//        visitorChannelService.removeVisitorChannelByPortMapping(domainMappingDO);
+
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-            ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
+        if (NetworkProtocolEnum.isHttp(domainMappingDO.getProtocal()) && StrUtil.isNotBlank(domainMappingDO.getDomain())) {
+            ProxyUtil.removeSubdomainToServerPort(domainMappingDO.getDomain());
         }
 
-        updateMappingDomainToSecurityGroupMap(portMappingDO.getServerPort(), null);
+        updateMappingDomainToSecurityGroupMap(domainMappingDO.getDomain(), null);
 
         // 删除id到licenseId的映射
         idToLicenseIdCache.remove(id);
@@ -239,26 +227,26 @@ public class DomainMappingService implements LifecycleBean {
         flowLimitCache.remove(id);
     }
 
-    public void portBindSecurityGroup(Integer portMappingId, Integer groupId) {
-        PortMappingDO mappingDO = domainMappingMapper.findById(portMappingId);
+    public void domainBindSecurityGroup(Integer portMappingId, Integer groupId) {
+        DomainMappingDO mappingDO = domainMappingMapper.findById(portMappingId);
         if (mappingDO == null) {
             throw new RuntimeException("指定的端口映射不存在");
         }
         mappingDO.setSecurityGroupId(groupId);
         mappingDO.setUpdateTime(new Date());
         domainMappingMapper.updateById(mappingDO);
-        updateMappingDomainToSecurityGroupMap(mappingDO.getServerPort(), groupId);
+        updateMappingDomainToSecurityGroupMap(mappingDO.getDomain(), groupId);
     }
 
-    public void portUnbindSecurityGroup(Integer portMappingId) {
-        PortMappingDO mappingDO = domainMappingMapper.findById(portMappingId);
+    public void domainUnbindSecurityGroup(Integer portMappingId) {
+        DomainMappingDO mappingDO = domainMappingMapper.findById(portMappingId);
         if (mappingDO == null) {
             throw new RuntimeException("指定的端口映射不存在");
         }
         mappingDO.setSecurityGroupId(0);
         mappingDO.setUpdateTime(new Date());
         domainMappingMapper.updateById(mappingDO);
-        updateMappingDomainToSecurityGroupMap(mappingDO.getServerPort(), null);
+        updateMappingDomainToSecurityGroupMap(mappingDO.getDomain(), null);
     }
 
     /**
@@ -267,7 +255,7 @@ public class DomainMappingService implements LifecycleBean {
      * @param licenseId
      * @return
      */
-    public List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
+    public List<DomainMappingDO> findEnableListByLicenseId(Integer licenseId) {
         return domainMappingMapper.findEnableListByLicenseId(licenseId);
     }
 
@@ -286,7 +274,7 @@ public class DomainMappingService implements LifecycleBean {
             return;
         }
         // 服务刚启动，所以默认所有license都是离线状态。解决服务突然关闭，在线状态来不及更新的问题
-        domainMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+//        domainMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
 
         List<DomainMappingDO> allMappingDOList = domainMappingMapper.selectList(Wrappers.lambdaQuery(DomainMappingDO.class));
         allMappingDOList.forEach(item -> {
@@ -306,17 +294,17 @@ public class DomainMappingService implements LifecycleBean {
         if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName())) {
             return;
         }
-        List<PortMappingDO> portMappingDOList = allMappingDOList.stream()
+        List<DomainMappingDO> portMappingDOList = allMappingDOList.stream()
             .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()) && item.getDomain() != null)
             .collect(Collectors.toList());
         if (CollectionUtil.isEmpty(portMappingDOList)) {
             return;
         }
         portMappingDOList.forEach(item -> {
-            if (StrUtil.isBlank(item.getSubdomain())) {
+            if (StrUtil.isBlank(item.getDomain())) {
                 return;
             }
-            ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
+//            ProxyUtil.setSubdomainToServerPort(item.getDomain(), item.getServerPort());
 
         });
     }
@@ -354,21 +342,18 @@ public class DomainMappingService implements LifecycleBean {
         return res;
     }
 
-    public Integer getDomainMappingIdByServerPort(Integer serverPort) {
-        if (null == serverPort) {
-            return null;
-        }
-        Integer id = domainToDomainMappingIdCache.get(serverPort);
+    public Integer getDomainMappingIdByDomain(String domain) {
+        Integer id = domainToDomainMappingIdCache.get(domain);
         if (null != id) {
             return id;
         }
-        List<DomainMappingDO> domainMappingDOList = domainMappingMapper.findListByServerPort(serverPort);
+        List<DomainMappingDO> domainMappingDOList = domainMappingMapper.findListByServerPort(domain);
         // 不存在 或者 有多条记录，都不处理
         if (CollectionUtils.isEmpty(domainMappingDOList) || domainMappingDOList.size() > 1) {
             return null;
         }
         id = domainMappingDOList.get(0).getId();
-        domainToDomainMappingIdCache.put(serverPort, id);
+        domainToDomainMappingIdCache.put(domain, id);
         return id;
     }
 
@@ -384,8 +369,8 @@ public class DomainMappingService implements LifecycleBean {
         return licenseId;
     }
 
-    public FlowLimitBO getFlowLimitByServerPort(Integer serverPort) {
-        Integer id = getPortMappingIdByServerPort(serverPort);
+    public FlowLimitBO getFlowLimitByServerPort(String domain) {
+        Integer id = getDomainMappingIdByDomain(domain);
         if (null == id) {
             return null;
         }
@@ -399,12 +384,12 @@ public class DomainMappingService implements LifecycleBean {
         return res;
     }
 
-    private void updateMappingDomainToSecurityGroupMap(Integer serverPort, Integer securityGroupId) {
+    private void updateMappingDomainToSecurityGroupMap(String domain, Integer securityGroupId) {
         if (securityGroupId == null || securityGroupId == 0) {
-            mappingDomainToSecurityGroupMap.remove(serverPort);
+            mappingDomainToSecurityGroupMap.remove(domain);
             return;
         }
-        mappingDomainToSecurityGroupMap.put(serverPort, securityGroupId);
+        mappingDomainToSecurityGroupMap.put(domain, securityGroupId);
     }
 
     @Override
@@ -417,7 +402,7 @@ public class DomainMappingService implements LifecycleBean {
      */
     @Override
     public void stop() throws Throwable {
-        domainMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
+//        domainMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
     }
 
     public DomainMappingDto one(Integer id) {
