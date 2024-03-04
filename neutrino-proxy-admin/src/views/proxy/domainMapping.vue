@@ -132,11 +132,11 @@
         </el-form-item>
         <el-form-item :label="$t('域名')" prop="domain">
           <el-input v-model="temp.domain">
-            <template slot="prepend">http(s):</template>
+            <template slot="prepend">http(s)://</template>
           </el-input>
         </el-form-item>
         <el-form-item :label="$t('目标地址')" prop="targetPath">
-          <el-input v-model="temp.targetPath"></el-input>
+          <el-input type="textarea" v-model="temp.targetPath" placeholder="请输入目标地址,"></el-input>
         </el-form-item>
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort"></el-input>
@@ -180,7 +180,7 @@
 </template>
 
 <script>
-import { fetchList, createUserPortMapping, updateUserPortMapping, updateEnableStatus, deletePortMapping } from '@/api/portMapping'
+import { fetchList, mappingModify, updateEnableStatus, deleteMapping } from '@/api/domain'
 import { fetchGroupList } from '@/api/securityGroup'
 import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
@@ -233,16 +233,13 @@ export default {
       userList: [],
       licenseList: [],
       licenseAuthList: [],
-      domainName: '',
       showReviewer: false,
       temp: {
         id: undefined,
         licenseId: undefined,
         licenseName: undefined,
-        clientIp: undefined,
-        clientPort: undefined,
-        proxyResponses: undefined,
-        proxyTimeoutMs: undefined
+        domain: undefined,
+        targetPath: undefined,
       },
       statusOptions: {
         1: '启用',
@@ -279,7 +276,6 @@ export default {
   // filters: {
   // },
   created() {
-    this.getDomainNameBindInfo()
     this.getDataList()
     this.getLicenseList()
     this.getLicenseAuthList()
@@ -310,11 +306,6 @@ export default {
         if (res.data.code == 0) {
           this.securityGroupList = res.data.data
         }
-      })
-    },
-    getDomainNameBindInfo() {
-      domainNameBindInfo().then(response => {
-        this.domainName = response.data.data
       })
     },
     getAllUserList() {
@@ -442,7 +433,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deletePortMapping(row.id).then(response => {
+        deleteMapping(row.id).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',
