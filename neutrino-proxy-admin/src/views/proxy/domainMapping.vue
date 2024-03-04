@@ -7,10 +7,10 @@
       <el-select v-model="listQuery.licenseId" placeholder="请选择license" filterable clearable style="margin-right:10px;width: 135px;">
         <el-option v-for="item in licenseList" :key="item.key" :label="item.name" :value="item.id" />
       </el-select>
-      <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px;width: 120px;">
+      <!-- <el-select v-model="listQuery.protocal" placeholder="请选择协议" clearable style="margin-right:10px;width: 120px;">
         <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name" :disabled="!item.enable" />
-      </el-select>
-      <el-input v-model="listQuery.serverPort" type="text" style="width:145px;margin-right:10px" class="filter-item" placeholder="请输入服务端端口" :maxlength="5" show-word-limit />
+      </el-select> -->
+      <el-input v-model="listQuery.domain" type="text" style="width:145px;margin-right:10px" class="filter-item" placeholder="请输入域名关键词" :maxlength="5" show-word-limit />
       <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.onlineOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
@@ -277,6 +277,7 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
+        domain: null,
         importance: undefined,
         title: undefined,
         type: undefined,
