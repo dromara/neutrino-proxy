@@ -407,7 +407,6 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
-
         });
     }
 

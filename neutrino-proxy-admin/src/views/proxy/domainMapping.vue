@@ -29,91 +29,67 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.userName')" width="100">
-
+      <el-table-column align="center" :label="$t('table.userName')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.licenseName')" width="120">
-
+      <el-table-column align="center" :label="$t('table.licenseName')" width="140">
         <template slot-scope="scope">
           <span>{{ scope.row.licenseName }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.protocalName')" width="80">
-
         <template slot-scope="scope">
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.domainName')" width="180">
-
         <template slot-scope="scope">
-          <span>{{ scope.row.domain }}</span>
+          <el-link target="_blank" @click="handleOpenWebPage(scope.row)">http(s)://{{ scope.row.domain }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.serverPort')" width="80">
+      <el-table-column align="center" :label="$t('目标路径')" width="240">
         <template slot-scope="scope">
-          <span>{{ scope.row.serverPort }}</span>
+          <span v-html="scope.row.targetPath.replace(/(\n\r|\r\n|\r|\n)/g, '<br/>')"> </span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.proxyClient')" width="120">
-
-        <template slot-scope="scope">
-          <span>{{ scope.row.clientIp }}:{{ scope.row.clientPort }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('限速')" width="100">
-
+      <el-table-column align="center" :label="$t('限速')" width="160">
         <template slot-scope="scope">
           <span>{{ scope.row.upLimitRate ? scope.row.upLimitRate : '--' }} / {{ scope.row.downLimitRate ? scope.row.downLimitRate : '--' }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.desc')" width="120">
-
+      <el-table-column align="center" :label="$t('table.desc')" width="260">
         <template slot-scope="scope">
           <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
-
       <!--      <el-table-column width="150px" align="center" :label="$t('table.createTime')">-->
       <!--        <template slot-scope="scope">-->
       <!--          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
       <!--        </template>-->
       <!--      </el-table-column>-->
       <el-table-column width="150px" align="center" :label="$t('table.updateTime')">
-
         <template slot-scope="scope">
           <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
-
         <template slot-scope="scope">
           <el-tag :type="colorOption[scope.row.enable]">{{ statusOptions[scope.row.enable] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.isOnline')" width="100">
-
         <template slot-scope="scope">
           <el-tag :type="colorOption[scope.row.isOnline]">{{ onlineOptions[scope.row.isOnline] }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.access')" width="120">
-
-        <template slot-scope="scope">
-          <el-button size="mini" @click="handleOpenWebPage(scope.row)">{{ $t('table.openWebPage') }}</el-button>
-        </template>
-      </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="320" class-name="small-padding fixed-width">
-
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
+          <el-button type="primary" size="mini" @click="toModify(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{ $t('table.disable') }}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
           <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px" />
-
         </template>
       </el-table-column>
     </el-table>
@@ -124,10 +100,10 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
+    <el-dialog :title="textMap[dialogStatus]" :close-on-click-modal="false" :visible.sync="dialogFormVisible" top="20px">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="110px">
         <el-form-item :label="$t('License')" prop="licenseId">
-          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList" @selectedData="selectedFeeItem" placeholder="请选择" :width="280"
+          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList" @selectedData="selectedFeeItem" placeholder="请选择" :width="500"
             :disabled="dialogStatus === 'update'" />
         </el-form-item>
         <el-form-item :label="$t('域名')" prop="domain">
@@ -136,10 +112,15 @@
           </el-input>
         </el-form-item>
         <el-form-item :label="$t('目标地址')" prop="targetPath">
-          <el-input type="textarea" v-model="temp.targetPath" placeholder="请输入目标地址,"></el-input>
+          <el-input type="textarea" v-model="temp.targetPath" rows="3" placeholder="请输入目标地址,多个可实现负载均衡，如:
+127.0.0.1:80
+127.0.0.1:90"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('客户端端口')" prop="clientPort">
-          <el-input v-model="temp.clientPort"></el-input>
+        <el-form-item :label="$t('描述')" prop="description">
+          <el-input v-model="temp.description" type="textarea" placeholder="请输入描述"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('请求头部信息')" prop="requestHeader">
+          <el-input v-model="temp.requestHeader" type="textarea" placeholder="请输入请求头如：Cache-Control: no-cache"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.securityGroup')" prop="securityGroup">
           <el-select style="width: 280px;" class="filter-item" v-model="temp.securityGroupId" clearable>
@@ -153,16 +134,12 @@
         <el-form-item :label="$t('下载限速')" prop="downLimitRate">
           <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('描述')" prop="description">
-          <el-input v-model="temp.description"></el-input>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="
-        dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
-        <el-button v-if="dialogStatus == 'create'" type="primary" @click="createData">{{ $t('table.confirm')
+        <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
+        <el-button v-if="dialogStatus == 'create'" type="primary" @click="modifyData">{{ $t('table.confirm')
           }}</el-button>
-        <el-button v-else type="primary" @click="updateData">{{ $t('table.confirm') }}</el-button>
+        <el-button v-else type="primary" @click="modifyData">{{ $t('table.confirm') }}</el-button>
       </div>
     </el-dialog>
 
@@ -180,12 +157,10 @@
 </template>
 
 <script>
-import { fetchList, mappingModify, updateEnableStatus, deleteMapping } from '@/api/domain'
+import { fetchList, mappingModify, updateEnableStatus, deleteMapping, domainAvailable } from '@/api/domain'
 import { fetchGroupList } from '@/api/securityGroup'
-import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { userList } from '@/api/user'
-import { domainNameBindInfo } from '@/api/domain'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
@@ -200,18 +175,6 @@ export default {
     ButtonPopover
   },
   data() {
-    const isPortAvailable = (rule, value, callback) => {
-      if (value != null) {
-        const param = { port: value, portMappingId: this.temp.id }
-        portAvailable(param).then(res => {
-          if (!res.data.data) {
-            return callback(new Error('该端口被占用'))
-          } else {
-            callback()
-          }
-        })
-      }
-    }
     return {
       tableKey: 0,
       list: null,
@@ -240,6 +203,7 @@ export default {
         licenseName: undefined,
         domain: undefined,
         targetPath: undefined,
+        requestHeader: undefined
       },
       statusOptions: {
         1: '启用',
@@ -257,17 +221,17 @@ export default {
       dialogStatus: '',
       textMap: {
         update: '编辑',
-        create: '新建'
+        create: '新增'
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
-        serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
-          // { validator: isPortAvailable, trigger: 'change' }
+        domain: [{ required: true, message: '请输入域名', trigger: 'blur' },
+          {pattern: '^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$', message: '域名格式不正确，请检查后重试', trigger: 'blur' },
+          { validator: this.isDomainAvailable, trigger: 'blur' }
         ],
-        clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
-        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
+        targetPath: [{ required: true, message: '请输入目标地址', trigger: 'blur' }],
       },
       more: true,
       securityGroupList: []
@@ -282,6 +246,19 @@ export default {
     this.fetchSecurityGroupList()
   },
   methods: {
+    isDomainAvailable(rule, value, callback) {
+      if (value != null) {
+        const param = { domain: value, id: this.temp.id }
+        domainAvailable(param).then(res => {
+          console.log(res)
+          if (!res.data.data) {
+            return callback(new Error('域名已被占用'))
+          } else {
+            callback()
+          }
+        })
+      }
+    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
@@ -368,37 +345,18 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    createData() {
+    modifyData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createUserPortMapping(this.temp).then(response => {
+          mappingModify(this.temp).then(response => {
             if (response.data.code === 0) {
               this.dialogFormVisible = false
               this.$notify({
                 title: '成功',
-                message: '创建成功',
+                message: '操作成功',
                 type: 'success',
                 duration: 2000
               })
-              this.getList()
-            }
-          })
-        }
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateUserPortMapping(tempData).then(response => {
-            if (response.data.code === 0) {
-              this.$notify({
-                title: '成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 2000
-              })
-              this.dialogFormVisible = false
               this.getList()
             }
           })
@@ -408,7 +366,7 @@ export default {
     handleOpenWebPage(row) {
       open(location.protocol + '//' + row.domain)
     },
-    handleUpdate(row) {
+    toModify(row) {
       this.temp = Object.assign({}, row) // copy obj
       if (row.securityGroupId === 0) {
         this.temp.securityGroupId = null

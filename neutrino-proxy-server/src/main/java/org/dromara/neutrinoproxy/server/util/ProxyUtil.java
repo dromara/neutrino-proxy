@@ -5,13 +5,13 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.ChannelAttribute;
 import org.dromara.neutrinoproxy.core.Constants;
+import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
-import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
-import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
-import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
-import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
+import org.dromara.neutrinoproxy.server.proxy.domain.*;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import org.dromara.neutrinoproxy.server.service.DomainMappingService;
+import org.noear.solon.annotation.Inject;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -64,11 +64,18 @@ public class ProxyUtil {
 	 * 子域名 - 服务端端口映射
 	 */
 	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
+
+    /**
+     * 域名 解析 映射
+     */
+    public static final Map<String, DomainMapping> domainMapingMap = new HashMap<>();
+
 	/**
 	 * licenseId - 客户端Id映射
 	 */
 	private static Map<Integer, String> licenseIdToClientIdMap = new HashMap<>();
-
+    @Inject
+    private DomainMappingService domainMappingService;
 	/**
 	 * 初始化代理信息
 	 * @param licenseId licenseId
@@ -78,6 +85,7 @@ public class ProxyUtil {
 		licenseToServerPortMap.put(licenseId, new HashSet<>());
 		addProxyInfo(licenseId, proxyMappingList);
 	}
+
 
 	public static void addProxyInfo(Integer licenseId, List<ProxyMapping> proxyMappingList) {
 		if (!CollectionUtil.isEmpty(proxyMappingList)) {

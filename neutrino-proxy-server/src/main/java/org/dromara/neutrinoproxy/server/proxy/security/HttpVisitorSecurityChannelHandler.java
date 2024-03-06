@@ -23,49 +23,33 @@ import org.noear.solon.Solon;
 public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapter {
     private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
     private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
-    /**
-     * 域名
-     */
-    private String domainName;
+//    /**
+//     * 域名
+//     */
+//    private String domainName;
 
-    public HttpVisitorSecurityChannelHandler(String domainName) {
-        this.domainName = domainName;
-    }
+//    public HttpVisitorSecurityChannelHandler(String domainName) {
+//        this.domainName = domainName;
+//    }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 未配置域名则不支持通过域名访问
-        if (StrUtil.isBlank(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-
         ByteBuf buf = (ByteBuf) msg;
 
-        Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
-        if (null == serverPort) {
+        String domain = ctx.channel().attr(Constants.DOMAIN).get();
+        if (StringUtils.isBlank(domain)) {
             // 获取Host请求头
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             String httpContent = new String(bytes);
-            String host = HttpUtil.getHostIgnorePort(httpContent);
+            domain = HttpUtil.getHostIgnorePort(httpContent);
 
-            log.debug("HttpProxy host: {}", host);
-            if (StringUtils.isBlank(host)) {
+            log.debug("HttpProxy host: {}", domain);
+            if (StringUtils.isBlank(domain)) {
                 ctx.channel().close();
                 return;
             }
-
-            // 根据Host匹配端口映射
-            if (!host.endsWith(domainName)) {
-                ctx.channel().close();
-                return;
-            }
-            int index = host.lastIndexOf("." + domainName);
-            String subdomain = host.substring(0, index);
-
-            // 根据域名拿到绑定的映射对应的cmdChannel
-            serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
-            if (null == serverPort) {
+            // 未配置域名解析，不再解析
+            if (!ProxyUtil.domainMapingMap.containsKey(domain)) {
                 ctx.channel().close();
                 return;
             }
@@ -75,14 +59,13 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             if (ip == null) {
                 ip = IpUtil.getRemoteIp(ctx);
             }
-            if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
-                // 不在安全组规则放行范围内
-                ctx.channel().close();
-                return;
-            }
-
+//            if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
+//                // 不在安全组规则放行范围内
+//                ctx.channel().close();
+//                return;
+//            }
             ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
-            ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
+            ctx.channel().attr(Constants.DOMAIN).set(domain);
         }
 
         // 继续传播

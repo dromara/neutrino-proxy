@@ -16,6 +16,7 @@ import org.noear.solon.core.handle.Context;
 import org.noear.solon.core.handle.Handler;
 import org.noear.solon.core.route.RouterInterceptor;
 import org.noear.solon.core.route.RouterInterceptorChain;
+import org.noear.solon.validation.ValidatorException;
 
 import java.lang.reflect.Method;
 
@@ -81,8 +82,12 @@ public class BaseAuthInterceptor implements RouterInterceptor {
                 return new ResponseBody<>()
                         .setCode(exception.getCode())
                         .setMsg(exception.getMsg());
+            } else if (result instanceof ValidatorException) {
+                return new ResponseBody<>()
+                    .setCode(ExceptionConstant.DONAME_PATTEN_ERROR.getCode())
+                    .setMsg(ExceptionConstant.DONAME_PATTEN_ERROR.getMsg())
+                    .setStack(ExceptionUtils.getStackTrace((Throwable) result));
             }
-
             return new ResponseBody<>()
                     .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
                     .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())

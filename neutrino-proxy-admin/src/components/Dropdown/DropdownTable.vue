@@ -54,6 +54,24 @@
             prop: 'name',
             label: 'License',
             align: 'center'
+          },
+          {
+            prop: 'isOnline',
+            label: 'isOnline',
+            align: 'center',
+            render: (h, params) => {
+              switch (params.row.isOnline) {
+                case 1:
+                  return h('el-tag', {
+                    props: {type: 'success'}
+                  }, '在线')
+              
+                case 2:
+                  return h('el-tag', {props:{type: 'danger'}}, '离线')
+                default:
+                return h('el-tag', {props:{type: 'danger'}}, '离线')
+              }
+            }
           }
         ],
         popVisible: false,

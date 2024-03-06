@@ -254,7 +254,6 @@ export default {
         description: undefined
 
       },
-      calendarTypeOptions,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       userList: [],

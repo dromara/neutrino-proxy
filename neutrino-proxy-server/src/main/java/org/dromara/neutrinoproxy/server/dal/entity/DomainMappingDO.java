@@ -32,7 +32,9 @@ import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainMappingDto;
-import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
+import org.noear.solon.validation.annotation.NotBlank;
+import org.noear.solon.validation.annotation.NotNull;
+import org.noear.solon.validation.annotation.Pattern;
 
 import java.util.Date;
 
@@ -51,14 +53,17 @@ public class DomainMappingDO {
 	/**
 	 * licenseId
 	 */
+    @NotNull
 	private Integer licenseId;
 	/**
 	 * 协议
 	 */
 	private String protocal;
 	/**
-	 * 域名
+	 * 域名 /^(\w+\.{1}\w+)$/g
 	 */
+    @NotBlank
+    @Pattern("^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$")
 	private String domain;
     /**
      * 描述
@@ -67,7 +72,9 @@ public class DomainMappingDO {
 	/**
 	 * 目标地址（licenseId客户端，ip:port）
 	 */
-	private String targetPath;
+    @NotBlank
+    private String targetPath;
+
     /**
      * 上传限速
      */
@@ -105,6 +112,8 @@ public class DomainMappingDO {
 	private Date updateTime;
 
     public DomainMappingDto toRes() {
-        return (DomainMappingDto) this;
+        DomainMappingDto dto = new DomainMappingDto();
+        BeanUtil.copyProperties(this, dto);
+        return dto;
     }
 }

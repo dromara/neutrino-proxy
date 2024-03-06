@@ -7,6 +7,7 @@ export function domainNameBindInfo(query) {
     params: query
   })
 }
+
 export function fetchList(query) {
   return request({
     url: '/domain/page',
@@ -15,10 +16,9 @@ export function fetchList(query) {
   })
 }
 
-
 export function mappingModify(data) {
   return request({
-    url: '/port-mapping/update',
+    url: '/domain/modify',
     method: 'post',
     data
   })
@@ -26,7 +26,7 @@ export function mappingModify(data) {
 
 export function deleteMapping(id) {
   return request({
-    url: '/port-mapping/delete',
+    url: '/domain/delete',
     method: 'post',
     params: {
       id: id
@@ -36,7 +36,7 @@ export function deleteMapping(id) {
 
 export function updateEnableStatus(id, enable) {
   return request({
-    url: '/port-mapping/update/enable-status',
+    url: '/domain/update/enable-status',
     method: 'post',
     data: {
       id: id,
@@ -47,7 +47,7 @@ export function updateEnableStatus(id, enable) {
 
 export function portMappingBindSecurityGroup(id, securityGroupId) {
   return request({
-    url: '/port-mapping/bind/security-group',
+    url: '/domain/bind/security-group',
     method: 'post',
     data: {
       id: id,
@@ -58,8 +58,15 @@ export function portMappingBindSecurityGroup(id, securityGroupId) {
 
 export function portMappingUnbindSecurityGroup(id) {
   return request({
-    url: `/port-mapping/unbind/security-group?id=${id}`,
+    url: `/domain/unbind/security-group?id=${id}`,
     method: 'post'
   })
 }
 
+export function domainAvailable(query) {
+  return request({
+    url: '/domain/available',
+    method: 'get',
+    params: query
+  })
+}

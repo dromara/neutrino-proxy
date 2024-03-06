@@ -3,6 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -30,8 +31,10 @@ import org.dromara.neutrinoproxy.server.dal.LicenseMapper;
 import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.*;
+import org.dromara.neutrinoproxy.server.proxy.domain.DomainMapping;
 import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
+import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.dromara.neutrinoproxy.server.util.StringUtil;
 import org.noear.solon.annotation.Component;
@@ -72,16 +75,6 @@ public class DomainMappingService implements LifecycleBean {
     @Inject
     private LicenseService licenseService;
 
-    /** 端口到安全组Id的映射 */
-    private final Map<String, Integer> mappingDomainToSecurityGroupMap = new ConcurrentHashMap<>();
-    /**
-     * 域名 到 域名解析id的映射
-     */
-    private final Cache<String, Integer> domainToDomainMappingIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
-    // 域名解析id到licenseId
-    private final Cache<Integer, Integer> idToLicenseIdCache = CacheUtil.newLRUCache(500, 1000 * 60 * 10);
-    // 流量限制缓存
-    private final Cache<Integer, FlowLimitBO> flowLimitCache = CacheUtil.newLRUCache(500, 1000 * 60 * 5);
 
     public PageInfo<DomainMappingDto> page(PageQuery pageQuery, DomainMappingDto req) {
         if (StringUtils.isNotEmpty(req.getDescription())) {
@@ -138,40 +131,35 @@ public class DomainMappingService implements LifecycleBean {
         return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
-    public PortMappingCreateRes modify(DomainMappingDto req) {
-        LicenseDO licenseDO = licenseMapper.findById(req.getLicenseId());
+    public PortMappingCreateRes modify(DomainMappingDO domainMappingDO) {
+        LicenseDO licenseDO = licenseMapper.findById(domainMappingDO.getLicenseId());
         ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
         if (!SystemContextHolder.isAdmin()) {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
         }
-//        PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getDomain());
-//        ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
-        ParamCheckUtil.checkExpression(null == domainMappingMapper.findByDomain(req.getDomain(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getDomain());
-        ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(req.getDomain(), null), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
+        if (null != domainMappingDO.getId()) { // 编辑
+            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(domainMappingDO.getDomain(), new HashSet<>(){{add(domainMappingDO.getId());}}), ExceptionConstant.DONAME_CONNOT_REPEAT);
 
-        Date now = new Date();
-        DomainMappingDO domainMappingDO = (DomainMappingDO) req;
-        domainMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
-        domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-        domainMappingDO.setCreateTime(now);
-        domainMappingDO.setUpdateTime(now);
-        domainMappingMapper.insert(domainMappingDO);
+            Date now = new Date();
+            domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+            domainMappingDO.setUpdateTime(now);
+            domainMappingMapper.updateById(domainMappingDO);
+        } else { // 新增
+            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(domainMappingDO.getDomain(), null), ExceptionConstant.DONAME_CONNOT_REPEAT);
+
+            Date now = new Date();
+            domainMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
+            domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
+            domainMappingDO.setCreateTime(now);
+            domainMappingDO.setUpdateTime(now);
+            domainMappingMapper.insert(domainMappingDO);
+        }
         // 更新VisitorChannel
 //        visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(domainMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(domainMappingDO.getDomain())) {
 //            ProxyUtil.setSubdomainToServerPort(domainMappingDO.getDomain(), domainMappingDO.getServerPort());
-        }
-
-        updateMappingDomainToSecurityGroupMap(domainMappingDO.getDomain(), req.getSecurityGroupId());
-
-        // 更新端口到映射的缓存
-        domainToDomainMappingIdCache.put(req.getDomain(), domainMappingDO.getId());
-        // 更新端口映射到licenseId的缓存
-        idToLicenseIdCache.put(domainMappingDO.getId(), domainMappingDO.getLicenseId());
-        // 刷新流量限制缓存
-        refreshFlowLimitCache(domainMappingDO.getId(), domainMappingDO.getUpLimitRate(), domainMappingDO.getDownLimitRate());
+        ProxyUtil.domainMapingMap.put(domainMappingDO.getDomain(), new DomainMapping(domainMappingDO.getLicenseId(), domainMappingDO.getDomain(), domainMappingDO.getTargetPath()));
 
         return new PortMappingCreateRes();
     }
@@ -208,7 +196,6 @@ public class DomainMappingService implements LifecycleBean {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
         }
-
         domainMappingMapper.deleteById(id);
 
         // 更新VisitorChannel
@@ -219,12 +206,6 @@ public class DomainMappingService implements LifecycleBean {
             ProxyUtil.removeSubdomainToServerPort(domainMappingDO.getDomain());
         }
 
-        updateMappingDomainToSecurityGroupMap(domainMappingDO.getDomain(), null);
-
-        // 删除id到licenseId的映射
-        idToLicenseIdCache.remove(id);
-        // 删除流量限制缓存
-        flowLimitCache.remove(id);
     }
 
     public void domainBindSecurityGroup(Integer portMappingId, Integer groupId) {
@@ -235,7 +216,6 @@ public class DomainMappingService implements LifecycleBean {
         mappingDO.setSecurityGroupId(groupId);
         mappingDO.setUpdateTime(new Date());
         domainMappingMapper.updateById(mappingDO);
-        updateMappingDomainToSecurityGroupMap(mappingDO.getDomain(), groupId);
     }
 
     public void domainUnbindSecurityGroup(Integer portMappingId) {
@@ -246,7 +226,6 @@ public class DomainMappingService implements LifecycleBean {
         mappingDO.setSecurityGroupId(0);
         mappingDO.setUpdateTime(new Date());
         domainMappingMapper.updateById(mappingDO);
-        updateMappingDomainToSecurityGroupMap(mappingDO.getDomain(), null);
     }
 
     /**
@@ -259,10 +238,6 @@ public class DomainMappingService implements LifecycleBean {
         return domainMappingMapper.findEnableListByLicenseId(licenseId);
     }
 
-    public Integer getSecurityGroupIdByMappingPort(Integer port) {
-        return mappingDomainToSecurityGroupMap.get(port);
-    }
-
 
     /**
      * 服务端项目停止、启动时，更新在线状态为离线
@@ -273,124 +248,16 @@ public class DomainMappingService implements LifecycleBean {
         if (NativeDetector.isAotRuntime()) {
             return;
         }
-        // 服务刚启动，所以默认所有license都是离线状态。解决服务突然关闭，在线状态来不及更新的问题
-//        domainMappingMapper.updateOnlineStatus(OnlineStatusEnum.OFFLINE.getStatus(), new Date());
-
         List<DomainMappingDO> allMappingDOList = domainMappingMapper.selectList(Wrappers.lambdaQuery(DomainMappingDO.class));
-        allMappingDOList.forEach(item -> {
-            Integer securityGroupId = item.getSecurityGroupId();
-            if (securityGroupId != null && securityGroupId > 0) {
-                updateMappingDomainToSecurityGroupMap(item.getDomain(), item.getSecurityGroupId());
-            }
-            // 更新端口到映射的缓存
-            domainToDomainMappingIdCache.put(item.getDomain(), item.getId());
-            // 更新端口映射到licenseId的缓存
-            idToLicenseIdCache.put(item.getId(), item.getLicenseId());
-            // 刷新流量限制缓存
-            refreshFlowLimitCache(item.getId(), item.getUpLimitRate(), item.getDownLimitRate());
-        });
-
-        // 未配置域名，则不需要处理域名映射逻辑
-        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName())) {
-            return;
+        if(CollectionUtil.isNotEmpty(allMappingDOList)) {
+            allMappingDOList.forEach(domain -> {
+                ProxyUtil.domainMapingMap.put(domain.getDomain(),
+                    new DomainMapping(domain.getLicenseId(), domain.getDomain(), domain.getTargetPath()));
+            });
         }
-        List<DomainMappingDO> portMappingDOList = allMappingDOList.stream()
-            .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()) && item.getDomain() != null)
-            .collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(portMappingDOList)) {
-            return;
-        }
-        portMappingDOList.forEach(item -> {
-            if (StrUtil.isBlank(item.getDomain())) {
-                return;
-            }
-//            ProxyUtil.setSubdomainToServerPort(item.getDomain(), item.getServerPort());
-
-        });
     }
 
-    /**
-     * 刷新流量限制缓存
-     * @param id
-     * @param upLimitRate
-     * @param downLimitRate
-     */
-    private void refreshFlowLimitCache(Integer id, String upLimitRate, String downLimitRate) {
-        if (null == id) {
-            return;
-        }
-        flowLimitCache.put(id, new FlowLimitBO()
-            .setUpLimitRate(StringUtil.parseBytes(upLimitRate))
-            .setDownLimitRate(StringUtil.parseBytes(downLimitRate))
-        );
-    }
 
-    /**
-     * 获取license的流量限制
-     * @param id
-     * @return
-     */
-    public FlowLimitBO getFlowLimit(Integer id) {
-        FlowLimitBO res = flowLimitCache.get(id);
-        if (null == res) {
-            DomainMappingDO domainMappingDO = domainMappingMapper.findById(id);
-            if (null != domainMappingDO) {
-                refreshFlowLimitCache(id, domainMappingDO.getUpLimitRate(), domainMappingDO.getDownLimitRate());
-                res = flowLimitCache.get(id);
-            }
-        }
-        return res;
-    }
-
-    public Integer getDomainMappingIdByDomain(String domain) {
-        Integer id = domainToDomainMappingIdCache.get(domain);
-        if (null != id) {
-            return id;
-        }
-        List<DomainMappingDO> domainMappingDOList = domainMappingMapper.findListByServerPort(domain);
-        // 不存在 或者 有多条记录，都不处理
-        if (CollectionUtils.isEmpty(domainMappingDOList) || domainMappingDOList.size() > 1) {
-            return null;
-        }
-        id = domainMappingDOList.get(0).getId();
-        domainToDomainMappingIdCache.put(domain, id);
-        return id;
-    }
-
-    public Integer getLicenseIdById(Integer id) {
-        Integer licenseId = idToLicenseIdCache.get(id);
-        if (null == licenseId) {
-            DomainMappingDO domainMappingDO = domainMappingMapper.findById(id);
-            if (null != domainMappingDO) {
-                licenseId = domainMappingDO.getLicenseId();
-                idToLicenseIdCache.put(id, licenseId);
-            }
-        }
-        return licenseId;
-    }
-
-    public FlowLimitBO getFlowLimitByServerPort(String domain) {
-        Integer id = getDomainMappingIdByDomain(domain);
-        if (null == id) {
-            return null;
-        }
-        FlowLimitBO res = getFlowLimit(id);
-        if (null == res || (null == res.getUpLimitRate() && null == res.getDownLimitRate())) {
-            Integer licenseId = getLicenseIdById(id);
-            if (null != licenseId) {
-                res = licenseService.getFlowLimit(licenseId);
-            }
-        }
-        return res;
-    }
-
-    private void updateMappingDomainToSecurityGroupMap(String domain, Integer securityGroupId) {
-        if (securityGroupId == null || securityGroupId == 0) {
-            mappingDomainToSecurityGroupMap.remove(domain);
-            return;
-        }
-        mappingDomainToSecurityGroupMap.put(domain, securityGroupId);
-    }
 
     @Override
     public void start() throws Throwable {
@@ -422,5 +289,17 @@ public class DomainMappingService implements LifecycleBean {
             }
         }
         return res;
+    }
+
+    /**
+     * 检查端口是否被占用
+     * 端口映射编辑时，如果端口号没有变动，则不验证。避免出现端口映射正在使用时，无法更新端口映射其他信息的问题
+     * @param domain
+     * @return
+     */
+    public boolean exitDomain(String domain, Integer id) {
+        DomainMappingDO domainMappingDO = domainMappingMapper.findByDomain(domain, ObjectUtil.isNotNull(id) ? new HashSet<>(){{add(id);}} : new HashSet());
+        if (null == domainMappingDO) return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 }

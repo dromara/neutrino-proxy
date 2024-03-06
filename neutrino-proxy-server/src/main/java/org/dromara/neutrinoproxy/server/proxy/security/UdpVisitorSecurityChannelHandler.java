@@ -31,7 +31,6 @@ public class UdpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapt
         if (!securityGroupService.judgeAllow(datagramPacket.sender().getAddress().getHostAddress(), portMappingService.getSecurityGroupIdByMappingPort(sa.getPort()))) {
             return;
         }
-
         // 继续传播
         ctx.channel().attr(Constants.SERVER_PORT).set(sa.getPort());
         ctx.fireChannelRead(msg);

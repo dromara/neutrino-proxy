@@ -38,8 +38,10 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) || null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
-                StringUtils.isEmpty(proxyConfig.getServer().getTcp().getJksPath()) || StringUtils.isEmpty(proxyConfig.getServer().getTcp().getKeyStorePassword())) {
+//        StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) ||
+        if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
+            StringUtils.isEmpty(proxyConfig.getServer().getTcp().getJksPath()) ||
+            StringUtils.isEmpty(proxyConfig.getServer().getTcp().getKeyStorePassword())) {
             log.info("no config domain name,nonsupport https proxy.");
             return;
         }
@@ -58,7 +60,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                             }
                             ch.pipeline().addLast(createSslHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler()); // proxyConfig.getServer().getTcp().getDomainName()
                             ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }

@@ -9,16 +9,20 @@ import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
+import org.dromara.neutrinoproxy.server.dal.entity.DomainMappingDO;
 import org.dromara.neutrinoproxy.server.service.DomainMappingService;
-import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
+import org.noear.solon.validation.annotation.NotBlank;
+import org.noear.solon.validation.annotation.Valid;
+import org.noear.solon.validation.annotation.Validated;
 
 /**
  * @author: aoshiguchen
  * @date: 2023/4/2
  */
 @Slf4j
+@Valid
 @Mapping("/domain")
 @Controller
 public class DomainController {
@@ -44,7 +48,7 @@ public class DomainController {
 
     @Post
     @Mapping("/modify")
-    public PortMappingCreateRes modify(DomainMappingDto req) {
+    public PortMappingCreateRes modify(@Validated DomainMappingDO req) {
         if (StringUtils.isBlank(req.getTargetPath())) {// targetPath，默认为127.0.0.1
             req.setTargetPath("127.0.0.1");
         }
@@ -95,5 +99,14 @@ public class DomainController {
 
 
 
+    /**
+     * 绑定安全组
+     * @param domain
+     */
+    @Get
+    @Mapping("/available")
+    public boolean exitDomain(@NotBlank String domain, Integer id) {
+       return domainMappingService.exitDomain(domain, id);
+    }
 
 }

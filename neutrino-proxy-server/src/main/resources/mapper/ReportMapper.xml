@@ -48,7 +48,7 @@
         LEFT JOIN `user` u ON l.user_id = u.id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_month GROUP BY license_id) frm ON l.id = frm.license_id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_day
-        WHERE date >= #{curMonthBeginDate} AND #{curDayBeginDate}
+        WHERE date >= #{curMonthBeginDate} AND date &lt;= #{curDayBeginDate}
         GROUP BY license_id) frd ON l.id = frd.license_id
         LEFT JOIN (SELECT license_id,sum(write_bytes) write_bytes,sum(read_bytes) read_bytes from flow_report_minute
         WHERE date >= #{curDayBeginDate} AND date &lt;= #{curDate}
