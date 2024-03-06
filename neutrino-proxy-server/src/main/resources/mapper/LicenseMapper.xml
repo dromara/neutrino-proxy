@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.neutrinoproxy.server.dal.LicenseMapper">
+
+<select id="findEnableProxyMappingListByLicenseId" resultType="org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping">
+    SELECT pm.server_port as serverPort,CONCAT(pm.client_ip, ':', pm.client_port) as lanInfo, pm.protocal as protocal
+    FROM port_mapping pm
+    LEFT JOIN port_pool pp on pm.server_port = pp.port
+    WHERE pm.enable = 1 AND pm.is_online = 1 AND pp.enable = 1
+    UNION ALL
+    SELECT dm.id as serverPort,dm.target_path as lanInfo, 'HTTP' as protocal
+    FROM domain_mapping dm
+    LEFT JOIN license l on dm.license_id = l.`id`
+    WHERE dm.enable = 1 AND l.is_online = 1
+</select>
+</mapper>

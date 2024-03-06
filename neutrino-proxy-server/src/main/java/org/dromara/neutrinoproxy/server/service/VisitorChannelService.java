@@ -59,17 +59,18 @@ public class VisitorChannelService {
     private PortPoolMapper portPoolMapper;
 
     /**
-     * 初始化
+     * 初始化 - 域名id/端口号，客户端通道绑定初始化
      * @param licenseId
      */
     public void initVisitorChannel(Integer licenseId, Channel cmdChannel) {
-        List<PortMappingDO> portMappingList = portMappingMapper.findEnableListByLicenseId(licenseId);
+//        List<PortMappingDO> portMappingList = portMappingMapper.findEnableListByLicenseId(licenseId);
+        List<ProxyMapping> proxyMappingList = licenseMapper.findEnableProxyMappingListByLicenseId(licenseId);
         // 没有端口映射仍然保持连接
-        ProxyUtil.initProxyInfo(licenseId, ProxyMapping.buildList(portMappingList));
+        ProxyUtil.initProxyInfo(licenseId, proxyMappingList); //ProxyMapping.buildList(portMappingList));
 
-        ProxyUtil.addCmdChannel(licenseId, cmdChannel, portMappingList.stream().map(PortMappingDO::getServerPort).collect(Collectors.toSet()));
+        ProxyUtil.addCmdChannel(licenseId, cmdChannel, proxyMappingList.stream().map(ProxyMapping::getServerPort).collect(Collectors.toSet()));
 
-        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), portMappingList);
+        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), proxyMappingList); // portMappingList
     }
 
     /**
@@ -184,7 +185,7 @@ public class VisitorChannelService {
                         // 未删除且未禁用，则开启代理
                         ProxyUtil.addProxyInfo(portMappingDO.getLicenseId(), ProxyMapping.build(portMappingDO));
                         ProxyUtil.addCmdChannel(portMappingDO.getLicenseId(), cmdChannel, Sets.newHashSet(portMappingDO.getServerPort()));
-                        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(portMappingDO));
+                        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(ProxyMapping.build(portMappingDO)));
                     }
                 }
             }
@@ -217,26 +218,26 @@ public class VisitorChannelService {
         ProxyUtil.removeProxyInfo(portMappingDO.getServerPort());
     }
 
-    private void startUserPortServer(CmdChannelAttachInfo cmdChannelAttachInfo, List<PortMappingDO> portMappingList) {
-        if (CollectionUtil.isEmpty(portMappingList)) {
+    private void startUserPortServer(CmdChannelAttachInfo cmdChannelAttachInfo, List<ProxyMapping> proxyMappingList) {
+        if (CollectionUtil.isEmpty(proxyMappingList)) {
             return;
         }
 
-        for (PortMappingDO portMapping : portMappingList) {
-            if (EnableStatusEnum.DISABLE.getStatus().equals(portMapping.getEnable())) {
-                // 端口映射被禁用了，忽略 TODO 映射没被禁用，但端口被禁用了也需要处理
-                continue;
-            }
+        for (ProxyMapping proxyMapping : proxyMappingList) {
+//            if (EnableStatusEnum.DISABLE.getStatus().equals(proxyMapping.getEnable())) {
+//                // 端口映射被禁用了，忽略 TODO 映射没被禁用，但端口被禁用了也需要处理  修改方案 20240306查询时就处理了【端口禁用】和【端口映射禁用】的情况，待验证
+//                continue;
+//            }
             try {
-                proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
+                proxyMutualService.bindServerPort(cmdChannelAttachInfo, proxyMapping.getServerPort());
 
-                NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(portMapping.getProtocal());
+                NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(proxyMapping.getProtocal());
                 if (networkProtocolEnum == NetworkProtocolEnum.UDP) {
-                    udpServerBootstrap.bind(portMapping.getServerPort()).get();
-                    log.info("bind UDP user port： {}", portMapping.getServerPort());
-                } else {
-                    tcpServerBootstrap.bind(portMapping.getServerPort()).get();
-                    log.info("bind TCP user port： {}", portMapping.getServerPort());
+                    udpServerBootstrap.bind(proxyMapping.getServerPort()).get();
+                    log.info("bind UDP user port： {}", proxyMapping.getServerPort());
+                } else if (proxyMapping.getServerPort() <= 65535){
+                    tcpServerBootstrap.bind(proxyMapping.getServerPort()).get();
+                    log.info("bind TCP user port： {}", proxyMapping.getServerPort());
                 }
             } catch (Exception ex) {
                 // BindException表示该端口已经绑定过

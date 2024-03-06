@@ -159,7 +159,8 @@ public class DomainMappingService implements LifecycleBean {
 //        visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
         // 更新域名映射
 //            ProxyUtil.setSubdomainToServerPort(domainMappingDO.getDomain(), domainMappingDO.getServerPort());
-        ProxyUtil.domainMapingMap.put(domainMappingDO.getDomain(), new DomainMapping(domainMappingDO.getLicenseId(), domainMappingDO.getDomain(), domainMappingDO.getTargetPath()));
+        ProxyUtil.domainMapingMap.put(domainMappingDO.getDomain(), new DomainMapping(domainMappingDO.getId(), domainMappingDO.getLicenseId(), domainMappingDO.getDomain(), domainMappingDO.getTargetPath()));
+
 
         return new PortMappingCreateRes();
     }
@@ -252,7 +253,7 @@ public class DomainMappingService implements LifecycleBean {
         if(CollectionUtil.isNotEmpty(allMappingDOList)) {
             allMappingDOList.forEach(domain -> {
                 ProxyUtil.domainMapingMap.put(domain.getDomain(),
-                    new DomainMapping(domain.getLicenseId(), domain.getDomain(), domain.getTargetPath()));
+                    new DomainMapping(domain.getId(), domain.getLicenseId(), domain.getDomain(), domain.getTargetPath()));
             });
         }
     }

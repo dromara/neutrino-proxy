@@ -24,7 +24,7 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row style="width: 100%">
-      <el-table-column align="center" :label="$t('table.id')" width="50">
+      <el-table-column align="center" :label="$t('table.id')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
@@ -44,6 +44,11 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" :label="$t('table.desc')" width="180">
+        <template slot-scope="scope">
+          <span>{{ scope.row.description }}</span>
+        </template>
+      </el-table-column>
       <el-table-column align="center" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
           <el-link target="_blank" @click="handleOpenWebPage(scope.row)">http(s)://{{ scope.row.domain }}</el-link>
@@ -57,11 +62,6 @@
       <el-table-column align="center" :label="$t('限速')" width="160">
         <template slot-scope="scope">
           <span>{{ scope.row.upLimitRate ? scope.row.upLimitRate : '--' }} / {{ scope.row.downLimitRate ? scope.row.downLimitRate : '--' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('table.desc')" width="260">
-        <template slot-scope="scope">
-          <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
       <!--      <el-table-column width="150px" align="center" :label="$t('table.createTime')">-->

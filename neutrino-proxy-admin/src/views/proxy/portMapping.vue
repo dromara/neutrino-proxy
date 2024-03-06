@@ -146,7 +146,7 @@
           <el-input v-model="temp.clientIp"></el-input>
         </el-form-item>
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
-          <el-input v-model="temp.clientPort"></el-input>
+          <el-input v-model="temp.clientPort" type="number" :step="1" controls-position="right" ></el-input>
         </el-form-item>
         <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
           <el-input v-model="temp.subdomain">
@@ -292,7 +292,9 @@ export default {
           // { validator: isPortAvailable, trigger: 'change' }
         ],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
-        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
+        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' },
+          { pattern: /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,message: '端口号请选择0-65535间的数字',trigger: 'blur'}
+        ],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
       },
       downloadLoading: false,

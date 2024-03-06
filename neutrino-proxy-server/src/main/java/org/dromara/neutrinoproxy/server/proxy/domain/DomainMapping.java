@@ -10,6 +10,10 @@ import lombok.Data;
 public class DomainMapping {
 
     /**
+     * domainMapping 主键id
+     */
+    private Integer id;
+    /**
      * License
      */
     private Integer licenseId;
@@ -26,7 +30,8 @@ public class DomainMapping {
     public DomainMapping() {
     }
 
-    public DomainMapping(Integer licenseId, String domain, String targetPath) {
+    public DomainMapping(Integer id, Integer licenseId, String domain, String targetPath) {
+        this.id = id;
         this.licenseId = licenseId;
         this.domain = domain;
         this.targetPath = targetPath;

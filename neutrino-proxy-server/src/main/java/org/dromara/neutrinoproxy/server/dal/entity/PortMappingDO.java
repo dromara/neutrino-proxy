@@ -31,6 +31,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 
 import java.util.Date;
 
@@ -121,4 +122,5 @@ public class PortMappingDO {
         BeanUtil.copyProperties(this, res);
         return res;
     }
+
 }

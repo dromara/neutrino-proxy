@@ -63,7 +63,8 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.port')" prop="port">
-          <el-input :placeholder="$t('table.portOrRange')" v-model="temp.port" :disabled="dialogStatus=='update'"></el-input>
+          <!-- <el-input :placeholder="$t('table.portOrRange')" v-model="temp.port" :disabled="dialogStatus=='update'"></el-input> -->
+          <el-input :placeholder="$t('table.portOrRange')" type="number" v-model="temp.port" :step="1" controls-position="right" :disabled="dialogStatus=='update'"></el-input>
         </el-form-item>
 
         <el-form-item  :label="$t('table.group')" prop="group">
@@ -158,7 +159,10 @@ const calendarTypeOptions = [
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          port: [{ required: true, message: '端口必填', trigger: 'blur' }]
+          port: [
+            { required: true, message: '端口必填', trigger: 'blur' },
+            { pattern: /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,message: '端口号请选择0-65535间的数字',trigger: 'blur'}
+          ]
         },
         downloadLoading: false,
         checkBoxData:[], //表单勾选的行

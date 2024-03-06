@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 
 import java.util.Date;
 import java.util.List;
@@ -115,4 +116,6 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
                 .eq(LicenseDO::getKey, licenseKey)
         );
     }
+
+    List<ProxyMapping> findEnableProxyMappingListByLicenseId(Integer licenseId);
 }

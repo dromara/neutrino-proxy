@@ -24,6 +24,10 @@ public class ProxyMapping {
 	 * 客户端信息 IP:port
 	 */
 	private String lanInfo;
+    /**
+     * 协议
+     */
+    private String protocal;
 
 	public static List<ProxyMapping> buildList(List<PortMappingDO> portMappingList) {
 		List<ProxyMapping> list = new ArrayList<>();
@@ -39,7 +43,8 @@ public class ProxyMapping {
 	public static ProxyMapping build(PortMappingDO portMappingDO) {
 		return new ProxyMapping()
 				.setServerPort(portMappingDO.getServerPort())
-				.setLanInfo(String.format("%s:%s", portMappingDO.getClientIp(), portMappingDO.getClientPort()));
+				.setLanInfo(String.format("%s:%s", portMappingDO.getClientIp(), portMappingDO.getClientPort()))
+                .setProtocal(portMappingDO.getProtocal());
 	}
 }
 
