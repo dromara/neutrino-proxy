@@ -46,17 +46,6 @@ public interface DomainMappingMapper extends BaseMapper<DomainMappingDO> {
 		);
 	}
 
-	/**
-	 * 校验域名是否重复
-	 * @param subdomain
-	 * @return
-	 */
-	default Boolean checkRepeatByDomain(String subdomain, Set<Integer> excludeIds) {
-		return StringUtils.isEmpty(subdomain)? Boolean.FALSE : this.selectCount(new LambdaQueryWrapper<DomainMappingDO>()
-				.eq(DomainMappingDO::getDomain, subdomain)
-				.notIn(!CollectionUtil.isEmpty(excludeIds), DomainMappingDO::getId, excludeIds)
-		).intValue() > 0;
-	}
 
 	default List<DomainMappingDO> findEnableListByLicenseId(Integer licenseId) {
 		return this.selectList(new LambdaQueryWrapper<DomainMappingDO>()

@@ -131,9 +131,6 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             item.setUserName(user.getName());
-            if (StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
-                item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getTcp().getDomainName());
-            }
             if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
                 item.setProtocal("HTTP(S)");
             }
@@ -155,13 +152,11 @@ public class PortMappingService implements LifecycleBean {
         PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
         ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
         ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
-        ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), null), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
 
         Date now = new Date();
         PortMappingDO portMappingDO = new PortMappingDO();
         portMappingDO.setLicenseId(req.getLicenseId());
         portMappingDO.setProtocal(req.getProtocal());
-        portMappingDO.setSubdomain(req.getSubdomain());
         portMappingDO.setServerPort(req.getServerPort());
         portMappingDO.setClientIp(req.getClientIp());
         portMappingDO.setClientPort(req.getClientPort());
@@ -177,10 +172,6 @@ public class PortMappingService implements LifecycleBean {
         portMappingMapper.insert(portMappingDO);
         // 更新VisitorChannel
         visitorChannelService.addVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
-        // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-            ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
-        }
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
 
@@ -204,7 +195,6 @@ public class PortMappingService implements LifecycleBean {
         PortPoolDO portPoolDO = portPoolMapper.findByPort(req.getServerPort());
         ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
         ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
-        ParamCheckUtil.checkExpression(!portMappingMapper.checkRepeatBySubdomain(req.getSubdomain(), Sets.newHashSet(req.getId())), ExceptionConstant.PORT_MAPPING_SUBDONAME_CONNOT_REPEAT);
 
         // 查询原端口映射
         PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
@@ -214,7 +204,6 @@ public class PortMappingService implements LifecycleBean {
         portMappingMapper.update(null, new LambdaUpdateWrapper<PortMappingDO>()
             .eq(PortMappingDO::getId, req.getId())
             .set(PortMappingDO::getProtocal, req.getProtocal())
-            .set(PortMappingDO::getSubdomain, req.getSubdomain())
             .set(PortMappingDO::getServerPort, req.getServerPort())
             .set(PortMappingDO::getClientIp, req.getClientIp())
             .set(PortMappingDO::getClientPort, req.getClientPort())
@@ -229,15 +218,7 @@ public class PortMappingService implements LifecycleBean {
 
         // 更新VisitorChannel
         PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
-        visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
-        // 删除老的域名映射
-        if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal()) && StrUtil.isNotBlank(oldPortMappingDO.getSubdomain())) {
-            ProxyUtil.removeSubdomainToServerPort(oldPortMappingDO.getSubdomain());
-        }
-        // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-            ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
-        }
+        visitorChannelService.updateVisitorChannelByProxyMapping(ProxyMapping.build(oldPortMappingDO), ProxyMapping.build(portMappingDO));
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), req.getSecurityGroupId());
 
@@ -318,9 +299,6 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         visitorChannelService.removeVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
         // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
-            ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());
-        }
 
         updateMappingPortToSecurityGroupMap(portMappingDO.getServerPort(), null);
 
@@ -393,22 +371,6 @@ public class PortMappingService implements LifecycleBean {
             refreshFlowLimitCache(item.getId(), item.getUpLimitRate(), item.getDownLimitRate());
         });
 
-        // 未配置域名，则不需要处理域名映射逻辑
-        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName())) {
-            return;
-        }
-        List<PortMappingDO> portMappingDOList = allMappingDOList.stream()
-            .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()) && item.getSubdomain() != null)
-            .collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(portMappingDOList)) {
-            return;
-        }
-        portMappingDOList.forEach(item -> {
-            if (StrUtil.isBlank(item.getSubdomain())) {
-                return;
-            }
-            ProxyUtil.setSubdomainToServerPort(item.getSubdomain(), item.getServerPort());
-        });
     }
 
     /**

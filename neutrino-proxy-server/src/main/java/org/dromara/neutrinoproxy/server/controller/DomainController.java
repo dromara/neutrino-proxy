@@ -33,13 +33,6 @@ public class DomainController {
     private DomainMappingService domainMappingService;
 
     @Get
-    @Mapping("/bind-info")
-    public String bindInfo () {
-        return proxyConfig.getServer().getTcp().getDomainName();
-    }
-
-
-    @Get
     @Mapping("/page")
     public PageInfo<DomainMappingDto> page(PageQuery pageQuery, DomainMappingDto req) {
         ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
@@ -71,7 +64,7 @@ public class DomainController {
         return domainMappingService.updateEnableStatus(req);
     }
 
-    @Post
+    @Get
     @Mapping("/delete/{id}")
     public void delete(Integer id) {
         domainMappingService.delete(id);

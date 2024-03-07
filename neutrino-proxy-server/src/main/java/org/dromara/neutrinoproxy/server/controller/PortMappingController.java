@@ -51,10 +51,7 @@ public class PortMappingController {
         }
         NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
         ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
-        if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
-            // 目前仅HTTP支持绑定域名
-			req.setSubdomain(null);
-        }
+
 		req.setProtocal(networkProtocolEnum.getDesc());
 		if (null == req.getProxyResponses()) {
 			req.setProxyResponses(0);
@@ -86,10 +83,7 @@ public class PortMappingController {
 		}
 		NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(req.getProtocal());
 		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
-		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
-			// 目前仅HTTP支持绑定域名
-			req.setSubdomain(null);
-		}
+
 		req.setProtocal(networkProtocolEnum.getDesc());
 		if (null == req.getProxyResponses()) {
 			req.setProxyResponses(0);

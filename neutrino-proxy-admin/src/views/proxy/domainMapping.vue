@@ -49,7 +49,7 @@
           <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.domainName')" width="180">
+      <el-table-column align="left" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
           <el-link target="_blank" @click="handleOpenWebPage(scope.row)">http(s)://{{ scope.row.domain }}</el-link>
         </template>

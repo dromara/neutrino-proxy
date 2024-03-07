@@ -49,11 +49,6 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column align="center" :label="$t('table.domainName')" width="180">
-        <template slot-scope="scope">
-          <span>{{ scope.row.domain }}</span>
-        </template>
-      </el-table-column> -->
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.serverPort }}</span>
@@ -148,11 +143,6 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort" type="number" :step="1" controls-position="right" ></el-input>
         </el-form-item>
-        <!-- <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
-          <el-input v-model="temp.subdomain">
-            <template slot="append">.{{ domainName }}</template>
-          </el-input>
-        </el-form-item> -->
         <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
           <el-input v-model="temp.proxyResponses"></el-input>
         </el-form-item>
@@ -206,7 +196,6 @@ import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
-import { domainNameBindInfo } from '@/api/domain'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
@@ -335,7 +324,6 @@ export default {
     },
   },
   created() {
-    this.getDomainNameBindInfo()
     this.getDataList()
     this.getLicenseList()
     this.getLicenseAuthList()
@@ -367,11 +355,6 @@ export default {
         if(res.data.code == 0) {
           this.securityGroupList = res.data.data
         }
-      })
-    },
-    getDomainNameBindInfo() {
-      domainNameBindInfo().then(response => {
-        this.domainName = response.data.data
       })
     },
     getAvailablePortList(licenseId) {
@@ -466,9 +449,6 @@ export default {
     },
     handleOpenWebPage(row) {
       let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
-      if (row.domain) {
-        url = location.protocol + '//' + row.domain
-      }
       open(url)
     },
     handleUpdate(row) {

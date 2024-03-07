@@ -119,9 +119,6 @@ public class DomainMappingService implements LifecycleBean {
                 return;
             }
             item.setUserName(user.getName());
-//            if (StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(item.getDomain())) {
-//                item.setDomain(item.getDomain() + "." + proxyConfig.getServer().getTcp().getDomainName());
-//            }
             if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
                 item.setProtocal("HTTP(S)");
             }
@@ -142,23 +139,24 @@ public class DomainMappingService implements LifecycleBean {
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
         }
         if (null != dmd.getId()) { // 编辑
-            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(dmd.getDomain(), new HashSet<>(){{add(dmd.getId());}}), ExceptionConstant.DONAME_CONNOT_REPEAT);
-
             Date now = new Date();
             dmd.setEnable(EnableStatusEnum.ENABLE.getStatus());
             dmd.setUpdateTime(now);
             domainMappingMapper.updateById(dmd);
+            // 更新VisitorChannel
+            DomainMappingDO oldDmd = domainMappingMapper.findById(dmd.getId());
+            ParamCheckUtil.checkNotNull(oldDmd, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+            ProxyMapping oldProxy = new ProxyMapping(oldDmd.getLicenseId(),oldDmd.getId(),oldDmd.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc());
+            visitorChannelService.updateVisitorChannelByProxyMapping(oldProxy, new ProxyMapping(dmd.getLicenseId(),dmd.getId(),dmd.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         } else { // 新增
-            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(dmd.getDomain(), null), ExceptionConstant.DONAME_CONNOT_REPEAT);
-
             Date now = new Date();
             dmd.setEnable(EnableStatusEnum.ENABLE.getStatus());
             dmd.setCreateTime(now);
             dmd.setUpdateTime(now);
             domainMappingMapper.insert(dmd);
+            // 新增
+            visitorChannelService.addVisitorChannelByProxyMapping(new ProxyMapping(dmd.getLicenseId(),dmd.getId(),dmd.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         }
-        // 更新VisitorChannel
-        visitorChannelService.addVisitorChannelByProxyMapping(new ProxyMapping(dmd.getLicenseId(),dmd.getId(),dmd.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         // 更新域名映射
         ProxyUtil.domainMapingMap.put(dmd.getDomain(), new DomainMapping(dmd.getId(), dmd.getLicenseId(), dmd.getDomain(), dmd.getTargetPath()));
 
@@ -189,10 +187,10 @@ public class DomainMappingService implements LifecycleBean {
     }
 
     public void delete(Integer id) {
-        DomainMappingDO domainMappingDO = domainMappingMapper.findById(id);
-        ParamCheckUtil.checkNotNull(domainMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+        DomainMappingDO domain = domainMappingMapper.findById(id);
+        ParamCheckUtil.checkNotNull(domain, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
 
-        LicenseDO licenseDO = licenseMapper.findById(domainMappingDO.getLicenseId());
+        LicenseDO licenseDO = licenseMapper.findById(domain.getLicenseId());
         if (null != licenseDO && !SystemContextHolder.isAdmin()) {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
@@ -200,13 +198,7 @@ public class DomainMappingService implements LifecycleBean {
         domainMappingMapper.deleteById(id);
 
         // 更新VisitorChannel
-//        visitorChannelService.removeVisitorChannelByPortMapping(domainMappingDO);
-
-        // 更新域名映射
-        if (NetworkProtocolEnum.isHttp(domainMappingDO.getProtocal()) && StrUtil.isNotBlank(domainMappingDO.getDomain())) {
-            ProxyUtil.removeSubdomainToServerPort(domainMappingDO.getDomain());
-        }
-
+        visitorChannelService.removeVisitorChannelByProxyMapping(new ProxyMapping(domain.getLicenseId(),domain.getId(),domain.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
     }
 
     public void domainBindSecurityGroup(Integer portMappingId, Integer groupId) {

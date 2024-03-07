@@ -55,7 +55,7 @@ neutrino:
         boss-thread-count: 5
         work-thread-count: 20
         # http代理端口，默认80
-        http-proxy-port: ${HTTP_PROXY_PORT:80}
+        http-proxy-port: ${HTTP_PR0OXY_PORT:80}
         # https代理端口，默认443 （需要配置域名、证书）
         https-proxy-port: ${HTTPS_PROXY_PORT:443}
         # 如果不配置，则不支持域名映射

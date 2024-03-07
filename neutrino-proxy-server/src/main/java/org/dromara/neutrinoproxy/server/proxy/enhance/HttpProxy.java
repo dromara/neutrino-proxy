@@ -32,7 +32,6 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
 
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-//        StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) ||
         if (null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
             log.info("no config domain name,nonsupport http proxy.");
             return;

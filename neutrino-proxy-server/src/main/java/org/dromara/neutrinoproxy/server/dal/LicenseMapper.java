@@ -118,4 +118,6 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
     }
 
     List<ProxyMapping> findEnableProxyMappingListByLicenseId(Integer licenseId);
+
+    List<ProxyMapping> findAllProxyMappingListByLicenseId(Integer licenseId);
 }

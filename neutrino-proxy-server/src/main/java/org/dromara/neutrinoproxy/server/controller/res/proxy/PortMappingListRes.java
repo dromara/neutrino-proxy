@@ -44,10 +44,6 @@ public class PortMappingListRes {
 	 */
 	private String protocal;
 	/**
-	 * 子域名
-	 */
-	private String subdomain;
-	/**
 	 * 域名
 	 */
 	private String domain;

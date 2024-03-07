@@ -60,10 +60,7 @@ public class ProxyUtil {
 	 * 代理 - connect附加映射
 	 */
 	private static Map<String, ProxyAttachment> proxyConnectAttachmentMap = new HashMap<>();
-	/**
-	 * 子域名 - 服务端端口映射
-	 */
-	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
+
 
     /**
      * 域名 解析 映射
@@ -346,31 +343,6 @@ public class ProxyUtil {
 		proxyConnectAttachmentMap.remove(visitorId);
 	}
 
-	/**
-	 * 设置子域名到服务端端口的映射
-	 * @param subdomain
-	 * @param serverPort
-	 */
-	public static void setSubdomainToServerPort(String subdomain, Integer serverPort) {
-		subdomainToServerPort.put(subdomain, serverPort);
-	}
-
-	/**
-	 * 删除子域名到服务端端口的映射
-	 * @param subdomain
-	 */
-	public static void removeSubdomainToServerPort(String subdomain) {
-		subdomainToServerPort.remove(subdomain);
-	}
-
-	/**
-	 * 根据子域名获取外网端口
-	 * @param subdomain
-	 * @return
-	 */
-	public static Integer getServerPortBySubdomain(String subdomain) {
-		return subdomainToServerPort.get(subdomain);
-	}
 
 	/**
 	 * 关闭http响应channel

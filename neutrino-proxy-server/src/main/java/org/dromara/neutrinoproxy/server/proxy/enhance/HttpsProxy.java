@@ -38,7 +38,6 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-//        StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) ||
         if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
             StringUtils.isEmpty(proxyConfig.getServer().getTcp().getJksPath()) ||
             StringUtils.isEmpty(proxyConfig.getServer().getTcp().getKeyStorePassword())) {
@@ -60,7 +59,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                             }
                             ch.pipeline().addLast(createSslHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler()); // proxyConfig.getServer().getTcp().getDomainName()
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler());
                             ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }

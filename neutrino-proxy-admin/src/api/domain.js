@@ -1,12 +1,5 @@
 import request from '@/utils/request'
 
-export function domainNameBindInfo(query) {
-  return request({
-    url: '/domain/bind-info',
-    method: 'get',
-    params: query
-  })
-}
 
 export function fetchList(query) {
   return request({
@@ -26,11 +19,8 @@ export function mappingModify(data) {
 
 export function deleteMapping(id) {
   return request({
-    url: '/domain/delete',
-    method: 'post',
-    params: {
-      id: id
-    }
+    url: '/domain/delete/' + id,
+    method: 'get'
   })
 }
 
