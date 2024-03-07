@@ -116,4 +116,5 @@ public class DomainMappingDO {
         BeanUtil.copyProperties(this, dto);
         return dto;
     }
+
 }

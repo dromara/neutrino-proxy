@@ -97,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `license_id` INTEGER(20) NOT NULL,
   `protocal` VARCHAR(10) NOT NULL DEFAULT 'TCP',
-  `subdomain` VARCHAR(50) DEFAULT NULL,
   `server_port` INTEGER NOT NULL,
   `client_ip` VARCHAR(20) NOT NULL,
   `client_port` INTEGER NOT NULL,

@@ -49,11 +49,11 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.domainName')" width="180">
+      <!-- <el-table-column align="center" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
           <span>{{ scope.row.domain }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.serverPort }}</span>
@@ -117,22 +117,22 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px"
-        style='width: 400px; margin-left:50px;'>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="20px">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="120px"
+        style='width:500px;margin-left:50px;'>
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
-            @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
+            @selectedData="selectedFeeItem" placeholder="请选择" :width="500" :disabled="dialogStatus === 'update'" />
         </el-form-item>
         <el-form-item :label="$t('协议')" prop="protocal">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
+          <el-select style="width: 380px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
             <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
               :disabled="!item.enable">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort" >
-          <load-select style="width: 280px;" class="filter-item"
+          <load-select style="width: 380px;" class="filter-item"
             v-model="temp.serverPort"
             :data="serverPortList"
             :page="loadServerPortQuery.page"
@@ -148,11 +148,11 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort" type="number" :step="1" controls-position="right" ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
+        <!-- <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
           <el-input v-model="temp.subdomain">
             <template slot="append">.{{ domainName }}</template>
           </el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
           <el-input v-model="temp.proxyResponses"></el-input>
         </el-form-item>
@@ -162,7 +162,7 @@
           </el-input>
         </el-form-item>
         <el-form-item  :label="$t('table.securityGroup')" prop="securityGroup">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.securityGroupId" clearable >
+          <el-select style="width: 380px;" class="filter-item" v-model="temp.securityGroupId" clearable >
             <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>

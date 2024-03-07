@@ -90,9 +90,9 @@ public class VisitorChannelService {
         EnableStatusEnum enableStatusEnum = EnableStatusEnum.of(enable);
         for (PortMappingDO portMappingDO : portMappingDOList) {
             if (EnableStatusEnum.DISABLE == enableStatusEnum) {
-                removeVisitorChannelByPortMapping(portMappingDO);
+                removeVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
             } else if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(portMappingDO.getEnable())) {
-                addVisitorChannelByPortMapping(portMappingDO);
+                addVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
             }
         }
     }
@@ -135,9 +135,9 @@ public class VisitorChannelService {
         if (!CollectionUtil.isEmpty(portMappingDOList)) {
             for (PortMappingDO portMappingDO : portMappingDOList) {
                 if (EnableStatusEnum.DISABLE == enableStatusEnum) {
-                    removeVisitorChannelByPortMapping(portMappingDO);
+                    removeVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
                 } else if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(portMappingDO.getEnable())) {
-                    addVisitorChannelByPortMapping(portMappingDO);
+                    addVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
                 }
             }
         }
@@ -153,60 +153,63 @@ public class VisitorChannelService {
         if (null == oldPortMappingDO || null == newPortMappingDO) {
             return;
         }
-        removeVisitorChannelByPortMapping(oldPortMappingDO);
-        addVisitorChannelByPortMapping(newPortMappingDO);
+
+        removeVisitorChannelByProxyMapping(ProxyMapping.build(oldPortMappingDO));
+        addVisitorChannelByProxyMapping(ProxyMapping.build(newPortMappingDO));
+
     }
+
 
     /**
      * 新增VisitorChannel
      * 触发时机：新增端口映射、启用端口映射
-     * @param portMappingDO
+     * @param proxyMapping
      */
-    public void addVisitorChannelByPortMapping(PortMappingDO portMappingDO) {
-        if (null == portMappingDO) {
+    public void addVisitorChannelByProxyMapping(ProxyMapping proxyMapping) {
+        if (null == proxyMapping) {
             return;
         }
-        Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(portMappingDO.getLicenseId());
+        Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(proxyMapping.getLicenseId());
         if (null == cmdChannel) {
             // 如果不存在有效的cmdChannel，则无需更新VisitorChannel
             return;
         }
         // 判断端口映射是否启用
-        if (EnableStatusEnum.DISABLE != EnableStatusEnum.of(portMappingDO.getEnable())) {
-            LicenseDO licenseDO = licenseMapper.findById(portMappingDO.getLicenseId());
+//        if (EnableStatusEnum.DISABLE != EnableStatusEnum.of(portMappingDO.getEnable())) {
+            LicenseDO licenseDO = licenseMapper.findById(proxyMapping.getLicenseId());
             // 判断license是否启用
             if (null != licenseDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(licenseDO.getEnable())) {
                 UserDO userDO = userMapper.findById(licenseDO.getUserId());
                 // 判断用户是否启用
                 if (null != userDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(userDO.getEnable())) {
-                    PortPoolDO portPoolDO = portPoolMapper.findByPort(portMappingDO.getServerPort());
+                    PortPoolDO portPoolDO = portPoolMapper.findByPort(proxyMapping.getServerPort());
                     // 判断端口池是否启用
                     if (null != portPoolDO && EnableStatusEnum.ENABLE == EnableStatusEnum.of(portPoolDO.getEnable())) {
                         // 未删除且未禁用，则开启代理
-                        ProxyUtil.addProxyInfo(portMappingDO.getLicenseId(), ProxyMapping.build(portMappingDO));
-                        ProxyUtil.addCmdChannel(portMappingDO.getLicenseId(), cmdChannel, Sets.newHashSet(portMappingDO.getServerPort()));
-                        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(ProxyMapping.build(portMappingDO)));
+                        ProxyUtil.addProxyInfo(proxyMapping.getLicenseId(), proxyMapping);
+                        ProxyUtil.addCmdChannel(proxyMapping.getLicenseId(), cmdChannel, Sets.newHashSet(proxyMapping.getServerPort()));
+                        startUserPortServer(ProxyUtil.getAttachInfo(cmdChannel), Lists.newArrayList(proxyMapping));
                     }
                 }
             }
-        }
+//        }
     }
 
     /**
      * 删除VisitorChannel
      * 触发时机：删除端口映射、禁用端口映射
-     * @param portMappingDO
+     * @param proxyMapping
      */
-    public void removeVisitorChannelByPortMapping(PortMappingDO portMappingDO) {
-        if (null == portMappingDO) {
+    public void removeVisitorChannelByProxyMapping(ProxyMapping proxyMapping) {
+        if (null == proxyMapping) {
             return;
         }
-        Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(portMappingDO.getLicenseId());
+        Channel cmdChannel = ProxyUtil.getCmdChannelByLicenseId(proxyMapping.getLicenseId());
         if (null == cmdChannel) {
             // 如果不存在有效的cmdChannel，则无需更新VisitorChannel
             return;
         }
-        Channel visitorChannel = ProxyUtil.getVisitorChannelByServerPort(portMappingDO.getServerPort());
+        Channel visitorChannel = ProxyUtil.getVisitorChannelByServerPort(proxyMapping.getServerPort());
         if (null != visitorChannel) {
             Channel proxyChannel = visitorChannel.attr(Constants.NEXT_CHANNEL).get();
             if (null != proxyChannel) {
@@ -215,14 +218,13 @@ public class VisitorChannelService {
             // TODO 此处如果时UDP的visitorChannel,则不能close，后续重构考虑
 //            visitorChannel.close();
         }
-        ProxyUtil.removeProxyInfo(portMappingDO.getServerPort());
+        ProxyUtil.removeProxyInfo(proxyMapping.getServerPort());
     }
 
     private void startUserPortServer(CmdChannelAttachInfo cmdChannelAttachInfo, List<ProxyMapping> proxyMappingList) {
         if (CollectionUtil.isEmpty(proxyMappingList)) {
             return;
         }
-
         for (ProxyMapping proxyMapping : proxyMappingList) {
 //            if (EnableStatusEnum.DISABLE.getStatus().equals(proxyMapping.getEnable())) {
 //                // 端口映射被禁用了，忽略 TODO 映射没被禁用，但端口被禁用了也需要处理  修改方案 20240306查询时就处理了【端口禁用】和【端口映射禁用】的情况，待验证

@@ -39,6 +39,7 @@ import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
@@ -175,7 +176,7 @@ public class PortMappingService implements LifecycleBean {
         portMappingDO.setUpdateTime(now);
         portMappingMapper.insert(portMappingDO);
         // 更新VisitorChannel
-        visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+        visitorChannelService.addVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
         // 更新域名映射
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.setSubdomainToServerPort(portMappingDO.getSubdomain(), portMappingDO.getServerPort());
@@ -294,9 +295,9 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         portMappingDO.setEnable(req.getEnable());
         if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
-            visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
+            visitorChannelService.addVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
         } else {
-            visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+            visitorChannelService.removeVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
         }
 
         return new PortMappingUpdateEnableStatusRes();
@@ -315,7 +316,7 @@ public class PortMappingService implements LifecycleBean {
         portMappingMapper.deleteById(id);
 
         // 更新VisitorChannel
-        visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
+        visitorChannelService.removeVisitorChannelByProxyMapping(ProxyMapping.build(portMappingDO));
         // 更新域名映射
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && StrUtil.isNotBlank(portMappingDO.getSubdomain())) {
             ProxyUtil.removeSubdomainToServerPort(portMappingDO.getSubdomain());

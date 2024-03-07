@@ -32,6 +32,7 @@ import org.dromara.neutrinoproxy.server.dal.PortPoolMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.*;
 import org.dromara.neutrinoproxy.server.proxy.domain.DomainMapping;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.dromara.neutrinoproxy.server.util.PortAvailableUtil;
@@ -42,6 +43,7 @@ import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
 import org.noear.solon.core.runtime.NativeDetector;
+import org.noear.solon.data.annotation.Tran;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -131,40 +133,38 @@ public class DomainMappingService implements LifecycleBean {
         return PageInfo.of(respList, page.getTotal(), pageQuery.getCurrent(), pageQuery.getSize());
     }
 
-    public PortMappingCreateRes modify(DomainMappingDO domainMappingDO) {
-        LicenseDO licenseDO = licenseMapper.findById(domainMappingDO.getLicenseId());
+    @Tran
+    public PortMappingCreateRes modify(DomainMappingDO dmd) {
+        LicenseDO licenseDO = licenseMapper.findById(dmd.getLicenseId());
         ParamCheckUtil.checkNotNull(licenseDO, ExceptionConstant.LICENSE_NOT_EXIST);
         if (!SystemContextHolder.isAdmin()) {
             // 临时处理，如果当前用户不是管理员，则操作userId不能为1
             ParamCheckUtil.checkExpression(!licenseDO.getUserId().equals(1), ExceptionConstant.NO_PERMISSION_VISIT);
         }
-        if (null != domainMappingDO.getId()) { // 编辑
-            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(domainMappingDO.getDomain(), new HashSet<>(){{add(domainMappingDO.getId());}}), ExceptionConstant.DONAME_CONNOT_REPEAT);
+        if (null != dmd.getId()) { // 编辑
+            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(dmd.getDomain(), new HashSet<>(){{add(dmd.getId());}}), ExceptionConstant.DONAME_CONNOT_REPEAT);
 
             Date now = new Date();
-            domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-            domainMappingDO.setUpdateTime(now);
-            domainMappingMapper.updateById(domainMappingDO);
+            dmd.setEnable(EnableStatusEnum.ENABLE.getStatus());
+            dmd.setUpdateTime(now);
+            domainMappingMapper.updateById(dmd);
         } else { // 新增
-            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(domainMappingDO.getDomain(), null), ExceptionConstant.DONAME_CONNOT_REPEAT);
+            ParamCheckUtil.checkExpression(!domainMappingMapper.checkRepeatByDomain(dmd.getDomain(), null), ExceptionConstant.DONAME_CONNOT_REPEAT);
 
             Date now = new Date();
-            domainMappingDO.setIsOnline(OnlineStatusEnum.OFFLINE.getStatus());
-            domainMappingDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
-            domainMappingDO.setCreateTime(now);
-            domainMappingDO.setUpdateTime(now);
-            domainMappingMapper.insert(domainMappingDO);
+            dmd.setEnable(EnableStatusEnum.ENABLE.getStatus());
+            dmd.setCreateTime(now);
+            dmd.setUpdateTime(now);
+            domainMappingMapper.insert(dmd);
         }
         // 更新VisitorChannel
-//        visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
+        visitorChannelService.addVisitorChannelByProxyMapping(new ProxyMapping(dmd.getLicenseId(),dmd.getId(),dmd.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         // 更新域名映射
-//            ProxyUtil.setSubdomainToServerPort(domainMappingDO.getDomain(), domainMappingDO.getServerPort());
-        ProxyUtil.domainMapingMap.put(domainMappingDO.getDomain(), new DomainMapping(domainMappingDO.getId(), domainMappingDO.getLicenseId(), domainMappingDO.getDomain(), domainMappingDO.getTargetPath()));
-
+        ProxyUtil.domainMapingMap.put(dmd.getDomain(), new DomainMapping(dmd.getId(), dmd.getLicenseId(), dmd.getDomain(), dmd.getTargetPath()));
 
         return new PortMappingCreateRes();
     }
-
+    @Tran
     public PortMappingUpdateEnableStatusRes updateEnableStatus(PortMappingUpdateEnableStatusReq req) {
         DomainMappingDO domainMappingDO = domainMappingMapper.findById(req.getId());
         ParamCheckUtil.checkNotNull(domainMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
@@ -180,9 +180,9 @@ public class DomainMappingService implements LifecycleBean {
         // 更新VisitorChannel
         domainMappingDO.setEnable(req.getEnable());
         if (EnableStatusEnum.ENABLE == EnableStatusEnum.of(req.getEnable())) {
-//            visitorChannelService.addVisitorChannelByPortMapping(domainMappingDO);
+            visitorChannelService.addVisitorChannelByProxyMapping(new ProxyMapping(domainMappingDO.getLicenseId(),domainMappingDO.getId(),domainMappingDO.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         } else {
-//            visitorChannelService.removeVisitorChannelByPortMapping(domainMappingDO);
+            visitorChannelService.removeVisitorChannelByProxyMapping(new ProxyMapping(domainMappingDO.getLicenseId(),domainMappingDO.getId(),domainMappingDO.getTargetPath(), NetworkProtocolEnum.HTTP.getDesc()));
         }
 
         return new PortMappingUpdateEnableStatusRes();
