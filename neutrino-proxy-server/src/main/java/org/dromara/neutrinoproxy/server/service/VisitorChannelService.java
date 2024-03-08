@@ -234,9 +234,9 @@ public class VisitorChannelService {
                 if (networkProtocolEnum == NetworkProtocolEnum.UDP) {
                     udpServerBootstrap.bind(proxyMapping.getServerPort()).get();
                     log.info("bind UDP user port： {}", proxyMapping.getServerPort());
-                } else if (proxyMapping.getServerPort() <= 65535){
+                } else if (proxyMapping.getServerPort() <= 65535){// 大于65535 的端口号是域名解析无需绑定服务端端口号
                     tcpServerBootstrap.bind(proxyMapping.getServerPort()).get();
-                    log.info("bind TCP user port： {}", proxyMapping.getServerPort());
+                    log.info("bind TCP ServerPort： {}", proxyMapping.getServerPort());
                 }
             } catch (Exception ex) {
                 // BindException表示该端口已经绑定过

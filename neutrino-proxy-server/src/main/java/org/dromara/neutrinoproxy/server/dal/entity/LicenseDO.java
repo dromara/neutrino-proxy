@@ -87,6 +87,23 @@ public class LicenseDO {
 	 */
 	private Date updateTime;
 
+
+    public LicenseDO() {
+    }
+
+    public LicenseDO(Integer id, String name, String key, Integer userId, String upLimitRate, String downLimitRate, Integer isOnline, Integer enable, Date createTime, Date updateTime) {
+        this.id = id;
+        this.name = name;
+        this.key = key;
+        this.userId = userId;
+        this.upLimitRate = upLimitRate;
+        this.downLimitRate = downLimitRate;
+        this.isOnline = isOnline;
+        this.enable = enable;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
+
     public LicenseListRes toRes() {
         LicenseListRes res = new LicenseListRes();
         BeanUtil.copyProperties(this, res);

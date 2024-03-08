@@ -63,12 +63,11 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="330" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          <el-button v-if="scope.row.id != 1" type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="primary" @click="handleReset(scope.row)">{{$t('table.resetKey')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
-          <ButtonPopover @handleCommitClick="handleDelete2(scope.row)" style="margin-left: 10px"/>
+          <el-button v-if="scope.row.id != 1" size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -122,20 +121,6 @@
   import { userList } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
-  import ButtonPopover from '../../components/Button/buttonPopover'
-
-  const calendarTypeOptions = [
-    { key: 'CN', display_name: 'China' },
-    { key: 'US', display_name: 'USA' },
-    { key: 'JP', display_name: 'Japan' },
-    { key: 'EU', display_name: 'Eurozone' }
-  ]
-
-  // arr to obj ,such as { CN : "China", US : "USA" }
-  const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-    acc[cur.key] = cur.display_name
-    return acc
-  }, {})
 
   export default {
     name: 'complexTable',
@@ -143,7 +128,6 @@
       waves
     },
     components: {
-      ButtonPopover
     },
     data() {
       return {
@@ -159,7 +143,6 @@
           userId: null
         },
         importanceOptions: [1, 2, 3],
-        calendarTypeOptions,
         userList: [],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
@@ -214,9 +197,6 @@
         }
         return statusMap[status]
       },
-      typeFilter(type) {
-        return calendarTypeKeyValue[type]
-      }
     },
     created() {
       this.getDataList()
@@ -367,19 +347,6 @@
             }
           })
         }).catch(() => {})
-      },
-      handleDelete2(row) {
-        deleteLicense(row.id).then(response => {
-          if (response.data.code === 0) {
-            this.$notify({
-              title: '成功',
-              message: '删除成功',
-              type: 'success',
-              duration: 2000
-            })
-            this.getList()
-          }
-        })
       },
       handleDownload() {
         this.downloadLoading = true

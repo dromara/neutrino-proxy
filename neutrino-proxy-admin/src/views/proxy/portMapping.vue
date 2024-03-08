@@ -49,6 +49,11 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
+      <!-- <el-table-column align="center" :label="$t('table.domainName')" width="180">
+        <template slot-scope="scope">
+          <span>{{ scope.row.domain }}</span>
+        </template>
+      </el-table-column> -->
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.serverPort }}</span>
@@ -100,7 +105,7 @@
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
-          <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px" />
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -143,6 +148,11 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort" type="number" :step="1" controls-position="right" ></el-input>
         </el-form-item>
+        <!-- <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
+          <el-input v-model="temp.subdomain">
+            <template slot="append">.{{ domainName }}</template>
+          </el-input>
+        </el-form-item> -->
         <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
           <el-input v-model="temp.proxyResponses"></el-input>
         </el-form-item>
@@ -449,6 +459,9 @@ export default {
     },
     handleOpenWebPage(row) {
       let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
+      if (row.domain) {
+        url = location.protocol + '//' + row.domain
+      }
       open(url)
     },
     handleUpdate(row) {

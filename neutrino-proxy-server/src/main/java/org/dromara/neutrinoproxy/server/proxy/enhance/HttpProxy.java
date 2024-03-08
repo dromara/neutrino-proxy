@@ -43,19 +43,19 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup())
-                    .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() &&
-                                proxyConfig.getServer().getTcp().getTransferLogEnable()) {
-                                ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
-                            }
-                            ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler());
-                            ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
-                            ch.pipeline().addLast(new HttpVisitorChannelHandler());
-                        }
-                    });
+                .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                    if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() &&
+                        proxyConfig.getServer().getTcp().getTransferLogEnable()) {
+                        ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
+                    }
+                    ch.pipeline().addFirst(new BytesMetricsHandler())
+                        .addLast(new HttpVisitorSecurityChannelHandler())
+                        .addLast("flowLimiter",new VisitorFlowLimiterChannelHandler())
+                        .addLast(new HttpVisitorChannelHandler());
+                    }
+                });
             bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpProxyPort()).sync();
             log.info("Http proxy server start success！port:{}", proxyConfig.getServer().getTcp().getHttpProxyPort());
         } catch (Exception e) {

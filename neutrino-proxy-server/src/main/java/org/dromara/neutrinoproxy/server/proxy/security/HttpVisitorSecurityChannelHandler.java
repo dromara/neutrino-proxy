@@ -1,9 +1,11 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
 import cn.hutool.core.util.StrUtil;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.proxy.ProxyHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
@@ -24,6 +26,38 @@ import org.noear.solon.Solon;
 public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapter {
     private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
     private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
+
+    private Bootstrap bootstrap;
+    /**
+     * 内部转发处理器
+     */
+    class ProxyInnerHandler extends ChannelInboundHandlerAdapter {
+        private Channel channel;
+        public ProxyInnerHandler(Channel channel) {
+            bootstrap = new Bootstrap();
+            this.channel = channel;
+        }
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            ByteBuf readBuffer = (ByteBuf) msg;
+            readBuffer.retain();
+            channel.writeAndFlush(readBuffer);
+        }
+    }
+
+    private Channel getClientChannel(SocketChannel ch) throws InterruptedException {
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                socketChannel.pipeline().addLast("clientHandler", new ProxyInnerHandler(ch));
+            }
+        });
+        //  转发地址
+        ChannelFuture sync = bootstrap.connect("127.0.0.1", 9527);
+        return sync.channel();
+    }
+
+
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -61,6 +95,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             }
             ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
             ctx.channel().attr(Constants.SERVER_PORT).set(dm.getId());
+            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
         }
 
         // 继续传播

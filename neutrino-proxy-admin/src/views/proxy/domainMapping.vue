@@ -89,7 +89,7 @@
           <el-button type="primary" size="mini" @click="toModify(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{ $t('table.disable') }}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
-          <ButtonPopover @handleCommitClick="handleDelete(scope.row)" style="margin-left: 10px" />
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{ $t('table.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -103,8 +103,7 @@
     <el-dialog :title="textMap[dialogStatus]" :close-on-click-modal="false" :visible.sync="dialogFormVisible" top="20px">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="110px">
         <el-form-item :label="$t('License')" prop="licenseId">
-          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList" @selectedData="selectedFeeItem" placeholder="请选择" :width="500"
-            :disabled="dialogStatus === 'update'" />
+          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList" @selectedData="selectedFeeItem" placeholder="请选择" :width="500" />
         </el-form-item>
         <el-form-item :label="$t('域名')" prop="domain">
           <el-input v-model="temp.domain">
@@ -228,8 +227,8 @@ export default {
       rules: {
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
         domain: [{ required: true, message: '请输入域名', trigger: 'blur' },
-          {pattern: '^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$', message: '域名格式不正确，请检查后重试', trigger: 'blur' },
-          { validator: this.isDomainAvailable, trigger: 'blur' }
+        { pattern: '^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$', message: '域名格式不正确，请检查后重试', trigger: 'blur' },
+        { validator: this.isDomainAvailable, trigger: 'blur' }
         ],
         targetPath: [{ required: true, message: '请输入目标地址', trigger: 'blur' }],
       },

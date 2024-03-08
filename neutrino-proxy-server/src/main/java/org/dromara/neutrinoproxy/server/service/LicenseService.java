@@ -40,6 +40,7 @@ import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.bean.LifecycleBean;
 import org.noear.solon.core.runtime.NativeDetector;
+import org.noear.solon.data.annotation.Tran;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -107,17 +108,16 @@ public class LicenseService implements LifecycleBean {
 
     private List<LicenseListRes> assembleConvertLicenses(List<LicenseDO> list) {
         List<LicenseListRes> licenseList = list.stream().map(LicenseDO::toRes).collect(Collectors.toList());
-        if (!CollectionUtil.isEmpty(licenseList)) {
-            Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
-            List<UserDO> userList = userMapper.findByIds(userIds);
-            Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-            for (LicenseListRes item : licenseList) {
-                UserDO userDO = userMap.get(item.getUserId());
-                if (null != userDO) {
-                    item.setUserName(userDO.getName());
-                }
-                item.setKey(desensitization(item.getUserId(), item.getKey()));
+        // 插入用户名
+        Set<Integer> userIds = licenseList.stream().map(LicenseListRes::getUserId).collect(Collectors.toSet());
+        List<UserDO> userList = userMapper.findByIds(userIds);
+        Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+        for (LicenseListRes item : licenseList) {
+            UserDO userDO = userMap.get(item.getUserId());
+            if (null != userDO) {
+                item.setUserName(userDO.getName());
             }
+            item.setKey(desensitization(item.getUserId(), item.getKey()));
         }
         return licenseList;
     }
@@ -203,10 +203,20 @@ public class LicenseService implements LifecycleBean {
      * @param req
      * @return
      */
+    @Tran
     public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
-        licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
-        // 更新VisitorChannel
-        visitorChannelService.updateVisitorChannelByLicenseId(req.getId(), req.getEnable());
+        // 服务端免通道 直接转发，所以无需建立客户端通道。启用即在线，禁用即离线
+        if (req.getId() == 1) {
+            licenseMapper.update(null, new LambdaUpdateWrapper<LicenseDO>()
+                .eq(LicenseDO::getId, req.getId())
+                .set(LicenseDO::getEnable, req.getEnable())
+                .set(LicenseDO::getIsOnline, req.getEnable())
+                .set(LicenseDO::getUpdateTime, new Date()));
+        } else {
+            licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+            // 更新VisitorChannel
+            visitorChannelService.updateVisitorChannelByLicenseId(req.getId(), req.getEnable());
+        }
         return new LicenseUpdateEnableStatusRes();
     }
 
@@ -338,6 +348,7 @@ public class LicenseService implements LifecycleBean {
                 .eq(LicenseDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
                 .eq(LicenseDO::getUserId, SystemContextHolder.getUserId())
         );
+        if (CollectionUtil.isEmpty(list)) return null;
         List<LicenseListRes> licenseList = assembleConvertLicenses(list);
         return licenseList;
     }

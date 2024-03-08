@@ -33,7 +33,8 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 		final Channel cmdChannel = ctx.channel();
 		final String visitorId = proxyMessage.getInfo();
 		String[] serverInfo = new String(proxyMessage.getData()).split(":");
-		String ip = serverInfo[0];
+		// @todo 在这里 处理负载均恒
+        String ip = serverInfo[0];
 		int port = Integer.parseInt(serverInfo[1]);
 		// 连接真实的、被代理的服务
 		realServerBootstrap.connect(ip, port).addListener(new ChannelFutureListener() {
@@ -44,7 +45,6 @@ public class ProxyMessageConnectHandler implements ProxyMessageHandler {
 				// 连接后端服务器成功
 				if (future.isSuccess()) {
 					final Channel realServerChannel = future.channel();
-
 					realServerChannel.config().setOption(ChannelOption.AUTO_READ, false);
 
 					// 获取连接

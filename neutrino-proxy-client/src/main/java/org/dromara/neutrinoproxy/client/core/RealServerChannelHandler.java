@@ -67,11 +67,18 @@ public class RealServerChannelHandler extends SimpleChannelInboundHandler<ByteBu
         }
     }
 
+    /**
+     * 通道激活时触发，当客户端connect成功后，服务端就会接收到这个事件，从而可以把客户端的Channel记录下来，供后面复用
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
     }
-
+    /**
+     * 客户端 失去连接
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel realServerChannel = ctx.channel();
