@@ -24,40 +24,8 @@ import org.noear.solon.Solon;
  */
 @Slf4j
 public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapter {
-    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
-    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
-
-    private Bootstrap bootstrap;
-    /**
-     * 内部转发处理器
-     */
-    class ProxyInnerHandler extends ChannelInboundHandlerAdapter {
-        private Channel channel;
-        public ProxyInnerHandler(Channel channel) {
-            bootstrap = new Bootstrap();
-            this.channel = channel;
-        }
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            ByteBuf readBuffer = (ByteBuf) msg;
-            readBuffer.retain();
-            channel.writeAndFlush(readBuffer);
-        }
-    }
-
-    private Channel getClientChannel(SocketChannel ch) throws InterruptedException {
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline().addLast("clientHandler", new ProxyInnerHandler(ch));
-            }
-        });
-        //  转发地址
-        ChannelFuture sync = bootstrap.connect("127.0.0.1", 9527);
-        return sync.channel();
-    }
-
-
+    private SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
+    private PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -95,7 +63,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             }
             ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
             ctx.channel().attr(Constants.SERVER_PORT).set(dm.getId());
-            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
+//            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
         }
 
         // 继续传播

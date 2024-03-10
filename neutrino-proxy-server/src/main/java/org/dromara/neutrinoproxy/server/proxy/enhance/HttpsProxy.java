@@ -36,6 +36,10 @@ import java.security.KeyStore;
 public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     @Inject
     private ProxyConfig proxyConfig;
+    /**
+     * NioServerSocketChannel对应的future
+     */
+    private ChannelFuture httpsFuture;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
         if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
@@ -48,26 +52,38 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     }
 
     private void start() {
+        // 处理网络连接---接受请求
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        // 进行socketChannel的网络读写
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(new NioEventLoopGroup(1), new NioEventLoopGroup())
-                .channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
+            bootstrap.group(bossGroup, workerGroup);
+            bootstrap.channel(NioServerSocketChannel.class);
+            bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
                     if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() && proxyConfig.getServer().getTcp().getTransferLogEnable()) {
                         ch.pipeline().addFirst(new LoggingHandler(HttpsProxy.class));
                     }
-                    ch.pipeline().addLast(createSslHandler());
-                    ch.pipeline().addFirst(new BytesMetricsHandler());
-                    ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler());
-                    ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
-                    ch.pipeline().addLast(new HttpVisitorChannelHandler());
-                    }
-                });
-            bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpsProxyPort()).sync();
+                    ch.pipeline().addLast(createSslHandler())
+                        .addFirst(new BytesMetricsHandler())
+                        .addLast(new HttpVisitorSecurityChannelHandler())
+                        .addLast("flowLimiter", new VisitorFlowLimiterChannelHandler())
+                        .addLast(new HttpVisitorChannelHandler(ch));
+                }
+            });
+            httpsFuture = bootstrap.bind("0.0.0.0", proxyConfig.getServer().getTcp().getHttpsProxyPort()).sync();
             log.info("Https proxy server started！port:{}", proxyConfig.getServer().getTcp().getHttpsProxyPort());
+            //添加关闭重启的监听器，3秒后尝试重启
+//            httpsFuture.channel().closeFuture().addListener(genericFutureListener);
+//            httpsFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             log.error("https proxy start err!", e);
+        } finally {
+//            bossGroup.shutdownGracefully();
+//            workerGroup.shutdownGracefully();
+//            httpsFuture.channel().close();
         }
     }
 

@@ -30,6 +30,11 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+    private SocketChannel sch;
+
+    public HttpVisitorChannelHandler(SocketChannel sch) {
+        this.sch = sch;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
@@ -60,6 +65,7 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         // 根据域名拿到绑定的映射对应的cmdChannel
         Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(serverPort);
+
         if (null == cmdChannel) {
             ctx.channel().close();
             return;

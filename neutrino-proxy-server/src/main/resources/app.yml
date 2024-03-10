@@ -61,8 +61,8 @@ neutrino:
         # 如果不配置，则不支持域名映射
         domain-name: ${DOMAIN_NAME:server.com}
         # https证书配置
-        key-store-password: ${HTTPS_STORE_PASS:}
-        jks-path: ${HTTPS_JKS_PATH:}
+        key-store-password: ${HTTPS_STORE_PASS:123456}
+        jks-path: ${HTTPS_JKS_PATH:classpath:/test.jks}
         # 是否开启代理服务报文日志(日志级别为debug时开启才有效)
         transfer-log-enable: ${SERVER_LOG:false}
       udp:
