@@ -47,7 +47,10 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
         metadata.registerLambdaSerialization(FlowReportMinuteMapper.class);
         metadata.registerLambdaSerialization(FlowReportMonthMapper.class);
         metadata.registerLambdaSerialization(JobInfoMapper.class);
+        metadata.registerLambdaSerialization(JobLogMapper.class);
         metadata.registerLambdaSerialization(PortMappingMapper.class);
+        metadata.registerLambdaSerialization(PortGroupMapper.class);
+        metadata.registerLambdaSerialization(ReportMapper.class);
         metadata.registerLambdaSerialization(PortPoolMapper.class);
         metadata.registerLambdaSerialization(UserLoginRecordMapper.class);
         metadata.registerLambdaSerialization(UserMapper.class);
