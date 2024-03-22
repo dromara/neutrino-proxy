@@ -69,6 +69,7 @@ jobs:
     - name: Build with Maven (neutrino-proxy-client)
       run: |
         set MAVEN_OPTS="-Duser.language=UTF-8 -Dfile.encoding=UTF-8"
+        mvn clean install -U -pl neutrino-proxy-client -am -DskipTests --no-transfer-progress
         cd neutrino-proxy-client
         mvn clean package --file pom.xml --no-transfer-progress
         mvn clean native:compile -P native --file pom.xml --no-transfer-progress

@@ -3,14 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.noear</groupId>
-        <artifactId>solon-parent</artifactId>
-        <version>2.5.12</version>
-        <relativePath />
+        <artifactId>neutrino-proxy</artifactId>
+        <groupId>org.dromara.neutrino-proxy</groupId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.dromara.neutrino-proxy</groupId>
     <artifactId>neutrino-proxy-client-sdk</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
@@ -24,28 +23,28 @@
             <groupId>org.dromara.neutrino-proxy</groupId>
             <artifactId>neutrino-proxy-core</artifactId>
             <version>${revision}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.noear</groupId>
-                    <artifactId>solon-test</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.noear</groupId>
-                    <artifactId>solon.aot</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.noear</groupId>
-                    <artifactId>solon.logging.logback</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>cn.hutool</groupId>
-                    <artifactId>hutool-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>cn.hutool</groupId>
-                    <artifactId>hutool-cache</artifactId>
-                </exclusion>
-            </exclusions>
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.noear</groupId>-->
+<!--                    <artifactId>solon-test</artifactId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.noear</groupId>-->
+<!--                    <artifactId>solon.aot</artifactId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.noear</groupId>-->
+<!--                    <artifactId>solon.logging.logback</artifactId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <groupId>cn.hutool</groupId>-->
+<!--                    <artifactId>hutool-core</artifactId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <groupId>cn.hutool</groupId>-->
+<!--                    <artifactId>hutool-cache</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
