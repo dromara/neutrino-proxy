@@ -50,7 +50,7 @@
         :hide-on-single-pageInfo="false"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-pageInfo="PaginationData.currentPage"
+        :current-page="PaginationData.currentPage"
         :pageInfo-sizes="[10, 20, 50, 100]"
         :pageInfo-size="PaginationData.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
