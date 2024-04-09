@@ -58,7 +58,7 @@
 
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                     :current-pageInfo.sync="listQuery.current"
+                     :current-page.sync="listQuery.current"
                      :pageInfo-sizes="[10,20,30, 50]" :pageInfo-size="listQuery.size"
                      layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
