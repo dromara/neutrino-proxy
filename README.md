@@ -4,8 +4,8 @@
 <p align="center">
   <a href='https://gitee.com/dromara/neutrino-proxy/stargazers'><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star'></img></a>
 <a href='https://gitee.com/dromara/neutrino-proxy/members'><img src='https://gitee.com/dromara/neutrino-proxy/badge/fork.svg?theme=dark' alt='fork'></img></a>
-<a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk17-downloads.html">
-    <img src="https://img.shields.io/badge/JDK-17+-red.svg" />
+<a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk21-downloads.html">
+    <img src="https://img.shields.io/badge/JDK-21+-red.svg" />
 </a>
 <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-red" alt="license MIT">
