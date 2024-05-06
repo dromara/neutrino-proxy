@@ -54,6 +54,7 @@ hs_err_pid*
 
 **/memo/**
 
+neutrino-proxy-vuepress/deploy
 neutrino-proxy-vuepress/deploy.sh
 .NEUTRINO_PROXY_CLIENT_ID
 logs
