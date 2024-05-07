@@ -4,8 +4,8 @@
 <p align="center">
   <a href='https://gitee.com/dromara/neutrino-proxy/stargazers'><img src='https://gitee.com/dromara/neutrino-proxy/badge/star.svg?theme=dark' alt='star'></img></a>
 <a href='https://gitee.com/dromara/neutrino-proxy/members'><img src='https://gitee.com/dromara/neutrino-proxy/badge/fork.svg?theme=dark' alt='fork'></img></a>
-<a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk17-downloads.html">
-    <img src="https://img.shields.io/badge/JDK-17+-red.svg" />
+<a target="_blank" href="https://www.oracle.com/java/technologies/javase/javase-jdk21-downloads.html">
+    <img src="https://img.shields.io/badge/JDK-21+-red.svg" />
 </a>
 <a href="./LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-red" alt="license MIT">
@@ -18,6 +18,7 @@
 - 遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 - 官网地址1：https://neutrino-proxy.dromara.org
 - 官网地址2：https://dromara.gitee.io/neutrino-proxy
+- 官网地址3：https://neutrino-proxy-docs.asgc.fun
 - 快速上手请[点击这里](https://dromara.gitee.io/neutrino-proxy/pages/793dcb)
 
 # 2、名称由来

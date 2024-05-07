@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "vuepress dev docs",
     "build": "vuepress build docs",
-    "buildAndDeploy": "vuepress build docs && bash deploy.sh",
-    "deploy": "bash deploy.sh",
+    "buildAndDeploy": "vuepress build docs && bash deploy/deploy2.sh",
+    "deploy": "bash deploy/deploy2.sh",
     "updateTheme": "yarn remove vuepress-theme-vdoing && rm -rf node_modules && yarn && yarn add vuepress-theme-vdoing -D",
     "editFm": "node utils/editFrontmatter.js"
   },
