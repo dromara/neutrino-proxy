@@ -31,5 +31,11 @@ del -rf %clientDeployDir%/%MODULE_NAME%-${machine}-native.zip
 @rem 客户端打包
 call mvn clean install -U -pl %MODULE_NAME% -am -Dmaven.test.skip=true
 cd %MODULE_NAME%
-mvn clean native:compile -P native -DskipTests
+call mvn clean native:compile -P native -DskipTests
 cd ..
+
+@rem 拷贝到deploy目录下
+copy %MODULE_NAME%/target/%MODULE_NAME%.jar $clientDeployDir/%MODULE_NAME%.jar
+copy %MODULE_NAME%/target/%MODULE_NAME%.exe $clientDeployDir/%MODULE_NAME%.exe
+
+@rem 打zip包，用于发版
