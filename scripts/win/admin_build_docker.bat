@@ -24,6 +24,17 @@ cd %~dp0 && cd ../../%MODULE_NAME%
 if exist dist (
   rmdir /s /q dist
 )
-@rem 等待npm执行完毕
+@rem 编译
 call npm install
-npm run build:%ENV% && pause
+call npm run build:%ENV%
+
+echo 开始拷贝
+@rem 拷贝
+cd ..
+del /Q /F .\neutrino-proxy-server\src\main\resources\static
+rd /S /Q  .\neutrino-proxy-server\src\main\resources\static
+mkdir .\neutrino-proxy-server\src\main\resources\static
+xcopy /S /E  neutrino-proxy-admin\dist neutrino-proxy-server\src\main\resources\static
+
+@rem 回到脚本目录
+cd scripts\win
