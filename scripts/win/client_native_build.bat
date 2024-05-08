@@ -23,12 +23,14 @@ SET VER=2.0.1
 mkdir -p %clientDeployDir%
 
 @rem 删除原来的编译文件
-del /Q /F %clientDeployDir%\%MODULE_NAME%.jar
-del /Q /F %clientDeployDir%\%MODULE_NAME%.exe
-del /Q /F %clientDeployDir%\%MODULE_NAME%-jdk21-%VER%-jar
-del /Q /F %clientDeployDir%\%MODULE_NAME%-jdk21-%VER%-jar.zip
-del /Q /F %clientDeployDir%\%MODULE_NAME%-%machine%-%VER%-native
-del /Q /F %clientDeployDir%\%MODULE_NAME%-%machine%-%VER%-native.zip
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%.jar
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%.exe
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%-jdk21-%VER%-jar
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%-jdk21-%VER%-jar.zip
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%-%machine%-%VER%-native
+del /S /Q /F %clientDeployDir%\%MODULE_NAME%-%machine%-%VER%-native.zip
+rd /S /Q %clientDeployDir%\%MODULE_NAME%-jdk21-%VER%-jar
+rd /S /Q  %clientDeployDir%\%MODULE_NAME%-%machine%-%VER%-native
 
 @rem 客户端打包
 call mvn clean install -U -pl %MODULE_NAME% -am -Dmaven.test.skip=true
@@ -46,13 +48,16 @@ cd %clientDeployDir%
 mkdir %MODULE_NAME%-jdk21-%VER%-jar
 copy %MODULE_NAME%.jar %MODULE_NAME%-jdk21-%VER%-jar
 copy ..\..\%MODULE_NAME%\src\main\resources\app-copy.yml %MODULE_NAME%-jdk21-%VER%-jar\app.yml
-WinRAR a %MODULE_NAME%-jdk21-%VER%-jar.zip %MODULE_NAME%-jdk21-%VER%-jar
+Rar a %MODULE_NAME%-jdk21-%VER%-jar.zip %MODULE_NAME%-jdk21-%VER%-jar
 
 @rem native
 mkdir %MODULE_NAME%-%machine%-%VER%-native
 copy %MODULE_NAME%.exe %MODULE_NAME%-%machine%-%VER%-native
 copy ..\..\%MODULE_NAME%\src\main\resources\app-copy.yml %MODULE_NAME%-%machine%-%VER%-native\app.yml
-WinRAR a %MODULE_NAME%-%machine%-%VER%-native.zip %MODULE_NAME%-%machine%-%VER%-native
+Rar a %MODULE_NAME%-%machine%-%VER%-native.zip %MODULE_NAME%-%machine%-%VER%-native
+
+@rem 删除临时文件
+
 
 @rem 回到脚本目录
 cd ..\..\scripts\win
