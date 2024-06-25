@@ -1,11 +1,8 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
-import cn.hutool.core.util.StrUtil;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.proxy.ProxyHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
@@ -63,7 +60,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             }
             ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
             ctx.channel().attr(Constants.SERVER_PORT).set(dm.getId());
-//            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
+            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
         }
 
         // 继续传播

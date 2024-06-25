@@ -1,24 +1,19 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.proxy.ProxyHandler;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.ProxyMessage;
-import org.dromara.neutrinoproxy.core.util.HttpUtil;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
-import org.dromara.neutrinoproxy.server.proxy.domain.DomainMapping;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
-import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 import org.dromara.neutrinoproxy.server.proxy.domain.VisitorChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.service.FlowReportService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
-import org.h2.store.DataHandler;
 import org.noear.solon.Solon;
 
 import java.net.InetSocketAddress;
@@ -30,11 +25,6 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private SocketChannel sch;
-
-    public HttpVisitorChannelHandler(SocketChannel sch) {
-        this.sch = sch;
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {

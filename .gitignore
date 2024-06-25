@@ -60,3 +60,4 @@ logs
 data
 **/cert/**
 neutrino-proxy-server/src/main/resources/static/**
+/neutrino-proxy-server/src/main/resources/static/

@@ -63,11 +63,13 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="330" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.id != 1" type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          <!-- v-if="scope.row.id != 1"  -->
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="primary" @click="handleReset(scope.row)">{{$t('table.resetKey')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
-          <el-button v-if="scope.row.id != 1" size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
+          <!-- v-if="scope.row.id != 1"  -->
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>

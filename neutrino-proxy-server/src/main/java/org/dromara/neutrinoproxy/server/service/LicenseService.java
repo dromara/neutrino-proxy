@@ -205,18 +205,18 @@ public class LicenseService implements LifecycleBean {
      */
     @Tran
     public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
-        // 服务端免通道 直接转发，所以无需建立客户端通道。启用即在线，禁用即离线
-        if (req.getId() == 1) {
-            licenseMapper.update(null, new LambdaUpdateWrapper<LicenseDO>()
-                .eq(LicenseDO::getId, req.getId())
-                .set(LicenseDO::getEnable, req.getEnable())
-                .set(LicenseDO::getIsOnline, req.getEnable())
-                .set(LicenseDO::getUpdateTime, new Date()));
-        } else {
+        // 服务端免通道 直接转发，所以无需建立客户端通道。启用即在线，禁用即离线 20240311 设计取消
+//        if (req.getId() == 1) {
+//            licenseMapper.update(null, new LambdaUpdateWrapper<LicenseDO>()
+//                .eq(LicenseDO::getId, req.getId())
+//                .set(LicenseDO::getEnable, req.getEnable())
+//                .set(LicenseDO::getIsOnline, req.getEnable())
+//                .set(LicenseDO::getUpdateTime, new Date()));
+//        } else {
             licenseMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
             // 更新VisitorChannel
             visitorChannelService.updateVisitorChannelByLicenseId(req.getId(), req.getEnable());
-        }
+//        }
         return new LicenseUpdateEnableStatusRes();
     }
 

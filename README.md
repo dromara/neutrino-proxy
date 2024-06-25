@@ -3,7 +3,7 @@
 # what is new? 在原版的基础上新增了【域名解析】功能，域名解析【无需】绑定【本地端口】
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
-<img src="assets/run-example/domain.png" width="45%">
+<img src="assets/run-example/domain.png" >
 </a>
 
 <p align="center">
