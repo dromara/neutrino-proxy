@@ -97,6 +97,22 @@ CREATE TABLE IF NOT EXISTS `license` (
     KEY `I_license_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+#域名表
+CREATE TABLE IF NOT EXISTS `domain_name` (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `domain` varchar(50) NOT NULL COMMENT '域名',
+    `user_id` int NOT NULL COMMENT '用户ID',
+    `jks` BLOB DEFAULT NULL COMMENT 'SSL证书文件',
+    `key_store_password` varchar(255) DEFAULT NULL COMMENT 'KeyStore密码',
+    `is_default` int NOT NULL COMMENT '是否是默认域名(1、是 2、否)',
+    `force_https` int NOT NULL COMMENT '强制使用https(1、是 2、否)',
+    `enable` int NOT NULL COMMENT '是否启用(1、启用 2、禁用)',
+    `create_time` datetime(3) NOT NULL COMMENT '创建时间',
+    `update_time` datetime(3) NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`) USING BTREE,
+    KEY `I_domain_name_domain` (`domain`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 #端口映射表
 CREATE TABLE IF NOT EXISTS `port_mapping` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
