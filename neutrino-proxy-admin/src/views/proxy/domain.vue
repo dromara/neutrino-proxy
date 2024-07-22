@@ -190,7 +190,7 @@
           ],
           filePassword: [
             { required: false, message: 'jks密码不能为空', trigger: 'blur' }
-          ]
+          ]// TODO jks密码不为空仍无法通过验证
         },
         downloadLoading: false,
         selectObj: {
