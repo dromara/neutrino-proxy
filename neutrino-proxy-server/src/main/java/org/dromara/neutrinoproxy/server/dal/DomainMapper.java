@@ -25,4 +25,12 @@ public interface DomainMapper extends BaseMapper<DomainNameDO> {
             .last("limit 1")
         );
     }
+
+    default void updateEnableStatus(Integer id, Integer enable, Date updateTime) {
+        this.update(Wrappers.<DomainNameDO>lambdaUpdate()
+            .eq(DomainNameDO::getId, id)
+            .set(DomainNameDO::getEnable, enable)
+            .set(DomainNameDO::getUpdateTime, updateTime)
+        );
+    }
 }

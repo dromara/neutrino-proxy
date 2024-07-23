@@ -17,10 +17,10 @@ import org.dromara.neutrinoproxy.server.constant.DefaultDomainStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
 import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
-import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainCreateReq;
-import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainListReq;
-import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainUpdateReq;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainListRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateDefaultStatusRes;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateEnableStatusRes;
 import org.dromara.neutrinoproxy.server.dal.DomainMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
@@ -116,6 +116,7 @@ public class DomainService {
         return buffer.toByteArray();
     }
 
+    //TODO 更新相关channel
     public void update(DomainUpdateReq req, UploadedFile jks) throws IOException {
         DomainNameDO domainNameCheck = domainMapper.checkRepeat(req.getDomain(), Sets.newHashSet(req.getId()));
         ParamCheckUtil.checkMustNull(domainNameCheck, ExceptionConstant.DOMAIN_NAME_CANNOT_REPEAT);
@@ -133,5 +134,40 @@ public class DomainService {
         updateWrapper.set(DomainNameDO::getUpdateTime, new Date());
         int update = domainMapper.update(updateWrapper);
         System.out.println(update);
+    }
+
+    // TODO 更新对应的channel
+    public DomainUpdateEnableStatusRes updateEnableStatus(DomainUpdateEnableStatusReq req) {
+        if (Objects.equals(req.getEnable(), EnableStatusEnum.DISABLE.getStatus())) {
+            //如果设置状态为禁用，则将默认域名设置为非默认域名
+            updateDefaultStatus(req.getId(), DefaultDomainStatusEnum.DISABLE.getStatus());
+        }
+        domainMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        return new DomainUpdateEnableStatusRes();
+    }
+
+    //TODO 处理VisitorChannel
+    public void delete(Integer id) {
+        domainMapper.deleteById(id);
+    }
+
+    public DomainUpdateDefaultStatusRes updateDefaultStatus(Integer id, Integer isDefault) {
+        if (Objects.equals(isDefault, DefaultDomainStatusEnum.ENABLE.getStatus())) {
+            //如果设置状态为默认域名，则将之前的默认域名设置为非默认域名
+            DomainNameDO oldDomainNameDO = domainMapper.selectOne(Wrappers.<DomainNameDO>lambdaQuery()
+                .select(DomainNameDO::getId)
+                .eq(DomainNameDO::getIsDefault, DefaultDomainStatusEnum.ENABLE.getStatus()));
+            if (oldDomainNameDO != null) {
+                oldDomainNameDO.setIsDefault(DefaultDomainStatusEnum.DISABLE.getStatus());
+                domainMapper.updateById(oldDomainNameDO);
+            }
+        }
+
+        DomainNameDO domainNameDO = new DomainNameDO();
+        domainNameDO.setId(id);
+        domainNameDO.setIsDefault(isDefault);
+        domainMapper.updateById(domainNameDO);
+
+        return new DomainUpdateDefaultStatusRes();
     }
 }

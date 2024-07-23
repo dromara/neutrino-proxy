@@ -55,6 +55,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="330" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button v-if="scope.row.isDefault !='1' && scope.row.enable == '1'" size="mini" type="primary" @click="handleDefaultStatus(scope.row)">{{$t('默认')}}</el-button>
+
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
@@ -115,7 +117,7 @@
 </template>
 
 <script>
-  import { fetchList, updateEnableStatus, createDomain, updateDomain, deleteDomain } from '@/api/domain'
+  import { fetchList, updateEnableStatus, createDomain, updateDomain, deleteDomain, updateDefaultStatus } from '@/api/domain'
   import { userList } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -282,6 +284,19 @@
       handleCurrentChange(val) {
         this.listQuery.current = val
         this.getList()
+      },
+      handleDefaultStatus(row) {
+        updateDefaultStatus(row.id, 1).then(response => {
+          if (response.data.code === 0) {
+            this.$notify({
+              title: '成功',
+              message: '操作成功',
+              type: 'success'
+            })
+            this.getList()
+          }
+          this.getList()
+        })
       },
       handleModifyStatus(row, enable) {
         console.log('route', this.$route)
