@@ -23,7 +23,7 @@ export function updateEnableStatus(id, enable) {
       id: id,
       enable: enable
     }
-  }).use
+  })
 }
 
 export function createDomain(data) {
@@ -39,5 +39,26 @@ export function updateDomain(data) {
     url: '/domain/update',
     method: 'post',
     data
+  })
+}
+
+export function deleteDomain(id) {
+  return request({
+    url: '/domain/delete',
+    method: 'post',
+    params: {
+      id: id
+    }
+  })
+}
+
+export function updateDefaultStatus(id, isDefault) {
+  return request({
+    url: '/domain/update/default-status',
+    method: 'post',
+    data: {
+      id: id,
+      isDefault: isDefault
+    }
   })
 }
