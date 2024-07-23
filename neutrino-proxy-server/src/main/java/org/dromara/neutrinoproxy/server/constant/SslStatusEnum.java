@@ -15,15 +15,11 @@ import java.util.stream.Stream;
  */
 @Getter
 @AllArgsConstructor
-public enum HttpsStatusEnum {
-    ONLY_HTTPS(1, "仅HTTPS"),
-    DISABLE_ONLY_HTTPS(2, "关闭仅HTTPS");
-    private static Map<Integer, HttpsStatusEnum> CACHE = Stream.of(HttpsStatusEnum.values()).collect(Collectors.toMap(HttpsStatusEnum::getStatus, Function.identity()));
+public enum SslStatusEnum {
+    UPLOADED(1, "已上传"),
+    NOT_UPLOADED(2, "未上传"),
+    CERTIFIED(3, "已认证");//预留，用于证书验证
 
     private Integer status;
     private String desc;
-
-    public static HttpsStatusEnum of(Integer status) {
-        return CACHE.get(status);
-    }
 }

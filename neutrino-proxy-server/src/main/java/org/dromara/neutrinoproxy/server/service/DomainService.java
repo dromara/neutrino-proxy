@@ -94,7 +94,7 @@ public class DomainService {
         Date now = new Date();
         domainNameDO.setDomain(req.getDomain());
         domainNameDO.setIsDefault(DefaultDomainStatusEnum.DISABLE.getStatus());
-        domainNameDO.setForceHttps(HttpsStatusEnum.DISABLE_ONLY_HTTPS.getStatus());
+        domainNameDO.setForceHttps(req.getForceHttps() != null ? HttpsStatusEnum.of(req.getForceHttps()).getStatus(): HttpsStatusEnum.DISABLE_ONLY_HTTPS.getStatus());
         domainNameDO.setUserId(userId);
         domainNameDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
         domainNameDO.setCreateTime(now);
@@ -132,6 +132,7 @@ public class DomainService {
         }
         updateWrapper.set(DomainNameDO::getDomain, req.getDomain());
         updateWrapper.set(DomainNameDO::getUpdateTime, new Date());
+        updateWrapper.set(req.getForceHttps() != null, DomainNameDO::getForceHttps, req.getForceHttps());
         int update = domainMapper.update(updateWrapper);
         System.out.println(update);
     }

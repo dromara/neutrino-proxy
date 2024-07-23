@@ -38,6 +38,11 @@
           <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('SSL证书状态')" width="110">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.sslStatus | statusFilter">{{scope.row.sslStatus | sslStatusName}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column class-name="status-col" :label="$t('默认域名')" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.isDefault | statusFilter">{{scope.row.isDefault | httpStatusName}}</el-tag>
@@ -76,6 +81,12 @@
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('主域名')" prop="domain">
           <el-input v-model="temp.domain"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('强制HTTPS')" prop="userId">
+          <el-select style="width: 280px" class="filter-item" v-model="temp.forceHttps" placeholder="请选择">
+            <el-option label="开启" :value="1"></el-option>
+            <el-option label="关闭" :value="2"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item :label="$t('JKS文件上传')" prop="file">
           <el-upload
@@ -170,8 +181,7 @@
           timestamp: new Date(),
           title: '',
           type: '',
-          status: 'published',
-          fileList: []
+          status: 'published'
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -206,6 +216,14 @@
         const statusMap = {
           1: '启用',
           2: '禁用'
+        }
+        return statusMap[status]
+      },
+      sslStatusName(status) {
+        const statusMap = {
+          1: '已上传',
+          2: '未上传',
+          3: '已验证'
         }
         return statusMap[status]
       },
@@ -316,7 +334,8 @@
         this.temp = {
           domain: undefined,
           jks: undefined,
-          keyStorePassword: undefined
+          keyStorePassword: undefined,
+          forceHttps: undefined
         }
       },
       handleCreate() {

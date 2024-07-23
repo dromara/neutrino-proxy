@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.dromara.neutrinoproxy.server.constant.DefaultDomainStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.SslStatusEnum;
 
 import java.util.Date;
 
@@ -52,6 +53,12 @@ public class DomainListRes {
      * {@link EnableStatusEnum}
      */
     private Integer enable;
+
+    /**
+     * SSLStatusEnum
+     * {@link SslStatusEnum}
+     */
+    private Integer sslStatus;
 
     /**
      * 创建时间

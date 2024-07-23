@@ -26,4 +26,9 @@ public class DomainCreateReq {
      * KeyStore密码
      */
     private String keyStorePassword;
+
+    /**
+     * 强制Https
+     */
+    private Integer forceHttps;
 }

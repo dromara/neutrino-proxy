@@ -28,10 +28,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.dromara.neutrinoproxy.server.constant.DefaultDomainStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.*;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainListRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
 
@@ -101,6 +98,7 @@ public class DomainNameDO {
     public DomainListRes toRes() {
         DomainListRes res = new DomainListRes();
         BeanUtil.copyProperties(this, res);
+        res.setSslStatus(this.getJks() == null ? SslStatusEnum.NOT_UPLOADED.getStatus() : SslStatusEnum.UPLOADED.getStatus());
         return res;
     }
 }
