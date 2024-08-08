@@ -76,6 +76,26 @@ public class DomainService {
         return PageInfo.of(resList, page);
     }
 
+    public List<DomainListRes> all(DomainListReq req) {
+        LambdaQueryWrapper<DomainNameDO> wrapper = Wrappers.<DomainNameDO>lambdaQuery()
+            .eq(req.getEnable() != null, DomainNameDO::getEnable, req.getEnable());
+        List<DomainNameDO> domainNameDOS = domainMapper.selectList(wrapper);
+        if (domainNameDOS == null) {
+            return null;
+        }
+        List<DomainListRes> resList = domainNameDOS.stream().map(DomainNameDO::toRes).toList();
+        Set<Integer> userIds = resList.stream().map(DomainListRes::getUserId).collect(Collectors.toSet());
+        List<UserDO> userDOList = userMapper.findByIds(userIds);
+        Map<Integer, UserDO> userMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, c -> c));
+        for (DomainListRes item : resList) {
+            UserDO userDO = userMap.get(item.getUserId());
+            if (null != userDO) {
+                item.setUserName(userDO.getName());
+            }
+        }
+        return resList;
+    }
+
     /**
      * 创建域名
      * @param req
@@ -171,4 +191,5 @@ public class DomainService {
 
         return new DomainUpdateDefaultStatusRes();
     }
+
 }

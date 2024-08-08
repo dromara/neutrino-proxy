@@ -17,6 +17,7 @@ import org.noear.solon.lang.Nullable;
 
 import javax.sound.midi.Soundbank;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Mirac
@@ -28,9 +29,16 @@ public class DomainController {
     @Inject
     private DomainService domainService;
 
+    @Get
     @Mapping("/page")
     public PageInfo<DomainListRes> page(PageQuery pageQuery, DomainListReq req) {
         return domainService.page(pageQuery, req);
+    }
+    @Get
+    @Mapping("/all")
+    public List<DomainListRes> all(DomainListReq req) {
+        ParamCheckUtil.checkNotNull(req, "req");
+        return domainService.all(req);
     }
 
     @Post
