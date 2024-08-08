@@ -51,7 +51,9 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
-          <span>{{ scope.row.domain }}</span>
+          <div v-for="(domain, index) in scope.row.allFullDomainList" :key="index">
+            <span>{{ domain }}</span>
+          </div>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
@@ -171,8 +173,8 @@
           <div v-for="(domain, index) in temp.domainMappings" :key="index" class="domain-mapping">
             <el-input v-model="domain.subdomain">
               <template slot="append">
-                <el-select v-model="domain.domain" placeholder="请选择主域名" style="width: 130px;">
-                  <el-option v-for="tmp in domainList" :key="tmp.id" :label="'.'+tmp.domain" :value="tmp.domain"></el-option>
+                <el-select v-model="domain.domainId" placeholder="请选择主域名" style="width: 130px;">
+                  <el-option v-for="tmp in domainList" :key="tmp.id" :label="'.'+tmp.domain" :value="tmp.id"></el-option>
                 </el-select>
                 <el-button type="danger" @click="removeDomainMapping(index)" style="margin-left: 10px;">删除</el-button>
               </template>
@@ -337,7 +339,7 @@ export default {
             validator: (rule, value, callback) => {
               if (value && value.length > 0) {
                 for (let i = 0; i < value.length; i++) {
-                  if (!value[i].subdomain || !value[i].domain) {
+                  if (!value[i].subdomain || !value[i].domainId) {
                     return callback(new Error(`子域名和主域名都不能为空`));
                   }
                 }
@@ -406,9 +408,16 @@ export default {
   methods: {
     // 添加新的域名映射
     addDomainMapping() {
+      let defaultDomainId = this.domainList[0].id
+      this.domainList.forEach(item => {
+        if (item.isDefault === 1) {
+          defaultDomainId = item.id
+        }
+      })
       this.temp.domainMappings.push({
-        subdomain: '',
-        domain: ''
+        subdomain: undefined,
+        domain: undefined,
+        domainId: defaultDomainId
       });
       // console.log(this.temp)
     },
@@ -419,7 +428,31 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        this.list = response.data.data.records
+        this.list = response.data.data.records.map(item => {
+          // 初始化 domainMappings 字段
+          item.domainMappings = [];
+          // 检查是否存在 subdomain 和 domain 字段
+          if (item.subdomains && item.domainIds && item.domains) {
+            // 如果是数组，则按索引组合 subdomain 和 domain 成对象
+            if (Array.isArray(item.subdomains) && Array.isArray(item.domainIds) && Array.isArray(item.domains)) {
+              let allFullDomainList = []
+              for (let i = 0; i < item.subdomains.length; i++) {
+                item.domainMappings.push({
+                  subdomain: item.subdomains[i] || '', // 使用 || '' 保证字段非空
+                  domainId: item.domainIds[i] || '',
+                  domain: item.domains[i] || ''
+                });
+                // 拼接完整的域名
+                const fullDomain = `${item.subdomains[i]}.${item.domains[i]}`;
+                // 将拼接后的域名添加到 allFullDomains 中，以逗号分隔
+                allFullDomainList.push(fullDomain);
+              }
+              item.allFullDomainList = allFullDomainList
+            }
+          }
+          return item;
+        });
+        console.log(this.list)
         this.total = response.data.data.total
         this.listLoading = false
       })
@@ -523,7 +556,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          console.log(this.temp)
+          // console.log(this.temp)
           createUserPortMapping(this.temp).then(response => {
             if (response.data.code === 0) {
               this.dialogFormVisible = false
@@ -541,8 +574,8 @@ export default {
     },
     handleOpenWebPage(row) {
       let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
-      if (row.domain) {
-        url = location.protocol + '//' + row.domain
+      if (row.allFullDomainList && row.allFullDomainList.length > 0) {
+        url = location.protocol + '//' + row.allFullDomainList[0]
       }
       open(url)
     },
