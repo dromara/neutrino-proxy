@@ -97,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `license_id` INTEGER(20) NOT NULL,
   `protocal` VARCHAR(10) NOT NULL DEFAULT 'TCP',
-  `subdomain` VARCHAR(50) DEFAULT NULL,
   `server_port` INTEGER NOT NULL,
   `client_ip` VARCHAR(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
@@ -128,6 +127,17 @@ CREATE TABLE IF NOT EXISTS `domain_name` (
     `update_time` TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS I_domain_name_domain ON domain_name (`domain` ASC);
+
+#域映射中间表
+CREATE TABLE IF NOT EXISTS `domain_port_mapping` (
+    `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `subdomain` VARCHAR(50) NOT NULL,
+    `domain_name_id` INTEGER NOT NULL,
+    `port_mapping_id` INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS I_unique_domain_port_mapping ON domain_port_mapping (`domain_name_id` ASC, `port_mapping_id` ASC, `subdomain` ASC);
+CREATE INDEX IF NOT EXISTS I_domain_port_mapping_domain_name_id ON domain_port_mapping (`domain_name_id` ASC);
+CREATE INDEX IF NOT EXISTS I_domain_port_mapping_port_mapping_id ON domain_port_mapping (`port_mapping_id` ASC);
 
 #############################日志管理相关表#############################
 #用户登录记录表
