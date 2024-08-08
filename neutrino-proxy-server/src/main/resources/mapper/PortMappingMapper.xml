@@ -29,4 +29,16 @@
         </where>
         order by pm.id asc
     </select>
+
+    <select id="selectFullDomainNameListByIds" resultType="org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO"
+            parameterType="java.util.Set">
+        SELECT pm.id AS id, dpm.subdomain as subdomain, dn.domain AS domain, dn.id as domainId
+        FROM domain_port_mapping dpm
+        LEFT JOIN port_mapping pm ON pm.id = dpm.port_mapping_id
+        LEFT JOIN domain_name dn ON dn.id = dpm.domain_name_id
+        WHERE pm.id IN
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

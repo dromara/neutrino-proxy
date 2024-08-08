@@ -21,11 +21,13 @@
  */
 package org.dromara.neutrinoproxy.server.controller.res.proxy;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 端口映射列表响应
@@ -44,13 +46,17 @@ public class PortMappingListRes {
 	 */
 	private String protocal;
 	/**
-	 * 子域名
+	 * 子域名集合
 	 */
-	private String subdomain;
+	private List<String> subdomains;
+    /**
+     * 域名集合
+     */
+    private List<String> domains;
 	/**
-	 * 域名
+	 * 域名id集合
 	 */
-	private String domain;
+	private List<Integer> domainIds;
 	/**
 	 * license名称
 	 */

@@ -30,7 +30,6 @@ public class PortMappingController {
 	@Mapping("/page")
 	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
-
 		return portMappingService.page(pageQuery, req);
 	}
 

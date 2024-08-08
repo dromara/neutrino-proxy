@@ -11,6 +11,7 @@ import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 
 import java.util.Date;
 import java.util.List;
@@ -108,4 +109,6 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 	}
 
 	List<PortMappingDO> selectPortMappingByCondition(IPage<PortMappingDO> page, @Param("req") PortMappingListReq req);
+
+    List<FullDomainNameBO> selectFullDomainNameListByIds(@Param("ids") Set<Integer> ids);
 }

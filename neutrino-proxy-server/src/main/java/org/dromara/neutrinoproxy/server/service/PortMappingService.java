@@ -40,6 +40,7 @@ import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortPoolDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.service.bo.FlowLimitBO;
+import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.dromara.neutrinoproxy.server.util.StringUtil;
@@ -118,7 +119,15 @@ public class PortMappingService implements LifecycleBean {
         Map<Integer, LicenseDO> licenseMap = licenseList.stream().collect(Collectors.toMap(LicenseDO::getId, Function.identity()));
         Map<Integer, UserDO> userMap = userList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
 
+        //域名相关
+        Set<Integer> portMappingIds = respList.stream().map(PortMappingListRes::getId).collect(Collectors.toSet());
+        List<FullDomainNameBO> fullDomainNameBOS = portMappingMapper.selectFullDomainNameListByIds(portMappingIds);
+        Map<Integer, List<FullDomainNameBO>> fullDomainNameBOMap = fullDomainNameBOS.stream().collect(Collectors.groupingBy(FullDomainNameBO::getId));
+
         respList.forEach(item -> {
+            //TODO 删除subdomain字段
+            item.setSubdomains(null);
+
             LicenseDO license = licenseMap.get(item.getLicenseId());
             if (null == license) {
                 return;
@@ -130,8 +139,14 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             item.setUserName(user.getName());
-            if (StrUtil.isNotBlank(proxyConfig.getServer().getTcp().getDomainName()) && StrUtil.isNotBlank(item.getSubdomain())) {
-                item.setDomain(item.getSubdomain() + "." + proxyConfig.getServer().getTcp().getDomainName());
+            List<FullDomainNameBO> bos = fullDomainNameBOMap.get(item.getId());
+            if (CollectionUtil.isNotEmpty(bos)) {
+                List<String> subdomains = bos.stream().map(FullDomainNameBO::getSubdomain).collect(Collectors.toList());
+                List<String> domains = bos.stream().map(FullDomainNameBO::getDomain).collect(Collectors.toList());
+                List<Integer> domainIds = bos.stream().map(FullDomainNameBO::getDomainId).collect(Collectors.toList());
+                item.setSubdomains(subdomains);
+                item.setDomains(domains);
+                item.setDomainIds(domainIds);
             }
             if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
                 item.setProtocal("HTTP(S)");
