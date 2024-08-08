@@ -15,6 +15,14 @@ export function fetchList(query) {
   })
 }
 
+export function fetchAvailableDomainList(query) {
+  return request({
+    url: '/domain/all',
+    method: 'get',
+    params: query
+  })
+}
+
 export function updateEnableStatus(id, enable) {
   return request({
     url: '/domain/update/enable-status',
@@ -62,3 +70,5 @@ export function updateDefaultStatus(id, isDefault) {
     }
   })
 }
+
+

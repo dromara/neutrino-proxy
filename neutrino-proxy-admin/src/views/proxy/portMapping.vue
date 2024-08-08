@@ -167,10 +167,18 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
-          <el-input v-model="temp.subdomain">
-            <template slot="append">.{{ domainName }}</template>
-          </el-input>
+        <el-form-item :label="$t('域名')" prop="domainMappings" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainList.length > 0" >
+          <div v-for="(domain, index) in temp.domainMappings" :key="index" class="domain-mapping">
+            <el-input v-model="domain.subdomain">
+              <template slot="append">
+                <el-select v-model="domain.domain" placeholder="请选择主域名" style="width: 130px;">
+                  <el-option v-for="tmp in domainList" :key="tmp.id" :label="'.'+tmp.domain" :value="tmp.domain"></el-option>
+                </el-select>
+                <el-button type="danger" @click="removeDomainMapping(index)" style="margin-left: 10px;">删除</el-button>
+              </template>
+            </el-input>
+          </div>
+          <el-button type="primary" @click="addDomainMapping" style="margin-top: 10px;">添加域名</el-button>
         </el-form-item>
         <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
           <el-input v-model="temp.proxyResponses"></el-input>
@@ -225,13 +233,13 @@ import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
-import { domainNameBindInfo } from '@/api/domain'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
 import DropdownTable from '../../components/Dropdown/DropdownTable'
 // 下拉选择加载组件
 import loadSelect from "@/components/Select/SelectLoadMore";
+import {fetchAvailableDomainList} from "../../api/domain";
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -297,7 +305,7 @@ export default {
       protocalList: [],
       licenseAuthList: [],
       serverPortList: [],
-      domainName: '',
+      domainList: [{ 'name': 'link.com', 'id': '1' }],
       showReviewer: false,
       temp: {
         id: undefined,
@@ -308,7 +316,8 @@ export default {
         clientPort: undefined,
         protocal: undefined,
         proxyResponses: undefined,
-        proxyTimeoutMs: undefined
+        proxyTimeoutMs: undefined,
+        domainMappings: []
       },
       selectObj: {
         statusOptions: [{ label: '启用', value: 1 }, { label: '禁用', value: 2 }],
@@ -323,6 +332,21 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
+        domainMappings: [
+          {
+            validator: (rule, value, callback) => {
+              if (value && value.length > 0) {
+                for (let i = 0; i < value.length; i++) {
+                  if (!value[i].subdomain || !value[i].domain) {
+                    return callback(new Error(`子域名和主域名都不能为空`));
+                  }
+                }
+              }
+              callback(); // 验证通过
+            },
+            trigger: ''
+          }
+        ],
         licenseId: [{ required: true, message: '请选择License', trigger: 'blur,change' }],
         serverPort: [{ required: true, message: '请输入服务端端口', trigger: 'blur' },
           // { validator: isPortAvailable, trigger: 'change' }
@@ -372,14 +396,26 @@ export default {
     }
   },
   created() {
-    this.getDomainNameBindInfo()
     this.getDataList()
     this.getLicenseList()
     this.getLicenseAuthList()
     this.getProtocalList()
     this.fetchSecurityGroupList()
+    this.getAvailableDomainList()
   },
   methods: {
+    // 添加新的域名映射
+    addDomainMapping() {
+      this.temp.domainMappings.push({
+        subdomain: '',
+        domain: ''
+      });
+      // console.log(this.temp)
+    },
+    // 删除指定的域名映射
+    removeDomainMapping(index) {
+      this.temp.domainMappings.splice(index, 1);
+    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
@@ -406,14 +442,14 @@ export default {
         }
       })
     },
-    getDomainNameBindInfo() {
-      domainNameBindInfo().then(response => {
-        this.domainName = response.data.data
-      })
-    },
     getAvailablePortList(licenseId) {
       this.loadServerPortQuery.licenseId = licenseId;
       this.serverPortList = []; //清掉数据
+    },
+    getAvailableDomainList() {
+      fetchAvailableDomainList({enable:1}).then(response => {
+        this.domainList = response.data.data
+      })
     },
     getAllUserList() {
       userList().then(response => {
@@ -469,9 +505,10 @@ export default {
         clientPort: undefined,
         userId: undefined,
         proxyResponses: undefined,
-        proxyTimeoutMs: undefined
-      }
-      this.serverPortList = []
+        proxyTimeoutMs: undefined,
+        domainMappings: []
+      };
+      this.serverPortList = [];
       this.loadServerPortQuery.licenseId = null;
       this.more = true;
     },
@@ -486,6 +523,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          console.log(this.temp)
           createUserPortMapping(this.temp).then(response => {
             if (response.data.code === 0) {
               this.dialogFormVisible = false
@@ -509,6 +547,7 @@ export default {
       open(url)
     },
     handleUpdate(row) {
+      console.log(row)
       this.temp = Object.assign({}, row) // copy obj
       if (row.securityGroupId === 0) {
         this.temp.securityGroupId = null
