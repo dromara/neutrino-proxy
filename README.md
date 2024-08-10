@@ -40,6 +40,7 @@
 
 # 5、联系我们
 - 微信: yuyunshize
+- GitCode：https://gitcode.com/dromara/neutrino-proxy
 - Gitee: https://gitee.com/asgc/neutrino-proxy
 
 # 6、贡献者列表
