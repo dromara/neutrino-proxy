@@ -63,7 +63,7 @@ public class ProxyTunnelChannelHandler extends SimpleChannelInboundHandler<Proxy
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
         if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
-            log.debug("Server CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+            log.debug("Server CmdChannel received proxy message, type is {}", proxyMessage.getType());
         }
         dispatcher.dispatch(ctx, proxyMessage);
     }

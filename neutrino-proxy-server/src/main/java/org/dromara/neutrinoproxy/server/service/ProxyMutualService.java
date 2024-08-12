@@ -45,11 +45,11 @@ public class ProxyMutualService {
 	private LicenseMapper licenseMapper;
 
 	/**
-	 * 绑定服务端端口处理
+	 * 客户端上线
 	 * @param attachInfo
 	 * @param serverPort
 	 */
-	public void bindServerPort(CmdChannelAttachInfo attachInfo, Integer serverPort) {
+	public void online(CmdChannelAttachInfo attachInfo, Integer serverPort) {
 		Date now = new Date();
 		portMappingMapper.updateOnlineStatus(attachInfo.getLicenseId(), serverPort, OnlineStatusEnum.ONLINE.getStatus(), now);
 		licenseMapper.updateOnlineStatus(attachInfo.getLicenseId(), OnlineStatusEnum.ONLINE.getStatus(), now);

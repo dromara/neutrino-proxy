@@ -233,7 +233,7 @@ public class VisitorChannelService {
                 continue;
             }
             try {
-                proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
+                proxyMutualService.online(cmdChannelAttachInfo, portMapping.getServerPort());
 
                 NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(portMapping.getProtocal());
                 if (networkProtocolEnum == NetworkProtocolEnum.UDP) {
