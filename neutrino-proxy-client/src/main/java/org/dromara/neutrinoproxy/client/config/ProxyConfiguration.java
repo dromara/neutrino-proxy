@@ -145,7 +145,7 @@ public class ProxyConfiguration implements LifecycleBean {
                     ch.pipeline().addLast(ProxyUtil.createSslHandler(proxyConfig));
                 }
                 if (null != proxyConfig.getTunnel().getTransferLogEnable() && proxyConfig.getTunnel().getTransferLogEnable()) {
-                    ch.pipeline().addFirst(new LoggingHandler(TcpProxyChannelHandler.class));
+                    ch.pipeline().addFirst(new LoggingHandler(UdpProxyChannelHandler.class));
                 }
                 ch.pipeline().addLast(new ProxyMessageDecoder(proxyConfig.getProtocol().getMaxFrameLength(),
                         proxyConfig.getProtocol().getLengthFieldOffset(), proxyConfig.getProtocol().getLengthFieldLength(),
