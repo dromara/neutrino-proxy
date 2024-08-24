@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `domain_port_mapping` (
     `domain_name_id` INTEGER NOT NULL,
     `port_mapping_id` INTEGER NOT NULL
     );
-CREATE UNIQUE INDEX IF NOT EXISTS I_unique_domain_port_mapping ON domain_port_mapping (`domain_name_id` ASC, `port_mapping_id` ASC, `subdomain` ASC);
+CREATE UNIQUE INDEX IF NOT EXISTS I_unique_domain_port_mapping ON domain_port_mapping (`domain_name_id` ASC, `subdomain` ASC);
 CREATE INDEX IF NOT EXISTS I_domain_port_mapping_domain_name_id ON domain_port_mapping (`domain_name_id` ASC);
 CREATE INDEX IF NOT EXISTS I_domain_port_mapping_port_mapping_id ON domain_port_mapping (`port_mapping_id` ASC);
 
