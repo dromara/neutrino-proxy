@@ -30,7 +30,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) || null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
+        if (null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
             log.info("no config domain name,nonsupport http proxy.");
             return;
         }
@@ -48,7 +48,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(false));
                             ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }

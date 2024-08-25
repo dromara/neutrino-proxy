@@ -59,7 +59,6 @@ public enum ExceptionConstant {
 	PORT_MAPPING_NOT_EXIST(14000, "端口映射记录不存在"),
 	PORT_CANNOT_REPEAT_MAPPING(14001, "服务端口[{}]不能重复映射"),
 	AN_UNSUPPORTED_PROTOCOL(14002, "不支持的协议[{}]！"),
-	PORT_MAPPING_SUBDONAME_CONNOT_REPEAT(14003, "子域名不能重复使用！"),
 	// 调度管理(15000)
 	JOB_INFO_NOT_EXIST(15000, "调度管理记录不存在"),
 	SYSTEM_ERROR(500, "系统异常"),
@@ -73,6 +72,10 @@ public enum ExceptionConstant {
 	SECURITY_RULE_NOT_EXIST(17001, "安全规则不存在"),
     // 域名映射管理(18000)
     DOMAIN_NAME_CANNOT_REPEAT(18000, "域名不能重复"),
+    DOMAIN_NAME_NOT_EXIST(18001, "域名不存在"),
+    DOMAIN_NAME_IS_DISABLE(18002, "当前域名[{}]被禁用"),
+    SUDOMAIN_NAME_CANNOT_REPEAT(18003, "子域名不能重复"),
+    DOMAIN_NAME_IS_USED(18002, "当前域名正在使用"),
 	;
 
 	private int code;

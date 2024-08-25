@@ -1,6 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
-import cn.hutool.core.util.StrUtil;
+import com.google.errorprone.annotations.Var;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.util.HttpUtil;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
+import org.dromara.neutrinoproxy.server.service.DomainService;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
@@ -22,22 +23,17 @@ import org.noear.solon.Solon;
 public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapter {
     private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
     private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
+    private final DomainService domainService = Solon.context().getBean(DomainService.class);
     /**
      * 域名
      */
-    private String domainName;
+    private Boolean isHttps;
 
-    public HttpVisitorSecurityChannelHandler(String domainName) {
-        this.domainName = domainName;
+    public HttpVisitorSecurityChannelHandler(Boolean isHttps) {
+        this.isHttps = isHttps;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 未配置域名则不支持通过域名访问
-        if (StrUtil.isBlank(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-
         ByteBuf buf = (ByteBuf) msg;
 
         Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
@@ -46,24 +42,28 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             String httpContent = new String(bytes);
-            String host = HttpUtil.getHostIgnorePort(httpContent);
+            String host = HttpUtil.getHostIgnorePort(httpContent); //test1.asgc.fun
 
             log.debug("HttpProxy host: {}", host);
             if (StringUtils.isBlank(host)) {
                 ctx.channel().close();
                 return;
             }
-
-            // 根据Host匹配端口映射
-            if (!host.endsWith(domainName)) {
+//            int index = host.lastIndexOf("." + domainName);
+//            String subdomain = host.substring(0, index);
+            // 判断域名是否被禁用
+            Integer domainNameId = ProxyUtil.getDomainNameIdByFullDomain(host);
+            if (domainNameId == null) {
                 ctx.channel().close();
                 return;
             }
-            int index = host.lastIndexOf("." + domainName);
-            String subdomain = host.substring(0, index);
-
+            // 域名映射强制https验证
+            if (!isHttps && domainService.isOnlyHttps(domainNameId)) {
+                ctx.channel().close();
+                return;
+            }
             // 根据域名拿到绑定的映射对应的cmdChannel
-            serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
+            serverPort = ProxyUtil.getServerPortByFullDomain(host);
             if (null == serverPort) {
                 ctx.channel().close();
                 return;

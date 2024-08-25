@@ -2,9 +2,7 @@ package org.dromara.neutrinoproxy.server.service.bo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
-
-import java.util.Date;
+import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
 
 /**
  * 完整域名
@@ -17,7 +15,7 @@ public class FullDomainNameBO {
     /**
      * 端口映射id
      */
-    private Integer id;
+    private Integer portMappingId;
     /**
      * 子域名
      */
@@ -30,5 +28,11 @@ public class FullDomainNameBO {
     /**
      * 域名id
      */
-    private Integer domainId;
+    private Integer domainNameId;
+
+    /**
+     * 强制使用HTTPS(1、是 2、否)
+     * {@link HttpsStatusEnum}
+     */
+    private Integer forceHttps;
 }

@@ -45,18 +45,6 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 		);
 	}
 
-	/**
-	 * 校验子域名是否重复
-	 * @param subdomain
-	 * @return
-	 */
-	default Boolean checkRepeatBySubdomain(String subdomain, Set<Integer> excludeIds) {
-		return StringUtils.isEmpty(subdomain)? Boolean.FALSE : this.selectCount(new LambdaQueryWrapper<PortMappingDO>()
-				.eq(PortMappingDO::getSubdomain, subdomain)
-				.notIn(!CollectionUtil.isEmpty(excludeIds), PortMappingDO::getId, excludeIds)
-		).intValue() > 0;
-	}
-
 	default List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {
 		return this.selectList(new LambdaQueryWrapper<PortMappingDO>()
 				.eq(PortMappingDO::getLicenseId, licenseId)
@@ -109,6 +97,4 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 	}
 
 	List<PortMappingDO> selectPortMappingByCondition(IPage<PortMappingDO> page, @Param("req") PortMappingListReq req);
-
-    List<FullDomainNameBO> selectFullDomainNameListByIds(@Param("ids") Set<Integer> ids);
 }

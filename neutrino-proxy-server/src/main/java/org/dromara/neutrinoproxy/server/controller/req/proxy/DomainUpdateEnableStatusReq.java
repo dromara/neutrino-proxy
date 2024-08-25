@@ -18,4 +18,9 @@ public class DomainUpdateEnableStatusReq {
      * 启用状态
      */
     private Integer enable;
+
+    /**
+     * 域名
+     */
+    private String domain;
 }

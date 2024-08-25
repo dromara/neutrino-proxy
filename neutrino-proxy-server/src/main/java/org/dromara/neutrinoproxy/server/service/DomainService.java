@@ -1,9 +1,12 @@
 package org.dromara.neutrinoproxy.server.service;
 
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.text.StrPool;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
@@ -13,21 +16,24 @@ import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
-import org.dromara.neutrinoproxy.server.constant.DefaultDomainStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.ExceptionConstant;
-import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.*;
 import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainListRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateDefaultStatusRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateEnableStatusRes;
 import org.dromara.neutrinoproxy.server.dal.DomainMapper;
+import org.dromara.neutrinoproxy.server.dal.DomainPortMappingMapper;
+import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
+import org.dromara.neutrinoproxy.server.dal.entity.DomainPortMappingDO;
+import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
+import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
-import org.h2.schema.Domain;
+import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
 import org.noear.solon.core.handle.UploadedFile;
 
 import java.io.ByteArrayOutputStream;
@@ -48,13 +54,13 @@ public class DomainService {
     private DomainMapper domainMapper;
     @Db
     private UserMapper userMapper;
+    @Db
+    private PortMappingMapper portMappingMapper;
+    @Db
+    private DomainPortMappingMapper domainPortMappingMapper;
+
 
     public PageInfo<DomainListRes> page(PageQuery pageQuery, DomainListReq req) {
-//        Page<DomainNameDO> page = new Page<>(pageQuery.getCurrent(), pageQuery.getSize());
-//        LambdaQueryWrapper<DomainNameDO> queryWrapper = Wrappers.<DomainNameDO>lambdaQuery()
-//            .eq(req.getEnable() != null, DomainNameDO::getEnable, req.getEnable())
-//            .eq(req.getUserId() != null, DomainNameDO::getUserId, req.getUserId());
-//        Page<DomainNameDO> page = domainMapper.selectPage(page, queryWrapper);
         Page<DomainNameDO> page = domainMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<DomainNameDO>()
             .eq(req.getEnable() != null, DomainNameDO::getEnable, req.getEnable())
             .eq(req.getUserId() != null, DomainNameDO::getUserId, req.getUserId())
@@ -98,9 +104,12 @@ public class DomainService {
 
     /**
      * 创建域名
+     *
      * @param req
      */
     public void create(DomainCreateReq req, UploadedFile jks) throws IOException {
+        DomainNameDO domainNameCheck = domainMapper.checkRepeat(req.getDomain(), null);
+        ParamCheckUtil.checkMustNull(domainNameCheck, ExceptionConstant.DOMAIN_NAME_CANNOT_REPEAT);
         DomainNameDO domainNameDO = new DomainNameDO();
         if (null != jks) {
             ParamCheckUtil.checkNotEmpty(req.getKeyStorePassword(), "keyStorePassword");
@@ -114,17 +123,19 @@ public class DomainService {
         Date now = new Date();
         domainNameDO.setDomain(req.getDomain());
         domainNameDO.setIsDefault(DefaultDomainStatusEnum.DISABLE.getStatus());
-        domainNameDO.setForceHttps(req.getForceHttps() != null ? HttpsStatusEnum.of(req.getForceHttps()).getStatus(): HttpsStatusEnum.DISABLE_ONLY_HTTPS.getStatus());
+        domainNameDO.setForceHttps(req.getForceHttps() != null ? HttpsStatusEnum.of(req.getForceHttps()).getStatus() : HttpsStatusEnum.DISABLE_ONLY_HTTPS.getStatus());
         domainNameDO.setUserId(userId);
         domainNameDO.setEnable(EnableStatusEnum.ENABLE.getStatus());
         domainNameDO.setCreateTime(now);
         domainNameDO.setUpdateTime(now);
         domainMapper.insert(domainNameDO);
+        //更新主域名到域名id映射
+        ProxyUtil.setDomainToDomainNameId(domainNameDO.getDomain(), domainNameDO.getId());
     }
 
     /**
      * 将 InputStream 转换为 byte[]
-      */
+     */
     private byte[] toByteArray(InputStream input) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
@@ -136,10 +147,12 @@ public class DomainService {
         return buffer.toByteArray();
     }
 
-    //TODO 更新相关channel
     public void update(DomainUpdateReq req, UploadedFile jks) throws IOException {
         DomainNameDO domainNameCheck = domainMapper.checkRepeat(req.getDomain(), Sets.newHashSet(req.getId()));
         ParamCheckUtil.checkMustNull(domainNameCheck, ExceptionConstant.DOMAIN_NAME_CANNOT_REPEAT);
+
+        DomainNameDO oldDomainNameDO = domainMapper.selectOne(Wrappers.<DomainNameDO>lambdaQuery().eq(DomainNameDO::getId, req.getId()));
+        List<FullDomainNameBO> oldFullDomainNameBOS = domainMapper.selectFullDomainNameListByDomainNameIds(Sets.newHashSet(req.getId()));
         LambdaUpdateWrapper<DomainNameDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(DomainNameDO::getId, req.getId());
         if (null != jks) {
@@ -153,23 +166,49 @@ public class DomainService {
         updateWrapper.set(DomainNameDO::getDomain, req.getDomain());
         updateWrapper.set(DomainNameDO::getUpdateTime, new Date());
         updateWrapper.set(req.getForceHttps() != null, DomainNameDO::getForceHttps, req.getForceHttps());
-        int update = domainMapper.update(updateWrapper);
-        System.out.println(update);
+        domainMapper.update(updateWrapper);
+
+        //更新域名相关映射
+        if (!Objects.equals(oldDomainNameDO.getDomain(), req.getDomain())) {
+            //更新主域名到域名id映射
+            ProxyUtil.removeDomainToDomainNameId(oldDomainNameDO.getDomain());
+            ProxyUtil.setDomainToDomainNameId(req.getDomain(), req.getId());
+            if (CollectionUtil.isEmpty(oldFullDomainNameBOS)) return;
+            //更新完整域名到服务器端口映射
+            for (FullDomainNameBO oldFullDomainNameBO : oldFullDomainNameBOS) {
+                String oldFullDomain = StrUtil.join(StrPool.DOT, oldFullDomainNameBO.getSubdomain(), oldFullDomainNameBO.getDomain());
+                Integer serverPort = ProxyUtil.getServerPortByFullDomain(oldFullDomain);
+                ProxyUtil.removeFullDomainToServerPort(oldFullDomain);
+                ProxyUtil.setFullDomainToServerPort(StrUtil.join(StrPool.DOT, oldFullDomainNameBO.getSubdomain(), req.getDomain()), serverPort);
+            }
+        }
     }
 
-    // TODO 更新对应的channel
     public DomainUpdateEnableStatusRes updateEnableStatus(DomainUpdateEnableStatusReq req) {
         if (Objects.equals(req.getEnable(), EnableStatusEnum.DISABLE.getStatus())) {
             //如果设置状态为禁用，则将默认域名设置为非默认域名
             updateDefaultStatus(req.getId(), DefaultDomainStatusEnum.DISABLE.getStatus());
         }
         domainMapper.updateEnableStatus(req.getId(), req.getEnable(), new Date());
+        if (Objects.equals(req.getEnable(), EnableStatusEnum.ENABLE.getStatus())) {
+            ProxyUtil.setDomainToDomainNameId(req.getDomain(), req.getId());
+        } else {
+            ProxyUtil.removeDomainToDomainNameId(req.getDomain());
+        }
         return new DomainUpdateEnableStatusRes();
     }
 
-    //TODO 处理VisitorChannel
-    public void delete(Integer id) {
-        domainMapper.deleteById(id);
+    public void delete(Integer domainNameId) {
+        //检查当前域名是否正在使用
+        boolean checkUsed = domainPortMappingMapper.checkUsed(domainNameId);
+        ParamCheckUtil.checkExpression(!checkUsed, ExceptionConstant.DOMAIN_NAME_IS_USED);
+        DomainNameDO domainNameDO = domainMapper.selectOne(Wrappers.<DomainNameDO>lambdaQuery()
+            .eq(DomainNameDO::getId, domainNameId)
+            .select(DomainNameDO::getDomain, DomainNameDO::getEnable));
+        if (Objects.equals(domainNameDO.getEnable(), EnableStatusEnum.ENABLE.getStatus())) {
+            ProxyUtil.removeDomainToDomainNameId(domainNameDO.getDomain());
+        }
+        domainMapper.deleteById(domainNameId);
     }
 
     public DomainUpdateDefaultStatusRes updateDefaultStatus(Integer id, Integer isDefault) {
@@ -192,4 +231,43 @@ public class DomainService {
         return new DomainUpdateDefaultStatusRes();
     }
 
+    @Init
+    public void init() {
+        List<FullDomainNameBO> fullDomainNameBOS = domainMapper.selectFullDomainNameList();
+        if (CollectionUtil.isEmpty(fullDomainNameBOS)) {
+            return;
+        }
+        Set<Integer> portMappingIds = fullDomainNameBOS.stream().map(FullDomainNameBO::getPortMappingId).collect(Collectors.toSet());
+        List<PortMappingDO> portMappingDOS = portMappingMapper.selectBatchIds(portMappingIds);
+        if (CollectionUtil.isEmpty(portMappingDOS)) {
+            return;
+        }
+        Map<Integer, PortMappingDO> portMappingDOMap = portMappingDOS.stream()
+            .filter(item -> NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal()))
+            .collect(Collectors.toMap(PortMappingDO::getId, Function.identity()));
+        fullDomainNameBOS.forEach(item -> {
+            PortMappingDO portMappingDO = portMappingDOMap.get(item.getPortMappingId());
+            if (null == portMappingDO) {
+                return;
+            }
+            String fullDomain = StrUtil.join(StrPool.DOT, item.getSubdomain(), item.getDomain());
+            //更新完整域名到端口映射
+            ProxyUtil.setFullDomainToServerPort(fullDomain, portMappingDO.getServerPort());
+        });
+
+        //更新主域名到主域名id缓存，未禁用
+        List<DomainNameDO> domainNameDOS = domainMapper.selectList(Wrappers.<DomainNameDO>lambdaQuery()
+            .eq(DomainNameDO::getEnable, EnableStatusEnum.ENABLE.getStatus())
+            .select(DomainNameDO::getDomain, DomainNameDO::getId));
+        for (DomainNameDO domainNameDO : domainNameDOS) {
+            ProxyUtil.setDomainToDomainNameId(domainNameDO.getDomain(), domainNameDO.getId());
+        }
+    }
+
+    public boolean isOnlyHttps(Integer domainNameId) {
+        ParamCheckUtil.checkExpression((domainNameId != null && domainNameId > 0), ExceptionConstant.DOMAIN_NAME_NOT_EXIST);
+        DomainNameDO domainNameDO = domainMapper.selectOne(Wrappers.<DomainNameDO>lambdaQuery()
+            .eq(DomainNameDO::getId, domainNameId));
+        return domainNameDO != null && Objects.equals(domainNameDO.getForceHttps(), HttpsStatusEnum.ONLY_HTTPS.getStatus());
+    }
 }

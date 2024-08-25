@@ -63,7 +63,6 @@ public class ProxyConfig {
 	public static class Tcp {
 		private Integer bossThreadCount;
 		private Integer workThreadCount;
-		private String domainName;
 		private Integer httpProxyPort;
 		private Integer httpsProxyPort;
 		private String keyStorePassword;
