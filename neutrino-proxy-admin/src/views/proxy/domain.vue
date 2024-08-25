@@ -318,7 +318,7 @@
       },
       handleModifyStatus(row, enable) {
         console.log('route', this.$route)
-        updateEnableStatus(row.id, enable).then(response => {
+        updateEnableStatus(row.id, enable, row.domain).then(response => {
           if (response.data.data.code === 0) {
             this.$message({
               message: '操作成功',

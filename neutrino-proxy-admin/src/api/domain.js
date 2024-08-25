@@ -23,13 +23,14 @@ export function fetchAvailableDomainList(query) {
   })
 }
 
-export function updateEnableStatus(id, enable) {
+export function updateEnableStatus(id, enable, domain) {
   return request({
     url: '/domain/update/enable-status',
     method: 'post',
     data: {
       id: id,
-      enable: enable
+      enable: enable,
+      domain: domain,
     }
   })
 }
