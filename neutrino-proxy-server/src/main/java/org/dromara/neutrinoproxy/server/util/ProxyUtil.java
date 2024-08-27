@@ -410,6 +410,18 @@ public class ProxyUtil {
     }
 
     /**
+     * 通过完整域名获取域名id
+     */
+    public static String getDomainNameByFullDomain(String fullDomain) {
+        List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
+        // 不存在 或者 有多条记录，返回null
+        if (CollectionUtil.isEmpty(domains) || domains.size() > 1) {
+            return null;
+        }
+        return domains.getFirst();
+    }
+
+    /**
 	 * 关闭http响应channel
 	 * @param channel
 	 * @return

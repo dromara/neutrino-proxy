@@ -29,11 +29,13 @@ import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainPortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
+import org.dromara.neutrinoproxy.server.proxy.enhance.SslContextManager;
 import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
+import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.handle.UploadedFile;
 
 import java.io.ByteArrayOutputStream;
@@ -58,6 +60,9 @@ public class DomainService {
     private PortMappingMapper portMappingMapper;
     @Db
     private DomainPortMappingMapper domainPortMappingMapper;
+
+    @Inject
+    private SslContextManager sslContextManager;
 
 
     public PageInfo<DomainListRes> page(PageQuery pageQuery, DomainListReq req) {
@@ -107,17 +112,24 @@ public class DomainService {
      *
      * @param req
      */
-    public void create(DomainCreateReq req, UploadedFile jks) throws IOException {
+    public void create(DomainCreateReq req, UploadedFile jks) {
         DomainNameDO domainNameCheck = domainMapper.checkRepeat(req.getDomain(), null);
         ParamCheckUtil.checkMustNull(domainNameCheck, ExceptionConstant.DOMAIN_NAME_CANNOT_REPEAT);
         DomainNameDO domainNameDO = new DomainNameDO();
         if (null != jks) {
-            ParamCheckUtil.checkNotEmpty(req.getKeyStorePassword(), "keyStorePassword");
+            try {
+                ParamCheckUtil.checkNotEmpty(req.getKeyStorePassword(), "keyStorePassword");
 
-            InputStream content = jks.getContent();
-            byte[] byteArray = toByteArray(content);
-            domainNameDO.setJks(byteArray);
-            domainNameDO.setKeyStorePassword(req.getKeyStorePassword());
+                InputStream content = jks.getContent();
+                byte[] byteArray = toByteArray(content);
+                domainNameDO.setJks(byteArray);
+                domainNameDO.setKeyStorePassword(req.getKeyStorePassword());
+                //添加证书
+                sslContextManager.addDomainAndCert(req.getDomain(), byteArray, req.getKeyStorePassword());
+            } catch (Exception e) {
+                log.error("证书添加失败", e);
+                e.printStackTrace();
+            }
         }
         Integer userId = SystemContextHolder.getUserId();
         Date now = new Date();
@@ -147,7 +159,7 @@ public class DomainService {
         return buffer.toByteArray();
     }
 
-    public void update(DomainUpdateReq req, UploadedFile jks) throws IOException {
+    public void update(DomainUpdateReq req, UploadedFile jks) {
         DomainNameDO domainNameCheck = domainMapper.checkRepeat(req.getDomain(), Sets.newHashSet(req.getId()));
         ParamCheckUtil.checkMustNull(domainNameCheck, ExceptionConstant.DOMAIN_NAME_CANNOT_REPEAT);
 
@@ -156,12 +168,19 @@ public class DomainService {
         LambdaUpdateWrapper<DomainNameDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(DomainNameDO::getId, req.getId());
         if (null != jks) {
-            ParamCheckUtil.checkNotEmpty(req.getKeyStorePassword(), "keyStorePassword");
+            try {
+                ParamCheckUtil.checkNotEmpty(req.getKeyStorePassword(), "keyStorePassword");
 
-            InputStream content = jks.getContent();
-            byte[] byteArray = toByteArray(content);
-            updateWrapper.set(DomainNameDO::getKeyStorePassword, req.getKeyStorePassword());
-            updateWrapper.set(DomainNameDO::getJks, byteArray);
+                InputStream content = jks.getContent();
+                byte[] byteArray = toByteArray(content);
+                updateWrapper.set(DomainNameDO::getKeyStorePassword, req.getKeyStorePassword());
+                updateWrapper.set(DomainNameDO::getJks, byteArray);
+                //添加证书
+                sslContextManager.addDomainAndCert(req.getDomain(), byteArray, req.getKeyStorePassword());
+            } catch (Exception e) {
+                log.error("证书添加失败", e);
+                e.printStackTrace();
+            }
         }
         updateWrapper.set(DomainNameDO::getDomain, req.getDomain());
         updateWrapper.set(DomainNameDO::getUpdateTime, new Date());

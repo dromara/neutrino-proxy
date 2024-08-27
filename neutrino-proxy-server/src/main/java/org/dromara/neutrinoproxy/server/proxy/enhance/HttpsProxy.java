@@ -7,7 +7,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SniHandler;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.util.Mapping;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
@@ -35,6 +38,9 @@ import java.security.KeyStore;
 public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     @Inject
     private ProxyConfig proxyConfig;
+    @Inject
+    private SslContextManager sslContextManager;
+
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
         if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
@@ -55,7 +61,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                             if (null != proxyConfig.getServer().getTcp().getTransferLogEnable() && proxyConfig.getServer().getTcp().getTransferLogEnable()) {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpsProxy.class));
                             }
-                            ch.pipeline().addLast(createSslHandler());
+                            ch.pipeline().addLast(createSniHandler());
                             ch.pipeline().addFirst(new BytesMetricsHandler());
                             ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(true));
                             ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
@@ -82,6 +88,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
 
             serverContext.init(kmf.getKeyManagers(), trustManagers, null);
 
+
             SSLEngine sslEngine = serverContext.createSSLEngine();
             sslEngine.setUseClientMode(false);
             sslEngine.setNeedClientAuth(false);
@@ -89,6 +96,23 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
             return new SslHandler(sslEngine);
         } catch (Exception e) {
             log.error("create SSL handler failed", e);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public SniHandler createSniHandler() {
+        try {
+            return new SniHandler(domainName -> {
+                SslContext sslContext = sslContextManager.getSslContextByFullDomain(domainName);
+                if (sslContext != null) {
+                    return sslContext;
+                } else {
+                    throw new IllegalArgumentException("No SSL context available for domain: " + domainName);
+                }
+            });
+        } catch (Exception e) {
+            log.info("create SSL handler failed", e);
             e.printStackTrace();
         }
         return null;
