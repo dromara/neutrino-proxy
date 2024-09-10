@@ -410,7 +410,7 @@ public class ProxyUtil {
     }
 
     /**
-     * 通过完整域名获取域名id
+     * 通过完整域名获取域名
      */
     public static String getDomainNameByFullDomain(String fullDomain) {
         List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());

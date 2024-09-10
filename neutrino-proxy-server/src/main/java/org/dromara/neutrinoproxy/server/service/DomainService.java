@@ -193,7 +193,7 @@ public class DomainService {
             ProxyUtil.removeDomainToDomainNameId(oldDomainNameDO.getDomain());
             ProxyUtil.setDomainToDomainNameId(req.getDomain(), req.getId());
             if (CollectionUtil.isEmpty(oldFullDomainNameBOS)) return;
-            //更新完整域名到服务器端口映射
+            //存在域名映射，更新完整域名到服务器端口映射
             for (FullDomainNameBO oldFullDomainNameBO : oldFullDomainNameBOS) {
                 String oldFullDomain = StrUtil.join(StrPool.DOT, oldFullDomainNameBO.getSubdomain(), oldFullDomainNameBO.getDomain());
                 Integer serverPort = ProxyUtil.getServerPortByFullDomain(oldFullDomain);

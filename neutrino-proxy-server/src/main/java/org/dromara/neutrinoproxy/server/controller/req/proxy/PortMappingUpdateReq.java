@@ -86,7 +86,7 @@ public class PortMappingUpdateReq {
     /**
      * 域名映射列表
      */
-    private List<PortMappingCreateReq.DomainMapping> domainMappings;
+    private List<DomainMapping> domainMappings;
 
     @Data
     public class DomainMapping {

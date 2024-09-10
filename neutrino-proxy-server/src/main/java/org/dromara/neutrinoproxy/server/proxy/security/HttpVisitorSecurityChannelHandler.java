@@ -62,7 +62,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
                 ctx.channel().close();
                 return;
             }
-            // 根据域名拿到绑定的映射对应的cmdChannel
+            // 根据完整域名拿到服务端端口
             serverPort = ProxyUtil.getServerPortByFullDomain(host);
             if (null == serverPort) {
                 ctx.channel().close();
