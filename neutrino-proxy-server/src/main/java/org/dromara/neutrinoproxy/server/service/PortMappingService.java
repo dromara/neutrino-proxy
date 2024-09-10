@@ -164,10 +164,11 @@ public class PortMappingService implements LifecycleBean {
         ParamCheckUtil.checkNotNull(portPoolDO, ExceptionConstant.PORT_NOT_EXIST);
         ParamCheckUtil.checkExpression(null == portMappingMapper.findByPort(req.getServerPort(), null), ExceptionConstant.PORT_CANNOT_REPEAT_MAPPING, req.getServerPort());
         //验证域名映射相关参数条件
-        Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
-        List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
-        Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
         if (NetworkProtocolEnum.isHttp(req.getProtocal()) && CollectionUtil.isNotEmpty(req.getDomainMappings())) {
+            Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
+            List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
+            Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
+
             req.getDomainMappings().forEach(item -> {
                 DomainNameDO domainNameDO = domainNameDOMap.get(item.getDomainId());
                 ParamCheckUtil.checkNotNull(domainNameDO, ExceptionConstant.DOMAIN_NAME_NOT_EXIST);
@@ -196,8 +197,13 @@ public class PortMappingService implements LifecycleBean {
         portMappingMapper.insert(portMappingDO);
         // 更新VisitorChannel
         visitorChannelService.addVisitorChannelByPortMapping(portMappingDO);
-        // 更新域名映射
+
+        // 更新域名映射，添加新的域名映射
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && CollectionUtil.isNotEmpty(req.getDomainMappings())) {
+            Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
+            List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
+            Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
+
             req.getDomainMappings().forEach(item -> {
                 DomainNameDO domainNameDO = domainNameDOMap.get(item.getDomainId());
                 //创建域名映射
@@ -236,11 +242,13 @@ public class PortMappingService implements LifecycleBean {
         // 查询原端口映射
         PortMappingDO oldPortMappingDO = portMappingMapper.findById(req.getId());
         ParamCheckUtil.checkNotNull(oldPortMappingDO, ExceptionConstant.PORT_MAPPING_NOT_EXIST);
+
         //验证域名映射相关参数条件
-        Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
-        List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
-        Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
         if (NetworkProtocolEnum.isHttp(req.getProtocal()) && CollectionUtil.isNotEmpty(req.getDomainMappings())) {
+            Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
+            List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
+            Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
+
             req.getDomainMappings().forEach(item -> {
                 DomainNameDO domainNameDO = domainNameDOMap.get(item.getDomainId());
                 ParamCheckUtil.checkNotNull(domainNameDO, ExceptionConstant.DOMAIN_NAME_NOT_EXIST);
@@ -268,6 +276,8 @@ public class PortMappingService implements LifecycleBean {
         // 更新VisitorChannel
         PortMappingDO portMappingDO = portMappingMapper.findById(req.getId());
         visitorChannelService.updateVisitorChannelByPortMapping(oldPortMappingDO, portMappingDO);
+
+        // 更新域名映射
         // 删除老的域名映射
         if (NetworkProtocolEnum.isHttp(oldPortMappingDO.getProtocal())) {
             //删除完整域名到服务端端口的映射
@@ -277,8 +287,12 @@ public class PortMappingService implements LifecycleBean {
                 .eq(DomainPortMappingDO::getPortMappingId, oldPortMappingDO.getId());
             domainPortMappingMapper.delete(lambdaQueryWrapper);
         }
-        // 更新域名映射
+        // 添加新的域名映射
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal()) && CollectionUtil.isNotEmpty(req.getDomainMappings())) {
+            Set<Integer> domainIds = req.getDomainMappings().stream().map(item -> item.getDomainId()).collect(Collectors.toSet());
+            List<DomainNameDO> domainNameDOS = domainMapper.selectBatchIds(domainIds);
+            Map<Integer, DomainNameDO> domainNameDOMap = domainNameDOS.stream().collect(Collectors.toMap(DomainNameDO::getId, Function.identity()));
+
             req.getDomainMappings().forEach(item -> {
                 DomainNameDO domainNameDO = domainNameDOMap.get(item.getDomainId());
                 //创建域名映射
@@ -370,7 +384,8 @@ public class PortMappingService implements LifecycleBean {
 
         // 更新VisitorChannel
         visitorChannelService.removeVisitorChannelByPortMapping(portMappingDO);
-        // 更新域名映射
+
+        // 删除域名映射
         if (NetworkProtocolEnum.isHttp(portMappingDO.getProtocal())) {
             //删除完整域名到服务端端口的映射
             ProxyUtil.removeFullDomainToServerPortByServerPort(portMappingDO.getServerPort());
