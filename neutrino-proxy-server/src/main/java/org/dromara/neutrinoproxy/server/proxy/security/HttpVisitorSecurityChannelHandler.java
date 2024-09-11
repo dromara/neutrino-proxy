@@ -51,7 +51,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             }
 //            int index = host.lastIndexOf("." + domainName);
 //            String subdomain = host.substring(0, index);
-            // 判断域名是否被禁用
+            // 判断域名是否被禁用或删除
             Integer domainNameId = ProxyUtil.getDomainNameIdByFullDomain(host);
             if (domainNameId == null) {
                 ctx.channel().close();
