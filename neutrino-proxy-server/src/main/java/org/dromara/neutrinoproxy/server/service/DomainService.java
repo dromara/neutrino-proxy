@@ -1,7 +1,5 @@
 package org.dromara.neutrinoproxy.server.service;
 
-import cn.hutool.cache.Cache;
-import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.text.StrPool;
 import cn.hutool.core.util.StrUtil;
@@ -26,7 +24,6 @@ import org.dromara.neutrinoproxy.server.dal.DomainPortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.PortMappingMapper;
 import org.dromara.neutrinoproxy.server.dal.UserMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
-import org.dromara.neutrinoproxy.server.dal.entity.DomainPortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.proxy.enhance.SslContextManager;

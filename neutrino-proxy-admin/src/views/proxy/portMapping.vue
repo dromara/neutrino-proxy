@@ -49,7 +49,7 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.domainName')" width="180">
+      <el-table-column align="center" :label="$t('table.domainName')" width="190">
         <template slot-scope="scope">
           <div v-for="(domain, index) in scope.row.allFullDomainList" :key="index">
             <span>{{ domain }}</span>
@@ -432,23 +432,25 @@ export default {
           // 初始化 domainMappings 字段
           item.domainMappings = [];
           // 检查是否存在 subdomain 和 domain 字段
-          if (item.subdomains && item.domainIds && item.domains) {
-            // 如果是数组，则按索引组合 subdomain 和 domain 成对象
-            if (Array.isArray(item.subdomains) && Array.isArray(item.domainIds) && Array.isArray(item.domains)) {
-              let allFullDomainList = []
-              for (let i = 0; i < item.subdomains.length; i++) {
-                item.domainMappings.push({
-                  subdomain: item.subdomains[i] || '', // 使用 || '' 保证字段非空
-                  domainId: item.domainIds[i] || '',
-                  domain: item.domains[i] || ''
-                });
-                // 拼接完整的域名
-                const fullDomain = `${item.subdomains[i]}.${item.domains[i]}`;
-                // 将拼接后的域名添加到 allFullDomains 中，以逗号分隔
-                allFullDomainList.push(fullDomain);
+          if (item.fullDomainMappings && Array.isArray(item.fullDomainMappings)) {
+            let allFullDomainList = []
+            for (const fullDomainMapping of item.fullDomainMappings) {
+              item.domainMappings.push({
+                subdomain: fullDomainMapping.subdomain || '', // 使用 || '' 保证字段非空
+                domainId: fullDomainMapping.domainNameId || '',
+                domain: fullDomainMapping.domain || ''
+              });
+              // 拼接完整的域名
+              let fullDomain = null;
+              if (fullDomainMapping.forceHttps == 1) {
+                fullDomain = `https://` + `${fullDomainMapping.subdomain}.${fullDomainMapping.domain}`;
+              } else {
+                fullDomain = `http://` + `${fullDomainMapping.subdomain}.${fullDomainMapping.domain}`;
               }
-              item.allFullDomainList = allFullDomainList
+              // 将拼接后的域名添加到
+              allFullDomainList.push(fullDomain);
             }
+            item.allFullDomainList = allFullDomainList
           }
           return item;
         });
@@ -575,7 +577,7 @@ export default {
     handleOpenWebPage(row) {
       let url = location.protocol + '//' + location.hostname + ':' + row.serverPort
       if (row.allFullDomainList && row.allFullDomainList.length > 0) {
-        url = location.protocol + '//' + row.allFullDomainList[0]
+        url = row.allFullDomainList[0]
       }
       open(url)
     },

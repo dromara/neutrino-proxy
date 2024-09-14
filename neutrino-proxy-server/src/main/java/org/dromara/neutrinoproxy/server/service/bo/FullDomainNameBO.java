@@ -21,15 +21,13 @@ public class FullDomainNameBO {
      */
     private String subdomain;
     /**
-     * 域名
-     */
-    private String domain;
-
-    /**
      * 域名id
      */
     private Integer domainNameId;
-
+    /**
+     * 域名
+     */
+    private String domain;
     /**
      * 强制使用HTTPS(1、是 2、否)
      * {@link HttpsStatusEnum}

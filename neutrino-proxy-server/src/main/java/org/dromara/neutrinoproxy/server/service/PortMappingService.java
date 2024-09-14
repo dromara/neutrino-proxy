@@ -132,16 +132,8 @@ public class PortMappingService implements LifecycleBean {
                 return;
             }
             item.setUserName(user.getName());
-            List<FullDomainNameBO> bos = fullDomainNameBOMap.get(item.getId());
-            // TODO 后续重构域名映射返回值结构
-            if (CollectionUtil.isNotEmpty(bos)) {
-                List<String> subdomains = bos.stream().map(FullDomainNameBO::getSubdomain).collect(Collectors.toList());
-                List<String> domains = bos.stream().map(FullDomainNameBO::getDomain).collect(Collectors.toList());
-                List<Integer> domainIds = bos.stream().map(FullDomainNameBO::getDomainNameId).collect(Collectors.toList());
-                item.setSubdomains(subdomains);
-                item.setDomains(domains);
-                item.setDomainIds(domainIds);
-            }
+            //域名映射
+            item.setFullDomainMappings(fullDomainNameBOMap.get(item.getId()));
             if (NetworkProtocolEnum.HTTP.getDesc().equals(item.getProtocal())) {
                 item.setProtocal("HTTP(S)");
             }
