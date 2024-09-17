@@ -172,8 +172,11 @@ public class DomainService {
                 byte[] byteArray = toByteArray(content);
                 updateWrapper.set(DomainNameDO::getKeyStorePassword, req.getKeyStorePassword());
                 updateWrapper.set(DomainNameDO::getJks, byteArray);
-                //添加证书
+                //添加证书并删除旧的证书
                 sslContextManager.addDomainAndCert(req.getDomain(), byteArray, req.getKeyStorePassword());
+                if (!req.getDomain().equals(oldDomainNameDO.getDomain())) {
+                    sslContextManager.removeSslContextByDomain(oldDomainNameDO.getDomain());
+                }
             } catch (Exception e) {
                 log.error("证书添加失败", e);
                 e.printStackTrace();
@@ -225,6 +228,8 @@ public class DomainService {
             ProxyUtil.removeDomainToDomainNameId(domainNameDO.getDomain());
         }
         domainMapper.deleteById(domainNameId);
+        //删除证书
+        sslContextManager.removeSslContextByDomain(domainNameDO.getDomain());
     }
 
     public DomainUpdateDefaultStatusRes updateDefaultStatus(Integer id, Integer isDefault) {

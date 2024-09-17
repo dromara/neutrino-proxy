@@ -1,7 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -9,9 +8,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
 import org.dromara.neutrinoproxy.server.proxy.security.HttpVisitorSecurityChannelHandler;
@@ -20,13 +17,6 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
-import java.io.InputStream;
-import java.security.KeyStore;
 
 /**
  * HTTPS代理
@@ -70,32 +60,6 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
         }
     }
 
-    private ChannelHandler createSslHandler() {
-        try {
-            InputStream jksInputStream = FileUtil.getInputStream(proxyConfig.getServer().getTcp().getJksPath());
-            SSLContext serverContext = SSLContext.getInstance("TLS");
-            final KeyStore ks = KeyStore.getInstance("JKS");
-
-            ks.load(jksInputStream, proxyConfig.getServer().getTcp().getKeyStorePassword().toCharArray());
-            final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(ks, proxyConfig.getServer().getTcp().getKeyStorePassword().toCharArray());
-            TrustManager[] trustManagers = null;
-
-            serverContext.init(kmf.getKeyManagers(), trustManagers, null);
-
-
-            SSLEngine sslEngine = serverContext.createSSLEngine();
-            sslEngine.setUseClientMode(false);
-            sslEngine.setNeedClientAuth(false);
-
-            return new SslHandler(sslEngine);
-        } catch (Exception e) {
-            log.error("create SSL handler failed", e);
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public SniHandler createSniHandler() {
         try {
             return new SniHandler(domainName -> {
@@ -103,7 +67,8 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
                 if (sslContext != null) {
                     return sslContext;
                 } else {
-                    throw new IllegalArgumentException("No SSL context available for domain: " + domainName);
+                    log.info("No SSL context available for domain: {}", domainName);
+                    return null;
                 }
             });
         } catch (Exception e) {
