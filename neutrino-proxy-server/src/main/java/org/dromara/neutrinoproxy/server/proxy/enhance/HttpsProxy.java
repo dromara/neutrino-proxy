@@ -1,8 +1,8 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
-import cn.hutool.core.util.StrUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -10,13 +10,10 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.util.Mapping;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.util.FileUtil;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
-import org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelServer;
 import org.dromara.neutrinoproxy.server.proxy.security.HttpVisitorSecurityChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.security.VisitorFlowLimiterChannelHandler;
 import org.noear.solon.annotation.Component;
@@ -24,7 +21,10 @@ import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
 import java.io.InputStream;
 import java.security.KeyStore;
 
@@ -42,12 +42,7 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
     private SslContextManager sslContextManager;
 
     @Override
-    public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort() ||
-                StringUtils.isEmpty(proxyConfig.getServer().getTcp().getJksPath()) || StringUtils.isEmpty(proxyConfig.getServer().getTcp().getKeyStorePassword())) {
-            log.info("no config domain name,nonsupport https proxy.");
-            return;
-        }
+    public void onEvent(AppLoadEndEvent appLoadEndEvent) {
         this.start();
     }
 
