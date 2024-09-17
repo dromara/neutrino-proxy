@@ -88,7 +88,7 @@ public class DomainService {
         LambdaQueryWrapper<DomainNameDO> wrapper = Wrappers.<DomainNameDO>lambdaQuery()
             .eq(req.getEnable() != null, DomainNameDO::getEnable, req.getEnable());
         List<DomainNameDO> domainNameDOS = domainMapper.selectList(wrapper);
-        if (domainNameDOS == null) {
+        if (CollectionUtil.isEmpty(domainNameDOS)) {
             return null;
         }
         List<DomainListRes> resList = domainNameDOS.stream().map(DomainNameDO::toRes).toList();
