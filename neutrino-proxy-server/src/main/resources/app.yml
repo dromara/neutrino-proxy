@@ -19,7 +19,7 @@ solon.logging.appender:
     rolling: "logs/${solon.app.name}_%d{yyyy-MM-dd}_%i.log"
 solon.logging.logger:
   "root":
-    level: debug
+    level: info
 
 neutrino:
   proxy:
