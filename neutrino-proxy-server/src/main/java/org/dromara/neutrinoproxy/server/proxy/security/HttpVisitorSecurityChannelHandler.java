@@ -1,6 +1,5 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
-import com.google.errorprone.annotations.Var;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -36,33 +35,32 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
 
+        // 获取Host请求头
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.readBytes(bytes);
+        String httpContent = new String(bytes);
+        String host = HttpUtil.getHostIgnorePort(httpContent); //test1.asgc.fun
+
+        log.debug("HttpProxy host: {}", host);
+        if (StringUtils.isBlank(host)) {
+            ctx.channel().close();
+            return;
+        }
+        // 判断域名是否被禁用或删除
+        Integer domainNameId = ProxyUtil.getDomainNameIdByFullDomain(host);
+        if (domainNameId == null) {
+            ctx.channel().close();
+            return;
+        }
+        // 域名映射强制https验证
+        if (!isHttps && domainService.isOnlyHttps(domainNameId)) {
+            ctx.channel().close();
+            return;
+        }
+
         Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
         if (null == serverPort) {
-            // 获取Host请求头
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            String httpContent = new String(bytes);
-            String host = HttpUtil.getHostIgnorePort(httpContent); //test1.asgc.fun
-
-            log.debug("HttpProxy host: {}", host);
-            if (StringUtils.isBlank(host)) {
-                ctx.channel().close();
-                return;
-            }
-//            int index = host.lastIndexOf("." + domainName);
-//            String subdomain = host.substring(0, index);
-            // 判断域名是否被禁用或删除
-            Integer domainNameId = ProxyUtil.getDomainNameIdByFullDomain(host);
-            if (domainNameId == null) {
-                ctx.channel().close();
-                return;
-            }
-            // 域名映射强制https验证
-            if (!isHttps && domainService.isOnlyHttps(domainNameId)) {
-                ctx.channel().close();
-                return;
-            }
-            // 根据完整域名拿到服务端端口
+            // channel没有服务器端口信息，尝试根据完整域名拿到服务端端口
             serverPort = ProxyUtil.getServerPortByFullDomain(host);
             if (null == serverPort) {
                 ctx.channel().close();
