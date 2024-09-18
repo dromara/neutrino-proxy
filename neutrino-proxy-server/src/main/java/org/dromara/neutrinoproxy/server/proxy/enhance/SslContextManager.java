@@ -8,12 +8,16 @@ import io.netty.handler.ssl.SslContextBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.solon.annotation.Db;
+import org.dromara.neutrinoproxy.server.base.db.DBInitialize;
 import org.dromara.neutrinoproxy.server.dal.DomainMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Init;
+import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.event.AppLoadEndEvent;
 import org.noear.solon.core.event.EventListener;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import javax.net.ssl.KeyManagerFactory;
 import java.io.ByteArrayInputStream;
@@ -35,15 +39,28 @@ public class SslContextManager implements EventListener<AppLoadEndEvent> {
     @Db
     private DomainMapper domainMapper;
 
+    @Inject
+    private DBInitialize dbInitialize;
+
     // 初始化时加载所有域名的 SSL 上下文
-    @Override
-    public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
+    @Init
+    public void init() throws Throwable {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         try {
             initializeSslContexts();
         } catch (Exception e) {
             log.error("initialize SSL handler failed", e);
-            e.printStackTrace();
+            throw e;
         }
+    }
+
+
+    @Override
+    public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
+
     }
 
     // 维护域名到 SslContext 的映射

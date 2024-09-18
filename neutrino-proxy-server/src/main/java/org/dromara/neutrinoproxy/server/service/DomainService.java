@@ -15,7 +15,10 @@ import org.dromara.neutrinoproxy.server.base.page.PageInfo;
 import org.dromara.neutrinoproxy.server.base.page.PageQuery;
 import org.dromara.neutrinoproxy.server.base.rest.SystemContextHolder;
 import org.dromara.neutrinoproxy.server.constant.*;
-import org.dromara.neutrinoproxy.server.controller.req.proxy.*;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainCreateReq;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainListReq;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainUpdateEnableStatusReq;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.DomainUpdateReq;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainListRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateDefaultStatusRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainUpdateEnableStatusRes;
@@ -34,6 +37,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Init;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.core.handle.UploadedFile;
+import org.noear.solon.core.runtime.NativeDetector;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,7 +64,6 @@ public class DomainService {
 
     @Inject
     private SslContextManager sslContextManager;
-
 
     public PageInfo<DomainListRes> page(PageQuery pageQuery, DomainListReq req) {
         Page<DomainNameDO> page = domainMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<DomainNameDO>()
@@ -254,6 +257,10 @@ public class DomainService {
 
     @Init
     public void init() {
+        // aot 阶段，不初始化
+        if (NativeDetector.isAotRuntime()) {
+            return;
+        }
         List<FullDomainNameBO> fullDomainNameBOS = domainMapper.selectFullDomainNameList();
         if (CollectionUtil.isEmpty(fullDomainNameBOS)) {
             return;
