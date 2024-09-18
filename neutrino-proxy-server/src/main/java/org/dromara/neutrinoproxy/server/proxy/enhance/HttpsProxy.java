@@ -33,6 +33,10 @@ public class HttpsProxy implements EventListener<AppLoadEndEvent> {
 
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) {
+        if (null == proxyConfig.getServer().getTcp().getHttpsProxyPort()) {
+            log.info("no config https proxy port, nonsupport http proxy.");
+            return;
+        }
         this.start();
     }
 
