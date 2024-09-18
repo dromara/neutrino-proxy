@@ -1,5 +1,6 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
@@ -11,7 +12,8 @@ import org.dromara.neutrinoproxy.server.dal.DomainMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.annotation.Component;
-import org.noear.solon.annotation.Init;
+import org.noear.solon.core.event.AppLoadEndEvent;
+import org.noear.solon.core.event.EventListener;
 
 import javax.net.ssl.KeyManagerFactory;
 import java.io.ByteArrayInputStream;
@@ -28,17 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 @Data
-public class SslContextManager {
+public class SslContextManager implements EventListener<AppLoadEndEvent> {
 
     @Db
     private DomainMapper domainMapper;
 
-    // 维护域名到 SslContext 的映射
-    private final ConcurrentHashMap<String, SslContext> domainSslContexts = new ConcurrentHashMap<>();
-
     // 初始化时加载所有域名的 SSL 上下文
-    @Init
-    public void sslContextManagerInit() {
+    @Override
+    public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
         try {
             initializeSslContexts();
         } catch (Exception e) {
@@ -46,6 +45,9 @@ public class SslContextManager {
             e.printStackTrace();
         }
     }
+
+    // 维护域名到 SslContext 的映射
+    private final ConcurrentHashMap<String, SslContext> domainSslContexts = new ConcurrentHashMap<>();
 
     // 初始化所有域名的 SSL 上下文
     private void initializeSslContexts() throws Exception {
@@ -99,6 +101,9 @@ public class SslContextManager {
 
     public SslContext getSslContextByFullDomain(String fullDomain) {
         String domain = ProxyUtil.getDomainNameByFullDomain(fullDomain);
+        if (StrUtil.isBlank(domain)) {
+            return null;
+        }
         return domainSslContexts.get(domain);
     }
 }
