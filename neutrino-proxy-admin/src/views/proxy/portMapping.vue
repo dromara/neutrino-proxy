@@ -169,7 +169,7 @@
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
           <el-input v-model="temp.clientPort"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('域名')" prop="domainMappings" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainList.length > 0" >
+        <el-form-item :label="$t('域名')" prop="domainMappings" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainList != null && domainList.length > 0" >
           <div v-for="(domain, index) in temp.domainMappings" :key="index" class="domain-mapping">
             <el-input v-model="domain.subdomain">
               <template slot="append">
@@ -454,7 +454,7 @@ export default {
           }
           return item;
         });
-        console.log(this.list)
+        // console.log(this.list)
         this.total = response.data.data.total
         this.listLoading = false
       })
@@ -482,7 +482,7 @@ export default {
       this.serverPortList = []; //清掉数据
     },
     getAvailableDomainList() {
-      fetchAvailableDomainList({enable:1}).then(response => {
+      fetchAvailableDomainList({}).then(response => {
         this.domainList = response.data.data
       })
     },
