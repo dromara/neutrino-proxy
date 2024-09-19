@@ -55,6 +55,7 @@ export default {
     proxy: '代理配置',
     license: 'License管理',
     portMapping: '端口映射',
+    domainMapping: '域名解析',
     jobManager: '调度管理',
     jobLog: '调度日志',
     log: '日志管理',

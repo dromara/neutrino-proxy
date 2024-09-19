@@ -43,7 +43,6 @@ public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage>
         if (realServerChannel != null) {
             realServerChannel.config().setOption(ChannelOption.AUTO_READ, ctx.channel().isWritable());
         }
-
         super.channelWritabilityChanged(ctx);
     }
 

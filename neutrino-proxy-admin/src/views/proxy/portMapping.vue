@@ -49,11 +49,11 @@
           <span>{{ scope.row.protocal }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.domainName')" width="180">
+      <!-- <el-table-column align="center" :label="$t('table.domainName')" width="180">
         <template slot-scope="scope">
           <span>{{ scope.row.domain }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.serverPort }}</span>
@@ -105,9 +105,7 @@
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
           <el-button v-if="scope.row.enable == '1'" size="mini" type="danger" @click="handleModifyStatus(scope.row, 2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable == '2'" size="mini" type="success" @click="handleModifyStatus(scope.row, 1)">{{ $t('table.enable') }}</el-button>
-          <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
-          <ButtonPopover @handleCommitClick="handleDelete2(scope.row)" style="margin-left: 10px" />
-
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,39 +117,22 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px"
-        style='width: 400px; margin-left:50px;'>
-        <!--        <el-form-item :label="$t('License')" prop="licenseId">-->
-        <!--          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">-->
-        <!--            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
-
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="20px">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="120px"
+        style='width:500px;margin-left:50px;'>
         <el-form-item :label="$t('License')" prop="licenseId">
           <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
-            @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
-          <!--          <DropdownTable
-            :columns="countryColumns"
-            :data="licenseList"
-            v-model="temp.licenseId"
-            :value="temp.licenseName"
-            @rowClick="selectedFeeItem"
-            disabled
-            :disabled="dialogStatus==='update'"
-            style="width: 280px"
-          />-->
+            @selectedData="selectedFeeItem" placeholder="请选择" :width="500" :disabled="dialogStatus === 'update'" />
         </el-form-item>
         <el-form-item :label="$t('协议')" prop="protocal">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
+          <el-select style="width: 380px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
             <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
               :disabled="!item.enable">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('服务端端口')" prop="serverPort" >
-          <load-select style="width: 280px;" class="filter-item"
+          <load-select style="width: 380px;" class="filter-item"
             v-model="temp.serverPort"
             :data="serverPortList"
             :page="loadServerPortQuery.page"
@@ -165,13 +146,13 @@
           <el-input v-model="temp.clientIp"></el-input>
         </el-form-item>
         <el-form-item :label="$t('客户端端口')" prop="clientPort">
-          <el-input v-model="temp.clientPort"></el-input>
+          <el-input v-model="temp.clientPort" type="number" :step="1" controls-position="right" ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
+        <!-- <el-form-item :label="$t('域名')" prop="subdomain" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainName && domainName != ''">
           <el-input v-model="temp.subdomain">
             <template slot="append">.{{ domainName }}</template>
           </el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
           <el-input v-model="temp.proxyResponses"></el-input>
         </el-form-item>
@@ -181,7 +162,7 @@
           </el-input>
         </el-form-item>
         <el-form-item  :label="$t('table.securityGroup')" prop="securityGroup">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.securityGroupId" clearable >
+          <el-select style="width: 380px;" class="filter-item" v-model="temp.securityGroupId" clearable >
             <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
@@ -225,27 +206,12 @@ import { availablePortList, portAvailable } from '@/api/portPool'
 import { licenseList, licenseAuthList } from '@/api/license'
 import { protocalList } from '@/api/protocal'
 import { userList } from '@/api/user'
-import { domainNameBindInfo } from '@/api/domain'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 import ButtonPopover from '../../components/Button/buttonPopover'
 import DropdownTable from '../../components/Dropdown/DropdownTable'
 // 下拉选择加载组件
 import loadSelect from "@/components/Select/SelectLoadMore";
-
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
-
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
-
 export default {
   name: 'complexTable',
   directives: {
@@ -277,7 +243,6 @@ export default {
       listQuery: {
         current: 1,
         size: 10,
-        importance: undefined,
         title: undefined,
         type: undefined,
         userId: undefined,
@@ -288,8 +253,6 @@ export default {
         description: undefined
 
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       userList: [],
@@ -328,7 +291,9 @@ export default {
           // { validator: isPortAvailable, trigger: 'change' }
         ],
         clientIp: [{ required: true, message: '请输入客户端IP', trigger: 'blur' }],
-        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' }],
+        clientPort: [{ required: true, message: '请输入客户端端口', trigger: 'blur' },
+          { pattern: /^([0-9]|[1-9]\d|[1-9]\d{2}|[1-9]\d{3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,message: '端口号请选择0-65535间的数字',trigger: 'blur'}
+        ],
         protocal: [{ required: true, message: '请选择协议', trigger: 'blur' }]
       },
       downloadLoading: false,
@@ -367,12 +332,8 @@ export default {
       }
       return statusMap[status]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
-    }
   },
   created() {
-    this.getDomainNameBindInfo()
     this.getDataList()
     this.getLicenseList()
     this.getLicenseAuthList()
@@ -404,11 +365,6 @@ export default {
         if(res.data.code == 0) {
           this.securityGroupList = res.data.data
         }
-      })
-    },
-    getDomainNameBindInfo() {
-      domainNameBindInfo().then(response => {
-        this.domainName = response.data.data
       })
     },
     getAvailablePortList(licenseId) {
@@ -570,29 +526,6 @@ export default {
           }
         })
       }).catch(() => { })
-    },
-    handleDelete2(row) {
-      deletePortMapping(row.id).then(response => {
-        if (response.data.code === 0) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-          this.getList()
-        }
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal, this.list)
-        excel.export_json_to_excel(tHeader, data, 'table-list')
-        this.downloadLoading = false
-      })
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => {

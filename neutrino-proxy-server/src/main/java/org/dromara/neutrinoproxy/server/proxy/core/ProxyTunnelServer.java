@@ -63,9 +63,9 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 		});
 		try {
 			bootstrap.bind(proxyConfig.getTunnel().getPort()).sync();
-			log.info("proxy server started，port：{}", proxyConfig.getTunnel().getPort());
+			log.info("ProxyTunnelServer，port：{}", proxyConfig.getTunnel().getPort());
 		} catch (Exception e) {
-			log.error("proxy server error", e);
+			log.error("ProxyTunnelServer error", e);
 		}
 	}
 
@@ -84,9 +84,9 @@ public class ProxyTunnelServer implements EventListener<AppLoadEndEvent> {
 		});
 		try {
 			bootstrap.bind(proxyConfig.getTunnel().getSslPort()).sync();
-			log.info("proxy server started，SSL port： {}", proxyConfig.getTunnel().getSslPort());
+			log.info("ProxyTunnelServer，SSL port： {}", proxyConfig.getTunnel().getSslPort());
 		} catch (Exception e) {
-			log.error("proxy server error", e);
+			log.error("ProxyTunnelServer error", e);
 		}
 	}
 

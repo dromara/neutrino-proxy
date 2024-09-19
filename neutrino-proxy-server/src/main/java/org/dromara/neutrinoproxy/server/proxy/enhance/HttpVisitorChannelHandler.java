@@ -19,6 +19,7 @@ import org.noear.solon.Solon;
 import java.net.InetSocketAddress;
 
 /**
+ * HTTP 访客处理器
  * @author: aoshiguchen
  * @date: 2023/5/27
  */
@@ -30,6 +31,7 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
         byte[] bytes = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(bytes);
         byteBuf.resetReaderIndex();
+
         ProxyAttachment proxyAttachment = new ProxyAttachment(ctx.channel(), bytes, (channel, buf) -> {
             Channel proxyChannel = channel.attr(Constants.NEXT_CHANNEL).get();
             if (null == proxyChannel) {
@@ -37,14 +39,11 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
                 ctx.channel().close();
                 return;
             }
-
             proxyChannel.writeAndFlush(ProxyMessage.buildTransferMessage(ProxyUtil.getVisitorIdByChannel(channel), bytes));
-
             // 增加流量计数
             VisitorChannelAttachInfo visitorChannelAttachInfo = ProxyUtil.getAttachInfo(channel);
             Solon.context().getBean(FlowReportService.class).addWriteByte(visitorChannelAttachInfo.getLicenseId(), bytes.length);
         });
-
         String visitorId = ProxyUtil.getVisitorIdByChannel(ctx.channel());
         if (StringUtils.isNotBlank(visitorId)) {
             proxyAttachment.execute();
@@ -53,11 +52,10 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
 
         // 用户连接到代理服务器时，设置用户连接不可读，等待代理后端服务器连接成功后再改变为可读状态
         ctx.channel().config().setOption(ChannelOption.AUTO_READ, false);
-
-
         // 根据域名拿到绑定的映射对应的cmdChannel
         Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
         Channel cmdChannel = ProxyUtil.getCmdChannelByServerPort(serverPort);
+
         if (null == cmdChannel) {
             ctx.channel().close();
             return;
@@ -67,7 +65,6 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
             ctx.channel().close();
             return;
         }
-
         visitorId = ProxyUtil.newVisitorId();
         ProxyUtil.addVisitorChannelToCmdChannel(NetworkProtocolEnum.HTTP, cmdChannel, visitorId, ctx.channel(), serverPort);
         ProxyUtil.addProxyConnectAttachment(visitorId, proxyAttachment);
@@ -76,7 +73,6 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-
         // 通知代理客户端
         Channel visitorChannel = ctx.channel();
         InetSocketAddress sa = (InetSocketAddress) visitorChannel.localAddress();
@@ -86,7 +82,6 @@ public class HttpVisitorChannelHandler extends SimpleChannelInboundHandler<ByteB
             // 该端口还没有代理客户端
             ctx.channel().close();
         } else {
-
             // 用户连接断开，从控制连接中移除
             String visitorId = ProxyUtil.getVisitorIdByChannel(visitorChannel);
             ProxyUtil.removeVisitorChannelFromCmdChannel(cmdChannel, visitorId);

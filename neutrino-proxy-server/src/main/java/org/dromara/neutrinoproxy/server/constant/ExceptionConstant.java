@@ -61,6 +61,9 @@ public enum ExceptionConstant {
 	AN_UNSUPPORTED_PROTOCOL(14002, "不支持的协议[{}]！"),
 	PORT_MAPPING_SUBDONAME_CONNOT_REPEAT(14003, "子域名不能重复使用！"),
 
+    DONAME_CONNOT_REPEAT(14004, "域名不能重复解析！"),
+
+    DONAME_PATTEN_ERROR(14005, "域名格式不正确！"),
 	// 调度管理(15000)
 	JOB_INFO_NOT_EXIST(15000, "调度管理记录不存在"),
 	SYSTEM_ERROR(500, "系统异常"),

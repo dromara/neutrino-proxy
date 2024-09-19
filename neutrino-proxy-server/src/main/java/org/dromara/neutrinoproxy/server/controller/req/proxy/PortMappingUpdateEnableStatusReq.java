@@ -22,6 +22,7 @@
 package org.dromara.neutrinoproxy.server.controller.req.proxy;
 
 import lombok.Data;
+import lombok.NonNull;
 
 /**
  * 端口映射更新启用状态请求
@@ -34,10 +35,12 @@ public class PortMappingUpdateEnableStatusReq {
 	/**
 	 * id
 	 */
+    @NonNull
 	private Integer id;
 	/**
 	 * 启用状态
 	 */
+    @NonNull
 	private Integer enable;
 
 }

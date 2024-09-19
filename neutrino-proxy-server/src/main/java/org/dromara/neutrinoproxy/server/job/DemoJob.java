@@ -13,7 +13,7 @@ import org.noear.solon.annotation.Component;
 @Slf4j
 @Component
 @JobHandler(name = "DemoJob", cron = "0/10 * * * * ?", param = "{\"a\":1}")
-public class DemoJob implements IJobHandler {
+public class  DemoJob implements IJobHandler {
 
 	@Override
 	public void execute(String param) throws Exception {

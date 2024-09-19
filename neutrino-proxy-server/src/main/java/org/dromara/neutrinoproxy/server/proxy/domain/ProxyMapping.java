@@ -16,6 +16,10 @@ import java.util.List;
 @Accessors(chain = true)
 @Data
 public class ProxyMapping {
+    /**
+     * licenseId
+     */
+    private Integer licenseId;
 	/**
 	 * 服务端端口
 	 */
@@ -24,8 +28,23 @@ public class ProxyMapping {
 	 * 客户端信息 IP:port
 	 */
 	private String lanInfo;
+    /**
+     * 协议
+     */
+    private String protocal;
 
-	public static List<ProxyMapping> buildList(List<PortMappingDO> portMappingList) {
+
+    public ProxyMapping() {
+    }
+
+    public ProxyMapping(Integer licenseId, Integer serverPort, String lanInfo, String protocal) {
+        this.licenseId = licenseId;
+        this.serverPort = serverPort;
+        this.lanInfo = lanInfo;
+        this.protocal = protocal;
+    }
+
+    public static List<ProxyMapping> buildList(List<PortMappingDO> portMappingList) {
 		List<ProxyMapping> list = new ArrayList<>();
 		if (CollectionUtil.isEmpty(portMappingList)) {
 			return list;
@@ -38,8 +57,13 @@ public class ProxyMapping {
 
 	public static ProxyMapping build(PortMappingDO portMappingDO) {
 		return new ProxyMapping()
-				.setServerPort(portMappingDO.getServerPort())
-				.setLanInfo(String.format("%s:%s", portMappingDO.getClientIp(), portMappingDO.getClientPort()));
+            .setLicenseId(portMappingDO.getLicenseId())
+            .setServerPort(portMappingDO.getServerPort())
+            .setLanInfo(String.format("%s:%s", portMappingDO.getClientIp(), portMappingDO.getClientPort()))
+            .setProtocal(portMappingDO.getProtocal());
 	}
+
+
+
 }
 

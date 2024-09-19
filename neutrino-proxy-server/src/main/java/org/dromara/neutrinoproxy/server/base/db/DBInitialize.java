@@ -109,7 +109,6 @@ public class DBInitialize implements EventListener<AppLoadEndEvent> {
 		}
 		for (String tableName : initDataTableNameList) {
 			// 表里没有数据的时候，才进行初始化操作
-
 			Object result = dbContext.exe(String.format("select count(1) from `%s`", tableName));
 			if (result != null && ((Number) result).intValue() > 0) {
 				continue;

@@ -26,40 +26,55 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.dromara.neutrinoproxy.server.controller.res.proxy.LicenseListRes;
+import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainMappingDto;
+import org.noear.solon.validation.annotation.NotBlank;
+import org.noear.solon.validation.annotation.NotNull;
+import org.noear.solon.validation.annotation.Pattern;
 
 import java.util.Date;
 
 /**
- * 许可证
+ * 端口映射
  * @author: aoshiguchen
- * @date: 2022/8/6
+ * @date: 2022/8/8
  */
 @ToString
 @Accessors(chain = true)
 @Data
-@TableName("license")
-public class LicenseDO {
+@TableName("domain_mapping")
+public class DomainMappingDO {
 	@TableId(type = IdType.AUTO)
 	private Integer id;
 	/**
-	 * 名称
+	 * licenseId
 	 */
-	private String name;
+    @NotNull
+	private Integer licenseId;
 	/**
-	 * licenseKey
+	 * 协议
 	 */
-	@TableField("`key`")
-	private String key;
+	private String protocal;
 	/**
-	 * 用户ID
+	 * 域名 /^(\w+\.{1}\w+)$/g
 	 */
-	private Integer userId;
+    @NotBlank
+    @Pattern("^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$")
+	private String domain;
+    /**
+     * 描述
+     */
+    private String description;
+	/**
+	 * 目标地址（licenseId客户端，ip:port）
+	 */
+    @NotBlank
+    private String targetPath;
+
     /**
      * 上传限速
      */
@@ -68,16 +83,25 @@ public class LicenseDO {
      * 下载限速
      */
     private String downLimitRate;
+
 	/**
 	 * 是否在线
 	 * {@link OnlineStatusEnum}
 	 */
+    @TableField(exist=false)
 	private Integer isOnline;
+
 	/**
 	 * 启用状态
 	 * {@link EnableStatusEnum}
 	 */
 	private Integer enable;
+
+    /**
+     * 安全组Id
+     */
+    private Integer securityGroupId = 0; // 设置为null不生效，不知道为啥
+
 	/**
 	 * 创建时间
 	 */
@@ -87,26 +111,10 @@ public class LicenseDO {
 	 */
 	private Date updateTime;
 
-
-    public LicenseDO() {
+    public DomainMappingDto toRes() {
+        DomainMappingDto dto = new DomainMappingDto();
+        BeanUtil.copyProperties(this, dto);
+        return dto;
     }
 
-    public LicenseDO(Integer id, String name, String key, Integer userId, String upLimitRate, String downLimitRate, Integer isOnline, Integer enable, Date createTime, Date updateTime) {
-        this.id = id;
-        this.name = name;
-        this.key = key;
-        this.userId = userId;
-        this.upLimitRate = upLimitRate;
-        this.downLimitRate = downLimitRate;
-        this.isOnline = isOnline;
-        this.enable = enable;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-    }
-
-    public LicenseListRes toRes() {
-        LicenseListRes res = new LicenseListRes();
-        BeanUtil.copyProperties(this, res);
-        return res;
-    }
 }

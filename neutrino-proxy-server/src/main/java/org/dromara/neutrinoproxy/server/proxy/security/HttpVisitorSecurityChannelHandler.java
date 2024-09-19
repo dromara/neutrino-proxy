@@ -1,6 +1,5 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
-import cn.hutool.core.util.StrUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -9,79 +8,59 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.util.HttpUtil;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
+import org.dromara.neutrinoproxy.server.proxy.domain.DomainMapping;
 import org.dromara.neutrinoproxy.server.service.PortMappingService;
 import org.dromara.neutrinoproxy.server.service.SecurityGroupService;
 import org.dromara.neutrinoproxy.server.util.ProxyUtil;
 import org.noear.solon.Solon;
 
 /**
+ * HTTP 访问安全检测
  * @author: aoshiguchen
  * @date: 2023/12/14
  */
 @Slf4j
 public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdapter {
-    private final SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
-    private final PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
-    /**
-     * 域名
-     */
-    private String domainName;
+    private SecurityGroupService securityGroupService = Solon.context().getBean(SecurityGroupService.class);
+    private PortMappingService portMappingService = Solon.context().getBean(PortMappingService.class);
 
-    public HttpVisitorSecurityChannelHandler(String domainName) {
-        this.domainName = domainName;
-    }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 未配置域名则不支持通过域名访问
-        if (StrUtil.isBlank(domainName)) {
-            ctx.channel().close();
-            return;
-        }
-
         ByteBuf buf = (ByteBuf) msg;
 
-        Integer serverPort = ctx.channel().attr(Constants.SERVER_PORT).get();
-        if (null == serverPort) {
+        Integer domainId = ctx.channel().attr(Constants.SERVER_PORT).get();
+        if (null == domainId) {
             // 获取Host请求头
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             String httpContent = new String(bytes);
-            String host = HttpUtil.getHostIgnorePort(httpContent);
+            String domain = HttpUtil.getHostIgnorePort(httpContent);
 
-            log.debug("HttpProxy host: {}", host);
-            if (StringUtils.isBlank(host)) {
+            log.debug("HttpProxy host: {}", domain);
+            if (StringUtils.isBlank(domain)) {
                 ctx.channel().close();
                 return;
             }
-
-            // 根据Host匹配端口映射
-            if (!host.endsWith(domainName)) {
+            // 未配置域名解析，不再解析
+            if (!ProxyUtil.domainMapingMap.containsKey(domain)) {
                 ctx.channel().close();
                 return;
             }
-            int index = host.lastIndexOf("." + domainName);
-            String subdomain = host.substring(0, index);
-
-            // 根据域名拿到绑定的映射对应的cmdChannel
-            serverPort = ProxyUtil.getServerPortBySubdomain(subdomain);
-            if (null == serverPort) {
-                ctx.channel().close();
-                return;
-            }
+            DomainMapping dm = ProxyUtil.domainMapingMap.get(domain);
 
             // 判断IP是否在该端口绑定的安全组允许的规则内
             String ip = IpUtil.getRealRemoteIp(httpContent);
             if (ip == null) {
                 ip = IpUtil.getRemoteIp(ctx);
             }
-            if (!securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(serverPort))) {
+            if (null==dm.getId() || !securityGroupService.judgeAllow(ip, portMappingService.getSecurityGroupIdByMappingPort(dm.getId()))) {
                 // 不在安全组规则放行范围内
                 ctx.channel().close();
                 return;
             }
-
             ctx.channel().attr(Constants.REAL_REMOTE_IP).set(ip);
-            ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
+            ctx.channel().attr(Constants.SERVER_PORT).set(dm.getId());
+            ctx.channel().attr(Constants.LICENSE_ID).set(dm.getLicenseId());
         }
 
         // 继续传播

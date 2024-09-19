@@ -23,6 +23,7 @@ package org.dromara.neutrinoproxy.server.controller.req.proxy;
 
 import lombok.Data;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.noear.solon.validation.annotation.NotNull;
 
 /**
  * 更新启用状态请求
@@ -31,13 +32,15 @@ import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
  */
 @Data
 public class LicenseUpdateEnableStatusReq {
-	/**
-	 * id
-	 */
-	private Integer id;
+        /**
+         * id
+         */
+    @NotNull
+    private Integer id;
 	/**
 	 * 启用状态
 	 * {@link EnableStatusEnum}
 	 */
-	private Integer enable;
+    @NotNull
+    private Integer enable;
 }

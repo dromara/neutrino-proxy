@@ -50,6 +50,9 @@ public interface Constants {
     AttributeKey<InetSocketAddress> SENDER = AttributeKey.newInstance("sender");
 
     AttributeKey<Integer> SERVER_PORT = AttributeKey.newInstance("serverPort");
+
+    AttributeKey<String> DOMAIN = AttributeKey.newInstance("domain");
+
     AttributeKey<String> REAL_REMOTE_IP = AttributeKey.newInstance("realRemoteIp");
 
 

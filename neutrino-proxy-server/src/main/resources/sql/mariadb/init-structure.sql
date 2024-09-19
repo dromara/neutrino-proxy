@@ -102,7 +102,6 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `license_id` int NOT NULL COMMENT 'licenseID',
     `protocal` varchar(10) NOT NULL DEFAULT 'TCP' COMMENT '协议',
-    `subdomain` varchar(50) DEFAULT NULL COMMENT '子域名（仅HTTP时有效）',
     `server_port` int NOT NULL COMMENT '服务端端口',
     `client_ip` varchar(20) NOT NULL COMMENT '客户端IP',
     `client_port` int NOT NULL COMMENT '客户端端口',
@@ -242,3 +241,22 @@ CREATE TABLE IF NOT EXISTS `flow_report_month` (
     KEY `I_flow_report_month_user_id` (`user_id`),
     KEY `I_flow_report_month_license_id` (`license_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+# 域名 映射表 AUTO_INCREMENT 设置65550 避开端口号0-65535，减少域名解析代码修改
+CREATE TABLE IF NOT EXISTS `domain_mapping` (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `license_id` INTEGER(20) NOT NULL,
+  `protocal` VARCHAR(10) NOT NULL DEFAULT 'HTTP',
+  `domain` VARCHAR(50) DEFAULT NULL,
+  `target_path` VARCHAR(50) NOT NULL,
+  `up_limit_rate` VARCHAR(20) DEFAULT NULL,
+  `down_limit_rate` VARCHAR(20) DEFAULT NULL,
+  `description` VARCHAR(100) DEFAULT NULL,
+  `request_header` INTEGER(20) NOT NULL DEFAULT 0,
+  `enable` INTEGER(2) NOT NULL,
+  `security_group_id` INTEGER(20) NOT NULL DEFAULT 0,
+  `create_time` TIMESTAMP NOT NULL,
+  `update_time` TIMESTAMP NOT NULL
+) AUTO_INCREMENT = 65550;
+CREATE UNIQUE INDEX IF NOT EXISTS I_domain_mapping_domain ON domain_mapping (`domain` ASC);

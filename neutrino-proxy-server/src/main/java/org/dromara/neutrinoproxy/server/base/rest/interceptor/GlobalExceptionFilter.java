@@ -9,6 +9,7 @@ import org.noear.solon.annotation.Component;
 import org.noear.solon.core.handle.Context;
 import org.noear.solon.core.handle.Filter;
 import org.noear.solon.core.handle.FilterChain;
+import org.noear.solon.validation.ValidatorException;
 
 /**
  * @author: aoshiguchen
@@ -22,9 +23,13 @@ public class GlobalExceptionFilter implements Filter {
     public void doFilter(Context ctx, FilterChain chain) throws Throwable {
         try {
             chain.doFilter(ctx);
-        } catch (Throwable e) {
+        } catch(ValidatorException ve){
+            ctx.render(new ResponseBody<>()
+                .setCode(ExceptionConstant.DONAME_PATTEN_ERROR.getCode())
+                .setMsg(ExceptionConstant.DONAME_PATTEN_ERROR.getMsg())
+                .setStack(ExceptionUtils.getStackTrace(ve)));
+        } catch(Throwable e) {
             log.error("global error", e);
-
             if (e instanceof ServiceException) {
                 ServiceException serviceException = (ServiceException) e;
                 ctx.render(new ResponseBody<>()
@@ -32,7 +37,6 @@ public class GlobalExceptionFilter implements Filter {
                         .setMsg(serviceException.getMsg()));
                 return;
             }
-
             ctx.render(new ResponseBody<>()
                     .setCode(ExceptionConstant.SYSTEM_ERROR.getCode())
                     .setMsg(ExceptionConstant.SYSTEM_ERROR.getMsg())

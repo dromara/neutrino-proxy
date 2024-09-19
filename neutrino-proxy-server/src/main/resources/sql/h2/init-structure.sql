@@ -97,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `license_id` INTEGER(20) NOT NULL,
   `protocal` VARCHAR(10) NOT NULL DEFAULT 'TCP',
-  `subdomain` VARCHAR(50) DEFAULT NULL,
   `server_port` INTEGER NOT NULL,
   `client_ip` VARCHAR(20) NOT NULL,
   `client_port` INTEGER NOT NULL,
@@ -229,3 +228,21 @@ CREATE INDEX IF NOT EXISTS I_flow_report_month_create_time ON flow_report_month(
 CREATE INDEX IF NOT EXISTS I_flow_report_month_date ON flow_report_month(`date`);
 CREATE INDEX IF NOT EXISTS I_flow_report_month_user_id ON flow_report_month(`user_id`);
 CREATE INDEX IF NOT EXISTS I_flow_report_month_license_id ON flow_report_month(`license_id`);
+
+# 域名 映射表 AUTO_INCREMENT 设置65550 避开端口号0-65535，减少域名解析代码修改
+CREATE TABLE IF NOT EXISTS `domain_mapping` (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `license_id` INTEGER(20) NOT NULL,
+  `protocal` VARCHAR(10) NOT NULL DEFAULT 'HTTP',
+  `domain` VARCHAR(50) DEFAULT NULL,
+  `target_path` VARCHAR(50) NOT NULL,
+  `up_limit_rate` VARCHAR(20) DEFAULT NULL,
+  `down_limit_rate` VARCHAR(20) DEFAULT NULL,
+  `description` VARCHAR(100) DEFAULT NULL,
+  `request_header` INTEGER(20) NOT NULL DEFAULT 0,
+  `enable` INTEGER(2) NOT NULL,
+  `security_group_id` INTEGER(20) NOT NULL DEFAULT 0,
+  `create_time` TIMESTAMP NOT NULL,
+  `update_time` TIMESTAMP NOT NULL
+) AUTO_INCREMENT = 65550;
+CREATE UNIQUE INDEX IF NOT EXISTS I_domain_mapping_domain ON domain_mapping (`domain` ASC);

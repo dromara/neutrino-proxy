@@ -31,6 +31,8 @@ import org.dromara.neutrinoproxy.server.controller.res.proxy.*;
 import org.dromara.neutrinoproxy.server.service.LicenseService;
 import org.dromara.neutrinoproxy.server.util.ParamCheckUtil;
 import org.noear.solon.annotation.*;
+import org.noear.solon.validation.annotation.Valid;
+import org.noear.solon.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -39,6 +41,8 @@ import java.util.List;
  * @author: aoshiguchen
  * @date: 2022/8/6
  */
+
+@Valid
 @Mapping("/license")
 @Controller
 public class LicenseController {
@@ -101,18 +105,14 @@ public class LicenseController {
 	@Post
 	@Mapping("/update/enable-status")
 	@Authorization(onlyAdmin = true)
-	public LicenseUpdateEnableStatusRes updateEnableStatus(LicenseUpdateEnableStatusReq req) {
-		ParamCheckUtil.checkNotNull(req, "req");
-		ParamCheckUtil.checkNotNull(req.getId(), "id");
-		ParamCheckUtil.checkNotNull(req.getEnable(), "enable");
-
+	public LicenseUpdateEnableStatusRes updateEnableStatus(@Validated LicenseUpdateEnableStatusReq req) {
 		return licenseService.updateEnableStatus(req);
 	}
 
 	@Post
 	@Mapping("/delete")
 	@Authorization(onlyAdmin = true)
-	public void delete(LicenseDeleteReq req) {
+	public void delete(@Validated LicenseDeleteReq req) {
 		ParamCheckUtil.checkNotNull(req, "req");
 		ParamCheckUtil.checkNotNull(req.getId(), "id");
 

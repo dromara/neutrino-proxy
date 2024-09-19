@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.dromara.neutrinoproxy.server.dal.entity.LicenseDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.dromara.neutrinoproxy.server.proxy.domain.ProxyMapping;
 
 import java.util.Date;
 import java.util.List;
@@ -64,16 +65,18 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
 
     default void updateOnlineStatus(Integer id, Integer isOnline, Date updateTime) {
         this.update(null, new LambdaUpdateWrapper<LicenseDO>()
-                .eq(LicenseDO::getId, id)
-                .set(LicenseDO::getIsOnline, isOnline)
-                .set(LicenseDO::getUpdateTime, updateTime)
+            .eq(LicenseDO::getId, id)
+            .set(LicenseDO::getIsOnline, isOnline)
+            .set(LicenseDO::getUpdateTime, updateTime)
         );
     }
 
+
+//            .ne(LicenseDO::getId, 1)
     default void updateOnlineStatus(Integer isOnline, Date updateTime) {
         this.update(null, new LambdaUpdateWrapper<LicenseDO>()
-                .set(LicenseDO::getIsOnline, isOnline)
-                .set(LicenseDO::getUpdateTime, updateTime)
+            .set(LicenseDO::getIsOnline, isOnline)
+            .set(LicenseDO::getUpdateTime, updateTime)
         );
     }
 
@@ -115,4 +118,8 @@ public interface LicenseMapper extends BaseMapper<LicenseDO> {
                 .eq(LicenseDO::getKey, licenseKey)
         );
     }
+
+    List<ProxyMapping> findEnableProxyMappingListByLicenseId(Integer licenseId);
+
+    List<ProxyMapping> findAllProxyMappingListByLicenseId(Integer licenseId);
 }
