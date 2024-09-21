@@ -13,6 +13,10 @@ import org.dromara.neutrinoproxy.server.constant.HttpsStatusEnum;
 @Accessors(chain = true)
 public class FullDomainNameBO {
     /**
+     * 域名端口映射id
+     */
+    private Integer id;
+    /**
      * 端口映射id
      */
     private Integer portMappingId;

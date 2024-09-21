@@ -419,7 +419,7 @@ export default {
         domain: undefined,
         domainId: defaultDomainId
       });
-      // console.log(this.temp)
+      console.log(this.list)
     },
     // 删除指定的域名映射
     removeDomainMapping(index) {
@@ -436,6 +436,7 @@ export default {
             let allFullDomainList = []
             for (const fullDomainMapping of item.fullDomainMappings) {
               item.domainMappings.push({
+                id: fullDomainMapping.id || '',
                 subdomain: fullDomainMapping.subdomain || '', // 使用 || '' 保证字段非空
                 domainId: fullDomainMapping.domainNameId || '',
                 domain: fullDomainMapping.domain || ''
@@ -582,8 +583,10 @@ export default {
       open(url)
     },
     handleUpdate(row) {
-      console.log(row)
-      this.temp = Object.assign({}, row) // copy obj
+      this.resetTemp()
+      console.log(this.temp)
+      this.temp = JSON.parse(JSON.stringify(row))
+      console.log(this.temp)
       if (row.securityGroupId === 0) {
         this.temp.securityGroupId = null
       }

@@ -1,20 +1,13 @@
 package org.dromara.neutrinoproxy.server.dal;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.dromara.neutrinoproxy.server.dal.entity.DomainNameDO;
 import org.dromara.neutrinoproxy.server.dal.entity.DomainPortMappingDO;
-import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
-import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author: Mirac
@@ -22,11 +15,11 @@ import java.util.Set;
  */
 @Mapper
 public interface DomainPortMappingMapper extends BaseMapper<DomainPortMappingDO> {
-    default Boolean checkRepeatBySubdomain(String subdomain, Integer domainNameId, Integer portMappingId) {
+    default Boolean checkRepeatBySubdomain(String subdomain, Integer domainNameId, Integer id) {
         return StringUtils.isEmpty(subdomain)? Boolean.FALSE : this.selectCount(new LambdaQueryWrapper<DomainPortMappingDO>()
             .eq(DomainPortMappingDO::getSubdomain, subdomain)
             .eq(DomainPortMappingDO::getDomainNameId, domainNameId)
-            .ne(portMappingId != null, DomainPortMappingDO::getPortMappingId, portMappingId)
+            .ne(id != null, DomainPortMappingDO::getId, id)
             .last("limit 1")
         ).intValue() > 0;
     }

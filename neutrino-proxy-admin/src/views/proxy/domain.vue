@@ -181,7 +181,11 @@
           timestamp: new Date(),
           title: '',
           type: '',
-          status: 'published'
+          status: 'published',
+          domain: '',
+          jks: undefined,
+          keyStorePassword: '',
+          forceHttps: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -201,8 +205,8 @@
             { required: false, message: '请选择文件', trigger: 'blur' }
           ],
           filePassword: [
-            { required: false, message: 'jks密码不能为空', trigger: 'blur' }
-          ]// TODO jks密码不为空仍无法通过验证
+            { required: false, message: '密码不能为空', trigger: 'blur' }
+          ]// TODO required改为true后，密码不为空，仍不能通过
         },
         downloadLoading: false,
         selectObj: {
@@ -253,14 +257,15 @@
         this.temp.jks = param.file
       },
       validateDomain(rule, value, callback) {
-        // 只允许输入一级域名，例如：example.com
-        const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/
+        // 匹配多级域名，例如：sub.example.com, sub.sub.example.com
+        const domainPattern = /^(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}$/
+
         if (!value) {
-          callback(new Error('主域名不能为空'))
+          callback(new Error('主域名不能为空'));
         } else if (!domainPattern.test(value)) {
-          callback(new Error('请输入正确的主域名格式'))
+          callback(new Error('请输入正确的域名格式'));
         } else {
-          callback()
+          callback();
         }
       },
       handleChange(file) {

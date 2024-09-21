@@ -90,6 +90,7 @@ public class PortMappingUpdateReq {
 
     @Data
     public class DomainMapping {
+        private Integer id;
         private Integer domainId;
         private String subdomain;
     }

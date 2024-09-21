@@ -245,7 +245,8 @@ public class PortMappingService implements LifecycleBean {
                 DomainNameDO domainNameDO = domainNameDOMap.get(item.getDomainId());
                 ParamCheckUtil.checkNotNull(domainNameDO, ExceptionConstant.DOMAIN_NAME_NOT_EXIST);
                 //检查子域名是否重复
-                ParamCheckUtil.checkExpression(!domainPortMappingMapper.checkRepeatBySubdomain(item.getSubdomain(), item.getDomainId(), req.getId()),
+                boolean b = !domainPortMappingMapper.checkRepeatBySubdomain(item.getSubdomain(), item.getDomainId(), item.getId());
+                ParamCheckUtil.checkExpression(b,
                     ExceptionConstant.SUDOMAIN_NAME_CANNOT_REPEAT);
             });
         }
