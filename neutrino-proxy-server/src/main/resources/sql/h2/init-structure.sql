@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `domain_name` (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS I_domain_name_domain ON domain_name (`domain` ASC);
 
-#域映射中间表
+#域名映射中间表
 CREATE TABLE IF NOT EXISTS `domain_port_mapping` (
     `id` INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `subdomain` VARCHAR(50) NOT NULL,

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `domain_name` (
     UNIQUE INDEX `I_domain_name_domain` (`domain` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-#域映射中间表
+#域名映射中间表
 CREATE TABLE IF NOT EXISTS `domain_port_mapping` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '创建时间',
     `subdomain` varchar(50) NOT NULL COMMENT '子域名',
