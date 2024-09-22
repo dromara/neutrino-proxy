@@ -102,7 +102,6 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `license_id` int NOT NULL COMMENT 'licenseID',
     `protocal` varchar(10) NOT NULL DEFAULT 'TCP' COMMENT '协议',
-    `subdomain` varchar(50) DEFAULT NULL COMMENT '子域名（仅HTTP时有效）',
     `server_port` int NOT NULL COMMENT '服务端端口',
     `client_ip` varchar(20) NOT NULL COMMENT '客户端IP',
     `client_port` int NOT NULL COMMENT '客户端端口',
@@ -118,6 +117,34 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `update_time` datetime(3) NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `I_port_mapping_server_port` (`server_port`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+#域名表
+CREATE TABLE IF NOT EXISTS `domain_name` (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `domain` varchar(50) NOT NULL COMMENT '域名',
+    `user_id` int NOT NULL COMMENT '用户Id',
+    `jks` BLOB DEFAULT NULL COMMENT 'jks文件',
+    `key_store_password` varchar(255) DEFAULT NULL COMMENT 'jks密码',
+    `is_default` int(2) NOT NULL COMMENT '是否开启默认域名（1、开启 2、关闭）',
+    `force_https` int(2) NOT NULL COMMENT '是否启用强制https（1、开启 2、关闭）',
+    `enable` int(2) NOT NULL COMMENT '是否启用(1、启用 2、禁用)',
+    `create_time` datetime NOT NULL COMMENT '创建时间',
+    `update_time` datetime NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `I_domain_name_domain` (`domain` ASC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+#域名映射中间表
+CREATE TABLE IF NOT EXISTS `domain_port_mapping` (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '创建时间',
+    `subdomain` varchar(50) NOT NULL COMMENT '子域名',
+    `domain_name_id` int NOT NULL COMMENT '域名Id',
+    `port_mapping_id` int NOT NULL COMMENT '端口映射Id',
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `I_unique_domain_port_mapping` (`domain_name_id` ASC, `subdomain` ASC),
+    INDEX `I_domain_port_mapping_domain_name_id` (`domain_name_id` ASC),
+    INDEX `I_domain_port_mapping_port_mapping_id` (`port_mapping_id` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #############################日志管理相关表#############################
 #用户登录记录表

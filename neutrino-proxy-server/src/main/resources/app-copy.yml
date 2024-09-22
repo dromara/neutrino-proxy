@@ -34,15 +34,10 @@ neutrino:
         # 线程池相关配置，用于技术调优，可忽略
         boss-thread-count: 5
         work-thread-count: 20
-        # http代理端口，默认80
+        # http代理端口，默认80（不配置不支持）
         http-proxy-port: 80
-        # https代理端口，默认443 （需要配置域名、证书）
+        # https代理端口，默认443 （不配置不支持，同时需要配置域名、证书）
         https-proxy-port: 443
-        # 如果不配置，则不支持域名映射
-        domain-name:
-        # https证书配置
-        key-store-password:
-        jks-path:
         # 是否开启代理服务报文日志(日志级别为debug时开启才有效)
         transfer-log-enable: false
       udp:

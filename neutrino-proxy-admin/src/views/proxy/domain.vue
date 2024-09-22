@@ -1,11 +1,8 @@
 <template>
   <div class="app-container calendar-list-container">
-    <div class="filter-container">
+    <div class="filter-container" style="display:flex">
       <el-select v-model="listQuery.userId" placeholder="请选择用户" filterable clearable style="margin-right:10px;width: 120px;">
         <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
-      </el-select>
-      <el-select v-model="listQuery.isOnline" placeholder="请选择在线状态" clearable style="width:145px;margin-right:10px">
-        <el-option v-for="item in selectObj.onlineOptions" :key="item.value" :label="item.label" :value="item.value"/>
       </el-select>
       <el-select v-model="listQuery.enable" placeholder="请选择启用状态" clearable style="width:145px;margin-right:10px">
         <el-option v-for="item in selectObj.statusOptions" :key="item.value" :label="item.label" :value="item.value"/>
@@ -26,19 +23,9 @@
           <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.licenseName')" width="150">
+      <el-table-column align="center" :label="$t('table.domain')" width="300">
         <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('table.licenseKey')" width="300">
-        <template slot-scope="scope">
-          <span>{{scope.row.key}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('限速')" width="100">
-        <template slot-scope="scope">
-          <span>{{scope.row.upLimitRate ? scope.row.upLimitRate : '--'}} / {{scope.row.downLimitRate ? scope.row.downLimitRate : '--'}}</span>
+          <span>{{scope.row.domain}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.createTime')">
@@ -51,20 +38,31 @@
           <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('SSL证书状态')" width="110">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.sslStatus | statusFilter">{{scope.row.sslStatus | sslStatusName}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('默认域名')" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.isDefault | statusFilter">{{scope.row.isDefault | httpStatusName}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" :label="$t('强制HTTPS')" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.forceHttps | statusFilter">{{scope.row.forceHttps | httpStatusName}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column class-name="status-col" :label="$t('table.enableStatus')" width="100">
         <template slot-scope="scope">
           <el-tag :type="scope.row.enable | statusFilter">{{scope.row.enable | statusName}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.isOnline')" width="100">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.isOnline | statusFilter">{{scope.row.isOnline | isOnlineName}}</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="330" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button v-if="scope.row.isDefault !='1' && scope.row.enable == '1'" size="mini" type="primary" @click="handleDefaultStatus(scope.row)">{{$t('默认')}}</el-button>
+
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="primary" @click="handleReset(scope.row)">{{$t('table.resetKey')}}</el-button>
           <el-button v-if="scope.row.enable =='1'" size="mini" type="danger" @click="handleModifyStatus(scope.row,2)">{{$t('table.disable')}}</el-button>
           <el-button v-if="scope.row.enable =='2'" size="mini" type="success" @click="handleModifyStatus(scope.row,1)">{{$t('table.enable')}}</el-button>
           <!--          <el-button size="mini" type="danger" @click="handleDelete(scope.row,'deleted')">{{$t('table.delete')}}</el-button>-->
@@ -81,20 +79,33 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('用户')" prop="userId">
-          <el-select style="width: 280px" class="filter-item" v-model="temp.userId" placeholder="请选择" :disabled="dialogStatus=='update'">
-            <el-option v-for="item in  userList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
+        <el-form-item :label="$t('主域名')" prop="domain">
+          <el-input v-model="temp.domain"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('强制HTTPS')" prop="userId">
+          <el-select style="width: 280px" class="filter-item" v-model="temp.forceHttps" placeholder="请选择">
+            <el-option label="开启" :value="1"></el-option>
+            <el-option label="关闭" :value="2"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('License名称')" prop="name">
-          <el-input v-model="temp.name"></el-input>
+        <el-form-item :label="$t('JKS文件上传')" prop="file">
+          <el-upload
+            ref="upload"
+            class="upload-demo"
+            action=""
+            :http-request="httpRequest"
+            :file-list="this.fileList"
+            :auto-upload="false"
+            :multiple="false"
+            accept=".jks"
+            :limit="1"
+            :on-change="handleChange"
+            >
+            <el-button slot="trigger" size="small" type="primary">选择文件</el-button>
+          </el-upload>
         </el-form-item>
-        <el-form-item :label="$t('上传限速')" prop="upLimitRate">
-          <el-input v-model="temp.upLimitRate" placeholder="如：10240B、500K、1M"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('下载限速')" prop="downLimitRate">
-          <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
+        <el-form-item v-if="passWordInputStatus" :label="$t('JKS密码')" prop="filePassword">
+          <el-input type="password" v-model="temp.keyStorePassword"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -104,21 +115,20 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"> </el-table-column>
-        <el-table-column prop="pv" label="Pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>
-      </span>
-    </el-dialog>
-
+<!--    <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">-->
+<!--      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">-->
+<!--        <el-table-column prop="key" label="Channel"> </el-table-column>-->
+<!--        <el-table-column prop="pv" label="Pv"> </el-table-column>-->
+<!--      </el-table>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
   </div>
 </template>
 
 <script>
-  import { fetchList, createLicense, updateLicense, updateEnableStatus, deleteLicense, resetLicense } from '@/api/license'
+  import { fetchList, updateEnableStatus, createDomain, updateDomain, deleteDomain, updateDefaultStatus } from '@/api/domain'
   import { userList } from '@/api/user'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -147,6 +157,7 @@
     },
     data() {
       return {
+        fileList: [],
         tableKey: 0,
         list: null,
         total: null,
@@ -155,7 +166,6 @@
           current: 1,
           size: 10,
           enable: undefined,
-          isOnline: undefined,
           userId: null
         },
         importanceOptions: [1, 2, 3],
@@ -171,10 +181,15 @@
           timestamp: new Date(),
           title: '',
           type: '',
-          status: 'published'
+          status: 'published',
+          domain: '',
+          jks: undefined,
+          keyStorePassword: '',
+          forceHttps: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
+        passWordInputStatus: false,
         textMap: {
           update: '编辑',
           create: '新建'
@@ -182,8 +197,16 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          userId: [{ required: true, message: '请选择用户', trigger: 'blur' }],
-          name: [{ required: true, message: 'License名称不能为空', trigger: 'blur' }]
+          domain: [
+            { required: true, message: '主域名不能为空', trigger: 'blur' },
+            { validator: this.validateDomain, trigger: 'blur' }
+          ],
+          file: [
+            { required: false, message: '请选择文件', trigger: 'blur' }
+          ],
+          filePassword: [
+            { required: false, message: '密码不能为空', trigger: 'blur' }
+          ]// TODO required改为true后，密码不为空，仍不能通过
         },
         downloadLoading: false,
         selectObj: {
@@ -200,12 +223,20 @@
         }
         return statusMap[status]
       },
-      isOnlineName(isOnline) {
-        const isOnlineMap = {
-          1: '在线',
-          2: '离线'
+      sslStatusName(status) {
+        const statusMap = {
+          1: '已上传',
+          2: '未上传',
+          3: '已验证'
         }
-        return isOnlineMap[isOnline]
+        return statusMap[status]
+      },
+      httpStatusName(status) {
+        const statusMap = {
+          1: '开启',
+          2: '关闭'
+        }
+        return statusMap[status]
       },
       statusFilter(status) {
         const statusMap = {
@@ -222,6 +253,25 @@
       this.getDataList()
     },
     methods: {
+      httpRequest(param) {
+        this.temp.jks = param.file
+      },
+      validateDomain(rule, value, callback) {
+        // 匹配多级域名，例如：sub.example.com, sub.sub.example.com
+        const domainPattern = /^(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}$/
+
+        if (!value) {
+          callback(new Error('主域名不能为空'));
+        } else if (!domainPattern.test(value)) {
+          callback(new Error('请输入正确的域名格式'));
+        } else {
+          callback();
+        }
+      },
+      handleChange(file) {
+        this.fileList = [file]
+        this.passWordInputStatus = true
+      },
       getList() {
         this.listLoading = true
         fetchList(this.listQuery).then(response => {
@@ -258,9 +308,22 @@
         this.listQuery.current = val
         this.getList()
       },
+      handleDefaultStatus(row) {
+        updateDefaultStatus(row.id, 1).then(response => {
+          if (response.data.code === 0) {
+            this.$notify({
+              title: '成功',
+              message: '操作成功',
+              type: 'success'
+            })
+            this.getList()
+          }
+          this.getList()
+        })
+      },
       handleModifyStatus(row, enable) {
         console.log('route', this.$route)
-        updateEnableStatus(row.id, enable).then(response => {
+        updateEnableStatus(row.id, enable, row.domain).then(response => {
           if (response.data.data.code === 0) {
             this.$message({
               message: '操作成功',
@@ -271,10 +334,13 @@
         })
       },
       resetTemp() {
+        this.passWordInputStatus = false
+        this.fileList = []
         this.temp = {
-          id: undefined,
-          name: undefined,
-          userId: undefined
+          domain: undefined,
+          jks: undefined,
+          keyStorePassword: undefined,
+          forceHttps: undefined
         }
       },
       handleCreate() {
@@ -288,7 +354,9 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            createLicense(this.temp).then(response => {
+            this.$refs.upload.submit()
+            const formData = this.objectToFormData(this.temp)
+            createDomain(formData).then(response => {
               if (response.data.code === 0) {
                 this.dialogFormVisible = false
                 this.$notify({
@@ -304,6 +372,7 @@
         })
       },
       handleUpdate(row) {
+        this.resetTemp()
         this.temp = Object.assign({}, row) // copy obj
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
@@ -311,43 +380,36 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      handleReset(row) {
-        this.$confirm('确定重置吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info'
-        }).then(() => {
-          resetLicense(row.id).then(response => {
-            if (response.data.code === 0) {
-              this.$notify({
-                title: '成功',
-                message: '重置成功',
-                type: 'success',
-                duration: 2000
-              })
-              this.getList()
-            }
-          })
-        }).catch(() => {})
-      },
       updateData() {
         this.$refs['dataForm'].validate((valid) => {
+          console.log(this.temp)
           if (valid) {
+            this.$refs.upload.submit()
             const tempData = Object.assign({}, this.temp)
-            updateLicense(tempData).then(response => {
+            const formData = this.objectToFormData(tempData)
+            updateDomain(formData).then(response => {
               if (response.data.code === 0) {
+                this.dialogFormVisible = false
                 this.$notify({
                   title: '成功',
-                  message: '更新成功',
+                  message: '创建成功',
                   type: 'success',
                   duration: 2000
                 })
-                this.dialogFormVisible = false
                 this.getList()
               }
             })
           }
         })
+      },
+      objectToFormData(obj) {
+        const formData = new FormData()
+        Object.keys(obj).forEach(key => {
+          if (obj[key] !== undefined) {
+            formData.append(key, obj[key])
+          }
+        })
+        return formData
       },
       handleDelete(row) {
         this.$confirm('确定要删除吗？', '提示', {
@@ -355,7 +417,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteLicense(row.id).then(response => {
+          deleteDomain(row.id).then(response => {
             if (response.data.code === 0) {
               this.$notify({
                 title: '成功',
@@ -369,7 +431,7 @@
         }).catch(() => {})
       },
       handleDelete2(row) {
-        deleteLicense(row.id).then(response => {
+        deleteDomain(row.id).then(response => {
           if (response.data.code === 0) {
             this.$notify({
               title: '成功',

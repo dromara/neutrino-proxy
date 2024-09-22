@@ -1,8 +1,7 @@
 package org.dromara.neutrinoproxy.server.proxy.enhance;
 
-import cn.hutool.core.util.StrUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -10,7 +9,6 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.proxy.core.BytesMetricsHandler;
-import org.dromara.neutrinoproxy.server.proxy.core.ProxyTunnelServer;
 import org.dromara.neutrinoproxy.server.proxy.security.HttpVisitorSecurityChannelHandler;
 import org.dromara.neutrinoproxy.server.proxy.security.VisitorFlowLimiterChannelHandler;
 import org.noear.solon.annotation.Component;
@@ -30,8 +28,8 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
     private ProxyConfig proxyConfig;
     @Override
     public void onEvent(AppLoadEndEvent appLoadEndEvent) throws Throwable {
-        if (StrUtil.isBlank(proxyConfig.getServer().getTcp().getDomainName()) || null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
-            log.info("no config domain name,nonsupport http proxy.");
+        if (null == proxyConfig.getServer().getTcp().getHttpProxyPort()) {
+            log.info("no config http proxy port, nonsupport http proxy.");
             return;
         }
         this.start();
@@ -48,7 +46,7 @@ public class HttpProxy implements EventListener<AppLoadEndEvent> {
                                 ch.pipeline().addFirst(new LoggingHandler(HttpProxy.class));
                             }
                             ch.pipeline().addFirst(new BytesMetricsHandler());
-                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(proxyConfig.getServer().getTcp().getDomainName()));
+                            ch.pipeline().addLast(new HttpVisitorSecurityChannelHandler(false));
                             ch.pipeline().addLast("flowLimiter",new VisitorFlowLimiterChannelHandler());
                             ch.pipeline().addLast(new HttpVisitorChannelHandler());
                         }

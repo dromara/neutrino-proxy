@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.dromara.neutrinoproxy.core.ChannelAttribute;
-import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.server.constant.NetworkProtocolEnum;
 import org.dromara.neutrinoproxy.server.proxy.domain.CmdChannelAttachInfo;
 import org.dromara.neutrinoproxy.server.proxy.domain.ProxyAttachment;
@@ -19,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -32,7 +32,7 @@ public class ProxyUtil {
 	 */
 	private static final Map<Integer, Set<Integer>> licenseToServerPortMap = new HashMap<>();
 	/**
-	 * 代理信息映射
+	 * 代理信息映射 e.g.: 9104 -> 127.0.0.1:8848
 	 */
 	private static final Map<Integer, String> proxyInfoMap = new ConcurrentHashMap<>();
 	/**
@@ -61,9 +61,13 @@ public class ProxyUtil {
 	 */
 	private static Map<String, ProxyAttachment> proxyConnectAttachmentMap = new HashMap<>();
 	/**
-	 * 子域名 - 服务端端口映射
+	 * 完整域名 - 服务端端口映射
 	 */
-	private static Map<String, Integer> subdomainToServerPort = new HashMap<>();
+	private static Map<String, Integer> fullDomainToServerPortMap = new ConcurrentHashMap<>();
+    /**
+     * 主域名 - 域名id映射
+     */
+    private static Map<String, Integer> domainToDomainNameIdMap = new ConcurrentHashMap<>();
 	/**
 	 * licenseId - 客户端Id映射
 	 */
@@ -339,32 +343,85 @@ public class ProxyUtil {
 	}
 
 	/**
-	 * 设置子域名到服务端端口的映射
-	 * @param subdomain
+	 * 设置完整域名到服务端端口的映射
+	 * @param fullDomain
 	 * @param serverPort
 	 */
-	public static void setSubdomainToServerPort(String subdomain, Integer serverPort) {
-		subdomainToServerPort.put(subdomain, serverPort);
+	public static void setFullDomainToServerPort(String fullDomain, Integer serverPort) {
+        fullDomainToServerPortMap.put(fullDomain, serverPort);
 	}
 
 	/**
-	 * 删除子域名到服务端端口的映射
-	 * @param subdomain
+	 * 删除完整域名到服务端端口的映射
+	 * @param fullDomain
 	 */
-	public static void removeSubdomainToServerPort(String subdomain) {
-		subdomainToServerPort.remove(subdomain);
+	public static void removeFullDomainToServerPort(String fullDomain) {
+        fullDomainToServerPortMap.remove(fullDomain);
 	}
 
+    /**
+     * 通过服务器端口删除完整域名到服务端端口的映射
+     * @param serverPort
+     */
+    public static void removeFullDomainToServerPortByServerPort(Integer serverPort) {
+        fullDomainToServerPortMap.entrySet().removeIf(entry -> Objects.equals(entry.getValue(), serverPort));
+    }
+
 	/**
-	 * 根据子域名获取外网端口
-	 * @param subdomain
+	 * 根据完整域名获取外网端口
+	 * @param fullDomain
 	 * @return
 	 */
-	public static Integer getServerPortBySubdomain(String subdomain) {
-		return subdomainToServerPort.get(subdomain);
+	public static Integer getServerPortByFullDomain(String fullDomain) {
+		return fullDomainToServerPortMap.get(fullDomain);
 	}
 
-	/**
+    /**
+     * 添加域名到域名id的映射
+     */
+    public static void setDomainToDomainNameId(String domain, Integer domainNameId) {
+        domainToDomainNameIdMap.put(domain, domainNameId);
+    }
+
+    /**
+     * 删除域名到域名id的映射
+     */
+    public static void removeDomainToDomainNameId(String domain) {
+        domainToDomainNameIdMap.remove(domain);
+    }
+
+    /**
+     * 通过主域名获取域名id
+     */
+    public static Integer getDomainNameIdByDomain(String domain) {
+        return domainToDomainNameIdMap.get(domain);
+    }
+
+    /**
+     * 通过完整域名获取域名id
+     */
+    public static Integer getDomainNameIdByFullDomain(String fullDomain) {
+        List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
+        // 不存在 或者 有多条记录，返回null
+        if (CollectionUtil.isEmpty(domains) || domains.size() > 1) {
+            return null;
+        }
+        return getDomainNameIdByDomain(domains.get(0));
+    }
+
+    /**
+     * 通过完整域名获取域名
+     */
+    public static String getDomainNameByFullDomain(String fullDomain) {
+        List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
+        // 不存在 或者 有多条记录，返回null
+        if (CollectionUtil.isEmpty(domains) || domains.size() > 1) {
+            return null;
+        }
+        return domains.getFirst();
+    }
+
+    /**
 	 * 关闭http响应channel
 	 * @param channel
 	 * @return

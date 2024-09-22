@@ -7,3 +7,69 @@ export function domainNameBindInfo(query) {
     params: query
   })
 }
+export function fetchList(query) {
+  return request({
+    url: '/domain/page',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchAvailableDomainList(query) {
+  return request({
+    url: '/domain/all',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updateEnableStatus(id, enable, domain) {
+  return request({
+    url: '/domain/update/enable-status',
+    method: 'post',
+    data: {
+      id: id,
+      enable: enable,
+      domain: domain,
+    }
+  })
+}
+
+export function createDomain(data) {
+  return request({
+    url: '/domain/create',
+    method: 'post',
+    data
+  })
+}
+
+export function updateDomain(data) {
+  return request({
+    url: '/domain/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteDomain(id) {
+  return request({
+    url: '/domain/delete',
+    method: 'post',
+    params: {
+      id: id
+    }
+  })
+}
+
+export function updateDefaultStatus(id, isDefault) {
+  return request({
+    url: '/domain/update/default-status',
+    method: 'post',
+    data: {
+      id: id,
+      isDefault: isDefault
+    }
+  })
+}
+
+

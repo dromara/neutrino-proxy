@@ -21,11 +21,13 @@
  */
 package org.dromara.neutrinoproxy.server.controller.res.proxy;
 
+import lombok.Data;
 import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
 import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
-import lombok.Data;
+import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 端口映射列表响应
@@ -43,14 +45,10 @@ public class PortMappingListRes {
 	 * 协议
 	 */
 	private String protocal;
-	/**
-	 * 子域名
-	 */
-	private String subdomain;
-	/**
-	 * 域名
-	 */
-	private String domain;
+    /**
+     * 完整域名映射
+     */
+    private List<FullDomainNameBO> fullDomainMappings;
 	/**
 	 * license名称
 	 */
