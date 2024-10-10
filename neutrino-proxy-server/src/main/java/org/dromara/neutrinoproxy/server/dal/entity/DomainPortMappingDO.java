@@ -19,79 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.dromara.neutrinoproxy.server.controller.req.proxy;
+package org.dromara.neutrinoproxy.server.dal.entity;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
+import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
 
-import java.util.List;
+import java.util.Date;
 
 /**
- * 端口映射更新请求
- * @author: aoshiguchen
- * @date: 2022/8/8
+ * @author: Mirac
+ * @date: 2024/8/24
  */
+@ToString
+@Accessors(chain = true)
 @Data
-public class PortMappingUpdateReq {
-	/**
-	 * id
-	 */
-	private Integer id;
-	/**
-	 * licenseId
-	 */
-	private Integer licenseId;
-	/**
-	 * 协议
-	 */
-	private String protocal;
-	/**
-	 * 服务端端口
-	 */
-	private Integer serverPort;
-	/**
-	 * 客户端ip
-	 */
-	private String clientIp;
-	/**
-	 * 客户端端口
-	 */
-	private Integer clientPort;
-    /**
-     * 上传限速
-     */
-    private String upLimitRate;
-    /**
-     * 下载限速
-     */
-    private String downLimitRate;
-	/**
-	 * 代理响应数量（响应数据包数量，如果没有拆包则等于数据条数）
-	 */
-	private Integer proxyResponses;
-	/**
-	 * 代理超时时间
-	 */
-	private Long proxyTimeoutMs;
+@TableName("domain_port_mapping")
+public class DomainPortMappingDO {
 
     /**
-     * 安全组Id
+     * 主键
      */
-    private Integer securityGroupId;
-
+    @TableId(type = IdType.AUTO)
+    private Integer id;
 	/**
-	 * 描述
+	 * 端口映射id
 	 */
-	private String description;
-
-    /**
-     * 域名映射列表
-     */
-    private List<DomainMapping> domainMappings;
-
-    @Data
-    public class DomainMapping {
-        private Integer id;
-        private Integer domainId;
-        private String subdomain;
-    }
+	private Integer portMappingId;
+	/**
+	 * 域名id
+	 */
+	private Integer domainNameId;
+	/**
+	 * 子域名
+	 */
+	private String subdomain;
 }

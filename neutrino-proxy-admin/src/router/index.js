@@ -61,7 +61,8 @@ export const asyncRouterMap = [
     },
     children: [
       { path: 'license', component: _import('proxy/license'), name: 'license', meta: { title: 'license' }},
-      { path: 'portMapping', component: _import('proxy/portMapping'), name: 'portMapping', meta: { title: 'portMapping' }}
+      { path: 'portMapping', component: _import('proxy/portMapping'), name: 'portMapping', meta: { title: 'portMapping' }},
+      { path: 'domainManagement', component: _import('proxy/domain'), name: 'domainManagement', meta: { title: 'domainManagement' }}
     ]
   },
   {
@@ -78,7 +79,7 @@ export const asyncRouterMap = [
       { path: 'portGroup', component: _import('system/portGroup'), name: 'portGroup', meta: { title: 'portGroup' }},
       { path: 'portPool', component: _import('system/portPool'), name: 'portPool', meta: { title: 'portPool' }},
       { path: 'securityGroup', component: _import('system/securityGroup'), name: 'securityGroup', meta: { title: 'securityGroup' }},
-      { path: 'securityRule', component: _import('system/securityRule'), name: 'securityRule', meta: { title: 'securityRule' }, hidden: true},
+      { path: 'securityRule', component: _import('system/securityRule'), name: 'securityRule', meta: { title: 'securityRule' }, hidden: true },
       { path: 'protocal', component: _import('system/protocal'), name: 'protocal', meta: { title: 'protocal' }},
       { path: 'jobManager', component: _import('system/jobManager'), name: 'jobManager', meta: { title: 'jobManager' }}
     ]

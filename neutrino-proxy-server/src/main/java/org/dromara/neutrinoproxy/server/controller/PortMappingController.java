@@ -30,7 +30,6 @@ public class PortMappingController {
 	@Mapping("/page")
 	public PageInfo<PortMappingListRes> page(PageQuery pageQuery, PortMappingListReq req) {
 		ParamCheckUtil.checkNotNull(pageQuery, "pageQuery");
-
 		return portMappingService.page(pageQuery, req);
 	}
 
@@ -53,7 +52,7 @@ public class PortMappingController {
         ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
         if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
             // 目前仅HTTP支持绑定域名
-			req.setSubdomain(null);
+			req.setDomainMappings(null);
         }
 		req.setProtocal(networkProtocolEnum.getDesc());
 		if (null == req.getProxyResponses()) {
@@ -88,7 +87,7 @@ public class PortMappingController {
 		ParamCheckUtil.checkNotNull(networkProtocolEnum, ExceptionConstant.AN_UNSUPPORTED_PROTOCOL, req.getProtocal());
 		if (networkProtocolEnum != NetworkProtocolEnum.HTTP) {
 			// 目前仅HTTP支持绑定域名
-			req.setSubdomain(null);
+			req.setDomainMappings(null);
 		}
 		req.setProtocal(networkProtocolEnum.getDesc());
 		if (null == req.getProxyResponses()) {

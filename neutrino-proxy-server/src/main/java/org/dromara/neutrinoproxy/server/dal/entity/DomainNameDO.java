@@ -25,96 +25,80 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.dromara.neutrinoproxy.server.constant.EnableStatusEnum;
-import org.dromara.neutrinoproxy.server.constant.OnlineStatusEnum;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.dromara.neutrinoproxy.server.constant.*;
+import org.dromara.neutrinoproxy.server.controller.res.proxy.DomainListRes;
 import org.dromara.neutrinoproxy.server.controller.res.proxy.PortMappingListRes;
 
 import java.util.Date;
 
 /**
- * 端口映射
- * @author: aoshiguchen
- * @date: 2022/8/8
+ * 域名
+ * @author: Mirac
+ * @date: 2024/7/21
  */
 @ToString
 @Accessors(chain = true)
 @Data
-@TableName("port_mapping")
-public class PortMappingDO {
-	@TableId(type = IdType.AUTO)
-	private Integer id;
-	/**
-	 * licenseId
-	 */
-	private Integer licenseId;
-	/**
-	 * 协议
-	 */
-	private String protocal;
-	/**
-	 * 服务端端口
-	 */
-	private Integer serverPort;
-	/**
-	 * 客户端ip
-	 */
-	private String clientIp;
-	/**
-	 * 客户端端口
-	 */
-	private Integer clientPort;
-    /**
-     * 上传限速
-     */
-    private String upLimitRate;
-    /**
-     * 下载限速
-     */
-    private String downLimitRate;
-	/**
-	 * 描述
-	 */
-	private String description;
-
-	/**
-	 * 是否在线
-	 * {@link OnlineStatusEnum}
-	 */
-	private Integer isOnline;
-	/**
-	 * 代理响应数量（响应数据包数量，如果没有拆包则等于数据条数）
-	 */
-	private Integer proxyResponses;
-	/**
-	 * 代理超时时间
-	 */
-	private Long proxyTimeoutMs;
-	/**
-	 * 启用状态
-	 * {@link EnableStatusEnum}
-	 */
-	private Integer enable;
+@TableName("domain_name")
+public class DomainNameDO {
+    @TableId(type = IdType.AUTO)
+    private Integer id;
 
     /**
-     * 安全组Id
+     * 主域名
      */
-    private Integer securityGroupId = 0; // 设置为null不生效，不知道为啥
+    private String domain;
 
-	/**
-	 * 创建时间
-	 */
-	private Date createTime;
-	/**
-	 * 更新时间
-	 */
-	private Date updateTime;
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 
-    public PortMappingListRes toRes() {
-        PortMappingListRes res = new PortMappingListRes();
+    /**
+     * SSL证书文件内容
+     */
+    private byte[] jks;
+
+    /**
+     * KeyStore密码
+     */
+    private String keyStorePassword;
+
+    /**
+     * 是否是默认域名(1、是 2、否)
+     * {@link DefaultDomainStatusEnum}
+     */
+    private Integer isDefault;
+
+    /**
+     * 强制使用HTTPS(1、是 2、否)
+     * {@link HttpsStatusEnum}
+     */
+    private Integer forceHttps;
+
+    /**
+     * 启用状态
+     * {@link EnableStatusEnum}
+     */
+    private Integer enable;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+
+    public DomainListRes toRes() {
+        DomainListRes res = new DomainListRes();
         BeanUtil.copyProperties(this, res);
+        res.setSslStatus(this.getJks() == null ? SslStatusEnum.NOT_UPLOADED.getStatus() : SslStatusEnum.UPLOADED.getStatus());
         return res;
     }
 }

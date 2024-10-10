@@ -3,8 +3,11 @@ package org.dromara.neutrinoproxy.server.base;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 import org.dromara.neutrinoproxy.server.base.proxy.ProxyConfig;
 import org.dromara.neutrinoproxy.server.base.rest.ResponseBody;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingCreateReq;
+import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingUpdateReq;
 import org.dromara.neutrinoproxy.server.controller.res.report.HomeDataView;
 import org.dromara.neutrinoproxy.server.dal.*;
+import org.dromara.neutrinoproxy.server.proxy.enhance.SslContextManager;
 import org.dromara.neutrinoproxy.server.service.*;
 import org.dromara.solonplugins.job.JobBean;
 import org.noear.solon.annotation.Component;
@@ -38,7 +41,8 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
         metadata.registerLambdaSerialization(UserLoginRecordService.class);
         metadata.registerLambdaSerialization(UserService.class);
         metadata.registerLambdaSerialization(SecurityGroupService.class);
-
+        metadata.registerLambdaSerialization(DomainService.class);
+        metadata.registerLambdaSerialization(SslContextManager.class);
 
         metadata.registerLambdaSerialization(LicenseMapper.class);
         metadata.registerLambdaSerialization(ClientConnectRecordMapper.class);
@@ -57,7 +61,11 @@ public class NeutrinoServerRuntimeNativeRegistrar implements RuntimeNativeRegist
         metadata.registerLambdaSerialization(UserTokenMapper.class);
         metadata.registerLambdaSerialization(SecurityGroupMapper.class);
         metadata.registerLambdaSerialization(SecurityRuleMapper.class);
+        metadata.registerLambdaSerialization(DomainMapper.class);
+        metadata.registerLambdaSerialization(DomainPortMappingMapper.class);
 
+        metadata.registerReflection(PortMappingUpdateReq.DomainMapping.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+        metadata.registerReflection(PortMappingCreateReq.DomainMapping.class, MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
 
         metadata.registerReflection(HomeDataView.class, MemberCategory.DECLARED_FIELDS);
         metadata.registerReflection(HomeDataView.Last7dFlow.class, MemberCategory.DECLARED_FIELDS);

@@ -11,6 +11,7 @@ import org.dromara.neutrinoproxy.server.controller.req.proxy.PortMappingListReq;
 import org.dromara.neutrinoproxy.server.dal.entity.PortMappingDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO;
 
 import java.util.Date;
 import java.util.List;
@@ -42,18 +43,6 @@ public interface PortMappingMapper extends BaseMapper<PortMappingDO> {
 				.notIn(!CollectionUtil.isEmpty(excludeIds), PortMappingDO::getId, excludeIds)
 				.last("limit 1")
 		);
-	}
-
-	/**
-	 * 校验子域名是否重复
-	 * @param subdomain
-	 * @return
-	 */
-	default Boolean checkRepeatBySubdomain(String subdomain, Set<Integer> excludeIds) {
-		return StringUtils.isEmpty(subdomain)? Boolean.FALSE : this.selectCount(new LambdaQueryWrapper<PortMappingDO>()
-				.eq(PortMappingDO::getSubdomain, subdomain)
-				.notIn(!CollectionUtil.isEmpty(excludeIds), PortMappingDO::getId, excludeIds)
-		).intValue() > 0;
 	}
 
 	default List<PortMappingDO> findEnableListByLicenseId(Integer licenseId) {

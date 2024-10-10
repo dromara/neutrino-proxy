@@ -23,6 +23,8 @@ package org.dromara.neutrinoproxy.server.controller.req.proxy;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 端口映射创建请求
  * @author: aoshiguchen
@@ -38,10 +40,6 @@ public class PortMappingCreateReq {
 	 * 协议
 	 */
 	private String protocal;
-	/**
-	 * 子域名
-	 */
-	private String subdomain;
 	/**
 	 * 服务端端口
 	 */
@@ -80,4 +78,15 @@ public class PortMappingCreateReq {
 	 * 描述
 	 */
 	private String description;
+
+    /**
+     * 域名映射列表
+     */
+    private List<DomainMapping> domainMappings;
+
+    @Data
+    public class DomainMapping {
+        private Integer domainId;
+        private String subdomain;
+    }
 }

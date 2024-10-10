@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dromara.neutrinoproxy.server.dal.DomainMapper">
+
+    <select id="selectFullDomainNameListByPortMappingIds" resultType="org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO">
+        SELECT dpm.id as id, pm.id AS portMappingId, dpm.subdomain as subdomain, dn.domain AS domain, dn.id as domainNameId, dn.force_https as forceHttps
+        FROM domain_port_mapping dpm
+        LEFT JOIN port_mapping pm ON pm.id = dpm.port_mapping_id
+        LEFT JOIN domain_name dn ON dn.id = dpm.domain_name_id
+        WHERE pm.id IN
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectFullDomainNameList"
+            resultType="org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO">
+        SELECT dpm.id as id, pm.id AS portMappingId, dpm.subdomain as subdomain, dn.domain AS domain, dn.id as domainNameId, dn.force_https as forceHttps
+        FROM domain_port_mapping dpm
+        LEFT JOIN port_mapping pm ON pm.id = dpm.port_mapping_id
+        LEFT JOIN domain_name dn ON dn.id = dpm.domain_name_id
+    </select>
+    <select id="selectFullDomainNameListByDomainNameIds"
+            resultType="org.dromara.neutrinoproxy.server.service.bo.FullDomainNameBO">
+        SELECT dpm.id as id, pm.id AS portMappingId, dpm.subdomain as subdomain, dn.domain AS domain, dn.id as domainNameId, dn.force_https as forceHttps
+        FROM domain_port_mapping dpm
+        LEFT JOIN port_mapping pm ON pm.id = dpm.port_mapping_id
+        LEFT JOIN domain_name dn ON dn.id = dpm.domain_name_id
+        WHERE dn.id IN
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>
