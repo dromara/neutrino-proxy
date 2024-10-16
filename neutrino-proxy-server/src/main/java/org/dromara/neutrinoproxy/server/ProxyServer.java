@@ -25,7 +25,6 @@ public class ProxyServer {
             if (Utils.isNotEmpty(loglevel)) {
                 app.cfg().put("solon.logging.logger.root.level", loglevel);
             }
-            log.info("NeutrinoProxy Server ：{}", app.cfg().get("solon.app.version"));
 		});
 	}
 }
