@@ -1,0 +1,41 @@
+solon.logging.logger:
+  "root":
+    level: info
+
+neutrino:
+  proxy:
+    tunnel:
+      # 线程池相关配置，用于技术调优，可忽略
+      thread-count: 50
+      # 隧道SSL证书配置
+      key-store-password: 123456
+      jks-path: classpath:/test.jks
+      # 服务端IP
+      server-ip: host.docker.internal
+      # 服务端端口(对应服务端app.yml中的tunnel.port、tunnel.ssl-port)
+      server-port: 9002
+      # 是否启用SSL(注意：该配置必须和server-port对应上)
+      ssl-enable: true
+      # 客户端连接唯一凭证
+      license-key: b0a907332b474b25897c4dcb31fc7eb6
+      # 客户端唯一身份标识（可忽略，若不设置首次启动会自动生成）
+      client-id:
+      # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
+      transfer-log-enable: false
+      # 是否开启心跳日志
+      heartbeat-log-enable: false
+      # 重连设置
+      reconnection:
+        # 重连间隔（秒）
+        interval-seconds: 10
+        # 是否开启无限重连(未开启时，客户端license不合法会自动停止应用，开启了则不会，请谨慎开启)
+        unlimited: false
+    client:
+      udp:
+        # 线程池相关配置，用于技术调优，可忽略
+        boss-thread-count: 5
+        work-thread-count: 20
+        # udp傀儡端口范围
+        puppet-port-range: 10000-10500
+        # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
+        transfer-log-enable: false

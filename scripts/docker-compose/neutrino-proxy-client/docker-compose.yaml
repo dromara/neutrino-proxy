@@ -1,0 +1,21 @@
+version: '3.8'
+
+networks:
+  npClient:
+    driver: bridge
+services:
+  npClient:
+    image: aoshiguchen/neutrino-proxy-client:latest
+    container_name: compose-npClient
+    hostname: npClient
+    restart: always
+    environment:
+        TZ: Asia/Shanghai
+        LANG: zh_CN.UTF-8
+    volumes:
+      - ./config:/root/neutrino-proxy/config
+      - ./logs:/root/neutrino-proxy/logs
+    ports:
+      - "10000-10500:10000-10500/udp"
+    networks:
+      - npClient

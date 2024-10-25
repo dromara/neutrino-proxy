@@ -1,0 +1,58 @@
+server:
+  # 服务端web端口，用于支持HTTP接口，管理后台页面访问
+  port: 8888
+# 日志级别
+solon.logging:
+  logger:
+    "root":
+      level: info
+  appender:
+    file:
+      level: info
+
+neutrino:
+  proxy:
+    # 隧道相关配置-用于维持服务端与客户端的通信
+    tunnel:
+      # 线程池相关配置，用于技术调优，可忽略
+      boss-thread-count: 2
+      work-thread-count: 10
+      # 隧道非SSL端口
+      port: 9000
+      # 隧道SSL端口
+      ssl-port: 9002
+      # 隧道SSL证书配置
+      key-store-password: 123456
+      key-manager-password: 123456
+      jks-path: classpath:/test.jks
+      # 是否开启隧道传输报文日志(日志级别为debug时开启才有效)
+      transfer-log-enable: false
+      # 是否开启心跳日志
+      heartbeat-log-enable: false
+    server:
+      tcp:
+        # 线程池相关配置，用于技术调优，可忽略
+        boss-thread-count: 5
+        work-thread-count: 20
+        # http代理端口，默认80（不配置不支持）
+        http-proxy-port: 80
+        # https代理端口，默认443 （不配置不支持，同时需要配置域名、证书）
+        https-proxy-port: 443
+        # 是否开启代理服务报文日志(日志级别为debug时开启才有效)
+        transfer-log-enable: false
+      udp:
+        # 线程池相关配置，用于技术调优，可忽略
+        boss-thread-count: 5
+        work-thread-count: 20
+        # 是否开启代理服务报文日志(日志级别为debug时开启才有效)
+        transfer-log-enable: false
+  data:
+    db:
+      # 数据库类型，目前支持h2、mysql、mariadb
+      type: mysql
+      # 数据库连接URL
+      url: jdbc:mysql://mysql:3306/neutrino-proxy?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useAffectedRows=true&useSSL=false
+      # 数据库用户名
+      username: root
+      # 数据库密码
+      password: 123456

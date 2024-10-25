@@ -1,0 +1,48 @@
+version: '3.8'
+
+networks:
+  npServer:
+    driver: bridge
+services:
+  mysql:
+    image: mysql:8
+    container_name: compose-mysql
+    hostname: mysql
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --silent']
+      interval: 3s
+      retries: 5
+      start_period: 3m
+    ports:
+      - "3308:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - ./data/mysqldata:/var/lib/mysql/
+      - ./config/sql:/docker-entrypoint-initdb.d/
+    networks:
+      - npServer
+  npServer:
+    image: aoshiguchen/neutrino-proxy-server:latest
+    container_name: compose-npServer
+    hostname: npServer
+    restart: always
+    environment:
+        TZ: Asia/Shanghai
+        LANG: zh_CN.UTF-8
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./config:/root/neutrino-proxy/config
+      - ./data:/root/neutrino-proxy/data
+      - ./logs:/root/neutrino-proxy/logs
+    ports:
+      - "8888:8888"
+      - "9000:9000"
+      - "9002:9002"
+      - "9101-9120:9101-9120"
+    networks:
+      - npServer
