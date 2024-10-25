@@ -23,7 +23,7 @@ public class AppLoadEndExecutor implements EventListener<AppLoadEndEvent> {
             return;
         }
         System.out.printf("""
-            --------------------------------------------
+            ---------------------------------------------------------------
                     Neutrino Proxy
             version: %s
             admin: http://localhost:8888
@@ -31,7 +31,7 @@ public class AppLoadEndExecutor implements EventListener<AppLoadEndEvent> {
             Gitee: https://gitee.com/dromara/neutrino-proxy
             GitHub: https://github.com/dromara/neutrino-proxy
             GitCode: https://gitcode.com/dromara/neutrino-proxy
-            --------------------------------------------
+            ---------------------------------------------------------------
             %n""", Solon.app().cfg().get("solon.app.version"));
     }
 
