@@ -33,6 +33,7 @@ module.exports = {
             {text: '案例', link: '/pages/5d571c/'},
             {text: '支持', link: '/pages/1ab20b/'},
             {text: '更新记录', link: '/pages/ff3519/'},
+            {text: 'GitCode', link: 'https://gitcode.com/dromara/neutrino-proxy'},
             {text: 'Gitee', link: 'https://gitee.com/dromara/neutrino-proxy'},
         ],
         sidebarDepth: 2, // 侧边栏显示深度，默认1，最大2（显示到h3标题）
