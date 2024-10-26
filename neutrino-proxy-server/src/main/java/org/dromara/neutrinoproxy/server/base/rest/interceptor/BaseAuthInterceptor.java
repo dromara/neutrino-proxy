@@ -8,7 +8,6 @@ import org.dromara.neutrinoproxy.server.dal.entity.UserDO;
 import org.dromara.neutrinoproxy.server.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.dromara.neutrinoproxy.server.base.rest.*;
 import org.noear.solon.Solon;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.core.handle.Action;
