@@ -1,5 +1,3 @@
-
-
 package org.dromara.neutrinoproxy.core.base;
 
 /**
