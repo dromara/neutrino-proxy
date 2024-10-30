@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
   `license_id` INTEGER(20) NOT NULL,
   `protocal` VARCHAR(10) NOT NULL DEFAULT 'TCP',
   `server_port` INTEGER NOT NULL,
-  `client_ip` VARCHAR(20) NOT NULL,
+  `client_ip` VARCHAR(255) NOT NULL,
   `client_port` INTEGER NOT NULL,
   `up_limit_rate` VARCHAR(20) DEFAULT NULL,
   `down_limit_rate` VARCHAR(20) DEFAULT NULL,

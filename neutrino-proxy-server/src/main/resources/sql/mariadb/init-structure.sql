@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `port_mapping` (
     `license_id` int NOT NULL COMMENT 'licenseID',
     `protocal` varchar(10) NOT NULL DEFAULT 'TCP' COMMENT '协议',
     `server_port` int NOT NULL COMMENT '服务端端口',
-    `client_ip` varchar(20) NOT NULL COMMENT '客户端IP',
+    `client_ip` varchar(255) NOT NULL COMMENT '客户端IP',
     `client_port` int NOT NULL COMMENT '客户端端口',
     `up_limit_rate` varchar(20) DEFAULT NULL COMMENT '上传限速',
     `down_limit_rate` varchar(20) DEFAULT NULL COMMENT '下载限速',
