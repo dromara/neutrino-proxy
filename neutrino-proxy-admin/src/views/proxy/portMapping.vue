@@ -121,91 +121,107 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px"
-        style='width: 400px; margin-left:50px;'>
-        <!--        <el-form-item :label="$t('License')" prop="licenseId">-->
-        <!--          <el-select style="width: 280px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">-->
-        <!--            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
-
-        <el-form-item :label="$t('License')" prop="licenseId">
-          <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
-            @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
-          <!--          <DropdownTable
-            :columns="countryColumns"
-            :data="licenseList"
-            v-model="temp.licenseId"
-            :value="temp.licenseName"
-            @rowClick="selectedFeeItem"
-            disabled
-            :disabled="dialogStatus==='update'"
-            style="width: 280px"
-          />-->
-        </el-form-item>
-        <el-form-item :label="$t('协议')" prop="protocal">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
-            <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
-              :disabled="!item.enable">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('服务端端口')" prop="serverPort" >
-          <load-select style="width: 280px;" class="filter-item"
-            v-model="temp.serverPort"
-            :data="serverPortList"
-            :page="loadServerPortQuery.page"
-            :hasMore="more"
-            :clearable="false"
-            :dictLabel="'port'"
-            :dictValue="'port'"
-            :request="loadServerPort"/>
-        </el-form-item>
-        <el-form-item :label="$t('客户端IP')" prop="clientIp">
-          <el-input v-model="temp.clientIp"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('客户端端口')" prop="clientPort">
-          <el-input v-model="temp.clientPort"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('域名')" prop="domainMappings" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainList != null && domainList.length > 0" >
-          <div v-for="(domain, index) in temp.domainMappings" :key="index" class="domain-mapping">
-            <el-input v-model="domain.subdomain">
-              <template slot="append">
-                <el-select v-model="domain.domainId" placeholder="请选择主域名" style="width: 130px;">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="800px">
+      <div style="height: 500px; overflow-y: auto;">
+        <el-form :rules="rules" ref="dataForm" :model="temp" label-position="right" label-width="150px" inline>
+          <!--        <el-form-item :label="$t('License')" prop="licenseId">-->
+          <!--          <el-select style="width: 187px;" class="filter-item" v-model="temp.licenseId" placeholder="请选择" :disabled="dialogStatus=='update'">-->
+          <!--            <el-option v-for="item in licenseList" :key="item.id" :label="item.name" :value="item.id">-->
+          <!--            </el-option>-->
+          <!--          </el-select>-->
+          <!--        </el-form-item>-->
+          <el-form-item :label="$t('License')" prop="licenseId">
+            <DropdownTable v-model="temp.licenseId" :name.sync="temp.licenseName" :tableData="licenseAuthList"
+                           @selectedData="selectedFeeItem" placeholder="请选择" :width="280" :disabled="dialogStatus === 'update'" />
+            <!--          <DropdownTable
+              :columns="countryColumns"
+              :data="licenseList"
+              v-model="temp.licenseId"
+              :value="temp.licenseName"
+              @rowClick="selectedFeeItem"
+              disabled
+              :disabled="dialogStatus==='update'"
+              style="width: 280px"
+            />-->
+          </el-form-item>
+          <el-form-item :label="$t('协议')" prop="protocal">
+            <el-select style="width: 187px;" class="filter-item" v-model="temp.protocal" placeholder="请选择">
+              <el-option v-for="item in protocalList" :key="item.name" :label="item.name" :value="item.name"
+                         :disabled="!item.enable">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="$t('服务端端口')" prop="serverPort" >
+            <load-select style="width: 187px;" class="filter-item"
+                         v-model="temp.serverPort"
+                         :data="serverPortList"
+                         :page="loadServerPortQuery.page"
+                         :hasMore="more"
+                         :clearable="false"
+                         :dictLabel="'port'"
+                         :dictValue="'port'"
+                         :request="loadServerPort"/>
+          </el-form-item>
+          <el-form-item :label="$t('客户端IP')" prop="clientIp">
+            <el-input v-model="temp.clientIp"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('客户端端口')" prop="clientPort">
+            <el-input v-model="temp.clientPort"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
+            <el-input v-model="temp.proxyResponses"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('超时时间')" prop="proxyTimeoutMs" v-if="temp.protocal === 'UDP'">
+            <el-input v-model="temp.proxyTimeoutMs">
+              <template slot="append">毫秒</template>
+            </el-input>
+          </el-form-item>
+          <el-form-item  :label="$t('table.securityGroup')" prop="securityGroup">
+            <el-select style="width: 187px;" class="filter-item" v-model="temp.securityGroupId" clearable >
+              <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="$t('上传限速')" prop="upLimitRate">
+            <el-input v-model="temp.upLimitRate" placeholder="如：10240B、500K、1M"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('下载限速')" prop="downLimitRate">
+            <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('描述')" prop="description">
+            <el-input v-model="temp.description" style="width: 540px;"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('域名')" prop="domainMappings" v-if="(temp.protocal === 'HTTP' || temp.protocal === 'HTTP(S)') && domainList != null && domainList.length > 0" >
+            <div class="my-tag">
+              <el-tag
+                :key="index"
+                v-for="(domain, index) in temp.domainMappings"
+                closable
+                :disable-transitions="false"
+                @close="removeDomainMapping(index)"
+                class="my-tag_item"
+              >
+                <el-input v-model="domain.subdomain" class="my-input"></el-input>
+                <el-select v-model="domain.domainId" placeholder="请选择主域名" class="my-select">
                   <el-option v-for="tmp in domainList" :key="tmp.id" :label="'.'+tmp.domain" :value="tmp.id"></el-option>
                 </el-select>
-                <el-button type="danger" @click="removeDomainMapping(index)" style="margin-left: 10px;">删除</el-button>
-              </template>
-            </el-input>
-          </div>
-          <el-button type="primary" @click="addDomainMapping" style="margin-top: 10px;">添加域名</el-button>
-        </el-form-item>
-        <el-form-item :label="$t('响应数量')" prop="proxyResponses" v-if="temp.protocal === 'UDP'">
-          <el-input v-model="temp.proxyResponses"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('超时时间')" prop="proxyTimeoutMs" v-if="temp.protocal === 'UDP'">
-          <el-input v-model="temp.proxyTimeoutMs">
-            <template slot="append">毫秒</template>
-          </el-input>
-        </el-form-item>
-        <el-form-item  :label="$t('table.securityGroup')" prop="securityGroup">
-          <el-select style="width: 280px;" class="filter-item" v-model="temp.securityGroupId" clearable >
-            <el-option v-for="item in securityGroupList" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('上传限速')" prop="upLimitRate">
-          <el-input v-model="temp.upLimitRate" placeholder="如：10240B、500K、1M"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('下载限速')" prop="downLimitRate">
-          <el-input v-model="temp.downLimitRate" placeholder="如：10240B、500K、1M"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('描述')" prop="description">
-          <el-input v-model="temp.description"></el-input>
-        </el-form-item>
-      </el-form>
+              </el-tag>
+              <el-button v-if="!temp.domainMappings.length || temp.domainMappings[temp.domainMappings.length - 1].subdomain" class="button-new-tag" size="small" @click="addDomainMapping">+ 添加域名</el-button>
+            </div>
+            <!--<div v-for="(domain, index) in temp.domainMappings" :key="index" class="domain-mapping">
+              <el-input v-model="domain.subdomain">
+                <template slot="append">
+                  <el-select v-model="domain.domainId" placeholder="请选择主域名" style="width: 187px;">
+                    <el-option v-for="tmp in domainList" :key="tmp.id" :label="'.'+tmp.domain" :value="tmp.id"></el-option>
+                  </el-select>
+                  <el-button type="danger" @click="removeDomainMapping(index)" style="margin-left: 10px;">删除</el-button>
+                </template>
+              </el-input>
+            </div>
+            <el-button type="primary" @click="addDomainMapping" style="margin-top: 10px;">添加域名</el-button>-->
+          </el-form-item>
+        </el-form>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="
           dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
@@ -340,11 +356,17 @@ export default {
               if (value && value.length > 0) {
                 for (let i = 0; i < value.length; i++) {
                   if (!value[i].subdomain || !value[i].domainId) {
-                    return callback(new Error(`子域名和主域名都不能为空`));
+                    return callback(new Error(`子域名和主域名都不能为空`))
                   }
                 }
+                const set = new Set()
+                value.forEach(i => {
+                  const row = this.domainList.find(d => d.id === i.domainId)
+                  set.add(i.subdomain + '.' + row.domain)
+                })
+                if (set.size !== value.length) return callback(new Error(`域名不能重复`))
               }
-              callback(); // 验证通过
+              callback() // 验证通过
             },
             trigger: ''
           }
@@ -713,3 +735,42 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.my-tag {
+  width: 570px;
+  &_item {
+    height: 36px;
+    line-height: 35px;
+    padding: 0 7px;
+    .my-input, .my-select {
+      width: auto;
+      /deep/ input {
+        height: 32px;
+        line-height: 32px;
+      }
+    }
+    .my-input {
+      /deep/ input {
+        width: 120px;
+        padding: 0 6px;
+      }
+    }
+    .my-select {
+      /deep/ input {
+        width: 110px;
+        border-width: 0!important;
+        background: #ecf5ff!important;
+      }
+    }
+    &:first-child {
+      margin-right: 8px;
+    }
+    & + & {
+      margin-right: 8px;
+      margin-bottom: 6px;
+    }
+  }
+}
+
+</style>
