@@ -9,7 +9,7 @@ MODULE_NAME=neutrino-proxy-client
 deployDir="deploy"
 clientDeployDir=$deployDir"/client"
 machine=macos
-VER=2.0.1
+VER=2.0.2
 
 #切到项目根目录
 cd ../..

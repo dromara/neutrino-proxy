@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 镜像版本，每次更新版本时需要调整
-ImageVer=2.0.0
+ImageVer=2.0.2
 ImageName=neutrino-proxy-client
 DockerFilePath=$PWD/../../neutrino-proxy-client
 
