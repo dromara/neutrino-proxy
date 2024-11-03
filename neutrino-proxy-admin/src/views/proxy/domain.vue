@@ -258,7 +258,7 @@
       },
       validateDomain(rule, value, callback) {
         // 匹配多级域名，例如：sub.example.com, sub.sub.example.com
-        const domainPattern = /^((?!-)[A-Za-z0-9-]{1,63}(?<!-).)+[A-Za-z]{2,6}$/
+        const domainPattern = /^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,6}$/
 
         if (!value) {
           callback(new Error('主域名不能为空'));
