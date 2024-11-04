@@ -1,4 +1,4 @@
-package org.dromara.neutrinoproxy.server.base;
+package org.dromara.neutrinoproxy.client.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.noear.solon.Solon;
@@ -24,9 +24,7 @@ public class AppLoadEndExecutor implements EventListener<AppLoadEndEvent> {
         }
         System.out.printf("""
             ---------------------------------------------------------------
-                    Neutrino Proxy Server %s
-            admin: http://localhost:8888
-            account: admin/123456
+                    Neutrino Proxy Client %s
             Gitee: https://gitee.com/dromara/neutrino-proxy
             GitHub: https://github.com/dromara/neutrino-proxy
             GitCode: https://gitcode.com/dromara/neutrino-proxy
