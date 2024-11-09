@@ -1,6 +1,6 @@
 server:
   # 服务端web端口，用于支持HTTP接口，管理后台页面访问
-  port: 8888
+  port: ${WEB_PORT:8888}
 # 日志级别
 solon.logging:
   logger:
@@ -18,9 +18,9 @@ neutrino:
       boss-thread-count: 2
       work-thread-count: 10
       # 隧道非SSL端口
-      port: 9000
+      port: ${OPEN_PORT:9000}
       # 隧道SSL端口
-      ssl-port: 9002
+      ssl-port: ${SSL_PORT:9002}
       # 隧道SSL证书配置
       key-store-password: 123456
       key-manager-password: 123456
@@ -35,9 +35,9 @@ neutrino:
         boss-thread-count: 5
         work-thread-count: 20
         # http代理端口，默认80（不配置不支持）
-        http-proxy-port: 80
+        http-proxy-port: ${HTTP_PROXY_PORT:80}
         # https代理端口，默认443 （不配置不支持，同时需要配置域名、证书）
-        https-proxy-port: 443
+        https-proxy-port: ${HTTPS_PROXY_PORT:443}
         # 是否开启代理服务报文日志(日志级别为debug时开启才有效)
         transfer-log-enable: false
       udp:
