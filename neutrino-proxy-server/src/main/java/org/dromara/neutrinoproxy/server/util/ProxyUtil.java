@@ -401,11 +401,12 @@ public class ProxyUtil {
      * 通过完整域名获取域名id
      */
     public static Integer getDomainNameIdByFullDomain(String fullDomain) {
-        List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
-        // 不存在 或者 有多条记录，返回null
-        if (CollectionUtil.isEmpty(domains) || domains.size() > 1) {
+        List<String> domains = domainToDomainNameIdMap.keySet().stream().sorted((a,b) -> b.length() - a.length()).filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
+        // 不存在，返回null
+        if (CollectionUtil.isEmpty(domains)) {
             return null;
         }
+        // 优先匹配最长的域名，默认取第一个，后续思考如何优化
         return getDomainNameIdByDomain(domains.get(0));
     }
 
