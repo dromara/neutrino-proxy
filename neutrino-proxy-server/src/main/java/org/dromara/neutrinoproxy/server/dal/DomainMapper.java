@@ -28,10 +28,10 @@ public interface DomainMapper extends BaseMapper<DomainNameDO> {
             if (existingDomain.equals(domain)) {
                 return domainNameDO;
             }
-            // 是子域名关系
-            if (isSubdomainOrEqual(existingDomain, domain)) {
-                return domainNameDO;
-            }
+//            // 是子域名关系
+//            if (isSubdomainOrEqual(existingDomain, domain)) {
+//                return domainNameDO;
+//            }
         }
 
         // 如果没有找到重复的，返回 null
