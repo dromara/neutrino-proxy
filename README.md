@@ -42,6 +42,7 @@
 - 微信: yuyunshize
 - GitCode：https://gitcode.com/dromara/neutrino-proxy
 - Gitee: https://gitee.com/asgc/neutrino-proxy
+- Github仓库：https://github.com/dromara/neutrino-proxy
 
 # 6、贡献者列表
 <p>
