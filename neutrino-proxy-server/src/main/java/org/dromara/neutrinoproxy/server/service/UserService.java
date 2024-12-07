@@ -3,6 +3,7 @@ package org.dromara.neutrinoproxy.server.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.solon.plugins.pagination.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.solon.annotation.Db;
 import org.dromara.neutrinoproxy.core.util.DateUtil;
 import org.dromara.neutrinoproxy.server.base.page.PageInfo;
@@ -131,6 +132,7 @@ public class UserService {
 
 	public PageInfo<UserListRes> page(PageQuery pageQuery, UserListReq req) {
         Page<UserDO> page = userMapper.selectPage(new Page<>(pageQuery.getCurrent(), pageQuery.getSize()), new LambdaQueryWrapper<UserDO>()
+            .like(StringUtils.isNotBlank(req.getName()), UserDO::getName, req.getName())
             .orderByAsc(UserDO::getId)
         );
         List<UserListRes> respList = page.getRecords().stream().map(UserDO::toRes).collect(Collectors.toList());
