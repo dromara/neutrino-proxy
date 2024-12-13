@@ -223,12 +223,17 @@ public class VisitorChannelService {
         }
 
         for (PortMappingDO portMapping : portMappingList) {
+            // 端口映射被禁用了，忽略
             if (EnableStatusEnum.DISABLE.getStatus().equals(portMapping.getEnable())) {
-                // 端口映射被禁用了，忽略 TODO 映射没被禁用，但端口被禁用了也需要处理
+                continue;
+            }
+            // 端口被禁用了，忽略
+            PortPoolDO serverPortPoolDO = portPoolMapper.findByPort(portMapping.getServerPort());
+            if (null == serverPortPoolDO || EnableStatusEnum.DISABLE.getStatus().equals(serverPortPoolDO.getEnable())) {
                 continue;
             }
             try {
-                proxyMutualService.bindServerPort(cmdChannelAttachInfo, portMapping.getServerPort());
+                proxyMutualService.online(cmdChannelAttachInfo, portMapping.getServerPort());
 
                 NetworkProtocolEnum networkProtocolEnum = NetworkProtocolEnum.of(portMapping.getProtocal());
                 if (networkProtocolEnum == NetworkProtocolEnum.UDP) {

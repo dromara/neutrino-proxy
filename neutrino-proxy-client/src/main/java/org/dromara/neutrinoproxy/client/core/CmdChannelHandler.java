@@ -20,19 +20,19 @@ import org.noear.solon.Solon;
  */
 @Slf4j
 public class CmdChannelHandler extends SimpleChannelInboundHandler<ProxyMessage> {
-    private static volatile Boolean transferLogEnable = Boolean.FALSE;
+    private static volatile Boolean heartbeatLogEnable = Boolean.FALSE;
 
     public CmdChannelHandler() {
         ProxyConfig proxyConfig = Solon.context().getBean(ProxyConfig.class);
         if (null != proxyConfig.getClient() && null != proxyConfig.getTunnel().getHeartbeatLogEnable()) {
-            transferLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
+            heartbeatLogEnable = proxyConfig.getTunnel().getHeartbeatLogEnable();
         }
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ProxyMessage proxyMessage) throws Exception {
-        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || transferLogEnable) {
-            log.debug("[CMD Channel]Client CmdChannel recieved proxy message, type is {}", proxyMessage.getType());
+        if (ProxyMessage.TYPE_HEARTBEAT != proxyMessage.getType() || heartbeatLogEnable) {
+            log.debug("[CMD Channel]Client CmdChannel received proxy message, type is {}", proxyMessage.getType());
         }
         Solon.context().getBean(Dispatcher.class).dispatch(ctx, proxyMessage);
     }
