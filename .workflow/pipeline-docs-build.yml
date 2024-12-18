@@ -1,0 +1,59 @@
+version: '1.0'
+name: pipeline-docs-build
+displayName: 官网静态资源构建
+triggers:
+  trigger: auto
+  push:
+    branches:
+      precise:
+        - dev
+    paths:
+      precise:
+        - neutrino-proxy-vuepress
+stages:
+  - name: stage-build
+    displayName: 构建
+    strategy: naturally
+    trigger: auto
+    executor:
+      - asgc
+    steps:
+      - step: build@nodejs
+        name: build_nodejs
+        displayName: Nodejs 构建
+        nodeVersion: 14.16.0
+        commands:
+          - '# 设置NPM源，提升安装速度'
+          - npm config set registry https://registry.npmmirror.com
+          - ''
+          - '# 执行编译命令'
+          - npm install && npm run build
+          - ''
+          - '# 资源复制，使得官网访问支持直接域名访问 + 域名后面带路径 2种访问方式'
+          - cp ./CNAME docs/.vuepress/dist/
+          - rm -rf docs/.vuepress/dist/neutrino-proxy
+          - rm -rf docs/.vuepress/distTemp
+          - cp -rf docs/.vuepress/dist/ docs/.vuepress/distTemp
+          - cp -rf docs/.vuepress/distTemp docs/.vuepress/dist/neutrino-proxy
+          - rm -rf docs/.vuepress/distTemp
+          - ''
+          - '# 将构建产物推送到目标分支'
+          - cd docs/.vuepress/dist
+          - git init
+          - git remote add origin https://gitee.com/dromara/neutrino-proxy.git
+          - git config user.name aoshiguchen
+          - git config user.email aoshiguchen@dromara.org
+          - git add -A
+          - git commit -m "update"
+          - git checkout -b tmp/test1
+          - git push -f origin tmp/test1
+        artifacts:
+          - name: BUILD_ARTIFACT
+            path:
+              - ./docs/.vuepress/dist
+        caches:
+          - ~/.npm
+          - ~/.yarn
+        notify: []
+        strategy:
+          retry: '0'
