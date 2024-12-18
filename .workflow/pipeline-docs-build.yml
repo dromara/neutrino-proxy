@@ -41,7 +41,7 @@ stages:
           - npm install && npm run build
           - ''
           - '# 资源复制，使得官网访问支持直接域名访问 + 域名后面带路径 2种访问方式'
-          - cp ./CNAME docs/.vuepress/dist/
+          - # cp ./CNAME docs/.vuepress/dist/
           - rm -rf docs/.vuepress/dist/neutrino-proxy
           - rm -rf docs/.vuepress/distTemp
           - cp -rf docs/.vuepress/dist/ docs/.vuepress/distTemp
@@ -53,7 +53,7 @@ stages:
           - git init
           - ''
           - '# 设置Git信息'
-          - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
+          - GIT_REPO_URL=$repo_url
           - GIT_USERNAME=$username
           - GIT_NAME=$commit_name
           - GIT_EMAIL=$commit_email
