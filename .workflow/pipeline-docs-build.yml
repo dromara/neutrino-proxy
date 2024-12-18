@@ -44,9 +44,9 @@ stages:
           - cd docs/.vuepress/dist
           - git init
           - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
-          - GIT_USERNAME=$username
-          - GIT_EMAIL=$email
-          - GIT_TOKEN=$mytoken
+          - GIT_USERNAME=aoshiguchen
+          - GIT_EMAIL=aoshiguchen@dromara.org
+          - GIT_TOKEN=9ea8d4a34d8ea940ccf497ed1c24c69f
           - echo "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPO_URL#https://}" > ~/.git-credentials
           - git config --global credential.helper store
           - git remote add origin ${GIT_REPO_URL}
