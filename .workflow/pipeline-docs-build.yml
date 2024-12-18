@@ -45,7 +45,7 @@ stages:
           - git init
           - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
           - GIT_NAME=aoshiguchen
-          - GIT_USERNAME=1052045476@qq.com
+          - GIT_USERNAME=asgc
           - GIT_EMAIL=aoshiguchen@dromara.org
           - GIT_TOKEN=9ea8d4a34d8ea940ccf497ed1c24c69f
           - echo "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPO_URL#https://}" > ~/.git-credentials
