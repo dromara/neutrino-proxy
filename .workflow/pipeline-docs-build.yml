@@ -41,6 +41,9 @@ stages:
           - rm -rf docs/.vuepress/distTemp
           - ''
           - '# 将构建产物推送到目标分支'
+          - echo 'hello1111'
+          - echo $mytoken
+          - echo ${mytoken}
           - cd docs/.vuepress/dist
           - git init
           - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
@@ -60,7 +63,7 @@ stages:
         artifacts:
           - name: BUILD_ARTIFACT
             path:
-              - ./docs/.vuepress/dist
+              - ./neutrino-proxy-vuepress/docs/.vuepress/dist
         caches:
           - ~/.npm
           - ~/.yarn
