@@ -48,16 +48,14 @@ stages:
           - rm -rf docs/.vuepress/distTemp
           - ''
           - '# 将构建产物推送到目标分支'
-          - echo 'hello1111'
-          - echo $mytoken
-          - echo ${mytoken}
+          - echo $GITEE_COMMIT_MESSAGE
           - cd docs/.vuepress/dist
           - git init
           - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
-          - GIT_NAME=aoshiguchen
-          - GIT_USERNAME=asgc
-          - GIT_EMAIL=aoshiguchen@dromara.org
-          - GIT_TOKEN=9ea8d4a34d8ea940ccf497ed1c24c69f
+          - GIT_USERNAME=$username
+          - GIT_NAME=$commit_name
+          - GIT_EMAIL=$commit_email
+          - GIT_TOKEN=$git_token
           - echo "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPO_URL#https://}" > ~/.git-credentials
           - git config --global credential.helper store
           - git remote add origin ${GIT_REPO_URL}
