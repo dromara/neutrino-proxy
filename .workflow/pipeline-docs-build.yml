@@ -10,6 +10,13 @@ triggers:
     paths:
       include:
         - neutrino-proxy-vuepress.*
+variables:
+  global:
+    - git_token
+    - username
+  commit_name: aoshiguchen
+  commit_email: aoshiguchen@dromara.org
+  repo_url: https://gitee.com/dromara/neutrino-proxy.git
 stages:
   - name: stage-build
     displayName: 构建
