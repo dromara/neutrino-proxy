@@ -8,8 +8,8 @@ triggers:
       precise:
         - dev
     paths:
-      precise:
-        - neutrino-proxy-vuepress
+      include:
+        - ^neutrino-proxy-vuepress.*
 stages:
   - name: stage-build
     displayName: 构建
