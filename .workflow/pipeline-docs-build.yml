@@ -6,7 +6,7 @@ triggers:
   push:
     branches:
       precise:
-        - dev
+        - master
     paths:
       include:
         - neutrino-proxy-vuepress.*
