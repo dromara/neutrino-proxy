@@ -43,9 +43,15 @@ stages:
           - '# 将构建产物推送到目标分支'
           - cd docs/.vuepress/dist
           - git init
-          - git remote add origin https://9ea8d4a34d8ea940ccf497ed1c24c69f@gitee.com/dromara/neutrino-proxy.git
-          - git config user.name aoshiguchen
-          - git config user.email aoshiguchen@dromara.org
+          - GIT_REPO_URL=https://gitee.com/dromara/neutrino-proxy.git
+          - GIT_USERNAME=$username
+          - GIT_EMAIL=$email
+          - GIT_TOKEN=$mytoken
+          - echo "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_REPO_URL#https://}" > ~/.git-credentials
+          - git config --global credential.helper store
+          - git remote add origin ${GIT_REPO_URL}
+          - git config user.name ${GIT_USERNAME}
+          - git config user.email ${GIT_EMAIL}
           - git add -A
           - git commit -m "update"
           - git checkout -b tmp/test1
