@@ -17,7 +17,7 @@ variables:
   commit_name: aoshiguchen
   commit_email: aoshiguchen@dromara.org
   repo_url: https://gitee.com/dromara/neutrino-proxy.git
-  target_branch: tmp/test1
+  target_branch: site
 stages:
   - name: stage-build
     displayName: 构建
@@ -49,8 +49,6 @@ stages:
           - rm -rf docs/.vuepress/distTemp
           - ''
           - '# 初始化git仓库'
-          - echo '提交信息...'
-          - echo $GITEE_COMMIT_MESSAGE
           - cd docs/.vuepress/dist
           - git init
           - ''
@@ -68,7 +66,7 @@ stages:
           - ''
           - '# 将构建产物推送到目标分支'
           - git add -A
-          - git commit -m "update"
+          - git commit -m $GITEE_COMMIT_MESSAGE
           - git checkout -b $target_branch
           - git push -f origin $target_branch
         artifacts:
