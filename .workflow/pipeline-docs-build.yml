@@ -9,7 +9,7 @@ triggers:
         - dev
     paths:
       include:
-        - ^neutrino-proxy-vuepress.*
+        - neutrino-proxy-vuepress.*
 stages:
   - name: stage-build
     displayName: 构建
