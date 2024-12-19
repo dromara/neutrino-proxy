@@ -58,7 +58,8 @@ stages:
           - ''
           - '# 将构建产物推送到目标分支'
           - git add -A
-          - git commit -m $GITEE_COMMIT_MESSAGE
+          - '# git commit -m $GITEE_COMMIT_MESSAGE'
+          - git commit -m "update"
           - git checkout -b $target_branch
           - git push -f origin $target_branch
         artifacts:
