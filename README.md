@@ -17,8 +17,6 @@
 - 技术栈：Solon、MybatisPlus、Netty
 - 遵循MIT许可，因此您可以对它进行复制、修改、传播并用于任何个人或商业行为。
 - 官网地址1：https://neutrino-proxy.dromara.org
-- ~~官网地址2：https://dromara.gitee.io/neutrino-proxy~~
-- ~~官网地址3：https://neutrino-proxy-docs.asgc.fun~~
 - 快速上手请[点击这里](https://neutrino-proxy.dromara.org/neutrino-proxy/pages/793dcb/)
 
 # 2、名称由来
@@ -28,23 +26,30 @@
 
 因此以中微子命名，寓意着中微子代理拥有中微子"安全"、"快速"、"穿透力强"的特点。
 
-# 3、运行示例
+# 3、部署方式
+- 1、[使用宝塔面板](https://neutrino-proxy.dromara.org/pages/9e0fde/)
+- 2、[使用jar文件](https://neutrino-proxy.dromara.org/pages/eebea1/)
+- 3、[使用Docker](https://neutrino-proxy.dromara.org/pages/5b9bef/)
+- 4、[原生部署](https://neutrino-proxy.dromara.org/pages/69699a/)
+- 5、[使用Docker-Compose](https://neutrino-proxy.dromara.org/pages/2d4123/)
+
+# 4、运行示例
 ![首页](assets/run-example/home.png)
 ![用户管理](assets/run-example/user-manager1.png)
 ![端口池管理](assets/run-example/port-pool1.png)
 ![License管理](assets/run-example/license1.png)
 ![端口映射管理](assets/run-example/port-mapping1.png)
 
-# 4、代理示意图
+# 5、代理示意图
 ![代理流程](assets/design/neutrino-proxy-process.jpg)
 
-# 5、联系我们
+# 6、联系我们
 - 微信: yuyunshize
 - GitCode：https://gitcode.com/dromara/neutrino-proxy
 - Gitee: https://gitee.com/asgc/neutrino-proxy
 - Github仓库：https://github.com/dromara/neutrino-proxy
 
-# 6、贡献者列表
+# 7、贡献者列表
 <p>
 <a href="https://gitee.com/zcans" target="_blank">
 <img src="assets/developer/zcans.png" width="11%">
