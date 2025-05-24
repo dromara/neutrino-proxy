@@ -13,7 +13,7 @@ jobs:
       matrix:
         # see: https://docs.github.com/zh/actions/using-jobs/choosing-the-runner-for-a-job
         # os: ['ubuntu-20.04', 'macos-12']
-        os: ['ubuntu-24.04']
+        os: ['ubuntu-22.04']
     name: build - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     # https://github.com/softprops/action-gh-release/issues/236#issuecomment-1150530128
