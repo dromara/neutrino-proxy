@@ -1,10 +1,13 @@
 package org.dromara.neutrinoproxy.server.proxy.security;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.dromara.neutrinoproxy.core.Constants;
 import org.dromara.neutrinoproxy.core.util.HttpUtil;
 import org.dromara.neutrinoproxy.core.util.IpUtil;
@@ -28,18 +31,35 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
      */
     private Boolean isHttps;
 
+    // 拼接收到的 ByteBuf 内容
+    private ByteBuf cumulationBuf = Unpooled.buffer();
+//    private boolean initialized = false;
+
     public HttpVisitorSecurityChannelHandler(Boolean isHttps) {
         this.isHttps = isHttps;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//        if (initialized) {
+//            // 已经初始化，直接透传
+//            ctx.fireChannelRead(msg);
+//            return;
+//        }
+
+        // 累加数据包
         ByteBuf buf = (ByteBuf) msg;
+        cumulationBuf.writeBytes(buf);
+
+        String dataStr = cumulationBuf.toString(CharsetUtil.UTF_8);
+        int headerEndIndex = dataStr.indexOf("\r\n\r\n");
+        if (-1 == headerEndIndex) {
+            // 请求头还没读完，继续等
+            return;
+        }
 
         // 获取Host请求头
-        byte[] bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
-        String httpContent = new String(bytes);
-        String host = HttpUtil.getHostIgnorePort(httpContent); //test1.asgc.fun
+        String headerPart = dataStr.substring(0, headerEndIndex + 4);
+        String host = HttpUtil.getHostIgnorePort(headerPart); //test1.asgc.fun
 
         log.debug("HttpProxy host: {}", host);
         if (StringUtils.isBlank(host)) {
@@ -68,7 +88,7 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             }
 
             // 判断IP是否在该端口绑定的安全组允许的规则内
-            String ip = IpUtil.getRealRemoteIp(httpContent);
+            String ip = IpUtil.getRealRemoteIp(headerPart);
             if (ip == null) {
                 ip = IpUtil.getRemoteIp(ctx);
             }
@@ -82,9 +102,11 @@ public class HttpVisitorSecurityChannelHandler extends ChannelInboundHandlerAdap
             ctx.channel().attr(Constants.SERVER_PORT).set(serverPort);
         }
 
-        // 继续传播
-        buf.resetReaderIndex();
-        ctx.fireChannelRead(buf);
-    }
+        // 从此之后所有的 in 都是“直接透传”。
+        // 否则，若请求体过长，数据包被拆分为多个，后续的数据包都无法解析出host，导致转发数据不完整。
+        ctx.pipeline().remove(this);
 
+        // 继续传播
+        ctx.fireChannelRead(cumulationBuf);
+    }
 }
