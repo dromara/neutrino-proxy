@@ -84,7 +84,7 @@ jobs:
         filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native.zip
     # 上传构建产物
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: neutrino-proxy-server-client-${{ env.OS }}-${{ env.VERSION }}
         path: |
