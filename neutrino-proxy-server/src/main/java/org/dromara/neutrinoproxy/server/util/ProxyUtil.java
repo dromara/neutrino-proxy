@@ -414,9 +414,9 @@ public class ProxyUtil {
      * 通过完整域名获取域名
      */
     public static String getDomainNameByFullDomain(String fullDomain) {
-        List<String> domains = domainToDomainNameIdMap.keySet().stream().filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
+        List<String> domains = domainToDomainNameIdMap.keySet().stream().sorted((a,b) -> b.length() - a.length()).filter(item -> fullDomain.endsWith(item)).collect(Collectors.toList());
         // 不存在 或者 有多条记录，返回null
-        if (CollectionUtil.isEmpty(domains) || domains.size() > 1) {
+        if (CollectionUtil.isEmpty(domains)) {
             return null;
         }
         return domains.getFirst();
