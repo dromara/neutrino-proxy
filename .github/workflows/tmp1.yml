@@ -1,4 +1,4 @@
-name: Build linux and mac native image
+name: tmp1
 
 on:
   workflow_dispatch:
