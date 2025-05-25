@@ -1,0 +1,110 @@
+name: t1
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-latest']  # 保留现有平台
+    name: build - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup node v13.12.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 13.12.0
+
+      - name: build neutrino-proxy-admin
+        run: |
+          cd neutrino-proxy-admin
+          npm install
+          npm run build:docker
+          cp -rf ./dist/ ./../neutrino-proxy-server/src/main/resources/static/
+
+      - name: Set vars
+        shell: bash
+        run: |
+          OS=$(echo '${{ runner.os }}' | awk '{print tolower($0)}')
+          [[ $OS == 'ubuntu' ]] && echo "OS=linux" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+          [[ $OS == 'macos' ]] && echo "OS=darwin" >> $GITHUB_ENV || echo "OS=$OS" >> $GITHUB_ENV
+          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      # ✅ 使用 CentOS 7 docker 容器构建 native image
+      - name: Build native images in CentOS 7 container
+        run: |
+          docker run --rm -v $PWD:/workspace -w /workspace \
+            centos:7 bash -c "
+              yum -y groupinstall 'Development Tools' &&
+              yum -y install java-21-openjdk-devel wget unzip gcc zlib-devel glibc-devel
+          
+              wget https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-21.0.1/graalvm-community-jdk-21.0.1_linux-x64_bin.tar.gz &&
+              tar -xzf graalvm-community-jdk-21.0.1_linux-x64_bin.tar.gz &&
+              export GRAALVM_HOME=\$PWD/graalvm-community-openjdk-21.0.1 &&
+              export PATH=\$GRAALVM_HOME/bin:\$PATH &&
+              \$GRAALVM_HOME/bin/gu install native-image
+          
+              cd neutrino-proxy-core && mvn install -DskipTests --no-transfer-progress && cd ..
+          
+              cd neutrino-proxy-server &&
+              mvn clean native:compile -P native --file pom.xml --no-transfer-progress &&
+              chmod +x target/neutrino-proxy-server &&
+              mkdir ../neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native &&
+              cp target/neutrino-proxy-server ../neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native/neutrino-proxy-server &&
+              cp target/classes/app-copy.yml ../neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native/app.yml &&
+              cd ..
+          
+              cd neutrino-proxy-client &&
+              mvn clean package --file pom.xml --no-transfer-progress &&
+              mvn clean native:compile -P native --file pom.xml --no-transfer-progress &&
+              chmod +x target/neutrino-proxy-client &&
+              mkdir ../neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native &&
+              cp target/neutrino-proxy-client ../neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native/neutrino-proxy-client &&
+              cp target/classes/app-copy.yml ../neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native/app.yml
+            "
+
+      - name: Archive zip (neutrino-proxy-server)
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          path: 'neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native'
+          filename: neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native.zip
+
+      - name: Archive zip (neutrino-proxy-client)
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          path: 'neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native'
+          filename: neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: neutrino-proxy-server-client-${{ env.OS }}-${{ env.VERSION }}
+          path: |
+            neutrino-proxy-server/target/neutrino-proxy-server.jar
+            neutrino-proxy-client/target/neutrino-proxy-client.jar
+            neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native.zip
+            neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native.zip
+          retention-days: 5
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            neutrino-proxy-server/target/neutrino-proxy-server.jar
+            neutrino-proxy-client/target/neutrino-proxy-client.jar
+            neutrino-proxy-server-${{ env.OS }}-${{ env.VERSION }}-native.zip
+            neutrino-proxy-client-${{ env.OS }}-${{ env.VERSION }}-native.zip
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
