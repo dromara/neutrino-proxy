@@ -51,9 +51,18 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.domainName')" width="190">
         <template slot-scope="scope">
-          <div v-for="(domain, index) in scope.row.allFullDomainList" :key="index">
-            <span>{{ domain }}</span>
-          </div>
+          <el-dropdown v-if="scope.row.allFullDomainList" @command="handleCopy">
+            <span class="el-dropdown-link">
+              {{ scope.row.allFullDomainList[0] }}<i v-if="scope.row.allFullDomainList.length > 1" class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="(domain, index) in scope.row.allFullDomainList" :command="domain">{{ domain }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+          <div v-if="!scope.row.allFullDomainList">-</div>
+<!--          <div  v-if="scope.row.allFullDomainList" v-for="(domain, index) in scope.row.allFullDomainList" :key="index">-->
+<!--            <span>{{ domain }}</span>-->
+<!--          </div>-->
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.serverPort')" width="80">
@@ -428,6 +437,13 @@ export default {
     this.getAvailableDomainList()
   },
   methods: {
+    handleCopy(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.$message.success('复制成功')
+      }).catch(() => {
+        this.$message.error('复制失败')
+      })
+    },
     // 添加新的域名映射
     addDomainMapping() {
       let defaultDomainId = this.domainList[0].id
