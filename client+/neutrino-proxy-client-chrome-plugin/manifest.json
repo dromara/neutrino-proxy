@@ -1,0 +1,45 @@
+{
+  "manifest_version": 2,
+  "name": "中微子代理客户端",
+  "description": "中微子代理客户端，方便本地开发调试，一键连接服务端，开启穿透之旅。",
+  "version": "1.0",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "management",
+    "cookies",
+    "tabs",
+    "notifications",
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation",
+    "nativeMessaging",
+    "http://*/*",
+    "https://*/*",
+    "<all_urls>"
+
+  ],
+  "icons": {
+    "48":  "assets/logo.png",
+    "128":  "assets/logo.png"
+  },
+  "browser_action": {
+    "default_icon": "assets/logo.png",
+    "default_popup": "src/popup/popup.html"
+  },
+  "background": {
+    "persistent": true,
+    "scripts": ["lib/jquery/jquery-2.2.3.min.js",
+                "lib/axios/axios.js",
+                "lib/drag/drag.js",
+                "lib/asgc/asgc.js",
+                "src/base/init.js",
+                "src/base/util.js",
+                "src/background/background.js"
+                ]
+  },
+  "web_accessible_resources":[
+    "manifest.json",
+    "assets/*"
+  ]
+}
